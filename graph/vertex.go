@@ -2,42 +2,52 @@ package caudex
 
 // Vertex .
 type Vertex struct {
-	id    string
+	ID    string
 	edges []Edge
 	Value *interface{}
 	Label string
 }
 
 // AddDirectedEdge links two vertex's and returns the edge
-func AddDirectedEdge(from *Vertex, to *Vertex) Edge {
+func AddDirectedEdge(from *Vertex, to *Vertex) *Edge {
 	e := edge{}
 	edge := Edge{from: from, to: to, edge: &e}
 	from.edges = append(from.edges, edge)
-	e.Edges = append(e.Edges, &edge)
-	return edge
+	return &edge
 }
 
 // AddEdge links two vertex's and returns the edge
-func AddEdge(from *Vertex, to *Vertex) Edge {
+func AddEdge(from *Vertex, to *Vertex) *Edge {
 	e := edge{}
 	edge := Edge{from: from, to: to, edge: &e}
 	from.edges = append(from.edges, edge)
-	e.Parents = append(e.Parents, &edge)
 
 	edge2 := Edge{from: to, to: from, edge: &e}
 	to.edges = append(to.edges, edge2)
-	e.Parents = append(e.Parents, &edge2)
-	return edge
+	return &edge
 }
 
 // RemoveEdge remove a edge
-func RemoveEdge(e *Edge) {
-	length := len(e.edge.Parents)
+func RemoveEdge(from *Vertex, to *Vertex) {
+	fromEdges := from.edges
+	toEdges := to.edges
 
-	for index := 0; index < length; index++ {
-		var edge = e.edge.Parents[index]
-
-		//a = append(a[:i], a[i+1:]...)
-		//edge.from.edges
+	for e := range fromEdges {
+		if fromEdges[e].to == to {
+			remove(e, &fromEdges)
+			break
+		}
 	}
+
+	for e := range toEdges {
+		if toEdges[e].to == to {
+			remove(e, &toEdges)
+			break
+		}
+	}
+}
+
+func remove(remove int, edges *[]Edge) {
+	(*edges)[remove], (*edges)[len(*edges)-1] = (*edges)[len(*edges)-1], (*edges)[remove]
+	*edges = (*edges)[:len(*edges)-1]
 }

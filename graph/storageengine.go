@@ -51,9 +51,13 @@ func Query(g *Graph, cypher string) string {
 }
 
 // CreateVertex creates a vetex and returns the new vertex.
-func CreateVertex(g *Graph) Vertex {
+func CreateVertex(g *Graph) *Vertex {
 	u1 := uuid.NewV4()
-	vertex := Vertex{id: u1.String()}
+	vertex := Vertex{ID: u1.String()}
 	g.vertexs = append(g.vertexs, vertex)
-	return vertex
+	return &vertex
+}
+
+func RemoveVertex(g *Graph, v *Vertex) {
+
 }

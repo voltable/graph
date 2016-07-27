@@ -8,9 +8,8 @@ type Edge struct {
 }
 
 type edge struct {
-	Weight  float32
-	Label   string
-	Parents []*Edge
+	Weight float32
+	Label  string
 }
 
 func Weight(e Edge) float32 {
