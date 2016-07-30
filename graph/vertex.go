@@ -17,30 +17,30 @@ func AddDirectedEdge(from *Vertex, to *Vertex) *Edge {
 }
 
 // AddEdge links two vertex's and returns the edge
-func AddEdge(from *Vertex, to *Vertex) *Edge {
+func AddEdge(from *Vertex, to *Vertex) (*Edge, *Edge) {
 	e := edge{}
 	edge := Edge{from: from, to: to, edge: &e}
 	from.edges = append(from.edges, edge)
 
 	edge2 := Edge{from: to, to: from, edge: &e}
 	to.edges = append(to.edges, edge2)
-	return &edge
+	return &edge, &edge2
 }
 
 // RemoveEdge remove a edge
-func RemoveEdge(from *Vertex, to *Vertex) {
+func RemoveEdge(from *Vertex, to *Vertex, label string) {
 	fromEdges := from.edges
 	toEdges := to.edges
 
 	for e := range fromEdges {
-		if fromEdges[e].to == to {
+		if fromEdges[e].to == to && fromEdges[e].edge.Label == label {
 			remove(e, &fromEdges)
 			break
 		}
 	}
 
 	for e := range toEdges {
-		if toEdges[e].to == to {
+		if toEdges[e].to == to && toEdges[e].edge.Label == label {
 			remove(e, &toEdges)
 			break
 		}
