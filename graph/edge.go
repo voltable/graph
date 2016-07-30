@@ -12,14 +12,14 @@ type edge struct {
 	Label  string
 }
 
-func Weight(e Edge) float32 {
+func (e *Edge) Weight() float32 {
 	return e.edge.Weight
 }
 
-func SetWeight(e Edge, weight float32) {
+func (e *Edge) SetWeight(weight float32) {
 	e.edge.Weight = weight
 }
 
-func Label(e Edge) string {
+func (e *Edge) Label() string {
 	return e.edge.Label
 }

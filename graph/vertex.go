@@ -9,7 +9,7 @@ type Vertex struct {
 }
 
 // AddDirectedEdge links two vertex's and returns the edge
-func AddDirectedEdge(from *Vertex, to *Vertex) *Edge {
+func (from *Vertex) AddDirectedEdge(to *Vertex) *Edge {
 	e := edge{}
 	edge := Edge{from: from, to: to, edge: &e}
 	from.edges = append(from.edges, edge)
@@ -17,7 +17,7 @@ func AddDirectedEdge(from *Vertex, to *Vertex) *Edge {
 }
 
 // AddEdge links two vertex's and returns the edge
-func AddEdge(from *Vertex, to *Vertex) (*Edge, *Edge) {
+func (from *Vertex) AddEdge(to *Vertex) (*Edge, *Edge) {
 	e := edge{}
 	edge := Edge{from: from, to: to, edge: &e}
 	from.edges = append(from.edges, edge)
@@ -28,7 +28,7 @@ func AddEdge(from *Vertex, to *Vertex) (*Edge, *Edge) {
 }
 
 // RemoveEdge remove a edge
-func RemoveEdge(from *Vertex, to *Vertex, label string) {
+func (from *Vertex) RemoveEdge(to *Vertex, label string) {
 	fromEdges := from.edges
 	toEdges := to.edges
 

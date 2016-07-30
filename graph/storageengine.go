@@ -40,24 +40,26 @@ func Open(o *Options) *Graph {
 }
 
 // Close graph
-func Close(g *Graph) {
+func (g *Graph) Close() {
 	defer g.db.Close()
 }
 
 // Query over the graph using the cypher query language returns JSON
-func Query(g *Graph, cypher string) string {
+func (g *Graph) Query(cypher string) string {
 	parse(cypher)
 	return "test"
 }
 
 // CreateVertex creates a vetex and returns the new vertex.
-func CreateVertex(g *Graph) *Vertex {
+func (g *Graph) CreateVertex() *Vertex {
 	u1 := uuid.NewV4()
-	vertex := Vertex{ID: u1.String()}
+	vertex := Vertex{ID: u1.String(), Value: new(interface{})}
 	g.vertexs = append(g.vertexs, vertex)
 	return &vertex
 }
 
-func RemoveVertex(g *Graph, v *Vertex) {
-
+func (g *Graph) RemoveVertex(v *Vertex) {
+	if v == nil {
+		return
+	}
 }
