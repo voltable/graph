@@ -19,7 +19,7 @@ type Graph struct {
 	Options *Options
 	opend   bool
 	ready   bool
-	vertexs []Vertex
+	vertexs map[string]Vertex
 }
 
 // Open graph
@@ -54,7 +54,7 @@ func (g *Graph) Query(cypher string) string {
 func (g *Graph) CreateVertex() *Vertex {
 	u1 := uuid.NewV4()
 	vertex := Vertex{ID: u1.String(), Value: new(interface{})}
-	g.vertexs = append(g.vertexs, vertex)
+	g.vertexs[u1.String()] = vertex
 	return &vertex
 }
 
@@ -62,4 +62,6 @@ func (g *Graph) RemoveVertex(v *Vertex) {
 	if v == nil {
 		return
 	}
+
+	delete(g.vertexs, v.ID)
 }

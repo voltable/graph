@@ -5,7 +5,11 @@ type Vertex struct {
 	ID    string
 	edges []Edge
 	Value *interface{}
-	Label string
+	label string
+}
+
+func (v *Vertex) Label() string {
+	return v.label
 }
 
 // AddDirectedEdge links two vertex's and returns the edge
