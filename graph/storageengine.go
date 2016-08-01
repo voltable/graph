@@ -63,5 +63,18 @@ func (g *Graph) RemoveVertex(v *Vertex) {
 		return
 	}
 
+	if len(v.edges) > 0 {
+		for _, edge := range v.edges {
+			for i, otherEdge := range edge.to.edges {
+				if otherEdge.edge == edge.edge {
+					var t = copy(edge.to.edges[i:], edge.to.edges[i+1:])
+					//edge.to.edges = t
+					//otherEdge.edge = append(otherEdge.edge[0], otherEdge.edge[1])
+					break
+				}
+			}
+		}
+	}
+
 	delete(g.vertexs, v.ID)
 }
