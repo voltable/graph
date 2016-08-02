@@ -8,32 +8,37 @@ type Vertex struct {
 	label string
 }
 
+// Label vertex label type
 func (v *Vertex) Label() string {
 	return v.label
 }
 
 // AddDirectedEdge links two vertex's and returns the edge
-func (from *Vertex) AddDirectedEdge(to *Vertex) *Edge {
+func (v *Vertex) AddDirectedEdge(to *Vertex) *Edge {
 	e := edge{}
-	edge := Edge{from: from, to: to, edge: &e}
-	from.edges = append(from.edges, edge)
+	edge := Edge{from: v, to: to, edge: &e}
+	v.edges = append(v.edges, edge)
 	return &edge
 }
 
 // AddEdge links two vertex's and returns the edge
-func (from *Vertex) AddEdge(to *Vertex) (*Edge, *Edge) {
+func (v *Vertex) AddEdge(to *Vertex) (*Edge, *Edge) {
 	e := edge{}
-	edge := Edge{from: from, to: to, edge: &e}
-	from.edges = append(from.edges, edge)
+	edge := Edge{from: v, to: to, edge: &e}
+	v.edges = append(v.edges, edge)
 
-	edge2 := Edge{from: to, to: from, edge: &e}
+	edge2 := Edge{from: to, to: v, edge: &e}
 	to.edges = append(to.edges, edge2)
 	return &edge, &edge2
 }
 
 // RemoveEdge remove a edge
-func (from *Vertex) RemoveEdge(to *Vertex, label string) {
-	fromEdges := from.edges
+func (v *Vertex) RemoveEdge(to *Vertex, label string) {
+	if to == nil {
+		return
+	}
+
+	fromEdges := v.edges
 	toEdges := to.edges
 
 	for e := range fromEdges {

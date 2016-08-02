@@ -58,6 +58,7 @@ func (g *Graph) CreateVertex() *Vertex {
 	return &vertex
 }
 
+// RemoveVertex remvoes the vertex from the graph with any edges linking it
 func (g *Graph) RemoveVertex(v *Vertex) {
 	if v == nil {
 		return
@@ -67,9 +68,8 @@ func (g *Graph) RemoveVertex(v *Vertex) {
 		for _, edge := range v.edges {
 			for i, otherEdge := range edge.to.edges {
 				if otherEdge.edge == edge.edge {
-					var t = copy(edge.to.edges[i:], edge.to.edges[i+1:])
-					//edge.to.edges = t
-					//otherEdge.edge = append(otherEdge.edge[0], otherEdge.edge[1])
+					c := make([]Edge, len(edge.to.edges)-1)
+					edge.to.edges = append(append(c, edge.to.edges[:i]...), edge.to.edges[i+1:]...)
 					break
 				}
 			}
