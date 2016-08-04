@@ -16,7 +16,7 @@ func (v *Vertex) Label() string {
 // AddDirectedEdge links two vertex's and returns the edge
 func (v *Vertex) AddDirectedEdge(to *Vertex) *Edge {
 	e := edge{}
-	edge := Edge{from: v, to: to, edge: &e}
+	edge := Edge{from: v, to: to, edge: &e, isDirected: Directed}
 	v.edges = append(v.edges, edge)
 	return &edge
 }
@@ -24,10 +24,10 @@ func (v *Vertex) AddDirectedEdge(to *Vertex) *Edge {
 // AddEdge links two vertex's and returns the edge
 func (v *Vertex) AddEdge(to *Vertex) (*Edge, *Edge) {
 	e := edge{}
-	edge := Edge{from: v, to: to, edge: &e}
+	edge := Edge{from: v, to: to, edge: &e, isDirected: Undirected}
 	v.edges = append(v.edges, edge)
 
-	edge2 := Edge{from: to, to: v, edge: &e}
+	edge2 := Edge{from: to, to: v, edge: &e, isDirected: Undirected}
 	to.edges = append(to.edges, edge2)
 	return &edge, &edge2
 }
@@ -38,25 +38,21 @@ func (v *Vertex) RemoveEdge(to *Vertex, label string) {
 		return
 	}
 
-	fromEdges := v.edges
-	toEdges := to.edges
+	var isDirected = v.remove(label)
 
-	for e := range fromEdges {
-		if fromEdges[e].to == to && fromEdges[e].edge.Label == label {
-			remove(e, &fromEdges)
-			break
-		}
-	}
-
-	for e := range toEdges {
-		if toEdges[e].to == to && toEdges[e].edge.Label == label {
-			remove(e, &toEdges)
-			break
-		}
+	if isDirected == Undirected {
+		to.remove(label)
 	}
 }
 
-func remove(remove int, edges *[]Edge) {
-	(*edges)[remove], (*edges)[len(*edges)-1] = (*edges)[len(*edges)-1], (*edges)[remove]
-	*edges = (*edges)[:len(*edges)-1]
+func (v *Vertex) remove(label string) int {
+	for y, edge := range v.edges {
+		if edge.Label() == label {
+			if edge.to == v {
+				c := make([]Edge, len(v.edges)-1)
+				v.edges = append(append(c, v.edges[:y]...), v.edges[y+1:]...)
+				return edge.isDirected
+			}
+		}
+	}
 }

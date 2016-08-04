@@ -1,10 +1,16 @@
 package caudex
 
+const (
+	Directed   = iota
+	Undirected = iota
+)
+
 // An Edge connects two Vertex in a graph.
 type Edge struct {
-	from *Vertex
-	to   *Vertex
-	edge *edge
+	from       *Vertex
+	to         *Vertex
+	edge       *edge
+	isDirected int
 }
 
 type edge struct {

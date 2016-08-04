@@ -33,6 +33,15 @@ func Open(o *Options) *Graph {
 		log.Fatal(err)
 	}
 
+	// create the bucket to hold the Adjacency list.
+	db.Update(func(tx *bolt.Tx) error {
+		b, err := tx.CreateBucketIfNotExists([]byte("graph"))
+		if err != nil {
+			log.Fatal(err)
+		}
+		return nil
+	})
+
 	st.ready = true
 	st.db = db
 
@@ -48,6 +57,14 @@ func (g *Graph) Close() {
 func (g *Graph) Query(cypher string) string {
 	parse(cypher)
 	return "test"
+}
+
+// Update
+func (g *Graph) Update(fn func(*Graph) error) error {
+
+	err := fn(g)
+
+	return err
 }
 
 // CreateVertex creates a vetex and returns the new vertex.
