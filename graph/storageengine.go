@@ -3,6 +3,7 @@ package caudex
 import (
 	"encoding/json"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/boltdb/bolt"
@@ -27,9 +28,10 @@ type Graph struct {
 	opend   bool
 	ready   bool
 
+	add          map[string]Vertex
 	change       map[string]Vertex
 	delete       map[string]Vertex
-	labelIndexes map[string]string
+	labelIndexes map[string]uint64
 }
 
 type GraphOperation struct {
@@ -62,7 +64,12 @@ func Open(o *Options) *Graph {
 		// Loads up the types of label indexs, but not the actual indexes themself
 		b.ForEach(func(k, v []byte) error {
 			s := string(k)
-			st.labelIndexes[s] = s
+			value := string(v)
+			size, err := strconv.ParseUint(value, 10, 64)
+			if err != nil {
+				log.Fatal(err)
+			}
+			st.labelIndexes[s] = size
 			return nil
 		})
 		return nil
@@ -89,9 +96,15 @@ func (g *Graph) Query(cypher string) string {
 func (g *Graph) Update(fn func(*GraphOperation) error) error {
 	op := GraphOperation{db: g}
 	err := fn(&op)
+	labelIndexCountChange := make(map[string]uint64)
 
 	g.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketGraph))
+
+		for _, vertex := range g.add {
+			buf, err := json.Marshal(vertex)
+			b.Put([]byte(vertex.ID), buf)
+		}
 
 		for _, vertex := range g.change {
 			buf, err := json.Marshal(vertex)
@@ -108,16 +121,25 @@ func (g *Graph) Update(fn func(*GraphOperation) error) error {
 	return err
 }
 
+func updateAddCount(m map[string]uint64, v *Vertex) {
+	for key, value := range m {
+		if v.label == key {
+			m[key] = value + 1
+			break
+		}
+	}
+}
+
 // CreateVertex creates a vetex and returns the new vertex.
 func (g *GraphOperation) CreateVertex() (*VertexOperation, *Vertex) {
 	u1 := uuid.NewV4()
 	vertex := Vertex{ID: u1.String(), Value: new(interface{})}
-	g.db.change[u1.String()] = vertex
+	g.db.add[u1.String()] = vertex
 	op := VertexOperation{v: &vertex}
 	return &op, &vertex
 }
 
-// RemoveVertex remvoes the vertex from the graph with any edges linking it
+// RemoveVertex removes the vertex from the graph with any edges linking it
 func (g *GraphOperation) RemoveVertex(v *Vertex) {
 	if v == nil {
 		return
@@ -140,8 +162,8 @@ func (g *GraphOperation) RemoveVertex(v *Vertex) {
 func (g *Graph) updateLabelIndex(v *Vertex) {
 	found := false
 
-	for _, index := range g.labelIndexes {
-		if index == v.label {
+	for key, index := range g.labelIndexes {
+		if key == v.label {
 			found = true
 			break
 		}
@@ -149,7 +171,7 @@ func (g *Graph) updateLabelIndex(v *Vertex) {
 
 	if !found {
 		c := make([]string, len(g.labelIndexes)+1)
-		g.labelIndexes[v.label] = v.label
+		g.labelIndexes[v.label] = uint64(1)
 		g.db.Update(func(tx *bolt.Tx) error {
 			b, err := tx.CreateBucketIfNotExists([]byte(bucketLabel + "_" + v.label))
 			if err != nil {
