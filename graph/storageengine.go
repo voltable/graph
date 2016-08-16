@@ -1,11 +1,18 @@
 package caudex
 
 import (
+	"encoding/json"
 	"log"
 	"time"
 
 	"github.com/boltdb/bolt"
 	"github.com/satori/go.uuid"
+)
+
+const (
+	bucketGraph = "graph"
+	bucketLabel = "label"
+	bucketIndex = "index"
 )
 
 // Options for the graph
@@ -19,7 +26,14 @@ type Graph struct {
 	Options *Options
 	opend   bool
 	ready   bool
-	vertexs map[string]Vertex
+
+	change       map[string]Vertex
+	delete       map[string]Vertex
+	labelIndexes map[string]string
+}
+
+type GraphOperation struct {
+	db *Graph
 }
 
 // Open graph
@@ -35,10 +49,22 @@ func Open(o *Options) *Graph {
 
 	// create the bucket to hold the Adjacency list.
 	db.Update(func(tx *bolt.Tx) error {
-		b, err := tx.CreateBucketIfNotExists([]byte("graph"))
+		b, err := tx.CreateBucketIfNotExists([]byte(bucketGraph))
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		b, err = tx.CreateBucketIfNotExists([]byte(bucketIndex))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Loads up the types of label indexs, but not the actual indexes themself
+		b.ForEach(func(k, v []byte) error {
+			s := string(k)
+			st.labelIndexes[s] = s
+			return nil
+		})
 		return nil
 	})
 
@@ -60,23 +86,39 @@ func (g *Graph) Query(cypher string) string {
 }
 
 // Update
-func (g *Graph) Update(fn func(*Graph) error) error {
+func (g *Graph) Update(fn func(*GraphOperation) error) error {
+	op := GraphOperation{db: g}
+	err := fn(&op)
 
-	err := fn(g)
+	g.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(bucketGraph))
+
+		for _, vertex := range g.change {
+			buf, err := json.Marshal(vertex)
+			b.Put([]byte(vertex.ID), buf)
+		}
+
+		for _, vertex := range g.delete {
+			b.Delete([]byte(vertex.ID))
+		}
+
+		return err
+	})
 
 	return err
 }
 
 // CreateVertex creates a vetex and returns the new vertex.
-func (g *Graph) CreateVertex() *Vertex {
+func (g *GraphOperation) CreateVertex() (*VertexOperation, *Vertex) {
 	u1 := uuid.NewV4()
 	vertex := Vertex{ID: u1.String(), Value: new(interface{})}
-	g.vertexs[u1.String()] = vertex
-	return &vertex
+	g.db.change[u1.String()] = vertex
+	op := VertexOperation{v: &vertex}
+	return &op, &vertex
 }
 
 // RemoveVertex remvoes the vertex from the graph with any edges linking it
-func (g *Graph) RemoveVertex(v *Vertex) {
+func (g *GraphOperation) RemoveVertex(v *Vertex) {
 	if v == nil {
 		return
 	}
@@ -92,6 +134,33 @@ func (g *Graph) RemoveVertex(v *Vertex) {
 			}
 		}
 	}
+	g.db.delete[v.ID] = *v
+}
 
-	delete(g.vertexs, v.ID)
+func (g *Graph) updateLabelIndex(v *Vertex) {
+	found := false
+
+	for _, index := range g.labelIndexes {
+		if index == v.label {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		c := make([]string, len(g.labelIndexes)+1)
+		g.labelIndexes[v.label] = v.label
+		g.db.Update(func(tx *bolt.Tx) error {
+			b, err := tx.CreateBucketIfNotExists([]byte(bucketLabel + "_" + v.label))
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			b = tx.Bucket([]byte(bucketIndex))
+			// we store the number of vertex in the index
+			b.Put([]byte(v.label), []byte("1"))
+
+			return nil
+		})
+	}
 }
