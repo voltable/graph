@@ -1,16 +1,13 @@
-package caudex
+package graphs
 
-const (
-	Directed   = iota
-	Undirected = iota
-)
+import "bitbucket.org/rossmerr/caudex/graphs/internal"
 
 // An Edge connects two Vertex in a graph.
 type Edge struct {
 	from       *Vertex
 	to         *Vertex
 	edge       *edge
-	isDirected int
+	isDirected internal.Digraph
 }
 
 type edge struct {

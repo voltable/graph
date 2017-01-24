@@ -1,4 +1,4 @@
-package caudex
+package graphs
 
 import (
 	"testing"
