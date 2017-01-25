@@ -1,11 +1,12 @@
 package internal
 
-type State int
+type CRUD int
 
 const (
-	Add    State = iota
-	Change State = iota
-	Delete State = iota
+	Create CRUD = iota
+	Read   CRUD = iota
+	Update CRUD = iota
+	Delete CRUD = iota
 )
 
 // Digraph, represents the directed or undirected relationship on a Edge
