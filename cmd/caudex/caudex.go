@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bitbucket.org/rossmerr/caudex/graphs"
-	"bitbucket.org/rossmerr/caudex/graphs/boltdb"
+	"github.com/RossMerr/Caudex.Graph/graphs"
+	"github.com/RossMerr/Caudex.Graph/graphs/boltdb"
 )
 
 func main() {

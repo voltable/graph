@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
-	"bitbucket.org/rossmerr/caudex/graphs"
-	"bitbucket.org/rossmerr/caudex/graphs/boltdb/internal"
+	"github.com/RossMerr/Caudex.Graph/graphs"
+	"github.com/RossMerr/Caudex.Graph/graphs/boltdb/internal"
 	"github.com/Sirupsen/logrus"
 	"github.com/boltdb/bolt"
 )

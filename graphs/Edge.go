@@ -1,6 +1,6 @@
 package graphs
 
-import "bitbucket.org/rossmerr/caudex/graphs/internal"
+import "github.com/RossMerr/Caudex.Graph/graphs/internal"
 
 // An Edge connects two Vertex in a graph.
 type Edge struct {

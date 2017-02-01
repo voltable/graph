@@ -3,8 +3,8 @@ package boltdb
 import (
 	"os"
 
-	"bitbucket.org/rossmerr/caudex/graphs"
-	"bitbucket.org/rossmerr/caudex/query"
+	"github.com/RossMerr/Caudex.Graph/graphs"
+	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/Sirupsen/logrus"
 )
 
