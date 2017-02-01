@@ -1,4 +1,4 @@
-package caudex
+package query
 
 import (
 	"fmt"
@@ -24,7 +24,7 @@ const (
 	FOREACH = "FOREACH"
 )
 
-func parse(query string) {
+func Parse(query string) {
 	fmt.Println(query)
 	fragments := strings.Split(query, " ")
 	length := len(fragments)
@@ -45,5 +45,5 @@ func keyword(keyword string) {
 }
 
 func match() {
-    
+
 }
