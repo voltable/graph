@@ -46,17 +46,10 @@ func (g *GraphOperation) UpdateVertex(ID string, fn func(*Vertex) error) error {
 func (g *GraphOperation) DeleteVertex(ID string) error {
 
 	if v, err := g.DB.Find(ID); err != nil {
-		if len(v.edges) > 0 {
-			for _, edge := range v.edges {
-				for i, otherEdge := range edge.to.edges {
-					if otherEdge.edge == edge.edge {
-						c := make([]Edge, len(edge.to.edges)-1)
-						edge.to.edges = append(append(c, edge.to.edges[:i]...), edge.to.edges[i+1:]...)
-						break
-					}
-				}
-			}
+		for _, edge := range v.edges {
+			edge.removeTo()
 		}
+
 		arr := &[]Vertex{*v}
 		return g.DB.Delete(arr)
 	}

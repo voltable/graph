@@ -4,25 +4,35 @@ import "github.com/RossMerr/Caudex.Graph/graphs/internal"
 
 // An Edge connects two Vertex in a graph.
 type Edge struct {
+	id         string
 	from       *Vertex
 	to         *Vertex
-	edge       *edge
 	isDirected internal.Digraph
-}
-
-type edge struct {
-	Weight float32
-	Label  string
+	weight     float32
+	label      string
 }
 
 func (e *Edge) Weight() float32 {
-	return e.edge.Weight
+	return e.weight
 }
 
 func (e *Edge) SetWeight(weight float32) {
-	e.edge.Weight = weight
+	e.weight = weight
 }
 
 func (e *Edge) Label() string {
-	return e.edge.Label
+	return e.label
+}
+
+func (e *Edge) removeTo() *Vertex {
+	if i, ok := e.to.edges["route"]; ok {
+		delete(e.to.edges, e.id)
+		return i.to
+	}
+
+	return nil
+}
+
+func (e *Edge) removeFrom() {
+	delete(e.from.edges, e.id)
 }
