@@ -11,13 +11,24 @@ import (
 	"github.com/boltdb/bolt"
 )
 
-// Graph the underlying graph
-type Graph struct {
-	db      *bolt.DB
-	Options *graphs.Options
-}
+type (
 
-func CreateBolt(o *graphs.Options) *bolt.DB {
+	// Graph the underlying graph
+	Graph struct {
+		db      *bolt.DB
+		Options *graphs.Options
+	}
+
+	bucket string
+)
+
+const (
+	bucketGraph bucket = "graph"
+	bucketLabel bucket = "label"
+	bucketIndex bucket = "index"
+)
+
+func createBolt(o *graphs.Options) *bolt.DB {
 	var err error
 	var db *bolt.DB
 	var b *bolt.Bucket
@@ -30,11 +41,11 @@ func CreateBolt(o *graphs.Options) *bolt.DB {
 
 	// create the bucket to hold the Adjacency list.
 	db.Update(func(tx *bolt.Tx) error {
-		if b, err = tx.CreateBucketIfNotExists([]byte(BucketGraph)); err != nil {
+		if b, err = tx.CreateBucketIfNotExists([]byte(bucketGraph)); err != nil {
 			logrus.Panic(err)
 		}
 
-		if b, err = tx.CreateBucketIfNotExists([]byte(BucketIndex)); err != nil {
+		if b, err = tx.CreateBucketIfNotExists([]byte(bucketIndex)); err != nil {
 			logrus.Panic(err)
 		}
 
@@ -44,11 +55,12 @@ func CreateBolt(o *graphs.Options) *bolt.DB {
 	return db
 }
 
+// Create adds a array of vertices to the persistence
 func (g *Graph) Create(c *[]graphs.Vertex) error {
 	var err error
 	var buf []byte
 	return g.db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(BucketGraph))
+		b := tx.Bucket([]byte(bucketGraph))
 		for _, vertex := range *c {
 			if buf, err = json.Marshal(vertex); err != nil {
 				b.Put([]byte(vertex.ID), buf)
@@ -60,9 +72,10 @@ func (g *Graph) Create(c *[]graphs.Vertex) error {
 	})
 }
 
+// Delete the array of vertices from the persistence
 func (g *Graph) Delete(c *[]graphs.Vertex) error {
 	return g.db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(BucketGraph))
+		b := tx.Bucket([]byte(bucketGraph))
 		for _, vertex := range *c {
 			b.Delete([]byte(vertex.ID))
 		}
@@ -70,12 +83,13 @@ func (g *Graph) Delete(c *[]graphs.Vertex) error {
 	})
 }
 
+// Find a vertex from the persistence
 func (g *Graph) Find(ID string) (*graphs.Vertex, error) {
 	var err error
 	var buf []byte
 	var v graphs.Vertex
 	return &v, g.db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(BucketGraph))
+		b := tx.Bucket([]byte(bucketGraph))
 		buf = b.Get([]byte(ID))
 
 		if err = json.Unmarshal(buf, v); err == nil {
@@ -86,11 +100,12 @@ func (g *Graph) Find(ID string) (*graphs.Vertex, error) {
 	})
 }
 
+// Update the array of vertices from the persistence
 func (g *Graph) Update(c *[]graphs.Vertex) error {
 	var err error
 	var buf []byte
 	return g.db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(BucketGraph))
+		b := tx.Bucket([]byte(bucketGraph))
 		for _, vertex := range *c {
 			if buf, err = json.Marshal(vertex); err != nil {
 				b.Put([]byte(vertex.ID), buf)
@@ -104,7 +119,7 @@ func (g *Graph) Update(c *[]graphs.Vertex) error {
 
 // Open graph
 func Open(o *graphs.Options) graphs.Graph {
-	g := Graph{Options: o, db: CreateBolt(o)}
+	g := Graph{Options: o, db: createBolt(o)}
 	c := make(chan os.Signal, 1)
 	g.backgroundTask(c)
 	return &g
@@ -121,7 +136,7 @@ func (g *Graph) Query(cypher string) string {
 	return "test"
 }
 
-// Update
+// Command create a GraphOperation to apply changes to the graph
 func (g *Graph) Command(fn func(*graphs.GraphOperation) error) error {
 	op := &graphs.GraphOperation{DB: g}
 	return fn(op)
