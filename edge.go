@@ -1,13 +1,11 @@
 package graphs
 
-import "github.com/RossMerr/Caudex.Graph/graphs/internal"
-
 // An Edge connects two Vertex in a graph.
 type Edge struct {
 	id         string
 	from       *Vertex
 	to         *Vertex
-	isDirected internal.Digraph
+	isDirected Digraph
 	weight     float32
 	label      string
 }

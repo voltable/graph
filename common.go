@@ -1,4 +1,4 @@
-package internal
+package graphs
 
 type CRUD int
 

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/RossMerr/Caudex.Graph/graphs"
-	"github.com/RossMerr/Caudex.Graph/graphs/boltdb"
+	"github.com/RossMerr/Caudex.Graph"
+	"github.com/RossMerr/Caudex.Graph/persistences/boltdb"
 )
 
 func main() {

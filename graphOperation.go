@@ -10,8 +10,10 @@ type GraphOperation struct {
 	DB Persistence
 }
 
-var errVertexNotFound = errors.New("Vertex Not found")
-var errCreatVertex = errors.New("Failed to create Vertex")
+var (
+	errVertexNotFound = errors.New("Vertex Not found")
+	errCreatVertex    = errors.New("Failed to create Vertex")
+)
 
 // CreateVertex creates a vetex and returns the VertexOperation.
 func (g *GraphOperation) CreateVertex(i *interface{}) (*Vertex, error) {

@@ -1,7 +1,5 @@
 package graphs
 
-import "github.com/RossMerr/Caudex.Graph/graphs/internal"
-
 // Vertex .
 type Vertex struct {
 	ID    string
@@ -15,7 +13,7 @@ func (v *Vertex) Label() string {
 	return v.label
 }
 
-func (v *Vertex) remove(label string) internal.Digraph {
+func (v *Vertex) remove(label string) Digraph {
 	// for y, edge := range v.edges {
 	// 	if edge.Label() == label {
 	// 		if edge.to == v {
@@ -26,5 +24,5 @@ func (v *Vertex) remove(label string) internal.Digraph {
 	// 	}
 	// }
 
-	return internal.Undirected
+	return Undirected
 }
