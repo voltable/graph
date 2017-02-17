@@ -1,5 +1,6 @@
 package graphs
 
+// VertexOperation a CRUD operation to perform over a vertex
 type VertexOperation struct {
 	Vertex *Vertex
 }

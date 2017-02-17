@@ -1,5 +1,6 @@
 package graphs
 
+//Persistence structure for saving graph data
 type Persistence interface {
 	Create(*[]Vertex) error
 	Delete(*[]Vertex) error

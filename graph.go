@@ -1,6 +1,7 @@
 package graphs
 
 type (
+	// Graph structure consisting of vertices and edges
 	Graph interface {
 		Close()
 		Query(cypher string) string

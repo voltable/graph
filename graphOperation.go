@@ -6,6 +6,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// GraphOperation a CRUD operation to perform over a graph
 type GraphOperation struct {
 	DB Persistence
 }
@@ -26,6 +27,7 @@ func (g *GraphOperation) CreateVertex(i *interface{}) (*Vertex, error) {
 	return nil, errCreatVertex
 }
 
+// ReadVertex retrieves a give vertex
 func (g *GraphOperation) ReadVertex(ID string) (*Vertex, error) {
 
 	if v, err := g.DB.Find(ID); err != nil {
@@ -35,13 +37,15 @@ func (g *GraphOperation) ReadVertex(ID string) (*Vertex, error) {
 
 }
 
+// UpdateVertex retrieves a give vertex then lets you update it
 func (g *GraphOperation) UpdateVertex(ID string, fn func(*Vertex) error) error {
 
-	if v, err := g.DB.Find(ID); err != nil {
+	var v *Vertex
+	var err error
+	if v, err = g.DB.Find(ID); err != nil {
 		return fn(v)
-	} else {
-		return err
 	}
+	return err
 }
 
 // DeleteVertex removes the vertex from the graph with any edges linking it

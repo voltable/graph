@@ -1,15 +1,20 @@
 package graphs
 
+// CRUD Create, Read, Update and Delete
 type CRUD int
 
 const (
+	// Create operation
 	Create CRUD = iota
-	Read   CRUD = iota
+	// Read operation
+	Read CRUD = iota
+	// Update operation
 	Update CRUD = iota
+	// Delete operation
 	Delete CRUD = iota
 )
 
-// Digraph, represents the directed or undirected relationship on a Edge
+// Digraph represents the directed or undirected relationship on a Edge
 // a character consisting of two joined letters; a ligature.
 type Digraph int
 
