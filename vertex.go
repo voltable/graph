@@ -13,16 +13,26 @@ func (v *Vertex) Label() string {
 	return v.label
 }
 
-func (v *Vertex) remove(label string) Digraph {
-	// for y, edge := range v.edges {
-	// 	if edge.Label() == label {
-	// 		if edge.to == v {
-	// 			c := make([]Edge, len(v.edges)-1)
-	// 			v.edges = append(append(c, v.edges[:y]...), v.edges[y+1:]...)
-	// 			return edge.isDirected
-	// 		}
-	// 	}
-	// }
+func (v *Vertex) removeRelationshipOnLabel(label string) Digraph {
+	return v.removeRelationshipsF(func(e Edge) bool {
+		return e.label == label
+	})
+}
 
+func (v *Vertex) removeRelationships() {
+	v.removeRelationshipsF(func(e Edge) bool {
+		return true
+	})
+}
+
+func (v *Vertex) removeRelationshipsF(f func(e Edge) bool) Digraph {
+	for _, edge := range v.edges {
+		if f(edge) {
+			if edge.to == v {
+				delete(edge.to.edges, edge.id)
+				return edge.isDirected
+			}
+		}
+	}
 	return Undirected
 }

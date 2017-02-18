@@ -117,12 +117,18 @@ func (g *Graph) Update(c []graphs.Vertex) error {
 	})
 }
 
-// Open graph
-func Open(o *graphs.Options) graphs.Graph {
-	g := Graph{Options: o, db: createBolt(o)}
+// Open the storage engine for CRUD operations
+func (g *Graph) Open(o *graphs.Options) {
+	g.db = createBolt(o)
+	g.Options = o
+}
+
+// BuildGraph creates a bolt graph
+func BuildGraph() *graphs.Graph {
+	g := &Graph{}
 	c := make(chan os.Signal, 1)
 	g.backgroundTask(c)
-	return &g
+	return g
 }
 
 // Close graph
@@ -138,7 +144,7 @@ func (g *Graph) Query(cypher string) string {
 
 // Command create a GraphOperation to apply changes to the graph
 func (g *Graph) Command(fn func(*graphs.GraphOperation) error) error {
-	op := &graphs.GraphOperation{DB: g}
+	op := graphs.CreateGraphOperation(g)
 	return fn(op)
 }
 

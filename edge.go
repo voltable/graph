@@ -24,16 +24,3 @@ func (e *Edge) SetWeight(weight float32) {
 func (e *Edge) Label() string {
 	return e.label
 }
-
-func (e *Edge) removeTo() *Vertex {
-	if i, ok := e.to.edges["route"]; ok {
-		delete(e.to.edges, e.id)
-		return i.to
-	}
-
-	return nil
-}
-
-func (e *Edge) removeFrom() {
-	delete(e.from.edges, e.id)
-}

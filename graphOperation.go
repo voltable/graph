@@ -8,7 +8,7 @@ import (
 
 // GraphOperation a CRUD operation to perform over a graph
 type GraphOperation struct {
-	DB Persistence
+	db StorageEngine
 }
 
 var (
@@ -16,12 +16,17 @@ var (
 	errCreatVertex    = errors.New("Failed to create Vertex")
 )
 
+// CreateGraphOperation builds a GraphOperation from a StorageEngine
+func CreateGraphOperation(p StorageEngine) *GraphOperation {
+	return &GraphOperation{db: p}
+}
+
 // CreateVertex creates a vetex and returns the VertexOperation.
 func (g *GraphOperation) CreateVertex(i *interface{}) (*Vertex, error) {
 	u1 := uuid.NewV4()
 	v := Vertex{ID: u1.String(), Value: i}
 	arr := []Vertex{v}
-	if err := g.DB.Create(arr); err != nil {
+	if err := g.db.Create(arr); err != nil {
 		return &v, nil
 	}
 	return nil, errCreatVertex
@@ -30,7 +35,7 @@ func (g *GraphOperation) CreateVertex(i *interface{}) (*Vertex, error) {
 // ReadVertex retrieves a give vertex
 func (g *GraphOperation) ReadVertex(ID string) (*Vertex, error) {
 
-	if v, err := g.DB.Find(ID); err != nil {
+	if v, err := g.db.Find(ID); err != nil {
 		return v, nil
 	}
 	return nil, errVertexNotFound
@@ -42,7 +47,7 @@ func (g *GraphOperation) UpdateVertex(ID string, fn func(*Vertex) error) error {
 
 	var v *Vertex
 	var err error
-	if v, err = g.DB.Find(ID); err != nil {
+	if v, err = g.db.Find(ID); err != nil {
 		return fn(v)
 	}
 	return err
@@ -51,13 +56,10 @@ func (g *GraphOperation) UpdateVertex(ID string, fn func(*Vertex) error) error {
 // DeleteVertex removes the vertex from the graph with any edges linking it
 func (g *GraphOperation) DeleteVertex(ID string) error {
 
-	if v, err := g.DB.Find(ID); err != nil {
-		for _, edge := range v.edges {
-			edge.removeTo()
-		}
-
+	if v, err := g.db.Find(ID); err != nil {
+		v.removeRelationships()
 		arr := []Vertex{*v}
-		return g.DB.Delete(arr)
+		return g.db.Delete(arr)
 	}
 
 	return errVertexNotFound
