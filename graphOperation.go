@@ -3,7 +3,7 @@ package graphs
 import (
 	"errors"
 
-	uuid "github.com/satori/go.uuid"
+	"github.com/hashicorp/go-uuid"
 )
 
 // GraphOperation a CRUD operation to perform over a graph
@@ -23,8 +23,13 @@ func CreateGraphOperation(p StorageEngine) *GraphOperation {
 
 // CreateVertex creates a vetex and returns the VertexOperation.
 func (g *GraphOperation) CreateVertex(i *interface{}) (*Vertex, error) {
-	u1 := uuid.NewV4()
-	v := Vertex{ID: u1.String(), Value: i}
+	var id string
+	var err error
+	if id, err = uuid.GenerateUUID(); err != nil {
+		return nil, err
+	}
+
+	v := Vertex{ID: id, Value: i}
 	arr := []Vertex{v}
 	if err := g.db.Create(arr); err != nil {
 		return &v, nil
