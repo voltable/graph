@@ -124,7 +124,7 @@ func (g *Graph) Open(o *graphs.Options) {
 }
 
 // BuildGraph creates a bolt graph
-func BuildGraph() *graphs.Graph {
+func BuildGraph() graphs.Graph {
 	g := &Graph{}
 	c := make(chan os.Signal, 1)
 	g.backgroundTask(c)

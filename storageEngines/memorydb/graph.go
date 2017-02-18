@@ -1,6 +1,6 @@
 package memorydb
 
-import "github.com/rossmerr/Caudex.Graph"
+import "github.com/RossMerr/Caudex.Graph"
 
 type Graph struct {
 	vertices map[string]graphs.Vertex
