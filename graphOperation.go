@@ -20,7 +20,7 @@ var (
 func (g *GraphOperation) CreateVertex(i *interface{}) (*Vertex, error) {
 	u1 := uuid.NewV4()
 	v := Vertex{ID: u1.String(), Value: i}
-	arr := &[]Vertex{v}
+	arr := []Vertex{v}
 	if err := g.DB.Create(arr); err != nil {
 		return &v, nil
 	}
@@ -56,7 +56,7 @@ func (g *GraphOperation) DeleteVertex(ID string) error {
 			edge.removeTo()
 		}
 
-		arr := &[]Vertex{*v}
+		arr := []Vertex{*v}
 		return g.DB.Delete(arr)
 	}
 
