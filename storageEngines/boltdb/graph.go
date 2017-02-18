@@ -117,15 +117,9 @@ func (g *Graph) Update(c []graphs.Vertex) error {
 	})
 }
 
-// Open the storage engine for CRUD operations
-func (g *Graph) Open(o *graphs.Options) {
-	g.db = createBolt(o)
-	g.Options = o
-}
-
 // BuildGraph creates a bolt graph
-func BuildGraph() graphs.Graph {
-	g := &Graph{}
+func BuildGraph(o *graphs.Options) graphs.Graph {
+	g := &Graph{Options: o, db: createBolt(o)}
 	c := make(chan os.Signal, 1)
 	g.backgroundTask(c)
 	return g

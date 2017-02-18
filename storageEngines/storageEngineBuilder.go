@@ -16,9 +16,13 @@ const (
 	Memory StorageEngineType = iota
 )
 
-func BuildGraph(e StorageEngineType) graphs.Graph {
+func BuildGraphDefault(o *graphs.Options) graphs.Graph {
+	return BuildGraph(Bolt, o)
+}
+
+func BuildGraph(e StorageEngineType, o *graphs.Options) graphs.Graph {
 	if e == Memory {
-		return memorydb.BuildGraph()
+		return memorydb.BuildGraph(o)
 	}
-	return boltdb.BuildGraph()
+	return boltdb.BuildGraph(o)
 }

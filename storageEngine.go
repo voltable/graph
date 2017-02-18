@@ -6,5 +6,4 @@ type StorageEngine interface {
 	Delete([]Vertex) error
 	Find(string) (*Vertex, error)
 	Update([]Vertex) error
-	Open(o *Options)
 }

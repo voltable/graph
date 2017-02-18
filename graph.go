@@ -3,7 +3,6 @@ package graphs
 type (
 	// Graph structure consisting of vertices and edges
 	Graph interface {
-		Open(o *Options)
 		Close()
 		Query(cypher string) string
 		Command(fn func(*GraphOperation) error) error

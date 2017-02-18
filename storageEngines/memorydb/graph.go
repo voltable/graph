@@ -14,14 +14,9 @@ func (g *Graph) Query(cypher string) string {
 	return ""
 }
 
-func BuildGraph() graphs.Graph {
-	g := Graph{}
+func BuildGraph(o *graphs.Options) graphs.Graph {
+	g := Graph{Options: o}
 	return &g
-}
-
-// Open the storage engine for CRUD operations
-func (g *Graph) Open(o *graphs.Options) {
-	g.Options = o
 }
 
 func (g *Graph) Command(fn func(*graphs.GraphOperation) error) error {
