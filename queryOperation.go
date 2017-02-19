@@ -15,6 +15,11 @@ type QueryOperation struct {
 	rawQuery string
 }
 
+func CreateQueryOperation(db StorageEngine) *QueryOperation {
+	q := QueryOperation{db: db}
+	return &q
+}
+
 func (q *QueryOperation) Query(s string) ([]Vertex, error) {
 
 	return nil, nil

@@ -2,8 +2,7 @@ package graphs
 
 // An Edge connects two Vertex in a graph.
 type Edge struct {
-	id string
-	//	to         *Vertex
+	id         string
 	isDirected Digraph
 	weight     float32
 	label      string

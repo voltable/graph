@@ -131,6 +131,8 @@ func (g *Graph) Close() {
 
 // Query over the graph using the cypher query language returns JSON
 func (g *Graph) Query(fn func(*graphs.QueryOperation) error) string {
+	q := graphs.CreateQueryOperation(g)
+	fn(q)
 	//query.Parse(cypher)
 	return "test"
 }
