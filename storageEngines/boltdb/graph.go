@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/Sirupsen/logrus"
 	"github.com/boltdb/bolt"
 )
@@ -131,8 +130,8 @@ func (g *Graph) Close() {
 }
 
 // Query over the graph using the cypher query language returns JSON
-func (g *Graph) Query(cypher string) string {
-	query.Parse(cypher)
+func (g *Graph) Query(fn func(*graphs.QueryOperation) error) string {
+	//query.Parse(cypher)
 	return "test"
 }
 

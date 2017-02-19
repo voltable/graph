@@ -10,7 +10,7 @@ type Graph struct {
 func (g *Graph) Close() {
 
 }
-func (g *Graph) Query(cypher string) string {
+func (g *Graph) Query(fn func(*graphs.QueryOperation) error) string {
 	return ""
 }
 
