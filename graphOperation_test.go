@@ -1,32 +1,52 @@
 package graphs
 
-import "testing"
+import (
+	"os"
+	"testing"
 
-func Test_CreateVertex(t *testing.T) {
-	se := fakeStorageEngine{}
-	g := GraphOperation{&se}
-	to := testObject{}
-	g.CreateVertex(&to)
+	"github.com/Sirupsen/logrus"
+)
+
+var (
+	se  *fakeStorageEngine
+	obj *testObject
+)
+
+func TestMain(m *testing.M) {
+	logrus.SetLevel(logrus.DebugLevel)
+	se = &fakeStorageEngine{}
+	obj = &testObject{value: "hello"}
+	se.vertices = make(map[string]Vertex)
+	os.Exit(m.Run())
 }
 
 type testObject struct {
+	value string
 }
 
-type fakeStorageEngine struct {
+func Test_CreateVertex(t *testing.T) {
+	g := GraphOperation{se}
+	v, err := g.CreateVertex(obj)
+	if err != nil {
+		t.Fatalf("Expected err to be nil but was %s", err)
+	}
+
+	if v.Value != obj {
+		t.Fatalf("Expected %s but was %s", obj, v.Value)
+	}
+
+	id = v.ID
 }
 
-func (f *fakeStorageEngine) Create(c ...Vertex) error {
-	return nil
-}
+func Test_ReadVertex(t *testing.T) {
+	g := GraphOperation{se}
+	v, _ := g.CreateVertex(obj)
+	v, err := g.ReadVertex(v.ID)
+	if err != nil {
+		t.Fatalf("Expected err to be nil but was %s", err)
+	}
 
-func (f *fakeStorageEngine) Delete(c ...Vertex) error {
-	return nil
-}
-
-func (f *fakeStorageEngine) Find(string) (*Vertex, error) {
-	return nil, nil
-}
-
-func (f *fakeStorageEngine) Update(c ...Vertex) error {
-	return nil
+	if v.Value != obj {
+		t.Fatalf("Expected %s but was %s", obj, v.Value)
+	}
 }

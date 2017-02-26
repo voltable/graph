@@ -15,7 +15,7 @@ func (g *Graph) Query(fn func(*graphs.QueryOperation) error) string {
 }
 
 func BuildGraph(o *graphs.Options) graphs.Graph {
-	g := Graph{Options: o}
+	g := Graph{Options: o, vertices: make(map[string]graphs.Vertex)}
 	return &g
 }
 
@@ -50,7 +50,6 @@ func (g *Graph) Find(ID string) (*graphs.Vertex, error) {
 
 // Update the array of vertices from the persistence
 func (g *Graph) Update(c ...graphs.Vertex) error {
-	g.Delete(c...)
 	g.Create(c...)
 	return nil
 }
