@@ -8,7 +8,7 @@ import (
 
 // GraphOperation a CRUD operation to perform over a graph
 type GraphOperation struct {
-	db StorageEngine
+	StorageEngine
 }
 
 var (
@@ -17,12 +17,12 @@ var (
 )
 
 // CreateGraphOperation builds a GraphOperation from a StorageEngine
-func CreateGraphOperation(p StorageEngine) *GraphOperation {
-	return &GraphOperation{db: p}
+func NewGraphOperation(p StorageEngine) *GraphOperation {
+	return &GraphOperation{p}
 }
 
 // CreateVertex creates a vetex and returns the VertexOperation.
-func (g *GraphOperation) CreateVertex(i *interface{}) (*Vertex, error) {
+func (g *GraphOperation) CreateVertex(i interface{}) (*Vertex, error) {
 	var id string
 	var err error
 	if id, err = uuid.GenerateUUID(); err != nil {
@@ -30,8 +30,7 @@ func (g *GraphOperation) CreateVertex(i *interface{}) (*Vertex, error) {
 	}
 
 	v := Vertex{ID: id, Value: i}
-	arr := []Vertex{v}
-	if err := g.db.Create(arr); err != nil {
+	if err := g.Create(v); err != nil {
 		return &v, nil
 	}
 	return nil, errCreatVertex
@@ -40,7 +39,7 @@ func (g *GraphOperation) CreateVertex(i *interface{}) (*Vertex, error) {
 // ReadVertex retrieves a give vertex
 func (g *GraphOperation) ReadVertex(ID string) (*Vertex, error) {
 
-	if v, err := g.db.Find(ID); err != nil {
+	if v, err := g.Find(ID); err != nil {
 		return v, nil
 	}
 	return nil, errVertexNotFound
@@ -52,7 +51,7 @@ func (g *GraphOperation) UpdateVertex(ID string, fn func(*Vertex) error) error {
 
 	var v *Vertex
 	var err error
-	if v, err = g.db.Find(ID); err != nil {
+	if v, err = g.Find(ID); err != nil {
 		return fn(v)
 	}
 	return err
@@ -61,10 +60,9 @@ func (g *GraphOperation) UpdateVertex(ID string, fn func(*Vertex) error) error {
 // DeleteVertex removes the vertex from the graph with any edges linking it
 func (g *GraphOperation) DeleteVertex(ID string) error {
 
-	if v, err := g.db.Find(ID); err != nil {
+	if v, err := g.Find(ID); err != nil {
 		v.removeRelationships()
-		arr := []Vertex{*v}
-		return g.db.Delete(arr)
+		return g.Delete(*v)
 	}
 
 	return errVertexNotFound

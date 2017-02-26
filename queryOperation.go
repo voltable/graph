@@ -11,12 +11,12 @@ var (
 )
 
 type QueryOperation struct {
-	db       StorageEngine
+	StorageEngine
 	rawQuery string
 }
 
-func CreateQueryOperation(db StorageEngine) *QueryOperation {
-	q := QueryOperation{db: db}
+func NewQueryOperation(db StorageEngine) *QueryOperation {
+	q := QueryOperation{db, ""}
 	return &q
 }
 
@@ -42,7 +42,7 @@ func (q *QueryOperation) DFS(root *Vertex, fn func(*Vertex) bool) (*Vertex, erro
 			if !marked[v.ID] {
 				marked[v.ID] = true
 				for _, e := range v.Edges() {
-					if v, err := q.db.Find(e.id); err == nil {
+					if v, err := q.Find(e.id); err == nil {
 						stack.Push(v)
 						marked[v.ID] = false
 					}
@@ -72,7 +72,7 @@ func (q *QueryOperation) BFS(root *Vertex, fn func(*Vertex) bool) (*Vertex, erro
 
 			for _, e := range v.Edges() {
 				if !marked[e.id] {
-					if v, err := q.db.Find(e.id); err == nil {
+					if v, err := q.Find(e.id); err == nil {
 						queue.Enqueue(v)
 						marked[v.ID] = true
 					}

@@ -4,7 +4,7 @@ package graphs
 type Vertex struct {
 	ID    string
 	edges map[string]Edge
-	Value *interface{}
+	Value interface{}
 	label string
 }
 

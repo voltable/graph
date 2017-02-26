@@ -7,6 +7,6 @@ import (
 
 func main() {
 	g := storageEngines.BuildGraphDefault(&graphs.Options{"test"})
-	g.Query("MATCH (node:Label) RETURN node.property")
+	//g.Query("MATCH (node:Label) RETURN node.property")
 	g.Close()
 }
