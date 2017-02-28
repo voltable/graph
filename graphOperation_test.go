@@ -34,8 +34,6 @@ func Test_CreateVertex(t *testing.T) {
 	if v.Value != obj {
 		t.Fatalf("Expected %s but was %s", obj, v.Value)
 	}
-
-	id = v.ID
 }
 
 func Test_ReadVertex(t *testing.T) {
