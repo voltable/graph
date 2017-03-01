@@ -7,17 +7,15 @@ import "testing"
 func Test_Structure(t *testing.T) {
 	g := Graph{}
 
-	obj := testObject{}
-	v, _ := g.AddVertex(obj)
+	v, _ := g.CreateVertex()
 
-	obj2 := testObject{}
-	v2, _ := g.AddVertex(obj2)
+	v2, _ := g.CreateVertex()
 	e, _ := v2.SetLabel("foo").AddDirectedEdge(v)
 	e.SetLabel("bar")
 
-	all := All{}
-
-	g.Query(v, all, all)
+	g.Query(v).Where(func(v *Vertex) bool {
+		return v.Label() == "foo"
+	})
 
 }
 

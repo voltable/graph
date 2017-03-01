@@ -64,12 +64,20 @@ func (g *Graph) CreateVertex() (*Vertex, error) {
 	return nil, errCreatVertex
 }
 
-func (g *Graph) QueryVertices(root *Vertex, fn func(qo *Vertex) bool) (*QueryResult, error) {
-	qo := NewQueryOperation(g.db)
-	result := qo.BFS(root, fn)
-	return result, nil
-}
+// Iterator is an alias for function to iterate over data.
+type Iterator func() (item *Vertex, ok bool)
 
-func (g *Graph) Query(root *Vertex, args ...interface{}) {
+func (g *Graph) Query(root *Vertex) *Query {
+	//todo need to setup channel from DFS or BFS
+	c := make(chan *Vertex)
+	return &Query{
+		Iterate: func() Iterator {
+			return func() (item *Vertex, ok bool) {
+				v, ok := <-c
+				return v, ok
+			}
+		},
+	}
 
+	return nil
 }

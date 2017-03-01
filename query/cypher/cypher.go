@@ -1,4 +1,4 @@
-package query
+package cyphers
 
 import (
 	"fmt"
