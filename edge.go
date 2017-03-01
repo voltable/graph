@@ -22,3 +22,7 @@ func (e *Edge) SetWeight(weight float32) {
 func (e *Edge) Label() string {
 	return e.label
 }
+
+func (e *Edge) SetLabel(label string) {
+	e.label = label
+}

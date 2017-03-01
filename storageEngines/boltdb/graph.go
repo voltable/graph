@@ -55,7 +55,7 @@ func createBolt(o *graphs.Options) *bolt.DB {
 }
 
 // Create adds a array of vertices to the persistence
-func (g *Graph) Create(c ...graphs.Vertex) error {
+func (g *Graph) Create(c ...*graphs.Vertex) error {
 	var err error
 	var buf []byte
 	return g.db.Update(func(tx *bolt.Tx) error {
@@ -72,7 +72,7 @@ func (g *Graph) Create(c ...graphs.Vertex) error {
 }
 
 // Delete the array of vertices from the persistence
-func (g *Graph) Delete(c ...graphs.Vertex) error {
+func (g *Graph) Delete(c ...*graphs.Vertex) error {
 	return g.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketGraph))
 		for _, vertex := range c {
@@ -100,7 +100,7 @@ func (g *Graph) Find(ID string) (*graphs.Vertex, error) {
 }
 
 // Update the array of vertices from the persistence
-func (g *Graph) Update(c ...graphs.Vertex) error {
+func (g *Graph) Update(c ...*graphs.Vertex) error {
 	var err error
 	var buf []byte
 	return g.db.Update(func(tx *bolt.Tx) error {

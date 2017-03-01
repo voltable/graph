@@ -13,6 +13,10 @@ func (v *Vertex) Label() string {
 	return v.label
 }
 
+func (e *Vertex) SetLabel(label string) {
+	e.label = label
+}
+
 func (v *Vertex) Edges() []Edge {
 	a := make([]Edge, 0, len(v.edges))
 

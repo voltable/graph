@@ -30,9 +30,9 @@ func (g *GraphOperation) CreateVertex(i interface{}) (*Vertex, error) {
 		return nil, errCreatVertexID
 	}
 
-	v := Vertex{ID: id, Value: i}
+	v := &Vertex{ID: id, Value: i}
 	if err := g.Create(v); err == nil {
-		return &v, nil
+		return v, nil
 	}
 
 	return nil, errCreatVertex
@@ -48,11 +48,17 @@ func (g *GraphOperation) ReadVertex(ID string) (*Vertex, error) {
 }
 
 // UpdateVertex retrieves a give vertex then lets you update it
-func (g *GraphOperation) UpdateVertex(ID string, fn func(*Vertex) error) error {
+func (g *GraphOperation) UpdateVertex(ID string, fn func(v *Vertex) error) error {
 	var v *Vertex
 	var err error
 	if v, err = g.Find(ID); err == nil {
-		return fn(v)
+		if err := fn(v); err == nil {
+			if err := g.Update(v); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
 	}
 
 	return err
@@ -62,7 +68,7 @@ func (g *GraphOperation) UpdateVertex(ID string, fn func(*Vertex) error) error {
 func (g *GraphOperation) DeleteVertex(ID string) error {
 	if v, err := g.Find(ID); err == nil {
 		v.removeRelationships()
-		return g.Delete(*v)
+		return g.Delete(v)
 	}
 
 	return errVertexNotFound
