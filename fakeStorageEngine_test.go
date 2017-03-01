@@ -8,14 +8,14 @@ type fakeStorageEngine struct {
 
 func (f *fakeStorageEngine) Create(c ...*Vertex) error {
 	for _, v := range c {
-		f.vertices[v.ID] = *v
+		f.vertices[v.ID()] = *v
 	}
 	return nil
 }
 
 func (f *fakeStorageEngine) Delete(c ...*Vertex) error {
 	for _, v := range c {
-		delete(f.vertices, v.ID)
+		delete(f.vertices, v.ID())
 	}
 
 	return nil

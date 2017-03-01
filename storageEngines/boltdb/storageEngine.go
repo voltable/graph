@@ -2,6 +2,7 @@ package boltdb
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"time"
 
@@ -10,10 +11,15 @@ import (
 	"github.com/boltdb/bolt"
 )
 
+var (
+	errVertexNotFound = errors.New("Vertex Not found")
+	errCreatVertex    = errors.New("Failed to create Vertex")
+)
+
 type (
 
-	// Graph the underlying graph
-	Graph struct {
+	// StorageEngine the underlying graph storage engine in this case boltdb
+	StorageEngine struct {
 		db      *bolt.DB
 		Options *graphs.Options
 	}
@@ -55,14 +61,14 @@ func createBolt(o *graphs.Options) *bolt.DB {
 }
 
 // Create adds a array of vertices to the persistence
-func (g *Graph) Create(c ...*graphs.Vertex) error {
+func (se *StorageEngine) Create(c ...*graphs.Vertex) error {
 	var err error
 	var buf []byte
-	return g.db.Update(func(tx *bolt.Tx) error {
+	return se.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketGraph))
 		for _, vertex := range c {
 			if buf, err = json.Marshal(vertex); err != nil {
-				b.Put([]byte(vertex.ID), buf)
+				b.Put([]byte(vertex.ID()), buf)
 			} else {
 				return err
 			}
@@ -72,22 +78,22 @@ func (g *Graph) Create(c ...*graphs.Vertex) error {
 }
 
 // Delete the array of vertices from the persistence
-func (g *Graph) Delete(c ...*graphs.Vertex) error {
+func (g *StorageEngine) Delete(c ...*graphs.Vertex) error {
 	return g.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketGraph))
 		for _, vertex := range c {
-			b.Delete([]byte(vertex.ID))
+			b.Delete([]byte(vertex.ID()))
 		}
 		return nil
 	})
 }
 
 // Find a vertex from the persistence
-func (g *Graph) Find(ID string) (*graphs.Vertex, error) {
+func (se *StorageEngine) Find(ID string) (*graphs.Vertex, error) {
 	var err error
 	var buf []byte
 	var v graphs.Vertex
-	return &v, g.db.View(func(tx *bolt.Tx) error {
+	return &v, se.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketGraph))
 		buf = b.Get([]byte(ID))
 
@@ -100,14 +106,14 @@ func (g *Graph) Find(ID string) (*graphs.Vertex, error) {
 }
 
 // Update the array of vertices from the persistence
-func (g *Graph) Update(c ...*graphs.Vertex) error {
+func (se *StorageEngine) Update(c ...*graphs.Vertex) error {
 	var err error
 	var buf []byte
-	return g.db.Update(func(tx *bolt.Tx) error {
+	return se.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketGraph))
 		for _, vertex := range c {
 			if buf, err = json.Marshal(vertex); err != nil {
-				b.Put([]byte(vertex.ID), buf)
+				b.Put([]byte(vertex.ID()), buf)
 			} else {
 				return err
 			}
@@ -116,34 +122,28 @@ func (g *Graph) Update(c ...*graphs.Vertex) error {
 	})
 }
 
-// BuildGraph creates a bolt graph
-func BuildGraph(o *graphs.Options) graphs.Graph {
-	g := &Graph{Options: o, db: createBolt(o)}
+// NewStorageEngine creates a bolt graph
+func NewStorageEngine(o *graphs.Options) graphs.StorageEngine {
+	se := &StorageEngine{Options: o, db: createBolt(o)}
 	c := make(chan os.Signal, 1)
-	g.backgroundTask(c)
-	return g
+	se.backgroundTask(c)
+	return se
 }
 
 // Close graph
-func (g *Graph) Close() {
+func (g *StorageEngine) Close() {
 	g.db.Close()
 }
 
 // Query over the graph using the cypher query language returns JSON
-func (g *Graph) Query(fn func(*graphs.QueryOperation) error) string {
+func (g *StorageEngine) Query(fn func(*graphs.QueryOperation) error) string {
 	q := graphs.NewQueryOperation(g)
 	fn(q)
 	//query.Parse(cypher)
 	return "test"
 }
 
-// Command create a GraphOperation to apply changes to the graph
-func (g *Graph) Command(fn func(*graphs.GraphOperation) error) error {
-	op := graphs.NewGraphOperation(g)
-	return fn(op)
-}
-
-func (g *Graph) backgroundTask(c chan os.Signal) {
+func (g *StorageEngine) backgroundTask(c chan os.Signal) {
 
 	go func() {
 	Loop:
