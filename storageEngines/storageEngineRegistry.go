@@ -1,7 +1,7 @@
 package storageEngines
 
 import (
-	"fmt"
+	"errors"
 
 	"github.com/Sirupsen/logrus"
 )
@@ -9,7 +9,7 @@ import (
 var storeEngineRegistry = make(map[string]StorageEngineRegistration)
 
 var (
-	ErrQuadStoreNotRegistred = fmt.Errorf("This StorageEngine is not registered.")
+	ErrStorageEngineNotRegistred = errors.New("This StorageEngine is not registered.")
 )
 
 type NewStorageEngineFunc func(options *Options) (StorageEngine, error)
@@ -32,7 +32,7 @@ func RegisterStorageEngine(name string, register StorageEngineRegistration) {
 func NewStorageEngine(name string, options *Options) (StorageEngine, error) {
 	r, registered := storeEngineRegistry[name]
 	if !registered {
-		return nil, ErrQuadStoreNotRegistred
+		return nil, ErrStorageEngineNotRegistred
 	}
 
 	return r.NewFunc(options)

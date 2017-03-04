@@ -1,12 +1,12 @@
 package query
 
-import "github.com/RossMerr/Caudex.Graph/graph"
+import "github.com/RossMerr/Caudex.Graph/graph/vertices"
 
 type QueryResult struct {
-	Results []*graph.Vertex
+	Results []*vertices.Vertex
 }
 
-func NewQueryResult(v []*graph.Vertex) *QueryResult {
+func NewQueryResult(v []*vertices.Vertex) *QueryResult {
 	qr := &QueryResult{Results: v}
 	return qr
 }

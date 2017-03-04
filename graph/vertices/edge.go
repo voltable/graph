@@ -1,4 +1,4 @@
-package graph
+package vertices
 
 type (
 	// An Edge connects two Vertex in a graph.
