@@ -3,7 +3,6 @@ package storageEngines
 import (
 	"fmt"
 
-	"github.com/RossMerr/Caudex.Graph"
 	"github.com/Sirupsen/logrus"
 )
 
@@ -13,7 +12,7 @@ var (
 	ErrQuadStoreNotRegistred = fmt.Errorf("This StorageEngine is not registered.")
 )
 
-type NewStorageEngineFunc func(options *graphs.Options) (graphs.StorageEngine, error)
+type NewStorageEngineFunc func(options *Options) (StorageEngine, error)
 
 type StorageEngineRegistration struct {
 	NewFunc NewStorageEngineFunc
@@ -30,7 +29,7 @@ func RegisterStorageEngine(name string, register StorageEngineRegistration) {
 	storeEngineRegistry[name] = register
 }
 
-func NewStorageEngine(name string, options *graphs.Options) (graphs.StorageEngine, error) {
+func NewStorageEngine(name string, options *Options) (StorageEngine, error) {
 	r, registered := storeEngineRegistry[name]
 	if !registered {
 		return nil, ErrQuadStoreNotRegistred

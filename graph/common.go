@@ -1,4 +1,4 @@
-package graphs
+package graph
 
 // CRUD Create, Read, Update and Delete
 type CRUD int

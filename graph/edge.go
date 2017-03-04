@@ -1,4 +1,4 @@
-package graphs
+package graph
 
 type (
 	// An Edge connects two Vertex in a graph.
@@ -11,6 +11,10 @@ type (
 
 	Edges []*Edge
 )
+
+func (e *Edge) ID() string {
+	return e.id
+}
 
 // Weight of a path in a weighted graph
 func (e *Edge) Weight() float32 {
