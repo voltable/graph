@@ -56,14 +56,13 @@ func (v *Vertex) Label() string {
 }
 
 // Edges a array of all edges against this vertex
-func (v *Vertex) Edges() []Edge {
-	a := make([]Edge, 0, len(v.edges))
-
+func (v *Vertex) Edges() Edges {
+	edges := make(Edges, 0, len(v.edges))
 	for _, value := range v.edges {
-		a = append(a, value)
+		edges = append(edges, &value)
 	}
 
-	return a
+	return edges
 }
 
 func (v *Vertex) removeRelationshipOnLabel(label string) Digraph {

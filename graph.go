@@ -64,9 +64,6 @@ func (g *Graph) CreateVertex() (*Vertex, error) {
 	return nil, errCreatVertex
 }
 
-// Iterator is an alias for function to iterate over data.
-type Iterator func() (item *Vertex, ok bool)
-
 func (g *Graph) Query(root *Vertex) *Query {
 	//todo need to setup channel from DFS or BFS
 	c := make(chan *Vertex)

@@ -6,8 +6,10 @@ import (
 )
 
 func main() {
-	g := graphs.NewGraph(storageEngines.BuildGraphDefault(&graphs.Options{"test"}))
+	if engine, err := storageEngines.NewStorageEngine("", &graphs.Options{"test"}); err == nil {
+		g := graphs.NewGraph(engine)
 
-	//g.Query("MATCH (node:Label) RETURN node.property")
-	g.Close()
+		//g.Query("MATCH (node:Label) RETURN node.property")
+		g.Close()
+	}
 }

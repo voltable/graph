@@ -7,30 +7,37 @@ import (
 	"time"
 
 	"github.com/RossMerr/Caudex.Graph"
+	"github.com/RossMerr/Caudex.Graph/storageEngines"
 	"github.com/Sirupsen/logrus"
 	"github.com/boltdb/bolt"
 )
 
+func init() {
+	storageEngines.RegisterStorageEngine(StorageEngineType, storageEngines.StorageEngineRegistration{
+		NewFunc: newStorageEngine,
+	})
+}
+
 var (
-	errVertexNotFound = errors.New("Vertex Not found")
-	errCreatVertex    = errors.New("Failed to create Vertex")
+	ErrVertexNotFound = errors.New("Vertex Not found")
+	ErrCreatVertex    = errors.New("Failed to create Vertex")
+)
+
+const (
+	StorageEngineType        = "bolt"
+	bucketGraph       bucket = "graph"
+	bucketLabel       bucket = "label"
+	bucketIndex       bucket = "index"
 )
 
 type (
-
-	// StorageEngine the underlying graph storage engine in this case boltdb
+	//StorageEngine the underlying graph storage engine in this case boltdb
 	StorageEngine struct {
 		db      *bolt.DB
 		Options *graphs.Options
 	}
 
 	bucket string
-)
-
-const (
-	bucketGraph bucket = "graph"
-	bucketLabel bucket = "label"
-	bucketIndex bucket = "index"
 )
 
 func createBolt(o *graphs.Options) *bolt.DB {
@@ -123,24 +130,16 @@ func (se *StorageEngine) Update(c ...*graphs.Vertex) error {
 }
 
 // NewStorageEngine creates a bolt graph
-func NewStorageEngine(o *graphs.Options) graphs.StorageEngine {
+func newStorageEngine(o *graphs.Options) (graphs.StorageEngine, error) {
 	se := &StorageEngine{Options: o, db: createBolt(o)}
 	c := make(chan os.Signal, 1)
 	se.backgroundTask(c)
-	return se
+	return se, nil
 }
 
 // Close graph
 func (g *StorageEngine) Close() {
 	g.db.Close()
-}
-
-// Query over the graph using the cypher query language returns JSON
-func (g *StorageEngine) Query(fn func(*graphs.QueryOperation) error) string {
-	q := graphs.NewQueryOperation(g)
-	fn(q)
-	//query.Parse(cypher)
-	return "test"
 }
 
 func (g *StorageEngine) backgroundTask(c chan os.Signal) {

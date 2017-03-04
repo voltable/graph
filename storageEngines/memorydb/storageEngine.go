@@ -4,7 +4,16 @@ import (
 	"errors"
 
 	"github.com/RossMerr/Caudex.Graph"
+	"github.com/RossMerr/Caudex.Graph/storageEngines"
 )
+
+func init() {
+	storageEngines.RegisterStorageEngine(StorageEngineType, storageEngines.StorageEngineRegistration{
+		NewFunc: newStorageEngine,
+	})
+}
+
+const StorageEngineType = "memory"
 
 var (
 	errRecordNotFound = errors.New("Record Not found")
@@ -18,13 +27,10 @@ type StorageEngine struct {
 func (se *StorageEngine) Close() {
 
 }
-func (se *StorageEngine) Query(fn func(*graphs.QueryOperation) error) string {
-	return ""
-}
 
-func NewStorageEngine(o *graphs.Options) graphs.StorageEngine {
+func newStorageEngine(o *graphs.Options) (graphs.StorageEngine, error) {
 	se := StorageEngine{Options: o, vertices: make(map[string]graphs.Vertex)}
-	return &se
+	return &se, nil
 }
 
 // Create adds a array of vertices to the persistence
