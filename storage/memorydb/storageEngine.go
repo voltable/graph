@@ -5,6 +5,7 @@ import (
 
 	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/query"
+	"github.com/RossMerr/Caudex.Graph/traversal"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
@@ -68,16 +69,9 @@ func (se *StorageEngine) Update(c ...*vertices.Vertex) error {
 }
 
 func (se *StorageEngine) Query() *query.Query {
-	//todo need to setup channel from DFS or BFS
-	c := make(chan *vertices.Vertex)
-	return &query.Query{
-		Iterate: func() query.Iterator {
-			return func() (item *vertices.Vertex, ok bool) {
-				v, ok := <-c
-				return v, ok
-			}
-		},
-	}
+	return traversal.Query()
+}
 
-	return nil
+func (se *StorageEngine) QueryRoot(predicate func(*vertices.Vertex) bool) *query.Query {
+	return traversal.QueryRoot(predicate)
 }

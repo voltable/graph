@@ -8,6 +8,7 @@ import (
 
 	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/query"
+	"github.com/RossMerr/Caudex.Graph/traversal"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 	"github.com/Sirupsen/logrus"
 	"github.com/boltdb/bolt"
@@ -144,18 +145,7 @@ func (g *StorageEngine) Close() {
 }
 
 func (se *StorageEngine) Query() *query.Query {
-	//todo need to setup channel from DFS or BFS
-	c := make(chan *vertices.Vertex)
-	return &query.Query{
-		Iterate: func() query.Iterator {
-			return func() (item *vertices.Vertex, ok bool) {
-				v, ok := <-c
-				return v, ok
-			}
-		},
-	}
-
-	return nil
+	return traversal.Query()
 }
 
 func (g *StorageEngine) backgroundTask(c chan os.Signal) {

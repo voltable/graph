@@ -5,16 +5,14 @@ import "github.com/RossMerr/Caudex.Graph/vertices"
 // Where
 func (q Query) Where(predicate func(*vertices.Vertex) bool) Query {
 	return Query{
-		Iterate: func() Iterator {
-			next := q.Iterate()
-
+		iterate: func() Iterator {
+			next := q.iterate()
 			return func() (item *vertices.Vertex, ok bool) {
 				for item, ok = next(); ok; item, ok = next() {
 					if predicate(item) {
 						return
 					}
 				}
-
 				return
 			}
 		},

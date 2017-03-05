@@ -25,18 +25,19 @@ func newTraversal() (traversal.Traversal, error) {
 }
 
 // DFS Depth-first search
-func (dfs *DFS) Query(root *vertices.Vertex, fn func(*vertices.Vertex) bool) []*vertices.Vertex {
+func (dfs *DFS) Query(root *vertices.Vertex, predicate func(*vertices.Vertex) bool) []*vertices.Vertex {
 	stack := lane.NewStack()
 	var marked map[string]bool
 	stack.Push(root)
 	var results []*vertices.Vertex
-
+Loop:
 	for !stack.Empty() {
 		i := stack.Pop()
 		v, ok := i.(*vertices.Vertex)
 		if ok {
-			if fn(v) {
+			if predicate(v) {
 				results = append(results, v)
+				continue Loop
 			}
 
 			if !marked[v.ID()] {

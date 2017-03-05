@@ -25,20 +25,21 @@ func newTraversal() (traversal.Traversal, error) {
 }
 
 // BFS Breadth-first Search
-func (bgs *BFS) Query(root *vertices.Vertex, fn func(*vertices.Vertex) bool) []*vertices.Vertex {
+func (bgs *BFS) Query(root *vertices.Vertex, predicate func(*vertices.Vertex) bool) []*vertices.Vertex {
 	queue := lane.NewQueue()
 	var marked map[string]bool
 	marked[root.ID()] = true
 	queue.Enqueue(root)
 	var results []*vertices.Vertex
-
+Loop:
 	for !queue.Empty() {
 		i := queue.Dequeue()
 
 		v, ok := i.(*vertices.Vertex)
 		if ok {
-			if fn(v) {
+			if predicate(v) {
 				results = append(results, v)
+				continue Loop
 			}
 
 			for _, e := range v.Edges() {
