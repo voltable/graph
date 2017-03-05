@@ -1,6 +1,6 @@
 package query
 
-import "github.com/RossMerr/Caudex.Graph/graph/vertices"
+import "github.com/RossMerr/Caudex.Graph/vertices"
 
 // Where
 func (q Query) Where(predicate func(*vertices.Vertex) bool) Query {

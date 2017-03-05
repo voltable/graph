@@ -1,9 +1,9 @@
 package bfs
 
 import (
-	"github.com/RossMerr/Caudex.Graph/graph/vertices"
-	"github.com/RossMerr/Caudex.Graph/storageEngines"
+	graph "github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/traversal"
+	"github.com/RossMerr/Caudex.Graph/vertices"
 	"github.com/oleiade/lane"
 )
 
@@ -16,7 +16,7 @@ func init() {
 const TraversalType = "bfs"
 
 type BFS struct {
-	se storageEngines.StorageEngine
+	g graph.Graph
 }
 
 func newTraversal() (traversal.Traversal, error) {
@@ -43,7 +43,7 @@ func (bgs *BFS) Query(root *vertices.Vertex, fn func(*vertices.Vertex) bool) []*
 
 			for _, e := range v.Edges() {
 				if !marked[e.ID()] {
-					if v, err := bgs.se.Find(e.ID()); err == nil {
+					if v, err := bgs.g.Find(e.ID()); err == nil {
 						queue.Enqueue(v)
 						marked[v.ID()] = true
 					}

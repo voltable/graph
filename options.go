@@ -1,4 +1,4 @@
-package storageEngines
+package graph
 
 // Options for the graph
 type Options struct {

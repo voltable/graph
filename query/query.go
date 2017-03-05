@@ -1,6 +1,6 @@
 package query
 
-import "github.com/RossMerr/Caudex.Graph/graph/vertices"
+import "github.com/RossMerr/Caudex.Graph/vertices"
 
 type (
 	// Iterator is an alias for function to iterate over data.

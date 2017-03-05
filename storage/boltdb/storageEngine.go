@@ -7,13 +7,14 @@ import (
 	"time"
 
 	"github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/storageEngines"
+	"github.com/RossMerr/Caudex.Graph/query"
+	"github.com/RossMerr/Caudex.Graph/vertices"
 	"github.com/Sirupsen/logrus"
 	"github.com/boltdb/bolt"
 )
 
 func init() {
-	storageEngines.RegisterStorageEngine(StorageEngineType, storageEngines.StorageEngineRegistration{
+	graph.RegisterGraph(GraphType, graph.GraphRegistration{
 		NewFunc: newStorageEngine,
 	})
 }
@@ -24,23 +25,23 @@ var (
 )
 
 const (
-	StorageEngineType        = "bolt"
-	bucketGraph       bucket = "graph"
-	bucketLabel       bucket = "label"
-	bucketIndex       bucket = "index"
+	GraphType          = "bolt"
+	bucketGraph bucket = "graph"
+	bucketLabel bucket = "label"
+	bucketIndex bucket = "index"
 )
 
 type (
 	//StorageEngine the underlying graph storage engine in this case boltdb
 	StorageEngine struct {
 		db      *bolt.DB
-		Options *graphs.Options
+		Options *graph.Options
 	}
 
 	bucket string
 )
 
-func createBolt(o *graphs.Options) *bolt.DB {
+func createBolt(o *graph.Options) *bolt.DB {
 	var err error
 	var db *bolt.DB
 	var b *bolt.Bucket
@@ -68,7 +69,7 @@ func createBolt(o *graphs.Options) *bolt.DB {
 }
 
 // Create adds a array of vertices to the persistence
-func (se *StorageEngine) Create(c ...*graphs.Vertex) error {
+func (se *StorageEngine) Create(c ...*vertices.Vertex) error {
 	var err error
 	var buf []byte
 	return se.db.Update(func(tx *bolt.Tx) error {
@@ -85,7 +86,7 @@ func (se *StorageEngine) Create(c ...*graphs.Vertex) error {
 }
 
 // Delete the array of vertices from the persistence
-func (g *StorageEngine) Delete(c ...*graphs.Vertex) error {
+func (g *StorageEngine) Delete(c ...*vertices.Vertex) error {
 	return g.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketGraph))
 		for _, vertex := range c {
@@ -96,10 +97,10 @@ func (g *StorageEngine) Delete(c ...*graphs.Vertex) error {
 }
 
 // Find a vertex from the persistence
-func (se *StorageEngine) Find(ID string) (*graphs.Vertex, error) {
+func (se *StorageEngine) Find(ID string) (*vertices.Vertex, error) {
 	var err error
 	var buf []byte
-	var v graphs.Vertex
+	var v vertices.Vertex
 	return &v, se.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketGraph))
 		buf = b.Get([]byte(ID))
@@ -113,7 +114,7 @@ func (se *StorageEngine) Find(ID string) (*graphs.Vertex, error) {
 }
 
 // Update the array of vertices from the persistence
-func (se *StorageEngine) Update(c ...*graphs.Vertex) error {
+func (se *StorageEngine) Update(c ...*vertices.Vertex) error {
 	var err error
 	var buf []byte
 	return se.db.Update(func(tx *bolt.Tx) error {
@@ -130,7 +131,7 @@ func (se *StorageEngine) Update(c ...*graphs.Vertex) error {
 }
 
 // NewStorageEngine creates a bolt graph
-func newStorageEngine(o *graphs.Options) (graphs.StorageEngine, error) {
+func newStorageEngine(o *graph.Options) (graph.Graph, error) {
 	se := &StorageEngine{Options: o, db: createBolt(o)}
 	c := make(chan os.Signal, 1)
 	se.backgroundTask(c)
@@ -140,6 +141,21 @@ func newStorageEngine(o *graphs.Options) (graphs.StorageEngine, error) {
 // Close graph
 func (g *StorageEngine) Close() {
 	g.db.Close()
+}
+
+func (se *StorageEngine) Query() *query.Query {
+	//todo need to setup channel from DFS or BFS
+	c := make(chan *vertices.Vertex)
+	return &query.Query{
+		Iterate: func() query.Iterator {
+			return func() (item *vertices.Vertex, ok bool) {
+				v, ok := <-c
+				return v, ok
+			}
+		},
+	}
+
+	return nil
 }
 
 func (g *StorageEngine) backgroundTask(c chan os.Signal) {

@@ -1,9 +1,9 @@
 package dfs
 
 import (
-	"github.com/RossMerr/Caudex.Graph/graph/vertices"
-	"github.com/RossMerr/Caudex.Graph/storageEngines"
+	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/traversal"
+	"github.com/RossMerr/Caudex.Graph/vertices"
 	"github.com/oleiade/lane"
 )
 
@@ -16,7 +16,7 @@ func init() {
 const TraversalType = "dfs"
 
 type DFS struct {
-	se storageEngines.StorageEngine
+	g graph.Graph
 }
 
 func newTraversal() (traversal.Traversal, error) {
@@ -42,7 +42,7 @@ func (dfs *DFS) Query(root *vertices.Vertex, fn func(*vertices.Vertex) bool) []*
 			if !marked[v.ID()] {
 				marked[v.ID()] = true
 				for _, e := range v.Edges() {
-					if v, err := dfs.se.Find(e.ID()); err == nil {
+					if v, err := dfs.g.Find(e.ID()); err == nil {
 						stack.Push(v)
 						marked[v.ID()] = false
 					}

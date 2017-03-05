@@ -1,6 +1,6 @@
 package query
 
-import "github.com/RossMerr/Caudex.Graph/graph/vertices"
+import "github.com/RossMerr/Caudex.Graph/vertices"
 
 type QueryResult struct {
 	Results []*vertices.Vertex
