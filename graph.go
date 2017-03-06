@@ -1,9 +1,6 @@
 package graph
 
-import (
-	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/vertices"
-)
+import "github.com/RossMerr/Caudex.Graph/vertices"
 
 //Graph structure for saving graph data
 type Graph interface {
@@ -12,5 +9,5 @@ type Graph interface {
 	Find(string) (*vertices.Vertex, error)
 	Update(...*vertices.Vertex) error
 	Close()
-	Query() *query.Query
+	Query() []*vertices.Vertex
 }
