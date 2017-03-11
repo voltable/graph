@@ -17,9 +17,10 @@ type Vertex struct {
 var (
 	errCreatVertexID = errors.New("Failed to create Vertex ID")
 	errEdgeNotFound  = errors.New("Edge Not found")
+	errIdNotSet      = errors.New("Use NewVertex to create a new Vertex")
 )
 
-func newVertex() (*Vertex, error) {
+func NewVertex() (*Vertex, error) {
 	var id string
 	var err error
 
@@ -100,6 +101,10 @@ func (v *Vertex) SetLabel(label string) *Vertex {
 
 // AddDirectedEdge links two vertex's and returns the edge
 func (v *Vertex) AddDirectedEdge(to *Vertex) (*Edge, error) {
+	if to.id == EmptyString {
+		return nil, errIdNotSet
+	}
+
 	edge := Edge{id: to.id, isDirected: Directed}
 	v.edges[edge.id] = edge
 	return &edge, nil
@@ -107,8 +112,16 @@ func (v *Vertex) AddDirectedEdge(to *Vertex) (*Edge, error) {
 
 // AddEdge links two vertex's and returns the edge
 func (v *Vertex) AddEdge(to *Vertex) (*Edge, *Edge, error) {
+	if to.id == EmptyString {
+		return nil, nil, errIdNotSet
+	}
+
 	edge := Edge{id: to.id, isDirected: Undirected}
 	v.edges[edge.id] = edge
+
+	if v.id == EmptyString {
+		return nil, nil, errIdNotSet
+	}
 
 	edge2 := Edge{id: v.id, isDirected: Undirected}
 	to.edges[edge2.id] = edge2

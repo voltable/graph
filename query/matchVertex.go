@@ -24,23 +24,3 @@ func (t VertexPath) MatchVertex(predicate func(v *vertices.Vertex) bool) EdgePat
 		},
 	}
 }
-
-// Iterate: func() Iterator {
-// 	index := 0
-// 	keys := src.MapKeys()
-
-// 	return func() (item interface{}, ok bool) {
-// 		ok = index < len
-// 		if ok {
-// 			key := keys[index]
-// 			item = KeyValue{
-// 				Key:   key.Interface(),
-// 				Value: src.MapIndex(key).Interface(),
-// 			}
-
-// 			index++
-// 		}
-
-// 		return
-// 	}
-// },

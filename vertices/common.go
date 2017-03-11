@@ -24,3 +24,6 @@ const (
 	// Undirected graphs have edges that do not have a direction. The edges indicate a two-way relationship, in that each edge can be traversed in both directions.
 	Undirected Digraph = iota
 )
+
+// EmptyString a string that is empty
+const EmptyString = ""
