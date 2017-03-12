@@ -18,7 +18,7 @@ func main() {
 		return v.Label() == "foo"
 	}).Match(func(e *vertices.Edge) bool {
 		return true
-	}).ToSliceAll()
+	}).ToSlice()
 
 	for _, v := range slice {
 		fmt.Println(v)

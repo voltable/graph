@@ -40,8 +40,8 @@ func (t *VertexPath) MatchAll() *EdgePath {
 	return t.Match(nil)
 }
 
-// ToSlice iterates over a collection and saves the results in the slice
-func (t *VertexPath) ToSlice(predicate func(v *vertices.Vertex) bool) []*vertices.Vertex {
+// MatchToSlice iterates over a collection and saves the results in the slice
+func (t *VertexPath) MatchToSlice(predicate func(v *vertices.Vertex) bool) []*vertices.Vertex {
 	if predicate == nil {
 		predicate = AllVertices()
 	}
@@ -58,8 +58,8 @@ func (t *VertexPath) ToSlice(predicate func(v *vertices.Vertex) bool) []*vertice
 	return slice
 }
 
-func (t *VertexPath) ToSliceAll() []*vertices.Vertex {
-	return t.ToSlice(nil)
+func (t *VertexPath) ToSlice() []*vertices.Vertex {
+	return t.MatchToSlice(nil)
 }
 
 // AllVertices matches all Vertexes.
