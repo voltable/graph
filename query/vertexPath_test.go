@@ -21,7 +21,7 @@ func Test_MatchVertex(t *testing.T) {
 		return it
 	}}
 
-	matches := p.MatchVertex(func(v *vertices.Vertex) bool {
+	matches := p.Match(func(v *vertices.Vertex) bool {
 		if v.Label() != "foo" {
 			t.Fatalf("Expected foo but was %s", v.Label())
 		}

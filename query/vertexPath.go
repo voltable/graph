@@ -4,8 +4,15 @@ import (
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
-// MatchVertex returns all Verteces matching the predicate
-func (t VertexPath) MatchVertex(predicate func(v *vertices.Vertex) bool) EdgePath {
+// VertexPath represents the Vertex part of a Path
+type VertexPath struct {
+	Iterate func() Iterator
+	next    Path
+	fetch   func(string) (*vertices.Vertex, error)
+}
+
+// Match returns all Verteces matching the predicate
+func (t VertexPath) Match(predicate func(v *vertices.Vertex) bool) EdgePath {
 	return EdgePath{
 		Iterate: func() Iterator {
 			next := t.Iterate()

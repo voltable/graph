@@ -1,7 +1,5 @@
 package query
 
-import graph "github.com/RossMerr/Caudex.Graph"
-
 type (
 	// Iterator is an alias for function to iterate over data.
 	Iterator func() (item interface{}, ok bool)
@@ -14,20 +12,6 @@ type (
 		Next() Path
 		InsertAfter(Path) Path
 		InsertBefore(Path) Path
-	}
-
-	// VertexPath represents the Vertex part of a Path
-	VertexPath struct {
-		Iterate func() Iterator
-		next    Path
-		graph   graph.Graph
-	}
-
-	// EdgePath represents the Edge part of a Path
-	EdgePath struct {
-		Iterate func() Iterator
-		next    Path
-		graph   graph.Graph
 	}
 )
 

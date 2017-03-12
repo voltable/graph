@@ -27,7 +27,7 @@
             "args": [
                 "-test.v",
                 "-test.run",
-                "^Test_MatchVertex"
+                "^Test_MatchEdge"
             ],
             "showLog": true
         }
