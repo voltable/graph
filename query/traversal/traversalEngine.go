@@ -5,7 +5,7 @@ import (
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
-func Query() *query.Query {
+func Query() *query.VertexPath {
 	//t, _ := NewTraversal("dfs")
 	//t.Query(root)
 	//todo need to setup channel from DFS or BFS

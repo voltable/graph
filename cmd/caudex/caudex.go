@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
@@ -12,13 +14,15 @@ func main() {
 		panic(err)
 	}
 
-	//v := vertices.N
-	//g.Create()
-
-	var results []*vertices.Vertex
-	g.Query().Where(func(v *vertices.Vertex) bool {
+	slice := g.Query().Match(func(v *vertices.Vertex) bool {
 		return v.Label() == "foo"
-	}).ToSlice(results)
+	}).Match(func(e *vertices.Edge) bool {
+		return true
+	}).ToSliceAll()
+
+	for _, v := range slice {
+		fmt.Println(v)
+	}
 
 	g.Close()
 }

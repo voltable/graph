@@ -8,7 +8,6 @@ import (
 
 	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/traversal"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 	"github.com/Sirupsen/logrus"
 	"github.com/boltdb/bolt"
@@ -144,8 +143,29 @@ func (g *StorageEngine) Close() {
 	g.db.Close()
 }
 
-func (se *StorageEngine) Query() *query.Query {
-	return traversal.Query()
+func (se *StorageEngine) Query() *query.VertexPath {
+	return &query.VertexPath{
+		Iterate: func() query.Iterator {
+			ch := make(chan vertices.Vertex)
+			go se.db.View(func(tx *bolt.Tx) error {
+				b := tx.Bucket([]byte(bucketGraph))
+				b.ForEach(func(k, v []byte) error {
+					vertex := vertices.Vertex{}
+					if err := json.Unmarshal(v, vertex); err == nil {
+						ch <- vertex
+					}
+					return nil
+				})
+				close(ch)
+				return nil
+			})
+
+			return func() (item interface{}, ok bool) {
+				v, ok := <-ch
+				return v, ok
+			}
+		},
+	}
 }
 
 func (g *StorageEngine) backgroundTask(c chan os.Signal) {

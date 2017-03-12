@@ -10,8 +10,12 @@ type EdgePath struct {
 }
 
 // Match returns all edges matching the predicate
-func (t EdgePath) Match(predicate func(*vertices.Edge) bool) VertexPath {
-	return VertexPath{
+func (t *EdgePath) Match(predicate func(*vertices.Edge) bool) *VertexPath {
+	if predicate == nil {
+		predicate = AllEdges()
+	}
+
+	return &VertexPath{
 		Iterate: func() Iterator {
 			next := t.Iterate()
 			return func() (item interface{}, ok bool) {
@@ -27,5 +31,16 @@ func (t EdgePath) Match(predicate func(*vertices.Edge) bool) VertexPath {
 				return
 			}
 		},
+	}
+}
+
+func (t *EdgePath) MatchAll() *VertexPath {
+	return t.Match(nil)
+}
+
+// AllEdges matches all Edge.
+func AllEdges() func(v *vertices.Edge) bool {
+	return func(v *vertices.Edge) bool {
+		return true
 	}
 }

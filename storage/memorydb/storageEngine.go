@@ -68,8 +68,8 @@ func (se *StorageEngine) Update(c ...*vertices.Vertex) error {
 	return nil
 }
 
-func (se *StorageEngine) Query() *query.Query {
-	return traversal.Query()
+func (se *StorageEngine) Query() *query.VertexPath {
+	return nil
 }
 
 func (se *StorageEngine) QueryRoot(predicate func(*vertices.Vertex) bool) *query.Query {
