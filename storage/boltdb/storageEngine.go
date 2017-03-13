@@ -162,7 +162,8 @@ func (se *StorageEngine) Query() *query.VertexPath {
 
 			return func() (item interface{}, ok bool) {
 				v, ok := <-ch
-				return v, ok
+				frontier := query.Frontier{&query.Path{[]*vertices.Vertex{&v}, 0}}
+				return frontier, ok
 			}
 		},
 	}
