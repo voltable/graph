@@ -30,6 +30,7 @@ func (t *VertexPath) Match(predicate func(v *vertices.Vertex) bool) *EdgePath {
 						sort.Sort(frontier)
 						path := frontier.peek()
 						vertex := path.Vertices[len(path.Vertices)-1]
+						t.Explored[vertex.ID()] = true
 						if predicate(vertex) {
 							return frontier, true
 						}

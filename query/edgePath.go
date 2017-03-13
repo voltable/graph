@@ -28,10 +28,12 @@ func (t *EdgePath) Match(predicate func(*vertices.Edge) bool) *VertexPath {
 						path, frontier := frontier.pop()
 						vertex := path.Vertices[len(path.Vertices)-1]
 						for _, e := range vertex.Edges() {
-							if predicate(e) {
-								if v, err := t.Fetch(e.ID()); err != nil {
-									frontier = append(frontier, &Path{append(path.Vertices, v), path.Cost + e.Weight()})
-									return frontier, true
+							if _, ok := t.Explored[e.ID()]; !ok {
+								if predicate(e) {
+									if v, err := t.Fetch(e.ID()); err != nil {
+										frontier = append(frontier, &Path{append(path.Vertices, v), path.Cost + e.Weight()})
+										return frontier, true
+									}
 								}
 							}
 						}
