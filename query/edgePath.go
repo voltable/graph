@@ -1,7 +1,6 @@
 package query
 
 import (
-	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
@@ -23,13 +22,13 @@ func (t *EdgePath) Match(predicate func(*vertices.Edge) bool) *VertexPath {
 			next := t.Iterate()
 			return func() (item interface{}, ok bool) {
 				for item, ok = next(); ok; item, ok = next() {
-					if frontier, is := item.(query.Frontier); is {
-						path, frontier = frontier.pop()
-						vertex := path.Vertices[len(p.Vertices)-1]
+					if frontier, is := item.(Frontier); is {
+						path, frontier := frontier.pop()
+						vertex := path.Vertices[len(path.Vertices)-1]
 						for _, e := range vertex.Edges() {
 							if predicate(e) {
 								if v, err := t.fetch(e.ID()); err != nil {
-									frontier = append(frontier, &path{append(path.Vertices, v), path.Cost + e.Weight()})
+									frontier = append(frontier, &Path{append(path.Vertices, v), path.Cost + e.Weight()})
 									return frontier, true
 								}
 							}

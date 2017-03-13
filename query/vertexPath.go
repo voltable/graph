@@ -3,7 +3,6 @@ package query
 import (
 	"sort"
 
-	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
@@ -25,11 +24,11 @@ func (t *VertexPath) Match(predicate func(v *vertices.Vertex) bool) *EdgePath {
 			next := t.Iterate()
 			return func() (item interface{}, ok bool) {
 				for item, ok = next(); ok; item, ok = next() {
-					if frontier, is := item.(query.Frontier); is {
+					if frontier, is := item.(Frontier); is {
 						sort.Sort(frontier)
 						path := frontier.peek()
-						v := path.Vertices[len(p.Vertices)-1]
-						if predicate(v) {
+						vertex := path.Vertices[len(path.Vertices)-1]
+						if predicate(vertex) {
 							return frontier, true
 						}
 					}
