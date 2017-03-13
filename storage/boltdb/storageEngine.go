@@ -144,7 +144,11 @@ func (g *StorageEngine) Close() {
 }
 
 func (se *StorageEngine) Query() *query.VertexPath {
+	explored := make(map[string]bool)
+
 	return &query.VertexPath{
+		Explored: explored,
+		Fetch:    se.Find,
 		Iterate: func() query.Iterator {
 			ch := make(chan vertices.Vertex)
 			go se.db.View(func(tx *bolt.Tx) error {

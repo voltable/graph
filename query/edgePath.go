@@ -6,9 +6,9 @@ import (
 
 // EdgePath represents the Edge part of a Path
 type EdgePath struct {
-	Iterate func() Iterator
-	next    Path
-	fetch   func(string) (*vertices.Vertex, error)
+	Iterate  func() Iterator
+	Explored map[string]bool
+	Fetch    func(string) (*vertices.Vertex, error)
 }
 
 // Match returns all edges matching the predicate
@@ -18,6 +18,8 @@ func (t *EdgePath) Match(predicate func(*vertices.Edge) bool) *VertexPath {
 	}
 
 	return &VertexPath{
+		Explored: t.Explored,
+		Fetch:    t.Fetch,
 		Iterate: func() Iterator {
 			next := t.Iterate()
 			return func() (item interface{}, ok bool) {
@@ -27,7 +29,7 @@ func (t *EdgePath) Match(predicate func(*vertices.Edge) bool) *VertexPath {
 						vertex := path.Vertices[len(path.Vertices)-1]
 						for _, e := range vertex.Edges() {
 							if predicate(e) {
-								if v, err := t.fetch(e.ID()); err != nil {
+								if v, err := t.Fetch(e.ID()); err != nil {
 									frontier = append(frontier, &Path{append(path.Vertices, v), path.Cost + e.Weight()})
 									return frontier, true
 								}
