@@ -30,7 +30,7 @@ func Test_MatchEdge(t *testing.T) {
 		return it
 	}, Fetch: fetch, Explored: make(map[string]bool)}
 
-	matches := p.Match(func(v *vertices.Edge) bool {
+	matches := p.Relationship(func(v *vertices.Edge) bool {
 		if v.Label() != "foo" {
 			t.Fatalf("Expected foo but was %s", v.Label())
 		}

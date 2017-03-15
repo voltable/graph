@@ -7,6 +7,7 @@ type (
 		isDirected Digraph
 		weight     float32
 		label      string
+		properties map[string]interface{}
 	}
 
 	Edges []*Edge
@@ -33,6 +34,20 @@ func (e *Edge) Label() string {
 
 func (e *Edge) SetLabel(label string) {
 	e.label = label
+}
+
+// SetProperty set a property to store against this Edge
+func (e *Edge) SetProperty(name string, property interface{}) {
+	e.properties[name] = property
+}
+
+// Property gets a property to store on the Edge
+func (e *Edge) Property(name string) interface{} {
+	return e.properties[name]
+}
+
+func (e *Edge) DeleteProperty(name string) {
+	delete(e.properties, name)
 }
 
 func (a Edges) Len() int           { return len(a) }

@@ -13,8 +13,12 @@ type VertexPath struct {
 	Fetch    func(string) (*vertices.Vertex, error)
 }
 
-// Match returns all Verteces matching the predicate
-func (t *VertexPath) Match(predicate func(v *vertices.Vertex) bool) *EdgePath {
+func NewVertexPath(i func() Iterator, f func(string) (*vertices.Vertex, error)) *VertexPath {
+	return &VertexPath{Explored: make(map[string]bool), Fetch: f, Iterate: i}
+}
+
+// Node returns all Verteces matching the predicate
+func (t *VertexPath) Node(predicate PredicateVertex) *EdgePath {
 	if predicate == nil {
 		predicate = AllVertices()
 	}
@@ -42,12 +46,8 @@ func (t *VertexPath) Match(predicate func(v *vertices.Vertex) bool) *EdgePath {
 	}
 }
 
-func (t *VertexPath) MatchAll() *EdgePath {
-	return t.Match(nil)
-}
-
 // AllVertices matches all Vertexes.
-func AllVertices() func(v *vertices.Vertex) bool {
+func AllVertices() PredicateVertex {
 	return func(v *vertices.Vertex) bool {
 		return true
 	}

@@ -14,11 +14,11 @@ func main() {
 		panic(err)
 	}
 
-	slice := g.Query().Match(func(v *vertices.Vertex) bool {
+	slice := g.Query().Node(func(v *vertices.Vertex) bool {
 		return v.Label() == "foo"
-	}).Match(func(e *vertices.Edge) bool {
+	}).Relationship(func(e *vertices.Edge) bool {
 		return true
-	}).Match(func(v *vertices.Vertex) bool {
+	}).Node(func(v *vertices.Vertex) bool {
 		return v.Label() == "foo"
 	}).ToSlice()
 

@@ -6,8 +6,11 @@ type (
 	// Iterator is an alias for function to iterate over data.
 	Iterator func() (item interface{}, ok bool)
 
-	// MatchPattern is used for describing the pattern to search for represents a walk through a the graph and consists of a sequence of alternating nodes and relationships.
-	//MatchPattern map[string]Path
+	// PredicateVertex apply the predicate over the vertex
+	PredicateVertex func(v *vertices.Vertex) bool
+
+	//PredicateEdge apply the predicate over the edge
+	PredicateEdge func(*vertices.Edge) bool
 
 	Path struct {
 		Vertices []*vertices.Vertex

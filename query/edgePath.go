@@ -11,8 +11,8 @@ type EdgePath struct {
 	Fetch    func(string) (*vertices.Vertex, error)
 }
 
-// Match returns all edges matching the predicate
-func (t *EdgePath) Match(predicate func(*vertices.Edge) bool) *VertexPath {
+// Relationship returns all edges matching the predicate
+func (t *EdgePath) Relationship(predicate PredicateEdge) *VertexPath {
 	if predicate == nil {
 		predicate = AllEdges()
 	}
@@ -45,12 +45,8 @@ func (t *EdgePath) Match(predicate func(*vertices.Edge) bool) *VertexPath {
 	}
 }
 
-func (t *EdgePath) MatchAll() *VertexPath {
-	return t.Match(nil)
-}
-
 // AllEdges matches all Edge.
-func AllEdges() func(v *vertices.Edge) bool {
+func AllEdges() PredicateEdge {
 	return func(v *vertices.Edge) bool {
 		return true
 	}
