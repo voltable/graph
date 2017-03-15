@@ -55,3 +55,19 @@ func AllEdges() func(v *vertices.Edge) bool {
 		return true
 	}
 }
+
+// Returns the final matching Vertexs of the query to a slice
+func (t *EdgePath) ToSlice() []*vertices.Vertex {
+
+	slice := []*vertices.Vertex{}
+	next := t.Iterate()
+	for item, ok := next(); ok; item, ok = next() {
+		if frontier, is := item.(Frontier); is {
+			path, _ := frontier.pop()
+			vertex := path.Vertices[len(path.Vertices)-1]
+			slice = append(slice, vertex)
+
+		}
+	}
+	return slice
+}

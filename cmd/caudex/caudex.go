@@ -18,6 +18,8 @@ func main() {
 		return v.Label() == "foo"
 	}).Match(func(e *vertices.Edge) bool {
 		return true
+	}).Match(func(v *vertices.Vertex) bool {
+		return v.Label() == "foo"
 	}).ToSlice()
 
 	for _, v := range slice {
