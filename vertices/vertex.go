@@ -9,7 +9,7 @@ import (
 // Vertex .
 type Vertex struct {
 	id         string
-	edges      map[string]Edge
+	edges      map[string]*Edge
 	label      string
 	properties map[string]interface{}
 }
@@ -28,7 +28,7 @@ func NewVertex() (*Vertex, error) {
 		return nil, errCreatVertexID
 	}
 
-	v := Vertex{id: id, edges: make(map[string]Edge)}
+	v := Vertex{id: id, edges: make(map[string]*Edge)}
 	return &v, nil
 }
 
@@ -60,7 +60,7 @@ func (v *Vertex) Label() string {
 func (v *Vertex) Edges() Edges {
 	edges := make(Edges, 0, len(v.edges))
 	for _, value := range v.edges {
-		edges = append(edges, &value)
+		edges = append(edges, value)
 	}
 
 	return edges
@@ -86,7 +86,7 @@ func (v *Vertex) removeRelationshipsOnVertex(to *Vertex) Digraph {
 
 func (v *Vertex) removeRelationshipsF(f func(id string, e Edge) bool) Digraph {
 	for id, edge := range v.edges {
-		if f(id, edge) {
+		if f(id, *edge) {
 			delete(v.edges, edge.id)
 			return edge.isDirected
 		}
@@ -105,9 +105,9 @@ func (v *Vertex) AddDirectedEdge(to *Vertex) (*Edge, error) {
 		return nil, errIdNotSet
 	}
 
-	edge := Edge{id: to.id, isDirected: Directed}
+	edge := &Edge{id: to.id, isDirected: Directed}
 	v.edges[edge.id] = edge
-	return &edge, nil
+	return edge, nil
 }
 
 // AddEdge links two vertex's and returns the edge
@@ -116,16 +116,16 @@ func (v *Vertex) AddEdge(to *Vertex) (*Edge, *Edge, error) {
 		return nil, nil, errIdNotSet
 	}
 
-	edge := Edge{id: to.id, isDirected: Undirected}
+	edge := &Edge{id: to.id, isDirected: Undirected}
 	v.edges[edge.id] = edge
 
 	if v.id == EmptyString {
 		return nil, nil, errIdNotSet
 	}
 
-	edge2 := Edge{id: v.id, isDirected: Undirected}
+	edge2 := &Edge{id: v.id, isDirected: Undirected}
 	to.edges[edge2.id] = edge2
-	return &edge, &edge2, nil
+	return edge, edge2, nil
 }
 
 // RemoveEdgeByLabel remove a edge

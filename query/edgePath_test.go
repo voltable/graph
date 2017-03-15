@@ -15,9 +15,11 @@ func Test_MatchEdge(t *testing.T) {
 	edge, _ := vertex.AddDirectedEdge(vertexDirection)
 	edge.SetLabel("foo")
 
+	frontier := Frontier{&Path{[]*vertices.Vertex{vertex}, 0}}
+
 	it := func() (item interface{}, ok bool) {
 		state = XOR(state)
-		return edge, state
+		return frontier, state
 	}
 
 	fetch := func(string) (*vertices.Vertex, error) {
@@ -26,11 +28,11 @@ func Test_MatchEdge(t *testing.T) {
 
 	p := EdgePath{Iterate: func() Iterator {
 		return it
-	}, fetch: fetch}
+	}, Fetch: fetch, Explored: make(map[string]bool)}
 
 	matches := p.Match(func(v *vertices.Edge) bool {
 		if v.Label() != "foo" {
-			t.Fatalf("Expected foo but was %s", edge.Label())
+			t.Fatalf("Expected foo but was %s", v.Label())
 		}
 		return true
 	})

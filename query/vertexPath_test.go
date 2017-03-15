@@ -12,14 +12,16 @@ func Test_MatchVertex(t *testing.T) {
 	vertexDirection, _ := vertices.NewVertex()
 	vertex.AddDirectedEdge(vertexDirection)
 
+	frontier := Frontier{&Path{[]*vertices.Vertex{vertex}, 0}}
+
 	it := func() (item interface{}, ok bool) {
 		state = XOR(state)
-		return vertex, state
+		return frontier, state
 	}
 
 	p := VertexPath{Iterate: func() Iterator {
 		return it
-	}}
+	}, Explored: make(map[string]bool)}
 
 	matches := p.Match(func(v *vertices.Vertex) bool {
 		if v.Label() != "foo" {
@@ -28,7 +30,9 @@ func Test_MatchVertex(t *testing.T) {
 		return true
 	})
 
-	matches.Iterate()()
+	next := matches.Iterate()
+
+	next()
 }
 
 // Swaps the boolean

@@ -144,10 +144,8 @@ func (g *StorageEngine) Close() {
 }
 
 func (se *StorageEngine) Query() *query.VertexPath {
-	explored := make(map[string]bool)
-
 	return &query.VertexPath{
-		Explored: explored,
+		Explored: make(map[string]bool),
 		Fetch:    se.Find,
 		Iterate: func() query.Iterator {
 			ch := make(chan vertices.Vertex)
