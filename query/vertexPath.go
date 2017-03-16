@@ -18,12 +18,12 @@ func NewVertexPath(i func() Iterator, f func(string) (*vertices.Vertex, error)) 
 }
 
 // Node returns all Verteces matching the predicate
-func (t *VertexPath) Node(predicate PredicateVertex) *EdgePath {
+func (t *VertexPath) Node(predicate PredicateVertex) *VertexToRelationshipPath {
 	if predicate == nil {
 		predicate = AllVertices()
 	}
 
-	return &EdgePath{
+	return &VertexToRelationshipPath{
 		Explored: t.Explored,
 		Fetch:    t.Fetch,
 		Iterate: func() Iterator {
