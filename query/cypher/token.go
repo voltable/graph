@@ -9,20 +9,24 @@ const (
 	EOF
 	WS
 
+	// Literals
+	IDENT // fields, table_name
+
 	clausesBag
 	MATCH
 	RETURN
 	UNWIND
-	OPTIONALMATCH
+	OPTIONAL
 	WITH
 	UNION
 	CREATE
 	MERGE
 	SET
 	DELETE
-	DETACHDELETE
+	DETACH
 	REMOVE
-	CALLYIELD
+	CALL
+	YIELD
 	clausesEnd
 
 	operatorBeg
@@ -71,19 +75,20 @@ const (
 var keywords map[string]Token
 
 var tokens = [...]string{
-	MATCH:         "MATCH",
-	RETURN:        "RETURN",
-	UNWIND:        "UNWIND",
-	OPTIONALMATCH: "OPTIONAL MATCH",
-	WITH:          "WITH",
-	UNION:         "UNION",
-	CREATE:        "CREATE",
-	MERGE:         "MERGE",
-	SET:           "SET",
-	DELETE:        "DELETE",
-	DETACHDELETE:  "DETACH DELETE",
-	REMOVE:        "REMOVE",
-	CALLYIELD:     "CALL …​ YIELD",
+	MATCH:    "MATCH",
+	RETURN:   "RETURN",
+	UNWIND:   "UNWIND",
+	OPTIONAL: "OPTIONAL",
+	WITH:     "WITH",
+	UNION:    "UNION",
+	CREATE:   "CREATE",
+	MERGE:    "MERGE",
+	SET:      "SET",
+	DELETE:   "DELETE",
+	DETACH:   "DETACH",
+	REMOVE:   "REMOVE",
+	CALL:     "CALL",
+	YIELD:    "YIELD",
 
 	LPAREN:  "(",
 	RPAREN:  ")",

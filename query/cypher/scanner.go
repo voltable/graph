@@ -28,15 +28,22 @@ func (s *Scanner) read() rune {
 }
 
 // unread places the previously read rune back on the reader.
-func (s *Scanner) unread() { _ = s.r.UnreadRune() }
+func (s *Scanner) unread() {
+	_ = s.r.UnreadRune()
+}
 
+// isWhitespace returns true if the rune is a space, tab, or newline.
 func isWhitespace(ch rune) bool {
 	return ch == ' ' || ch == '\t' || ch == '\n'
 }
 
+// isLetter returns true if the rune is a letter.
 func isLetter(ch rune) bool {
 	return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
 }
+
+// isDigit returns true if the rune is a digit.
+func isDigit(ch rune) bool { return (ch >= '0' && ch <= '9') }
 
 // Scan returns the next token and literal value.
 func (s *Scanner) Scan() (tok Token, lit string) {
@@ -57,10 +64,23 @@ func (s *Scanner) Scan() (tok Token, lit string) {
 	switch ch {
 	case eof:
 		return EOF, ""
-	case '*':
-		return ASTERISK, string(ch)
+	case '(':
+		return LPAREN, string(ch)
+	case ')':
+		return RPAREN, string(ch)
 	case ',':
 		return COMMA, string(ch)
+	case ':':
+		return COLON, string(ch)
+	case '.':
+		return DOT, string(ch)
+	case '|':
+		return PIPE, string(ch)
+	case '[':
+		return LSQUARE, string(ch)
+	case ']':
+		return RSQUARE, string(ch)
+
 	}
 
 	return ILLEGAL, string(ch)
@@ -109,10 +129,35 @@ func (s *Scanner) scanIdent() (tok Token, lit string) {
 
 	// If the string matches a keyword then return that keyword.
 	switch strings.ToUpper(buf.String()) {
-	case "SELECT":
-		return SELECT, buf.String()
-	case "FROM":
-		return FROM, buf.String()
+	case "MATCH":
+		return MATCH, buf.String()
+	case "RETURN":
+		return RETURN, buf.String()
+	case "UNWIND":
+		return UNWIND, buf.String()
+	case "OPTIONAL":
+		return OPTIONAL, buf.String()
+	case "WITH":
+		return WITH, buf.String()
+	case "UNION":
+		return UNION, buf.String()
+	case "CREATE":
+		return CREATE, buf.String()
+	case "MERGE":
+		return MERGE, buf.String()
+	case "SET":
+		return SET, buf.String()
+	case "DELETE":
+		return DELETE, buf.String()
+	case "DETACH":
+		return DETACH, buf.String()
+	case "REMOVE":
+		return REMOVE, buf.String()
+	case "CALL":
+		return CALL, buf.String()
+	case "YIELD":
+		return YIELD, buf.String()
+
 	}
 
 	// Otherwise return as a regular identifier.
