@@ -44,7 +44,7 @@
             "args": [
                 "-test.v",
                 "-test.run",
-                "^TestScanner_Scan"
+                "^TestParser_ParseStatement"
             ],
             "showLog": true
         }        

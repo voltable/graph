@@ -30,7 +30,6 @@ func TestScanner_Scan(t *testing.T) {
 		{s: `REMOVE`, tok: cypher.REMOVE},
 		{s: `CALL`, tok: cypher.CALL},
 		{s: `YIELD`, tok: cypher.YIELD},
-
 		{s: `(`, tok: cypher.LPAREN},
 		{s: `)`, tok: cypher.RPAREN},
 		{s: `,`, tok: cypher.COMMA},
@@ -39,6 +38,20 @@ func TestScanner_Scan(t *testing.T) {
 		{s: `|`, tok: cypher.PIPE},
 		{s: `[`, tok: cypher.LSQUARE},
 		{s: `]`, tok: cypher.RSQUARE},
+		{s: `{`, tok: cypher.LCURLY},
+		{s: `}`, tok: cypher.RCURLY},
+		{s: `"`, tok: cypher.QUOTATION},
+
+		{s: `AND`, tok: cypher.AND},
+		{s: `OR`, tok: cypher.OR},
+		{s: `XOR`, tok: cypher.XOR},
+		{s: `NOT`, tok: cypher.NOT},
+
+		{s: `<`, tok: cypher.LT},
+		{s: `>`, tok: cypher.GT},
+		{s: `=`, tok: cypher.EQ},
+		{s: `IS`, tok: cypher.IS},
+		{s: `NULL`, tok: cypher.NULL},
 	}
 
 	for i, tt := range tests {

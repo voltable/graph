@@ -55,11 +55,15 @@ func (s *Scanner) Scan() (tok Token, lit string) {
 	if isWhitespace(ch) {
 		s.unread()
 		return s.scanWhitespace()
-	} else if isLetter(ch) {
-		s.unread()
-		return s.scanIdent()
+	} else if tok, lit := s.scanCharacter(ch); tok != ILLEGAL {
+		return tok, lit
 	}
 
+	s.unread()
+	return s.scanIdent()
+}
+
+func (s *Scanner) scanCharacter(ch rune) (tok Token, lit string) {
 	// Otherwise read the individual character.
 	switch ch {
 	case eof:
@@ -80,7 +84,30 @@ func (s *Scanner) Scan() (tok Token, lit string) {
 		return LSQUARE, string(ch)
 	case ']':
 		return RSQUARE, string(ch)
-
+	case '+':
+		return ADD, string(ch)
+	case '-':
+		return SUB, string(ch)
+	case '*':
+		return MUL, string(ch)
+	case '/':
+		return DIV, string(ch)
+	case '%':
+		return MOD, string(ch)
+	case '^':
+		return POW, string(ch)
+	case '=':
+		return EQ, string(ch)
+	case '<':
+		return LT, string(ch)
+	case '>':
+		return GT, string(ch)
+	case '{':
+		return LCURLY, string(ch)
+	case '}':
+		return RCURLY, string(ch)
+	case '"':
+		return QUOTATION, string(ch)
 	}
 
 	return ILLEGAL, string(ch)
@@ -113,13 +140,13 @@ func (s *Scanner) scanIdent() (tok Token, lit string) {
 	// Create a buffer and read the current character into it.
 	var buf bytes.Buffer
 	buf.WriteRune(s.read())
-
 	// Read every subsequent ident character into the buffer.
 	// Non-ident characters and EOF will cause the loop to exit.
 	for {
 		if ch := s.read(); ch == eof {
 			break
-		} else if !isLetter(ch) && !isDigit(ch) && ch != '_' {
+		} else if isWhitespace(ch) && ch != '_' {
+
 			s.unread()
 			break
 		} else {
@@ -127,37 +154,34 @@ func (s *Scanner) scanIdent() (tok Token, lit string) {
 		}
 	}
 
-	// If the string matches a keyword then return that keyword.
-	switch strings.ToUpper(buf.String()) {
-	case "MATCH":
-		return MATCH, buf.String()
-	case "RETURN":
-		return RETURN, buf.String()
-	case "UNWIND":
-		return UNWIND, buf.String()
-	case "OPTIONAL":
-		return OPTIONAL, buf.String()
-	case "WITH":
-		return WITH, buf.String()
-	case "UNION":
-		return UNION, buf.String()
-	case "CREATE":
-		return CREATE, buf.String()
-	case "MERGE":
-		return MERGE, buf.String()
-	case "SET":
-		return SET, buf.String()
-	case "DELETE":
-		return DELETE, buf.String()
-	case "DETACH":
-		return DETACH, buf.String()
-	case "REMOVE":
-		return REMOVE, buf.String()
-	case "CALL":
-		return CALL, buf.String()
-	case "YIELD":
-		return YIELD, buf.String()
+	lit = buf.String()
 
+	if tok = Keyword(lit); tok != IDENT {
+		return tok, buf.String()
+	}
+
+	if tok = Boolean(lit); tok != IDENT {
+		return tok, buf.String()
+	}
+
+	if tok = Comparison(lit); tok != IDENT {
+		return tok, buf.String()
+	}
+
+	switch strings.ToUpper(buf.String()) {
+
+	case "<>":
+		return NEQ, buf.String()
+	case "<=":
+		return LTE, buf.String()
+	case ">=":
+		return GTE, buf.String()
+	case "IS":
+		return IS, buf.String()
+	case "NULL":
+		return NULL, buf.String()
+	case "=~":
+		return EQREGEX, buf.String()
 	}
 
 	// Otherwise return as a regular identifier.
