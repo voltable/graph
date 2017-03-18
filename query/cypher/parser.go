@@ -3,6 +3,7 @@ package cypher
 import (
 	"fmt"
 	"io"
+	"strconv"
 )
 
 const emptyString = ""
@@ -56,17 +57,33 @@ func (p *Parser) KeyValue() (map[string]interface{}, bool) {
 		}
 
 		tok, lit = p.scanIgnoreWhitespace()
-		if tok != IDENT && tok != QUOTATION {
-			panic(fmt.Sprintf("found %q, expected field", lit))
+		if tok != IDENT && tok == QUOTATION {
+			// We found a double quoted string
+			tok, lit = p.scanIgnoreWhitespace()
+			properties[prop] = lit
+			tok, lit = p.scanIgnoreWhitespace()
+			if tok != IDENT && tok != QUOTATION {
+				panic(fmt.Sprintf("found %q, expected field", lit))
+			}
+		} else if tok != IDENT && tok == SINGLEQUOTATION {
+			// We found a single quoted string
+			tok, lit = p.scanIgnoreWhitespace()
+			properties[prop] = lit
+			tok, lit = p.scanIgnoreWhitespace()
+			if tok != IDENT && tok != SINGLEQUOTATION {
+				panic(fmt.Sprintf("found %q, expected field", lit))
+			}
+		} else {
+			if b, err := strconv.ParseBool(lit); err == nil {
+				properties[prop] = b
+			} else if i, err := strconv.Atoi(lit); err == nil {
+				properties[prop] = i
+			} else if f, err := strconv.ParseFloat(lit, 64); err == nil {
+				properties[prop] = f
+			} else {
+				properties[prop] = lit
+			}
 		}
-
-		tok, lit = p.scanIgnoreWhitespace()
-		properties[prop] = lit
-		tok, lit = p.scanIgnoreWhitespace()
-		if tok != IDENT && tok != QUOTATION {
-			panic(fmt.Sprintf("found %q, expected field", lit))
-		}
-
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok != COMMA {
 			p.unscan()

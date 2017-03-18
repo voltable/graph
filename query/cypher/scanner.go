@@ -108,6 +108,8 @@ func (s *Scanner) scanCharacter(ch rune) (tok Token, lit string) {
 		return RCURLY, string(ch)
 	case '"':
 		return QUOTATION, string(ch)
+	case '\'':
+		return SINGLEQUOTATION, string(ch)
 	}
 
 	return ILLEGAL, string(ch)

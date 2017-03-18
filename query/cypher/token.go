@@ -63,17 +63,18 @@ const (
 	// Regular expression matching
 	EQREGEX // =~
 
-	LPAREN    // (
-	RPAREN    // )
-	COMMA     // ,
-	COLON     // :
-	DOT       // .
-	PIPE      // |
-	LSQUARE   // [
-	RSQUARE   // ]
-	LCURLY    // {
-	RCURLY    // }
-	QUOTATION // "
+	LPAREN          // (
+	RPAREN          // )
+	COMMA           // ,
+	COLON           // :
+	DOT             // .
+	PIPE            // |
+	LSQUARE         // [
+	RSQUARE         // ]
+	LCURLY          // {
+	RCURLY          // }
+	QUOTATION       // "
+	SINGLEQUOTATION // '
 )
 
 var tokens = [...]string{
@@ -92,17 +93,18 @@ var tokens = [...]string{
 	CALL:     "CALL",
 	YIELD:    "YIELD",
 
-	LPAREN:    "(",
-	RPAREN:    ")",
-	COMMA:     ",",
-	COLON:     ":",
-	DOT:       ".",
-	PIPE:      "|",
-	LSQUARE:   "[",
-	RSQUARE:   "]",
-	LCURLY:    "{",
-	RCURLY:    "}",
-	QUOTATION: "\"",
+	LPAREN:          "(",
+	RPAREN:          ")",
+	COMMA:           ",",
+	COLON:           ":",
+	DOT:             ".",
+	PIPE:            "|",
+	LSQUARE:         "[",
+	RSQUARE:         "]",
+	LCURLY:          "{",
+	RCURLY:          "}",
+	QUOTATION:       "\"",
+	SINGLEQUOTATION: "'",
 
 	AND: "AND",
 	OR:  "OR",
