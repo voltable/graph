@@ -99,10 +99,15 @@ func (p *Parser) Node() (*MatchVertexStatement, bool) {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != IDENT && tok == LPAREN {
 		stmt := &MatchVertexStatement{}
-		stmt.Properties = make(map[string]interface{})
 
 		tok, lit = p.scanIgnoreWhitespace()
-		stmt.Variable = lit
+		if tok == RPAREN {
+			return stmt, true
+		} else if tok != COLON {
+			stmt.Variable = lit
+		} else {
+			p.unscan()
+		}
 
 		if label, ok := p.Label(); ok {
 			stmt.Label = label

@@ -18,12 +18,32 @@ func TestParser_ParseStatement(t *testing.T) {
 		err  string
 	}{
 		{
+			s:    `MATCH ()`,
+			stmt: &cypher.MatchVertexStatement{},
+		},
+		{
+			s:    `MATCH (you)`,
+			stmt: &cypher.MatchVertexStatement{Variable: "you"},
+		},
+		{
+			s:    `MATCH (:Person)`,
+			stmt: &cypher.MatchVertexStatement{Label: "Person"},
+		},
+		{
+			s:    `MATCH (you:Person)`,
+			stmt: &cypher.MatchVertexStatement{Variable: "you", Label: "Person"},
+		},
+		{
 			s:    `MATCH (you:Person {name:"You"})`,
 			stmt: &cypher.MatchVertexStatement{Variable: "you", Label: "Person", Properties: map[string]interface{}{"name": "You"}},
 		},
 		{
 			s:    `MATCH (you:Person {name:"You",age: 21})`,
 			stmt: &cypher.MatchVertexStatement{Variable: "you", Label: "Person", Properties: map[string]interface{}{"name": "You", "age": 21}},
+		},
+		{
+			s:    `MATCH (you:Person {name:"You",age: 21, happy :true})`,
+			stmt: &cypher.MatchVertexStatement{Variable: "you", Label: "Person", Properties: map[string]interface{}{"name": "You", "age": 21, "happy": true}},
 		},
 	}
 
