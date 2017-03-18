@@ -135,6 +135,11 @@ func (s *Scanner) scanWhitespace() (tok Token, lit string) {
 	return WS, buf.String()
 }
 
+func (s *Scanner) isCharacter(ch rune) bool {
+	tok, _ := s.scanCharacter(ch)
+	return tok != ILLEGAL
+}
+
 // scanIdent consumes the current rune and all contiguous ident runes.
 func (s *Scanner) scanIdent() (tok Token, lit string) {
 	// Create a buffer and read the current character into it.
@@ -145,8 +150,7 @@ func (s *Scanner) scanIdent() (tok Token, lit string) {
 	for {
 		if ch := s.read(); ch == eof {
 			break
-		} else if isWhitespace(ch) && ch != '_' {
-
+		} else if isWhitespace(ch) && ch != '_' || s.isCharacter(ch) {
 			s.unread()
 			break
 		} else {

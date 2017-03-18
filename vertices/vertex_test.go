@@ -1,11 +1,13 @@
-package vertices
+package vertices_test
 
 import (
 	"testing"
+
+	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 func Test_VertexLabels(t *testing.T) {
-	v := Vertex{}
+	v := vertices.Vertex{}
 	v.SetLabel("foo")
 
 	if v.Label() != "foo" {
@@ -14,7 +16,7 @@ func Test_VertexLabels(t *testing.T) {
 }
 
 func Test_NewVertex(t *testing.T) {
-	v, err := NewVertex()
+	v, err := vertices.NewVertex()
 
 	if err != nil {
 		t.Fatalf("Expected err to be nil but was %s", err)
@@ -24,25 +26,25 @@ func Test_NewVertex(t *testing.T) {
 		t.Fatalf("Expected ID to be set but was %s", v.ID)
 	}
 
-	if v.edges == nil {
-		t.Fatalf("Expected edges to be set but was %s", v.edges)
+	if v.Edges() == nil {
+		t.Fatalf("Expected edges to be set but was %s", v.Edges())
 	}
 
 }
 
-func Test_Edges(t *testing.T) {
-	v, _ := NewVertex()
-	e := Edge{}
-	v.edges["test"] = e
+// func Test_Edges(t *testing.T) {
+// 	v, _ := vertices.NewVertex()
+// 	e := vertices.Edge{}
+// 	v.edges["test"] = e
 
-	if len(v.Edges()) != 1 {
-		t.Fatalf("Expected 1 edge but was %s", len(v.Edges()))
-	}
-}
+// 	if len(v.Edges()) != 1 {
+// 		t.Fatalf("Expected 1 edge but was %s", len(v.Edges()))
+// 	}
+// }
 
 func Test_AddDirectedEdge(t *testing.T) {
-	vertex, _ := NewVertex()
-	vertexDirection, _ := NewVertex()
+	vertex, _ := vertices.NewVertex()
+	vertexDirection, _ := vertices.NewVertex()
 	_, err := vertex.AddDirectedEdge(vertexDirection)
 
 	if err != nil {

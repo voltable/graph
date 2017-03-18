@@ -5,6 +5,8 @@ import (
 	"io"
 )
 
+const emptyString = ""
+
 // Parser represents a parser.
 type Parser struct {
 	s   *Scanner
@@ -15,90 +17,119 @@ type Parser struct {
 	}
 }
 
-// Parse parses a cypher MATCH statement.
-func (p *Parser) Parse() (*MatchVertexStatement, error) {
-	stmt := &MatchVertexStatement{}
-
-	// First token should be a "MATCH" keyword.
-	if tok, lit := p.scanIgnoreWhitespace(); tok != MATCH {
-		return nil, fmt.Errorf("found %q, expected MATCH", lit)
+func (p *Parser) Label() (string, bool) {
+	tok, lit := p.scanIgnoreWhitespace()
+	if tok != IDENT && tok == COLON {
+		tok, lit = p.scanIgnoreWhitespace()
+		return lit, true
 	}
+	p.unscan()
+	return emptyString, false
+}
 
-	// Next we should loop over all our comma-delimited fields.
-	for {
-		// // Read a field.
-		tok, lit := p.scanIgnoreWhitespace()
-		if tok != IDENT && tok != LPAREN {
-			return nil, fmt.Errorf("found %q, expected field", lit)
-		}
-		tok, lit = p.scanIgnoreWhitespace()
-		stmt.Variable = lit
+func (p *Parser) Properties() (map[string]interface{}, bool) {
+	tok, lit := p.scanIgnoreWhitespace()
+	if tok != IDENT && tok == LCURLY {
 
-		tok, lit = p.scanIgnoreWhitespace()
-		if tok != IDENT && tok != COLON {
-			return nil, fmt.Errorf("found %q, expected field", lit)
-		}
-
-		tok, lit = p.scanIgnoreWhitespace()
-		stmt.Label = lit
-
-		tok, lit = p.scanIgnoreWhitespace()
-		if tok != IDENT && tok != LCURLY {
-			return nil, fmt.Errorf("found %q, expected field", lit)
-		}
-
-		tok, lit = p.scanIgnoreWhitespace()
-		//	p := lit
-
-		tok, lit = p.scanIgnoreWhitespace()
-		if tok != IDENT && tok != COLON {
-			return nil, fmt.Errorf("found %q, expected field", lit)
-		}
-
-		tok, lit = p.scanIgnoreWhitespace()
-		if tok != IDENT && tok != QUOTATION {
-			return nil, fmt.Errorf("found %q, expected field", lit)
-		}
-
-		tok, lit = p.scanIgnoreWhitespace()
-
-		tok, lit = p.scanIgnoreWhitespace()
-		if tok != IDENT && tok != QUOTATION {
-			return nil, fmt.Errorf("found %q, expected field", lit)
-		}
+		var properties, _ = p.KeyValue()
 
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok != IDENT && tok != RCURLY {
-			return nil, fmt.Errorf("found %q, expected field", lit)
+			panic(fmt.Sprintf("found %q, expected field", lit))
+		}
+		return properties, true
+	}
+	p.unscan()
+	return nil, false
+}
+
+// KeyValue Loop over all our comma-delimited fields.
+func (p *Parser) KeyValue() (map[string]interface{}, bool) {
+	var properties = make(map[string]interface{})
+	for {
+		tok, lit := p.scanIgnoreWhitespace()
+		var prop = lit
+
+		tok, lit = p.scanIgnoreWhitespace()
+		if tok != IDENT && tok != COLON {
+			panic(fmt.Sprintf("found %q, expected field", lit))
+		}
+
+		tok, lit = p.scanIgnoreWhitespace()
+		if tok != IDENT && tok != QUOTATION {
+			panic(fmt.Sprintf("found %q, expected field", lit))
+		}
+
+		tok, lit = p.scanIgnoreWhitespace()
+		properties[prop] = lit
+		tok, lit = p.scanIgnoreWhitespace()
+		if tok != IDENT && tok != QUOTATION {
+			panic(fmt.Sprintf("found %q, expected field", lit))
+		}
+
+		tok, lit = p.scanIgnoreWhitespace()
+		if tok != COMMA {
+			p.unscan()
+			break
+		}
+
+	}
+
+	return properties, true
+}
+
+func (p *Parser) Node() (*MatchVertexStatement, bool) {
+	tok, lit := p.scanIgnoreWhitespace()
+	if tok != IDENT && tok == LPAREN {
+		stmt := &MatchVertexStatement{}
+		stmt.Properties = make(map[string]interface{})
+
+		tok, lit = p.scanIgnoreWhitespace()
+		stmt.Variable = lit
+
+		if label, ok := p.Label(); ok {
+			stmt.Label = label
+		}
+
+		if properties, ok := p.Properties(); ok {
+			stmt.Properties = properties
 		}
 
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok != IDENT && tok != RPAREN {
-			return nil, fmt.Errorf("found %q, expected field", lit)
+			panic(fmt.Sprintf("found %q, expected field", lit))
 		}
-		// stmt.Fields = append(stmt.Fields, lit)
 
-		// // If the next token is not a comma then break the loop.
-		// if tok, _ := p.scanIgnoreWhitespace(); tok != COMMA {
-		// 	p.unscan()
-		// 	break
-		// }
+		return stmt, true
 	}
 
-	// // Next we should see the "FROM" keyword.
-	// if tok, lit := p.scanIgnoreWhitespace(); tok != FROM {
-	// 	return nil, fmt.Errorf("found %q, expected FROM", lit)
-	// }
+	p.unscan()
+	return nil, false
 
-	// // Finally we should read the table name.
-	// tok, lit := p.scanIgnoreWhitespace()
-	// if tok != IDENT {
-	// 	return nil, fmt.Errorf("found %q, expected table name", lit)
-	// }
-	// stmt.TableName = lit
+}
 
-	// Return the successfully parsed statement.
-	return stmt, nil
+func (p *Parser) Match() (*MatchVertexStatement, error) {
+
+	if tok, lit := p.scanIgnoreWhitespace(); tok != MATCH {
+		return nil, fmt.Errorf("found %q, expected MATCH", lit)
+	}
+
+	// Next we should loop over all the pattern.
+	for {
+
+		if node, ok := p.Node(); ok {
+			return node, nil
+		}
+
+		break
+	}
+
+	return nil, nil
+}
+
+// Parse parses a cypher MATCH statement.
+func (p *Parser) Parse() (*MatchVertexStatement, error) {
+	return p.Match()
 }
 
 // NewParser returns a new instance of Parser.

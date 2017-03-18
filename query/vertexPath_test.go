@@ -1,7 +1,11 @@
-package query
+package query_test
 
-import "testing"
-import "github.com/RossMerr/Caudex.Graph/vertices"
+import (
+	"testing"
+
+	"github.com/RossMerr/Caudex.Graph/query"
+	"github.com/RossMerr/Caudex.Graph/vertices"
+)
 
 func Test_MatchVertex(t *testing.T) {
 
@@ -12,14 +16,14 @@ func Test_MatchVertex(t *testing.T) {
 	vertexDirection, _ := vertices.NewVertex()
 	vertex.AddDirectedEdge(vertexDirection)
 
-	frontier := Frontier{&Path{[]*vertices.Vertex{vertex}, 0}}
+	frontier := query.Frontier{&query.Path{[]*vertices.Vertex{vertex}, 0}}
 
 	it := func() (item interface{}, ok bool) {
 		state = XOR(state)
 		return frontier, state
 	}
 
-	p := VertexPath{Iterate: func() Iterator {
+	p := query.VertexPath{Iterate: func() query.Iterator {
 		return it
 	}, Explored: make(map[string]bool)}
 

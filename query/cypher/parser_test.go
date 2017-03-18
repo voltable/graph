@@ -18,7 +18,7 @@ func TestParser_ParseStatement(t *testing.T) {
 		// Single field statement
 		{
 			s:    `MATCH (you:Person {name:"You"})`,
-			stmt: &cypher.MatchVertexStatement{},
+			stmt: &cypher.MatchVertexStatement{Variable: "you", Label: "Person", Properties: map[string]interface{}{"name": "You"}},
 		},
 	}
 
