@@ -155,6 +155,9 @@ func (p *Parser) Length() (uint, uint, bool) {
 					tok, lit = p.scanIgnoreWhitespace()
 					if u64, err := strconv.ParseUint(lit, 10, 32); err == nil {
 						max = uint(u64)
+						if min > max {
+							panic(fmt.Sprintf("minimum length %d can't exceed maximum length %d for a relationships", min, max))
+						}
 					} else {
 						p.unscan()
 					}
@@ -180,7 +183,7 @@ func (p *Parser) Length() (uint, uint, bool) {
 					panic(fmt.Sprintf("found %q, expected uint", lit))
 				}
 			} else {
-				panic(fmt.Sprintf("found %q, expected %q", DOT))
+				panic(fmt.Sprintf("found %q, expected %q", lit, DOT))
 			}
 		} else {
 			p.unscan()
