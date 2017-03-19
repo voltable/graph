@@ -105,7 +105,7 @@ func (p *Parser) Node() (*VertexStatement, bool) {
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok == RPAREN {
 			return stmt, true
-		} else if tok != COLON {
+		} else if tok == IDENT {
 			stmt.Variable = lit
 		} else {
 			p.unscan()
