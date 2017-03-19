@@ -138,6 +138,7 @@ func (p *Parser) Length() (uint, uint, bool) {
 		max := MaxUint
 
 		tok, lit = p.scanIgnoreWhitespace()
+		// We have a number
 		if tok == IDENT {
 			if u64, err := strconv.ParseUint(lit, 10, 32); err == nil {
 				min = uint(u64)
@@ -163,7 +164,7 @@ func (p *Parser) Length() (uint, uint, bool) {
 			} else {
 				p.unscan()
 			}
-
+			// Else we have a range
 		} else if tok == DOT {
 			tok, lit = p.scanIgnoreWhitespace()
 			if tok == DOT {
@@ -178,6 +179,8 @@ func (p *Parser) Length() (uint, uint, bool) {
 				} else {
 					panic(fmt.Sprintf("found %q, expected uint", lit))
 				}
+			} else {
+				panic(fmt.Sprintf("found %q, expected %q", DOT))
 			}
 		} else {
 			p.unscan()
