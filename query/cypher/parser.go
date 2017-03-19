@@ -7,6 +7,8 @@ import (
 )
 
 const emptyString = ""
+const MaxUint uint = ^uint(0)
+const MinUint uint = 1
 
 // Parser represents a parser.
 type Parser struct {
@@ -36,7 +38,7 @@ func (p *Parser) Properties() (map[string]interface{}, bool) {
 
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok != IDENT && tok != RCURLY {
-			panic(fmt.Sprintf("found %q, expected field", lit))
+			panic(fmt.Sprintf("found %q, expected %q", lit, RCURLY))
 		}
 		return properties, true
 	}
@@ -53,7 +55,7 @@ func (p *Parser) KeyValue() (map[string]interface{}, bool) {
 
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok != IDENT && tok != COLON {
-			panic(fmt.Sprintf("found %q, expected field", lit))
+			panic(fmt.Sprintf("found %q, expected %q", lit, COLON))
 		}
 
 		tok, lit = p.scanIgnoreWhitespace()
@@ -63,7 +65,7 @@ func (p *Parser) KeyValue() (map[string]interface{}, bool) {
 			properties[prop] = lit
 			tok, lit = p.scanIgnoreWhitespace()
 			if tok != IDENT && tok != QUOTATION {
-				panic(fmt.Sprintf("found %q, expected field", lit))
+				panic(fmt.Sprintf("found %q, expected %q", lit, QUOTATION))
 			}
 		} else if tok != IDENT && tok == SINGLEQUOTATION {
 			// We found a single quoted string
@@ -71,7 +73,7 @@ func (p *Parser) KeyValue() (map[string]interface{}, bool) {
 			properties[prop] = lit
 			tok, lit = p.scanIgnoreWhitespace()
 			if tok != IDENT && tok != SINGLEQUOTATION {
-				panic(fmt.Sprintf("found %q, expected field", lit))
+				panic(fmt.Sprintf("found %q, expected %q", lit, SINGLEQUOTATION))
 			}
 		} else {
 			if b, err := strconv.ParseBool(lit); err == nil {
@@ -95,10 +97,10 @@ func (p *Parser) KeyValue() (map[string]interface{}, bool) {
 	return properties, true
 }
 
-func (p *Parser) Node() (*MatchVertexStatement, bool) {
+func (p *Parser) Node() (*VertexStatement, bool) {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != IDENT && tok == LPAREN {
-		stmt := &MatchVertexStatement{}
+		stmt := &VertexStatement{}
 
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok == RPAREN {
@@ -119,7 +121,7 @@ func (p *Parser) Node() (*MatchVertexStatement, bool) {
 
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok != IDENT && tok != RPAREN {
-			panic(fmt.Sprintf("found %q, expected field", lit))
+			panic(fmt.Sprintf("found %q, expected %q", lit, RPAREN))
 		}
 
 		return stmt, true
@@ -127,30 +129,184 @@ func (p *Parser) Node() (*MatchVertexStatement, bool) {
 
 	p.unscan()
 	return nil, false
-
 }
 
-func (p *Parser) Match() (*MatchVertexStatement, error) {
+func (p *Parser) Length() (uint, uint, bool) {
+	tok, lit := p.scanIgnoreWhitespace()
+	if tok != IDENT && tok == MUL {
+		min := MinUint
+		max := MaxUint
+
+		tok, lit = p.scanIgnoreWhitespace()
+		if tok == IDENT {
+			if u64, err := strconv.ParseUint(lit, 10, 32); err == nil {
+				min = uint(u64)
+				max = uint(u64)
+			} else {
+				p.unscan()
+			}
+
+			tok, lit = p.scanIgnoreWhitespace()
+			if tok == DOT {
+				tok, lit = p.scanIgnoreWhitespace()
+				if tok == DOT {
+					max = MaxUint
+					tok, lit = p.scanIgnoreWhitespace()
+					if u64, err := strconv.ParseUint(lit, 10, 32); err == nil {
+						max = uint(u64)
+					} else {
+						p.unscan()
+					}
+				} else {
+					panic(fmt.Sprintf("found %q, expected %q", lit, DOT))
+				}
+			} else {
+				p.unscan()
+			}
+
+		} else if tok == DOT {
+			tok, lit = p.scanIgnoreWhitespace()
+			if tok == DOT {
+				min = MinUint
+				tok, lit = p.scanIgnoreWhitespace()
+				if tok == IDENT {
+					if u64, err := strconv.ParseUint(lit, 10, 32); err == nil {
+						max = uint(u64)
+					} else {
+						panic(fmt.Sprintf("found %q, expected uint", lit))
+					}
+				} else {
+					panic(fmt.Sprintf("found %q, expected uint", lit))
+				}
+			}
+		} else {
+			p.unscan()
+		}
+		return min, max, true
+	}
+	p.unscan()
+	return 0, 0, false
+}
+
+func (p *Parser) RelationshipBody() (*EdgeBodyStatement, bool) {
+	tok, lit := p.scanIgnoreWhitespace()
+	if tok != IDENT && tok == LSQUARE {
+		stmt := &EdgeBodyStatement{}
+
+		tok, lit = p.scanIgnoreWhitespace()
+		if tok == IDENT {
+			stmt.Variable = lit
+		} else {
+			p.unscan()
+		}
+
+		if label, ok := p.Label(); ok {
+			stmt.Label = label
+		}
+
+		if min, max, ok := p.Length(); ok {
+			stmt.LengthMinimum = min
+			stmt.LengthMaximum = max
+		} else {
+			stmt.LengthMinimum = 1
+			stmt.LengthMaximum = 1
+		}
+
+		if properties, ok := p.Properties(); ok {
+			stmt.Properties = properties
+		}
+
+		tok, lit := p.scanIgnoreWhitespace()
+		if tok != IDENT && tok != RSQUARE {
+			panic(fmt.Sprintf("found %q, expected %q", lit, RSQUARE))
+		}
+		return stmt, true
+	}
+
+	p.unscan()
+	return nil, false
+}
+
+func (p *Parser) Relationship() (*EdgeStatement, bool) {
+	tok, lit := p.scanIgnoreWhitespace()
+	// Look for the start of a relationship < or -
+	if tok != IDENT && (tok == LT || tok == SUB) {
+		stmt := &EdgeStatement{Relationship: Undirected}
+
+		if tok == LT {
+			stmt.Relationship = Outbound
+
+			tok, lit = p.scanIgnoreWhitespace()
+			// Look for the end of the relationship -
+			if tok != IDENT && tok != SUB {
+				panic(fmt.Sprintf("found %q, expected %q", lit, SUB))
+			}
+		}
+
+		if body, ok := p.RelationshipBody(); ok {
+			stmt.Body = body
+		}
+
+		tok, lit = p.scanIgnoreWhitespace()
+		if tok != IDENT && tok != SUB {
+			panic(fmt.Sprintf("found %q, expected %q", lit, SUB))
+		}
+
+		// Check for inbound relationship
+		if tok == SUB {
+			tok, lit = p.scanIgnoreWhitespace()
+			// Look for the end of the relationship - or >
+			if tok != IDENT && tok == GT {
+				stmt.Relationship = Inbound
+			} else {
+				p.unscan()
+			}
+		}
+
+		return stmt, true
+	}
+
+	p.unscan()
+	return nil, false
+}
+
+func (p *Parser) Match() (*VertexStatement, error) {
 
 	if tok, lit := p.scanIgnoreWhitespace(); tok != MATCH {
 		return nil, fmt.Errorf("found %q, expected MATCH", lit)
 	}
 
+	var first *VertexStatement
+	var lastVertex *VertexStatement
+	var lastEdge *EdgeStatement
+
 	// Next we should loop over all the pattern.
 	for {
 
 		if node, ok := p.Node(); ok {
-			return node, nil
+			lastVertex = node
+			if first == nil {
+				first = lastVertex
+			}
+			if lastEdge != nil {
+				lastEdge.Vertex = node
+			}
+			//return node, nil
 		}
 
-		break
+		if relationship, ok := p.Relationship(); ok {
+			lastEdge = relationship
+			lastVertex.Edge = relationship
+		} else {
+			return first, nil
+		}
 	}
 
 	return nil, nil
 }
 
 // Parse parses a cypher MATCH statement.
-func (p *Parser) Parse() (*MatchVertexStatement, error) {
+func (p *Parser) Parse() (*VertexStatement, error) {
 	return p.Match()
 }
 
