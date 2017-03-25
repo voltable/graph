@@ -3,11 +3,11 @@ package vertices
 type (
 	// An Edge connects two Vertex in a graph.
 	Edge struct {
-		id         string
-		isDirected Digraph
-		weight     float32
-		label      string
-		properties map[string]interface{}
+		id               string
+		isDirected       Digraph
+		weight           float32
+		relationshipType string
+		properties       map[string]interface{}
 	}
 
 	Edges []*Edge
@@ -27,13 +27,14 @@ func (e *Edge) SetWeight(weight float32) {
 	e.weight = weight
 }
 
-// Label or Type of the edge
-func (e *Edge) Label() string {
-	return e.label
+// RelationshipType the type of relationship
+func (e *Edge) RelationshipType() string {
+	return e.relationshipType
 }
 
-func (e *Edge) SetLabel(label string) {
-	e.label = label
+// SetRelationshipType the type of relationship
+func (e *Edge) SetRelationshipType(label string) {
+	e.relationshipType = label
 }
 
 // SetProperty set a property to store against this Edge

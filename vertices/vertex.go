@@ -68,7 +68,7 @@ func (v *Vertex) Edges() Edges {
 
 func (v *Vertex) removeRelationshipOnLabel(label string) Digraph {
 	return v.removeRelationshipsF(func(id string, e Edge) bool {
-		return e.label == label
+		return e.relationshipType == label
 	})
 }
 

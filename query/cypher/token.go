@@ -26,8 +26,24 @@ const (
 	DETACH
 	REMOVE
 	CALL
-	YIELD
 	clausesEnd
+
+	DETACH_DELETE
+	OPTIONAL_MATCH
+	YIELD
+
+	subClausesBag
+	LIMIT
+	ON
+	ORDER
+	SKIP
+	WHERE
+	subClausesEnd	
+
+	BY
+	ON_CREATE
+	ON_MATCH
+	ORDER_BY
 
 	operatorBeg
 	ADD // +
@@ -87,11 +103,14 @@ var tokens = [...]string{
 	CREATE:   "CREATE",
 	MERGE:    "MERGE",
 	SET:      "SET",
+
+	//Delete a node and a relationship.
 	DELETE:   "DELETE",
 	DETACH:   "DETACH",
 	REMOVE:   "REMOVE",
 	CALL:     "CALL",
 	YIELD:    "YIELD",
+
 
 	LPAREN:          "(",
 	RPAREN:          ")",
@@ -143,9 +162,17 @@ func (tok Token) String() string {
 	return ""
 }
 
+
+// isClause returns true for clauses tokens.
+func (tok Token) isClause() bool { return tok > clausesBag && tok < clausesEnd }
+
+// iisSubClausesClause returns true for clauses tokens.
+func (tok Token) isSubClause() bool { return tok > subClausesBag && tok < subClausesEnd }
+
 // isOperator returns true for operator tokens.
 func (tok Token) isOperator() bool { return tok > operatorBeg && tok < operatorEnd }
 
+// isComparison returns true for comparison tokens.
 func (tok Token) isComparison() bool { return tok > comparisonBeg && tok < comparisonEnd }
 
 func Keyword(ident string) Token {

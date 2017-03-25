@@ -276,13 +276,38 @@ func (p *Parser) Relationship() (*EdgeStatement, bool) {
 	return nil, false
 }
 
-func (p *Parser) Match() (*VertexStatement, error) {
+func (p *Parser) Clause() *ClauseStatement {
+	tok, lit := p.scanIgnoreWhitespace()
 
-	if tok, lit := p.scanIgnoreWhitespace(); tok != MATCH {
-		return nil, fmt.Errorf("found %q, expected MATCH", lit)
+	if !tok.isClause() {
+		panic(fmt.Sprintf("found %q, expected a clause", lit))
+	} 
+	clause := &ClauseStatement{ Clause: tok}
+	if tok == DETACH {
+		tok, lit := p.scanIgnoreWhitespace()
+		if tok == DELETE {
+			clause.Clause = DETACH_DELETE
+		} else {
+			panic(fmt.Sprintf("found %q, expected DELETE", lit))
+		}
+	}
+	
+	if tok == OPTIONAL  {
+		tok, lit := p.scanIgnoreWhitespace()
+		if tok == MATCH {
+			clause.Clause = OPTIONAL_MATCH
+		} else {
+			panic(fmt.Sprintf("found %q, expected MATCH", lit))
+		}
 	}
 
-	var first *VertexStatement
+	return clause  
+}
+
+func (p *Parser) Clauses() (*ClauseStatement, error) {
+
+	clause := p.Clause()
+	
 	var lastVertex *VertexStatement
 	var lastEdge *EdgeStatement
 
@@ -291,29 +316,63 @@ func (p *Parser) Match() (*VertexStatement, error) {
 
 		if node, ok := p.Node(); ok {
 			lastVertex = node
-			if first == nil {
-				first = lastVertex
+			if clause.Pattern == nil {
+				clause.Pattern = lastVertex
 			}
 			if lastEdge != nil {
 				lastEdge.Vertex = node
 			}
-			//return node, nil
 		}
 
 		if relationship, ok := p.Relationship(); ok {
 			lastEdge = relationship
 			lastVertex.Edge = relationship
 		} else {
-			return first, nil
+			break;
 		}
 	}
 
-	return nil, nil
+	if tok, ok := p.SubClause(); ok {
+		clause.SubClause = tok
+	}
+	
+	return clause, nil
 }
 
-// Parse parses a cypher MATCH statement.
-func (p *Parser) Parse() (*VertexStatement, error) {
-	return p.Match()
+func (p *Parser) SubClause() (Token, bool) {
+	tok, _ := p.scanIgnoreWhitespace()
+
+	if tok.isSubClause() {			
+		if tok == ON {
+			tok, lit := p.scanIgnoreWhitespace()
+			if tok == CREATE {
+				return ON_CREATE, true
+			} else if tok == MATCH {
+				return ON_MATCH, true
+			} else {
+				panic(fmt.Sprintf("found %q, expected CREATE", lit))
+			}
+		}
+		
+		if tok == ORDER  {
+			tok, lit := p.scanIgnoreWhitespace()
+			if tok == BY {
+				return ORDER_BY, true
+			} else {
+				panic(fmt.Sprintf("found %q, expected BY", lit))
+			}
+		}
+
+		return tok, true  
+	} 
+	
+	p.unscan()
+	return IDENT, false
+}
+
+// Parse parses a cypher Clauses statement.
+func (p *Parser) Parse() (*ClauseStatement, error) {
+	return p.Clauses()
 }
 
 // NewParser returns a new instance of Parser.
