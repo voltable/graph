@@ -59,7 +59,7 @@
             "args": [
                 "-test.v",
                 "-test.run",
-                "^TestParser_Clauses"
+                "^TestParser_Where"
             ],
             "showLog": true
         }        

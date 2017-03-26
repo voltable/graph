@@ -1,4 +1,4 @@
-package cypher
+package statements
 
 // Digraph represents the directed or undirected relationship on a Edge
 // a character consisting of two joined letters; a ligature.

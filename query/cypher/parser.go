@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+
+	"github.com/RossMerr/Caudex.Graph/query/cypher/statements"
 )
 
 const emptyString = ""
@@ -77,12 +79,12 @@ func (p *Parser) KeyValue() (map[string]interface{}, error) {
 				return nil, fmt.Errorf("found %q, expected %q", lit, SINGLEQUOTATION)
 			}
 		} else {
-			if b, err := strconv.ParseBool(lit); err == nil {
-				properties[prop] = b
-			} else if i, err := strconv.Atoi(lit); err == nil {
+			if i, err := strconv.Atoi(lit); err == nil {
 				properties[prop] = i
 			} else if f, err := strconv.ParseFloat(lit, 64); err == nil {
 				properties[prop] = f
+			} else if b, err := strconv.ParseBool(lit); err == nil {
+				properties[prop] = b
 			} else {
 				properties[prop] = lit
 			}
@@ -98,10 +100,10 @@ func (p *Parser) KeyValue() (map[string]interface{}, error) {
 	return properties, nil
 }
 
-func (p *Parser) Node() (*VertexStatement, error) {
+func (p *Parser) Node() (*statements.VertexStatement, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != IDENT && tok == LPAREN {
-		stmt := &VertexStatement{}
+		stmt := &statements.VertexStatement{}
 
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok == RPAREN {
@@ -198,10 +200,10 @@ func (p *Parser) Length() (uint, uint, error) {
 	return 0, 0, nil
 }
 
-func (p *Parser) RelationshipBody() (*EdgeBodyStatement, error) {
+func (p *Parser) RelationshipBody() (*statements.EdgeBodyStatement, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != IDENT && tok == LSQUARE {
-		stmt := &EdgeBodyStatement{}
+		stmt := &statements.EdgeBodyStatement{}
 
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok == IDENT {
@@ -241,14 +243,14 @@ func (p *Parser) RelationshipBody() (*EdgeBodyStatement, error) {
 	return nil, nil
 }
 
-func (p *Parser) Relationship() (*EdgeStatement, error) {
+func (p *Parser) Relationship() (*statements.EdgeStatement, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 	// Look for the start of a relationship < or -
 	if tok != IDENT && (tok == LT || tok == SUB) {
-		stmt := &EdgeStatement{Relationship: Undirected}
+		stmt := &statements.EdgeStatement{Relationship: statements.Undirected}
 
 		if tok == LT {
-			stmt.Relationship = Outbound
+			stmt.Relationship = statements.Outbound
 
 			tok, lit = p.scanIgnoreWhitespace()
 			// Look for the end of the relationship -
@@ -273,7 +275,7 @@ func (p *Parser) Relationship() (*EdgeStatement, error) {
 			tok, lit = p.scanIgnoreWhitespace()
 			// Look for the end of the relationship - or >
 			if tok != IDENT && tok == GT {
-				stmt.Relationship = Inbound
+				stmt.Relationship = statements.Inbound
 			} else {
 				p.unscan()
 			}
@@ -286,11 +288,143 @@ func (p *Parser) Relationship() (*EdgeStatement, error) {
 	return nil, nil
 }
 
-func (p *Parser) Match() (Statement, error) {
-	state := &MatchStatement{}
+func (p *Parser) Comparison() (statements.Comparison, error) {
+	tok, lit := p.scanIgnoreWhitespace()
 
-	var lastVertex *VertexStatement
-	var lastEdge *EdgeStatement
+	if tok == EQ {
+		return statements.EQ, nil
+	} else if tok == LT {
+		tok, _ := p.scanIgnoreWhitespace()
+		if tok == EQ {
+			return statements.LTE, nil
+		} else if tok == GT {
+			return statements.NEQ, nil
+		}
+		p.unscan()
+		return statements.LT, nil
+	} else if tok == GT {
+		tok, _ := p.scanIgnoreWhitespace()
+		if tok == EQ {
+			return statements.GTE, nil
+		}
+		p.unscan()
+		return statements.GT, nil
+	}
+
+	return statements.EQ, fmt.Errorf("found %q, expected Comparison", lit)
+}
+
+func (p *Parser) Value() (interface{}, error) {
+	tok, lit := p.scanIgnoreWhitespace()
+	if tok == SINGLEQUOTATION {
+		tok, lit := p.scanIgnoreWhitespace()
+		if tok == IDENT {
+			value := lit
+			tok, lit := p.scanIgnoreWhitespace()
+			if tok == SINGLEQUOTATION {
+				return value, nil
+			}
+
+			return emptyString, fmt.Errorf("found %q, expected %q", lit, SINGLEQUOTATION)
+		}
+
+		return emptyString, fmt.Errorf("found %q, expected %q", lit, IDENT)
+	} else if tok == IDENT {
+		fmt.Println(lit)
+		if i, err := strconv.Atoi(lit); err == nil {
+			return i, nil
+		} else if f, err := strconv.ParseFloat(lit, 64); err == nil {
+			return f, nil
+		} else if b, err := strconv.ParseBool(lit); err == nil {
+			return b, nil
+		}
+		return lit, nil
+	}
+
+	p.unscan()
+	return emptyString, nil
+}
+
+func (p *Parser) Boolean() (statements.BooleanStatement, error) {
+	tok, lit := p.scanIgnoreWhitespace()
+	fmt.Println(lit)
+	if tok == AND {
+		state := &statements.AndStatement{}
+		if predicate, err := p.Predicate(); err == nil {
+			state.Predicate = predicate
+		} else {
+			return nil, err
+		}
+		return state, nil
+	}
+
+	p.unscan()
+	return nil, nil
+}
+func (p *Parser) Predicate() (*statements.PredicateStatement, error) {
+	tok, lit := p.scanIgnoreWhitespace()
+	if tok == IDENT {
+		state := &statements.PredicateStatement{}
+		state.Variable = lit
+
+		tok, lit := p.scanIgnoreWhitespace()
+		if tok == DOT {
+			tok, lit := p.scanIgnoreWhitespace()
+			if tok == IDENT {
+				state.Property = lit
+				if operator, err := p.Comparison(); err == nil {
+					state.Operator = operator
+				} else {
+					return nil, err
+				}
+
+				if value, err := p.Value(); err == nil {
+					state.Value = value
+				} else {
+					return nil, err
+				}
+
+			}
+		} else {
+			return nil, fmt.Errorf("found %q, expected %q", lit, DOT)
+		}
+
+		if b, err := p.Boolean(); err == nil && b != nil {
+			state.Next = b
+		} else if err != nil {
+			return nil, err
+		}
+
+		return state, nil
+	}
+
+	p.unscan()
+	return nil, nil
+}
+
+func (p *Parser) Where() (statements.Statement, error) {
+	tok, _ := p.scanIgnoreWhitespace()
+	if tok == WHERE {
+		state := &statements.WhereStatement{}
+
+		if predicate, err := p.Predicate(); err == nil {
+			state.Predicate = predicate
+		} else {
+			return nil, err
+		}
+
+		return state, nil
+	}
+
+	p.unscan()
+	return nil, nil
+}
+
+func (p *Parser) Match() (statements.Statement, error) {
+	state := &statements.MatchStatement{}
+
+	var lastVertex *statements.VertexStatement
+	var lastEdge *statements.EdgeStatement
 
 	// Next we should loop over all the pattern.
 	for {
@@ -317,15 +451,21 @@ func (p *Parser) Match() (Statement, error) {
 		}
 	}
 
+	if where, err := p.Where(); err == nil && where != nil {
+		state.Next = where
+	} else if err != nil {
+		return nil, err
+	}
+
 	return state, nil
 }
 
-func (p *Parser) OptionalMatch() (Statement, error) {
-	state := &OptionalMatchStatement{}
+func (p *Parser) OptionalMatch() (statements.Statement, error) {
+	state := &statements.OptionalMatchStatement{}
 	return state, nil
 }
 
-func (p *Parser) Clause() (Statement, error) {
+func (p *Parser) Clause() (statements.Statement, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 
 	if !tok.isClause() {
@@ -390,7 +530,7 @@ func (p *Parser) SubClause() (Token, bool) {
 }
 
 // Parse parses a cypher Clauses statement.
-func (p *Parser) Parse() (Statement, error) {
+func (p *Parser) Parse() (statements.Statement, error) {
 	return p.Clause()
 }
 

@@ -1,14 +1,12 @@
-package cypher
-
+package statements
 
 type ClauseStatement struct {
 	Statement
-	//Clause Token	
+	//Clause Token
 	//Pattern *VertexStatement
 	//SubClause Token
 }
 
 type Statement interface {
-	Next() (Statement, bool)
+	//Next() (Statement, bool)
 }
-

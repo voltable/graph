@@ -38,7 +38,7 @@ const (
 	ORDER
 	SKIP
 	WHERE
-	subClausesEnd	
+	subClausesEnd
 
 	BY
 	ON_CREATE
@@ -104,13 +104,18 @@ var tokens = [...]string{
 	MERGE:    "MERGE",
 	SET:      "SET",
 
-	//Delete a node and a relationship.
-	DELETE:   "DELETE",
-	DETACH:   "DETACH",
-	REMOVE:   "REMOVE",
-	CALL:     "CALL",
-	YIELD:    "YIELD",
+	WHERE: "WHERE",
+	LIMIT: "LIMIT",
+	ON:    "ON",
+	ORDER: "ORDER",
+	SKIP:  "SKIP",
 
+	//Delete a node and a relationship.
+	DELETE: "DELETE",
+	DETACH: "DETACH",
+	REMOVE: "REMOVE",
+	CALL:   "CALL",
+	YIELD:  "YIELD",
 
 	LPAREN:          "(",
 	RPAREN:          ")",
@@ -132,6 +137,7 @@ var tokens = [...]string{
 }
 
 var keywords map[string]Token
+var subClauses map[string]Token
 var comparison map[string]Token
 var boolean map[string]Token
 
@@ -141,6 +147,11 @@ func init() {
 	keywords = make(map[string]Token)
 	for tok := clausesBag + 1; tok < clausesEnd; tok++ {
 		keywords[strings.ToLower(tokens[tok])] = tok
+	}
+
+	subClauses = make(map[string]Token)
+	for tok := subClausesBag + 1; tok < subClausesEnd; tok++ {
+		subClauses[strings.ToLower(tokens[tok])] = tok
 	}
 
 	comparison = make(map[string]Token)
@@ -162,7 +173,6 @@ func (tok Token) String() string {
 	return ""
 }
 
-
 // isClause returns true for clauses tokens.
 func (tok Token) isClause() bool { return tok > clausesBag && tok < clausesEnd }
 
@@ -177,6 +187,13 @@ func (tok Token) isComparison() bool { return tok > comparisonBeg && tok < compa
 
 func Keyword(ident string) Token {
 	if tok, ok := keywords[strings.ToLower(ident)]; ok {
+		return tok
+	}
+	return IDENT
+}
+
+func SubClause(ident string) Token {
+	if tok, ok := subClauses[strings.ToLower(ident)]; ok {
 		return tok
 	}
 	return IDENT

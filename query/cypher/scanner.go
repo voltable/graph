@@ -166,6 +166,10 @@ func (s *Scanner) scanIdent() (tok Token, lit string) {
 		return tok, buf.String()
 	}
 
+	if tok = SubClause(lit); tok != IDENT {
+		return tok, buf.String()
+	}
+
 	if tok = Boolean(lit); tok != IDENT {
 		return tok, buf.String()
 	}
