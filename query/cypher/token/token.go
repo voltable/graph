@@ -1,4 +1,4 @@
-package cypher
+package token
 
 import "strings"
 
@@ -141,8 +141,6 @@ var subClauses map[string]Token
 var comparison map[string]Token
 var boolean map[string]Token
 
-var eof = rune(0)
-
 func init() {
 	keywords = make(map[string]Token)
 	for tok := clausesBag + 1; tok < clausesEnd; tok++ {
@@ -174,16 +172,16 @@ func (tok Token) String() string {
 }
 
 // isClause returns true for clauses tokens.
-func (tok Token) isClause() bool { return tok > clausesBag && tok < clausesEnd }
+func (tok Token) IsClause() bool { return tok > clausesBag && tok < clausesEnd }
 
 // iisSubClausesClause returns true for clauses tokens.
-func (tok Token) isSubClause() bool { return tok > subClausesBag && tok < subClausesEnd }
+func (tok Token) IsSubClause() bool { return tok > subClausesBag && tok < subClausesEnd }
 
 // isOperator returns true for operator tokens.
-func (tok Token) isOperator() bool { return tok > operatorBeg && tok < operatorEnd }
+func (tok Token) IsOperator() bool { return tok > operatorBeg && tok < operatorEnd }
 
 // isComparison returns true for comparison tokens.
-func (tok Token) isComparison() bool { return tok > comparisonBeg && tok < comparisonEnd }
+func (tok Token) IsComparison() bool { return tok > comparisonBeg && tok < comparisonEnd }
 
 func Keyword(ident string) Token {
 	if tok, ok := keywords[strings.ToLower(ident)]; ok {

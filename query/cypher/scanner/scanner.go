@@ -1,11 +1,15 @@
-package cypher
+package scanner
 
 import (
 	"bufio"
 	"bytes"
 	"io"
 	"strings"
+
+	"github.com/RossMerr/Caudex.Graph/query/cypher/token"
 )
+
+var eof = rune(0)
 
 // Scanner represents a lexical scanner.
 type Scanner struct {
@@ -46,7 +50,7 @@ func isLetter(ch rune) bool {
 func isDigit(ch rune) bool { return (ch >= '0' && ch <= '9') }
 
 // Scan returns the next token and literal value.
-func (s *Scanner) Scan() (tok Token, lit string) {
+func (s *Scanner) Scan() (tok token.Token, lit string) {
 	// Read the next rune.
 	ch := s.read()
 
@@ -55,7 +59,7 @@ func (s *Scanner) Scan() (tok Token, lit string) {
 	if isWhitespace(ch) {
 		s.unread()
 		return s.scanWhitespace()
-	} else if tok, lit := s.scanCharacter(ch); tok != ILLEGAL {
+	} else if tok, lit := s.scanCharacter(ch); tok != token.ILLEGAL {
 		return tok, lit
 	}
 
@@ -63,60 +67,61 @@ func (s *Scanner) Scan() (tok Token, lit string) {
 	return s.scanIdent()
 }
 
-func (s *Scanner) scanCharacter(ch rune) (tok Token, lit string) {
+func (s *Scanner) scanCharacter(ch rune) (tok token.Token, lit string) {
 	// Otherwise read the individual character.
+
 	switch ch {
 	case eof:
-		return EOF, ""
+		return token.EOF, ""
 	case '(':
-		return LPAREN, string(ch)
+		return token.LPAREN, string(ch)
 	case ')':
-		return RPAREN, string(ch)
+		return token.RPAREN, string(ch)
 	case ',':
-		return COMMA, string(ch)
+		return token.COMMA, string(ch)
 	case ':':
-		return COLON, string(ch)
+		return token.COLON, string(ch)
 	case '.':
-		return DOT, string(ch)
+		return token.DOT, string(ch)
 	case '|':
-		return PIPE, string(ch)
+		return token.PIPE, string(ch)
 	case '[':
-		return LSQUARE, string(ch)
+		return token.LSQUARE, string(ch)
 	case ']':
-		return RSQUARE, string(ch)
+		return token.RSQUARE, string(ch)
 	case '+':
-		return ADD, string(ch)
+		return token.ADD, string(ch)
 	case '-':
-		return SUB, string(ch)
+		return token.SUB, string(ch)
 	case '*':
-		return MUL, string(ch)
+		return token.MUL, string(ch)
 	case '/':
-		return DIV, string(ch)
+		return token.DIV, string(ch)
 	case '%':
-		return MOD, string(ch)
+		return token.MOD, string(ch)
 	case '^':
-		return POW, string(ch)
+		return token.POW, string(ch)
 	case '=':
-		return EQ, string(ch)
+		return token.EQ, string(ch)
 	case '<':
-		return LT, string(ch)
+		return token.LT, string(ch)
 	case '>':
-		return GT, string(ch)
+		return token.GT, string(ch)
 	case '{':
-		return LCURLY, string(ch)
+		return token.LCURLY, string(ch)
 	case '}':
-		return RCURLY, string(ch)
+		return token.RCURLY, string(ch)
 	case '"':
-		return QUOTATION, string(ch)
+		return token.QUOTATION, string(ch)
 	case '\'':
-		return SINGLEQUOTATION, string(ch)
+		return token.SINGLEQUOTATION, string(ch)
 	}
 
-	return ILLEGAL, string(ch)
+	return token.ILLEGAL, string(ch)
 }
 
 // scanWhitespace consumes the current rune and all contiguous whitespace.
-func (s *Scanner) scanWhitespace() (tok Token, lit string) {
+func (s *Scanner) scanWhitespace() (tok token.Token, lit string) {
 	// Create a buffer and read the current character into it.
 	var buf bytes.Buffer
 	buf.WriteRune(s.read())
@@ -134,16 +139,16 @@ func (s *Scanner) scanWhitespace() (tok Token, lit string) {
 		}
 	}
 
-	return WS, buf.String()
+	return token.WS, buf.String()
 }
 
 func (s *Scanner) isCharacter(ch rune) bool {
 	tok, _ := s.scanCharacter(ch)
-	return tok != ILLEGAL
+	return tok != token.ILLEGAL
 }
 
 // scanIdent consumes the current rune and all contiguous ident runes.
-func (s *Scanner) scanIdent() (tok Token, lit string) {
+func (s *Scanner) scanIdent() (tok token.Token, lit string) {
 	// Create a buffer and read the current character into it.
 	var buf bytes.Buffer
 	buf.WriteRune(s.read())
@@ -162,38 +167,38 @@ func (s *Scanner) scanIdent() (tok Token, lit string) {
 
 	lit = buf.String()
 
-	if tok = Keyword(lit); tok != IDENT {
+	if tok = token.Keyword(lit); tok != token.IDENT {
 		return tok, buf.String()
 	}
 
-	if tok = SubClause(lit); tok != IDENT {
+	if tok = token.SubClause(lit); tok != token.IDENT {
 		return tok, buf.String()
 	}
 
-	if tok = Boolean(lit); tok != IDENT {
+	if tok = token.Boolean(lit); tok != token.IDENT {
 		return tok, buf.String()
 	}
 
-	if tok = Comparison(lit); tok != IDENT {
+	if tok = token.Comparison(lit); tok != token.IDENT {
 		return tok, buf.String()
 	}
 
 	switch strings.ToUpper(buf.String()) {
 
 	case "<>":
-		return NEQ, buf.String()
+		return token.NEQ, buf.String()
 	case "<=":
-		return LTE, buf.String()
+		return token.LTE, buf.String()
 	case ">=":
-		return GTE, buf.String()
+		return token.GTE, buf.String()
 	case "IS":
-		return IS, buf.String()
+		return token.IS, buf.String()
 	case "NULL":
-		return NULL, buf.String()
+		return token.NULL, buf.String()
 	case "=~":
-		return EQREGEX, buf.String()
+		return token.EQREGEX, buf.String()
 	}
 
 	// Otherwise return as a regular identifier.
-	return IDENT, buf.String()
+	return token.IDENT, buf.String()
 }

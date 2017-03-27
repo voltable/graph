@@ -1,11 +1,13 @@
-package cypher
+package parser
 
 import (
 	"fmt"
 	"io"
 	"strconv"
 
-	"github.com/RossMerr/Caudex.Graph/query/cypher/statements"
+	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
+	"github.com/RossMerr/Caudex.Graph/query/cypher/scanner"
+	"github.com/RossMerr/Caudex.Graph/query/cypher/token"
 )
 
 const emptyString = ""
@@ -14,17 +16,17 @@ const MinUint uint = 1
 
 // Parser represents a parser.
 type Parser struct {
-	s   *Scanner
+	s   *scanner.Scanner
 	buf struct {
-		tok Token  // last read token
-		lit string // last read literal
-		n   int    // buffer size (max=1)
+		tok token.Token // last read token
+		lit string      // last read literal
+		n   int         // buffer size (max=1)
 	}
 }
 
 func (p *Parser) Label() (string, bool) {
 	tok, lit := p.scanIgnoreWhitespace()
-	if tok != IDENT && tok == COLON {
+	if tok != token.IDENT && tok == token.COLON {
 		tok, lit = p.scanIgnoreWhitespace()
 		return lit, true
 	}
@@ -34,12 +36,12 @@ func (p *Parser) Label() (string, bool) {
 
 func (p *Parser) Properties() (map[string]interface{}, error) {
 	tok, lit := p.scanIgnoreWhitespace()
-	if tok != IDENT && tok == LCURLY {
+	if tok != token.IDENT && tok == token.LCURLY {
 
 		if properties, err := p.KeyValue(); err == nil {
 			tok, lit = p.scanIgnoreWhitespace()
-			if tok != IDENT && tok != RCURLY {
-				return nil, fmt.Errorf("found %q, expected %q", lit, RCURLY)
+			if tok != token.IDENT && tok != token.RCURLY {
+				return nil, fmt.Errorf("found %q, expected %q", lit, token.RCURLY)
 			}
 			return properties, nil
 		}
@@ -57,26 +59,26 @@ func (p *Parser) KeyValue() (map[string]interface{}, error) {
 		var prop = lit
 
 		tok, lit = p.scanIgnoreWhitespace()
-		if tok != IDENT && tok != COLON {
-			return nil, fmt.Errorf("found %q, expected %q", lit, COLON)
+		if tok != token.IDENT && tok != token.COLON {
+			return nil, fmt.Errorf("found %q, expected %q", lit, token.COLON)
 		}
 
 		tok, lit = p.scanIgnoreWhitespace()
-		if tok != IDENT && tok == QUOTATION {
+		if tok != token.IDENT && tok == token.QUOTATION {
 			// We found a double quoted string
 			tok, lit = p.scanIgnoreWhitespace()
 			properties[prop] = lit
 			tok, lit = p.scanIgnoreWhitespace()
-			if tok != IDENT && tok != QUOTATION {
-				return nil, fmt.Errorf("found %q, expected %q", lit, QUOTATION)
+			if tok != token.IDENT && tok != token.QUOTATION {
+				return nil, fmt.Errorf("found %q, expected %q", lit, token.QUOTATION)
 			}
-		} else if tok != IDENT && tok == SINGLEQUOTATION {
+		} else if tok != token.IDENT && tok == token.SINGLEQUOTATION {
 			// We found a single quoted string
 			tok, lit = p.scanIgnoreWhitespace()
 			properties[prop] = lit
 			tok, lit = p.scanIgnoreWhitespace()
-			if tok != IDENT && tok != SINGLEQUOTATION {
-				return nil, fmt.Errorf("found %q, expected %q", lit, SINGLEQUOTATION)
+			if tok != token.IDENT && tok != token.SINGLEQUOTATION {
+				return nil, fmt.Errorf("found %q, expected %q", lit, token.SINGLEQUOTATION)
 			}
 		} else {
 			if i, err := strconv.Atoi(lit); err == nil {
@@ -90,7 +92,7 @@ func (p *Parser) KeyValue() (map[string]interface{}, error) {
 			}
 		}
 		tok, lit = p.scanIgnoreWhitespace()
-		if tok != COMMA {
+		if tok != token.COMMA {
 			p.unscan()
 			break
 		}
@@ -100,15 +102,15 @@ func (p *Parser) KeyValue() (map[string]interface{}, error) {
 	return properties, nil
 }
 
-func (p *Parser) Node() (*statements.VertexStatement, error) {
+func (p *Parser) Node() (*ast.VertexStmt, error) {
 	tok, lit := p.scanIgnoreWhitespace()
-	if tok != IDENT && tok == LPAREN {
-		stmt := &statements.VertexStatement{}
+	if tok != token.IDENT && tok == token.LPAREN {
+		stmt := &ast.VertexStmt{}
 
 		tok, lit = p.scanIgnoreWhitespace()
-		if tok == RPAREN {
+		if tok == token.RPAREN {
 			return stmt, nil
-		} else if tok == IDENT {
+		} else if tok == token.IDENT {
 			stmt.Variable = lit
 		} else {
 			p.unscan()
@@ -125,8 +127,8 @@ func (p *Parser) Node() (*statements.VertexStatement, error) {
 		}
 
 		tok, lit = p.scanIgnoreWhitespace()
-		if tok != IDENT && tok != RPAREN {
-			return nil, fmt.Errorf("found %q, expected %q", lit, RPAREN)
+		if tok != token.IDENT && tok != token.RPAREN {
+			return nil, fmt.Errorf("found %q, expected %q", lit, token.RPAREN)
 		}
 
 		return stmt, nil
@@ -138,13 +140,13 @@ func (p *Parser) Node() (*statements.VertexStatement, error) {
 
 func (p *Parser) Length() (uint, uint, error) {
 	tok, lit := p.scanIgnoreWhitespace()
-	if tok != IDENT && tok == MUL {
+	if tok != token.IDENT && tok == token.MUL {
 		min := MinUint
 		max := MaxUint
 
 		tok, lit = p.scanIgnoreWhitespace()
 		// We have a number
-		if tok == IDENT {
+		if tok == token.IDENT {
 			if u64, err := strconv.ParseUint(lit, 10, 32); err == nil {
 				min = uint(u64)
 				max = uint(u64)
@@ -153,9 +155,9 @@ func (p *Parser) Length() (uint, uint, error) {
 			}
 
 			tok, lit = p.scanIgnoreWhitespace()
-			if tok == DOT {
+			if tok == token.DOT {
 				tok, lit = p.scanIgnoreWhitespace()
-				if tok == DOT {
+				if tok == token.DOT {
 					max = MaxUint
 					tok, lit = p.scanIgnoreWhitespace()
 					if u64, err := strconv.ParseUint(lit, 10, 32); err == nil {
@@ -167,18 +169,18 @@ func (p *Parser) Length() (uint, uint, error) {
 						p.unscan()
 					}
 				} else {
-					return 0, 0, fmt.Errorf("found %q, expected %q", lit, DOT)
+					return 0, 0, fmt.Errorf("found %q, expected %q", lit, token.DOT)
 				}
 			} else {
 				p.unscan()
 			}
 			// Else we have a range
-		} else if tok == DOT {
+		} else if tok == token.DOT {
 			tok, lit = p.scanIgnoreWhitespace()
-			if tok == DOT {
+			if tok == token.DOT {
 				min = MinUint
 				tok, lit = p.scanIgnoreWhitespace()
-				if tok == IDENT {
+				if tok == token.IDENT {
 					if u64, err := strconv.ParseUint(lit, 10, 32); err == nil {
 						max = uint(u64)
 					} else {
@@ -188,7 +190,7 @@ func (p *Parser) Length() (uint, uint, error) {
 					return 0, 0, fmt.Errorf("found %q, expected uint", lit)
 				}
 			} else {
-				return 0, 0, fmt.Errorf("found %q, expected %q", lit, DOT)
+				return 0, 0, fmt.Errorf("found %q, expected %q", lit, token.DOT)
 			}
 		} else {
 			p.unscan()
@@ -200,13 +202,13 @@ func (p *Parser) Length() (uint, uint, error) {
 	return 0, 0, nil
 }
 
-func (p *Parser) RelationshipBody() (*statements.EdgeBodyStatement, error) {
+func (p *Parser) RelationshipBody() (*ast.EdgeBodyStmt, error) {
 	tok, lit := p.scanIgnoreWhitespace()
-	if tok != IDENT && tok == LSQUARE {
-		stmt := &statements.EdgeBodyStatement{}
+	if tok != token.IDENT && tok == token.LSQUARE {
+		stmt := &ast.EdgeBodyStmt{}
 
 		tok, lit = p.scanIgnoreWhitespace()
-		if tok == IDENT {
+		if tok == token.IDENT {
 			stmt.Variable = lit
 		} else {
 			p.unscan()
@@ -233,8 +235,8 @@ func (p *Parser) RelationshipBody() (*statements.EdgeBodyStatement, error) {
 		}
 
 		tok, lit := p.scanIgnoreWhitespace()
-		if tok != IDENT && tok != RSQUARE {
-			return nil, fmt.Errorf("found %q, expected %q", lit, RSQUARE)
+		if tok != token.IDENT && tok != token.RSQUARE {
+			return nil, fmt.Errorf("found %q, expected %q", lit, token.RSQUARE)
 		}
 		return stmt, nil
 	}
@@ -243,19 +245,19 @@ func (p *Parser) RelationshipBody() (*statements.EdgeBodyStatement, error) {
 	return nil, nil
 }
 
-func (p *Parser) Relationship() (*statements.EdgeStatement, error) {
+func (p *Parser) Relationship() (*ast.EdgeStmt, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 	// Look for the start of a relationship < or -
-	if tok != IDENT && (tok == LT || tok == SUB) {
-		stmt := &statements.EdgeStatement{Relationship: statements.Undirected}
+	if tok != token.IDENT && (tok == token.LT || tok == token.SUB) {
+		stmt := &ast.EdgeStmt{Relationship: ast.Undirected}
 
-		if tok == LT {
-			stmt.Relationship = statements.Outbound
+		if tok == token.LT {
+			stmt.Relationship = ast.Outbound
 
 			tok, lit = p.scanIgnoreWhitespace()
 			// Look for the end of the relationship -
-			if tok != IDENT && tok != SUB {
-				return nil, fmt.Errorf("found %q, expected %q", lit, SUB)
+			if tok != token.IDENT && tok != token.SUB {
+				return nil, fmt.Errorf("found %q, expected %q", lit, token.SUB)
 			}
 		}
 
@@ -266,16 +268,16 @@ func (p *Parser) Relationship() (*statements.EdgeStatement, error) {
 		}
 
 		tok, lit = p.scanIgnoreWhitespace()
-		if tok != IDENT && tok != SUB {
-			return nil, fmt.Errorf("found %q, expected %q", lit, SUB)
+		if tok != token.IDENT && tok != token.SUB {
+			return nil, fmt.Errorf("found %q, expected %q", lit, token.SUB)
 		}
 
 		// Check for inbound relationship
-		if tok == SUB {
+		if tok == token.SUB {
 			tok, lit = p.scanIgnoreWhitespace()
 			// Look for the end of the relationship - or >
-			if tok != IDENT && tok == GT {
-				stmt.Relationship = statements.Inbound
+			if tok != token.IDENT && tok == token.GT {
+				stmt.Relationship = ast.Inbound
 			} else {
 				p.unscan()
 			}
@@ -288,48 +290,48 @@ func (p *Parser) Relationship() (*statements.EdgeStatement, error) {
 	return nil, nil
 }
 
-func (p *Parser) Comparison() (statements.Comparison, error) {
+func (p *Parser) Comparison() (ast.Comparison, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 
-	if tok == EQ {
-		return statements.EQ, nil
-	} else if tok == LT {
+	if tok == token.EQ {
+		return ast.EQ, nil
+	} else if tok == token.LT {
 		tok, _ := p.scanIgnoreWhitespace()
-		if tok == EQ {
-			return statements.LTE, nil
-		} else if tok == GT {
-			return statements.NEQ, nil
+		if tok == token.EQ {
+			return ast.LTE, nil
+		} else if tok == token.GT {
+			return ast.NEQ, nil
 		}
 		p.unscan()
-		return statements.LT, nil
-	} else if tok == GT {
+		return ast.LT, nil
+	} else if tok == token.GT {
 		tok, _ := p.scanIgnoreWhitespace()
-		if tok == EQ {
-			return statements.GTE, nil
+		if tok == token.EQ {
+			return ast.GTE, nil
 		}
 		p.unscan()
-		return statements.GT, nil
+		return ast.GT, nil
 	}
 
-	return statements.EQ, fmt.Errorf("found %q, expected Comparison", lit)
+	return ast.EQ, fmt.Errorf("found %q, expected Comparison", lit)
 }
 
 func (p *Parser) Value() (interface{}, error) {
 	tok, lit := p.scanIgnoreWhitespace()
-	if tok == SINGLEQUOTATION {
+	if tok == token.SINGLEQUOTATION {
 		tok, lit := p.scanIgnoreWhitespace()
-		if tok == IDENT {
+		if tok == token.IDENT {
 			value := lit
 			tok, lit := p.scanIgnoreWhitespace()
-			if tok == SINGLEQUOTATION {
+			if tok == token.SINGLEQUOTATION {
 				return value, nil
 			}
 
-			return emptyString, fmt.Errorf("found %q, expected %q", lit, SINGLEQUOTATION)
+			return emptyString, fmt.Errorf("found %q, expected %q", lit, token.SINGLEQUOTATION)
 		}
 
-		return emptyString, fmt.Errorf("found %q, expected %q", lit, IDENT)
-	} else if tok == IDENT {
+		return emptyString, fmt.Errorf("found %q, expected %q", lit, token.IDENT)
+	} else if tok == token.IDENT {
 		fmt.Println(lit)
 		if i, err := strconv.Atoi(lit); err == nil {
 			return i, nil
@@ -345,11 +347,10 @@ func (p *Parser) Value() (interface{}, error) {
 	return emptyString, nil
 }
 
-func (p *Parser) Boolean() (statements.BooleanStatement, error) {
-	tok, lit := p.scanIgnoreWhitespace()
-	fmt.Println(lit)
-	if tok == AND {
-		state := &statements.AndStatement{}
+func (p *Parser) Boolean() (ast.BooleanStmt, error) {
+	tok, _ := p.scanIgnoreWhitespace()
+	if tok == token.AND {
+		state := &ast.AndStmt{}
 		if predicate, err := p.Predicate(); err == nil {
 			state.Predicate = predicate
 		} else {
@@ -361,16 +362,16 @@ func (p *Parser) Boolean() (statements.BooleanStatement, error) {
 	p.unscan()
 	return nil, nil
 }
-func (p *Parser) Predicate() (*statements.PredicateStatement, error) {
+func (p *Parser) Predicate() (*ast.PredicateStmt, error) {
 	tok, lit := p.scanIgnoreWhitespace()
-	if tok == IDENT {
-		state := &statements.PredicateStatement{}
+	if tok == token.IDENT {
+		state := &ast.PredicateStmt{}
 		state.Variable = lit
 
 		tok, lit := p.scanIgnoreWhitespace()
-		if tok == DOT {
+		if tok == token.DOT {
 			tok, lit := p.scanIgnoreWhitespace()
-			if tok == IDENT {
+			if tok == token.IDENT {
 				state.Property = lit
 				if operator, err := p.Comparison(); err == nil {
 					state.Operator = operator
@@ -386,7 +387,7 @@ func (p *Parser) Predicate() (*statements.PredicateStatement, error) {
 
 			}
 		} else {
-			return nil, fmt.Errorf("found %q, expected %q", lit, DOT)
+			return nil, fmt.Errorf("found %q, expected %q", lit, token.DOT)
 		}
 
 		if b, err := p.Boolean(); err == nil && b != nil {
@@ -402,10 +403,10 @@ func (p *Parser) Predicate() (*statements.PredicateStatement, error) {
 	return nil, nil
 }
 
-func (p *Parser) Where() (statements.Statement, error) {
+func (p *Parser) Where() (ast.Statement, error) {
 	tok, _ := p.scanIgnoreWhitespace()
-	if tok == WHERE {
-		state := &statements.WhereStatement{}
+	if tok == token.WHERE {
+		state := &ast.WhereStmt{}
 
 		if predicate, err := p.Predicate(); err == nil {
 			state.Predicate = predicate
@@ -420,11 +421,11 @@ func (p *Parser) Where() (statements.Statement, error) {
 	return nil, nil
 }
 
-func (p *Parser) Match() (statements.Statement, error) {
-	state := &statements.MatchStatement{}
+func (p *Parser) Match() (ast.Statement, error) {
+	state := &ast.MatchStmt{}
 
-	var lastVertex *statements.VertexStatement
-	var lastEdge *statements.EdgeStatement
+	var lastVertex *ast.VertexStmt
+	var lastEdge *ast.EdgeStmt
 
 	// Next we should loop over all the pattern.
 	for {
@@ -460,63 +461,63 @@ func (p *Parser) Match() (statements.Statement, error) {
 	return state, nil
 }
 
-func (p *Parser) OptionalMatch() (statements.Statement, error) {
-	state := &statements.OptionalMatchStatement{}
+func (p *Parser) OptionalMatch() (ast.Statement, error) {
+	state := &ast.OptionalMatchStmt{}
 	return state, nil
 }
 
-func (p *Parser) Clause() (statements.Statement, error) {
+func (p *Parser) Clause() (ast.Statement, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 
-	if !tok.isClause() {
+	if !tok.IsClause() {
 		return nil, fmt.Errorf("found %q, expected a clause", lit)
 	}
 
-	if tok == OPTIONAL {
+	if tok == token.OPTIONAL {
 		tok, lit := p.scanIgnoreWhitespace()
-		if tok == MATCH {
-			tok = OPTIONAL_MATCH
+		if tok == token.MATCH {
+			tok = token.OPTIONAL_MATCH
 		} else {
 			return nil, fmt.Errorf("found %q, expected MATCH", lit)
 		}
-	} else if tok == DETACH {
+	} else if tok == token.DETACH {
 		tok, lit := p.scanIgnoreWhitespace()
-		if tok == DELETE {
-			tok = DETACH_DELETE
+		if tok == token.DELETE {
+			tok = token.DETACH_DELETE
 		} else {
 			return nil, fmt.Errorf("found %q, expected DELETE", lit)
 		}
 	}
 
 	switch tok {
-	case MATCH:
+	case token.MATCH:
 		return p.Match()
-	case OPTIONAL_MATCH:
+	case token.OPTIONAL_MATCH:
 		return p.OptionalMatch()
 	}
 
 	return nil, fmt.Errorf("No matching statement found %q", lit)
 }
 
-func (p *Parser) SubClause() (Token, bool) {
+func (p *Parser) SubClause() (token.Token, bool) {
 	tok, _ := p.scanIgnoreWhitespace()
 
-	if tok.isSubClause() {
-		if tok == ON {
+	if tok.IsSubClause() {
+		if tok == token.ON {
 			tok, lit := p.scanIgnoreWhitespace()
-			if tok == CREATE {
-				return ON_CREATE, true
-			} else if tok == MATCH {
-				return ON_MATCH, true
+			if tok == token.CREATE {
+				return token.ON_CREATE, true
+			} else if tok == token.MATCH {
+				return token.ON_MATCH, true
 			} else {
 				panic(fmt.Sprintf("found %q, expected CREATE", lit))
 			}
 		}
 
-		if tok == ORDER {
+		if tok == token.ORDER {
 			tok, lit := p.scanIgnoreWhitespace()
-			if tok == BY {
-				return ORDER_BY, true
+			if tok == token.BY {
+				return token.ORDER_BY, true
 			} else {
 				panic(fmt.Sprintf("found %q, expected BY", lit))
 			}
@@ -526,22 +527,22 @@ func (p *Parser) SubClause() (Token, bool) {
 	}
 
 	p.unscan()
-	return IDENT, false
+	return token.IDENT, false
 }
 
 // Parse parses a cypher Clauses statement.
-func (p *Parser) Parse() (statements.Statement, error) {
+func (p *Parser) Parse() (ast.Statement, error) {
 	return p.Clause()
 }
 
 // NewParser returns a new instance of Parser.
 func NewParser(r io.Reader) *Parser {
-	return &Parser{s: NewScanner(r)}
+	return &Parser{s: scanner.NewScanner(r)}
 }
 
 // scan returns the next token from the underlying scanner.
 // If a token has been unscanned then read that instead.
-func (p *Parser) scan() (tok Token, lit string) {
+func (p *Parser) scan() (tok token.Token, lit string) {
 	// If we have a token on the buffer, then return it.
 	if p.buf.n != 0 {
 		p.buf.n = 0
@@ -558,9 +559,9 @@ func (p *Parser) scan() (tok Token, lit string) {
 }
 
 // scanIgnoreWhitespace scans the next non-whitespace token.
-func (p *Parser) scanIgnoreWhitespace() (tok Token, lit string) {
+func (p *Parser) scanIgnoreWhitespace() (tok token.Token, lit string) {
 	tok, lit = p.scan()
-	if tok == WS {
+	if tok == token.WS {
 		tok, lit = p.scan()
 	}
 	return

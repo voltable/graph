@@ -1,4 +1,4 @@
-package statements
+package ast
 
 type Boolean int
 
@@ -30,22 +30,22 @@ const (
 	NULL Comparison = iota
 )
 
-type ReadStatement interface {
+type ReadStmt interface {
 	Statement
 }
 
-type MatchStatement struct {
-	Pattern *VertexStatement
+type MatchStmt struct {
+	Pattern *VertexStmt
 	Next    Statement
 }
 
-type OptionalMatchStatement struct {
-	Pattern *VertexStatement
+type OptionalMatchStmt struct {
+	Pattern *VertexStmt
 	Next    Statement
 }
 
-type PrecedenceStatement struct {
-	Predicate *PredicateStatement
+type PrecedenceStmt struct {
+	Predicate *PredicateStmt
 }
 
 // PredicateStatement
@@ -54,14 +54,14 @@ type PrecedenceStatement struct {
 // name is Property
 // = is Operator
 // Peter is Value
-type PredicateStatement struct {
+type PredicateStmt struct {
 	Variable string
 	Property string
 	Operator Comparison
 	Value    interface{}
-	Next     BooleanStatement
+	Next     BooleanStmt
 }
 
-type WhereStatement struct {
-	Predicate *PredicateStatement
+type WhereStmt struct {
+	Predicate *PredicateStmt
 }

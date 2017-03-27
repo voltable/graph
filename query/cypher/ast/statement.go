@@ -1,6 +1,6 @@
-package statements
+package ast
 
-type ClauseStatement struct {
+type ClauseStmt struct {
 	Statement
 	//Clause Token
 	//Pattern *VertexStatement

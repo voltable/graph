@@ -1,4 +1,4 @@
-package statements
+package ast
 
 // Digraph represents the directed or undirected relationship on a Edge
 // a character consisting of two joined letters; a ligature.
@@ -11,22 +11,22 @@ const (
 	Outbound   Digraph = iota
 )
 
-type VertexStatement struct {
+type VertexStmt struct {
 	Variable   string
 	Properties map[string]interface{}
 	Label      string
 
-	Edge *EdgeStatement
+	Edge *EdgeStmt
 }
 
-type EdgeStatement struct {
+type EdgeStmt struct {
 	Relationship Digraph
-	Body         *EdgeBodyStatement
+	Body         *EdgeBodyStmt
 
-	Vertex *VertexStatement
+	Vertex *VertexStmt
 }
 
-type EdgeBodyStatement struct {
+type EdgeBodyStmt struct {
 	Variable      string
 	Properties    map[string]interface{}
 	Label         string
