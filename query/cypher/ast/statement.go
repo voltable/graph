@@ -8,6 +8,11 @@ type Expr interface {
 	exprNode()
 }
 
+// Patn all pattern nodes implement the Patn interface.
+type Patn interface {
+	patnNode()
+}
+
 // BlockExpr represents a block that contains a sequence of expressions where variables can be defined.
 type BlockExpr struct {
 	Expressions []Expr // Gets the expressions in this block.
@@ -36,3 +41,13 @@ type Ident struct {
 func (*BinaryExpr) exprNode()   {}
 func (*PropertyStmt) exprNode() {}
 func (*Ident) exprNode()        {}
+
+type MatchStmt struct {
+	Pattern Patn
+	Next    Stmt
+}
+
+type OptionalMatchStmt struct {
+	Pattern Patn
+	Next    Stmt
+}

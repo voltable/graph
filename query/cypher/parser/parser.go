@@ -102,10 +102,10 @@ func (p *Parser) KeyValue() (map[string]interface{}, error) {
 	return properties, nil
 }
 
-func (p *Parser) Node() (*ast.VertexStmt, error) {
+func (p *Parser) Node() (ast.Patn, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != token.IDENT && tok == token.LPAREN {
-		stmt := &ast.VertexStmt{}
+		stmt := &ast.VertexPatn{}
 
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok == token.RPAREN {
@@ -245,11 +245,11 @@ func (p *Parser) RelationshipBody() (*ast.EdgeBodyStmt, error) {
 	return nil, nil
 }
 
-func (p *Parser) Relationship() (*ast.EdgeStmt, error) {
+func (p *Parser) Relationship() (ast.Patn, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 	// Look for the start of a relationship < or -
 	if tok != token.IDENT && (tok == token.LT || tok == token.SUB) {
-		stmt := &ast.EdgeStmt{Relationship: ast.Undirected}
+		stmt := &ast.EdgePatn{Relationship: ast.Undirected}
 
 		if tok == token.LT {
 			stmt.Relationship = ast.Outbound

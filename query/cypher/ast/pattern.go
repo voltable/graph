@@ -11,19 +11,19 @@ const (
 	Outbound   Digraph = iota
 )
 
-type VertexStmt struct {
+type VertexPatn struct {
 	Variable   string
 	Properties map[string]interface{}
 	Label      string
 
-	Edge *EdgeStmt
+	Edge *EdgePatn
 }
 
-type EdgeStmt struct {
+type EdgePatn struct {
 	Relationship Digraph
 	Body         *EdgeBodyStmt
 
-	Vertex *VertexStmt
+	Vertex *VertexPatn
 }
 
 type EdgeBodyStmt struct {
@@ -33,3 +33,6 @@ type EdgeBodyStmt struct {
 	LengthMinimum uint
 	LengthMaximum uint
 }
+
+func (*VertexPatn) patnNode() {}
+func (*EdgePatn) patnNode()   {}
