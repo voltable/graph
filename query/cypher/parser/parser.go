@@ -403,7 +403,7 @@ func (p *Parser) Predicate() (*ast.PredicateStmt, error) {
 	return nil, nil
 }
 
-func (p *Parser) Where() (ast.Statement, error) {
+func (p *Parser) Where() (ast.Stmt, error) {
 	tok, _ := p.scanIgnoreWhitespace()
 	if tok == token.WHERE {
 		state := &ast.WhereStmt{}
@@ -421,7 +421,7 @@ func (p *Parser) Where() (ast.Statement, error) {
 	return nil, nil
 }
 
-func (p *Parser) Match() (ast.Statement, error) {
+func (p *Parser) Match() (ast.Stmt, error) {
 	state := &ast.MatchStmt{}
 
 	var lastVertex *ast.VertexStmt
@@ -461,12 +461,12 @@ func (p *Parser) Match() (ast.Statement, error) {
 	return state, nil
 }
 
-func (p *Parser) OptionalMatch() (ast.Statement, error) {
+func (p *Parser) OptionalMatch() (ast.Stmt, error) {
 	state := &ast.OptionalMatchStmt{}
 	return state, nil
 }
 
-func (p *Parser) Clause() (ast.Statement, error) {
+func (p *Parser) Clause() (ast.Stmt, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 
 	if !tok.IsClause() {
@@ -531,7 +531,7 @@ func (p *Parser) SubClause() (token.Token, bool) {
 }
 
 // Parse parses a cypher Clauses statement.
-func (p *Parser) Parse() (ast.Statement, error) {
+func (p *Parser) Parse() (ast.Stmt, error) {
 	return p.Clause()
 }
 

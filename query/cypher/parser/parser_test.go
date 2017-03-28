@@ -13,7 +13,7 @@ import (
 func TestParser_Pattern(t *testing.T) {
 	var tests = []struct {
 		s    string
-		stmt ast.Statement
+		stmt ast.Stmt
 		err  string
 	}{
 		{
@@ -113,7 +113,7 @@ func TestParser_Pattern(t *testing.T) {
 func TestParser_Clauses(t *testing.T) {
 	var tests = []struct {
 		s    string
-		stmt ast.Statement
+		stmt ast.Stmt
 		err  string
 	}{
 		{
@@ -187,7 +187,7 @@ func errstring(err error) string {
 func TestParser_Where(t *testing.T) {
 	var tests = []struct {
 		s    string
-		stmt ast.Statement
+		stmt ast.Stmt
 		err  string
 	}{
 		// {
