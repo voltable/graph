@@ -8,11 +8,6 @@ type Expr interface {
 	exprNode()
 }
 
-// Patn all pattern nodes implement the Patn interface.
-type Patn interface {
-	patnNode()
-}
-
 // BlockExpr represents a block that contains a sequence of expressions where variables can be defined.
 type BlockExpr struct {
 	Expressions []Expr // Gets the expressions in this block.
@@ -20,6 +15,7 @@ type BlockExpr struct {
 
 // A BinaryExpr node represents a binary expression.
 type BinaryExpr struct {
+	
 	X Expr // left operand
 	Y Expr // right operand
 }

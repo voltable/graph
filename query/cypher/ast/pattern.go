@@ -11,6 +11,11 @@ const (
 	Outbound   Digraph = iota
 )
 
+// Patn all pattern nodes implement the Patn interface.
+type Patn interface {
+	patnNode()
+}
+
 type VertexPatn struct {
 	Variable   string
 	Properties map[string]interface{}

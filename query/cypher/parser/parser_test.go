@@ -18,83 +18,83 @@ func TestParser_Pattern(t *testing.T) {
 	}{
 		{
 			s:    `MATCH (you)`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{Variable: "you"}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Variable: "you"}},
 		},
 		{
 			s:    `MATCH (:Person)`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{Label: "Person"}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person"}},
 		},
 		{
 			s:    `MATCH (you:Person)`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{Variable: "you", Label: "Person"}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Variable: "you", Label: "Person"}},
 		},
 		{
 			s:    `MATCH (you:Person {name:"You"})`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{Variable: "you", Label: "Person", Properties: map[string]interface{}{"name": "You"}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Variable: "you", Label: "Person", Properties: map[string]interface{}{"name": "You"}}},
 		},
 		{
 			s:    `MATCH (you:Person {name:"You",age: 21})`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{Variable: "you", Label: "Person", Properties: map[string]interface{}{"name": "You", "age": 21}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Variable: "you", Label: "Person", Properties: map[string]interface{}{"name": "You", "age": 21}}},
 		},
 		{
 			s:    `MATCH (you:Person {name:"You",age: 21, happy :true})`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{Variable: "you", Label: "Person", Properties: map[string]interface{}{"name": "You", "age": 21, "happy": true}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Variable: "you", Label: "Person", Properties: map[string]interface{}{"name": "You", "age": 21, "happy": true}}},
 		},
 		{
 			s:    `MATCH (:Person)--(:Car)`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{Label: "Person", Edge: &ast.EdgeStmt{Vertex: &ast.VertexStmt{Label: "Car"}}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person", Edge: &ast.EdgePatn{Vertex: &ast.VertexPatn{Label: "Car"}}}},
 		},
 		{
 			s:    `MATCH (:Person)<--(:Car)`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{Label: "Person", Edge: &ast.EdgeStmt{Relationship: ast.Outbound, Vertex: &ast.VertexStmt{Label: "Car"}}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person", Edge: &ast.EdgePatn{Relationship: ast.Outbound, Vertex: &ast.VertexPatn{Label: "Car"}}}},
 		},
 		{
 			s:    `MATCH (:Person)-->(:Car)`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{Label: "Person", Edge: &ast.EdgeStmt{Relationship: ast.Inbound, Vertex: &ast.VertexStmt{Label: "Car"}}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person", Edge: &ast.EdgePatn{Relationship: ast.Inbound, Vertex: &ast.VertexPatn{Label: "Car"}}}},
 		},
 		{
 			s:    `MATCH (:Person)-[]-(:Car)`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{Label: "Person", Edge: &ast.EdgeStmt{Body: &ast.EdgeBodyStmt{LengthMinimum: 1, LengthMaximum: 1}, Vertex: &ast.VertexStmt{Label: "Car"}}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person", Edge: &ast.EdgePatn{Body: &ast.EdgeBodyStmt{LengthMinimum: 1, LengthMaximum: 1}, Vertex: &ast.VertexPatn{Label: "Car"}}}},
 		},
 		{
 			s:    `MATCH (:Person)-[*2]-(:Car)`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{Label: "Person", Edge: &ast.EdgeStmt{Body: &ast.EdgeBodyStmt{LengthMinimum: 2, LengthMaximum: 2}, Vertex: &ast.VertexStmt{Label: "Car"}}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person", Edge: &ast.EdgePatn{Body: &ast.EdgeBodyStmt{LengthMinimum: 2, LengthMaximum: 2}, Vertex: &ast.VertexPatn{Label: "Car"}}}},
 		},
 		{
 			s:    `MATCH (:Person)-[*..5]-(:Car)`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{Label: "Person", Edge: &ast.EdgeStmt{Body: &ast.EdgeBodyStmt{LengthMinimum: 1, LengthMaximum: 5}, Vertex: &ast.VertexStmt{Label: "Car"}}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person", Edge: &ast.EdgePatn{Body: &ast.EdgeBodyStmt{LengthMinimum: 1, LengthMaximum: 5}, Vertex: &ast.VertexPatn{Label: "Car"}}}},
 		},
 		{
 			s:    `MATCH (:Person)-[*2..]-(:Car)`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{Label: "Person", Edge: &ast.EdgeStmt{Body: &ast.EdgeBodyStmt{LengthMinimum: 2, LengthMaximum: parser.MaxUint}, Vertex: &ast.VertexStmt{Label: "Car"}}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person", Edge: &ast.EdgePatn{Body: &ast.EdgeBodyStmt{LengthMinimum: 2, LengthMaximum: parser.MaxUint}, Vertex: &ast.VertexPatn{Label: "Car"}}}},
 		},
 		{
 			s:    `MATCH (:Person)-[*2..5]-(:Car)`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{Label: "Person", Edge: &ast.EdgeStmt{Body: &ast.EdgeBodyStmt{LengthMinimum: 2, LengthMaximum: 5}, Vertex: &ast.VertexStmt{Label: "Car"}}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person", Edge: &ast.EdgePatn{Body: &ast.EdgeBodyStmt{LengthMinimum: 2, LengthMaximum: 5}, Vertex: &ast.VertexPatn{Label: "Car"}}}},
 		},
 		{
 			s:    `MATCH (:Person)-[*]-(:Car)`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{Label: "Person", Edge: &ast.EdgeStmt{Body: &ast.EdgeBodyStmt{LengthMinimum: 1, LengthMaximum: parser.MaxUint}, Vertex: &ast.VertexStmt{Label: "Car"}}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person", Edge: &ast.EdgePatn{Body: &ast.EdgeBodyStmt{LengthMinimum: 1, LengthMaximum: parser.MaxUint}, Vertex: &ast.VertexPatn{Label: "Car"}}}},
 		},
 		{
 			s:    `MATCH (:Person)-[:Owns*]-(:Car)`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{Label: "Person", Edge: &ast.EdgeStmt{Body: &ast.EdgeBodyStmt{Label: "Owns", LengthMinimum: 1, LengthMaximum: parser.MaxUint}, Vertex: &ast.VertexStmt{Label: "Car"}}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person", Edge: &ast.EdgePatn{Body: &ast.EdgeBodyStmt{Label: "Owns", LengthMinimum: 1, LengthMaximum: parser.MaxUint}, Vertex: &ast.VertexPatn{Label: "Car"}}}},
 		},
 		{
 			s:    `MATCH (:Person)-[:Owns*2..5]-(:Car)`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{Label: "Person", Edge: &ast.EdgeStmt{Body: &ast.EdgeBodyStmt{Label: "Owns", LengthMinimum: 2, LengthMaximum: 5}, Vertex: &ast.VertexStmt{Label: "Car"}}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person", Edge: &ast.EdgePatn{Body: &ast.EdgeBodyStmt{Label: "Owns", LengthMinimum: 2, LengthMaximum: 5}, Vertex: &ast.VertexPatn{Label: "Car"}}}},
 		},
 		{
 			s:    `MATCH (:Person)-[purchased:Owns*]-(:Car)`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{Label: "Person", Edge: &ast.EdgeStmt{Body: &ast.EdgeBodyStmt{Variable: "purchased", Label: "Owns", LengthMinimum: 1, LengthMaximum: parser.MaxUint}, Vertex: &ast.VertexStmt{Label: "Car"}}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person", Edge: &ast.EdgePatn{Body: &ast.EdgeBodyStmt{Variable: "purchased", Label: "Owns", LengthMinimum: 1, LengthMaximum: parser.MaxUint}, Vertex: &ast.VertexPatn{Label: "Car"}}}},
 		},
 		{
 			s:    `MATCH (:Person)-[* {blocked:false}]-(:Car)`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{Label: "Person", Edge: &ast.EdgeStmt{Body: &ast.EdgeBodyStmt{LengthMinimum: 1, LengthMaximum: parser.MaxUint, Properties: map[string]interface{}{"blocked": false}}, Vertex: &ast.VertexStmt{Label: "Car"}}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person", Edge: &ast.EdgePatn{Body: &ast.EdgeBodyStmt{LengthMinimum: 1, LengthMaximum: parser.MaxUint, Properties: map[string]interface{}{"blocked": false}}, Vertex: &ast.VertexPatn{Label: "Car"}}}},
 		},
 		{
 			s:    `MATCH (:Person)-[purchased:Owns*2..5 {blocked:false}]-(:Car)`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{Label: "Person", Edge: &ast.EdgeStmt{Body: &ast.EdgeBodyStmt{Variable: "purchased", Label: "Owns", LengthMinimum: 2, LengthMaximum: 5, Properties: map[string]interface{}{"blocked": false}}, Vertex: &ast.VertexStmt{Label: "Car"}}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person", Edge: &ast.EdgePatn{Body: &ast.EdgeBodyStmt{Variable: "purchased", Label: "Owns", LengthMinimum: 2, LengthMaximum: 5, Properties: map[string]interface{}{"blocked": false}}, Vertex: &ast.VertexPatn{Label: "Car"}}}},
 		},
 	}
 
@@ -118,7 +118,7 @@ func TestParser_Clauses(t *testing.T) {
 	}{
 		{
 			s:    `MATCH ()`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}},
 		},
 		// {
 		// 	s:    `OPTIONAL MATCH`,
@@ -126,43 +126,43 @@ func TestParser_Clauses(t *testing.T) {
 		// },
 		// {
 		// 	s:    `CREATE ()`,
-		// 	stmt: &cypher.CreateStmt{Pattern: &cypher.VertexStmt{}},
+		// 	stmt: &cypher.CreateStmt{Pattern: &cypher.VertexPatn{}},
 		// },
 		// {
 		// 	s:    `DELETE ()`,
-		// 	stmt: &cypher.ClauseStmt{Pattern: &cypher.VertexStmt{}, Clause: cypher.DELETE},
+		// 	stmt: &cypher.ClauseStmt{Pattern: &cypher.VertexPatn{}, Clause: cypher.DELETE},
 		// },
 		// {
 		// 	s:    `DETACH DELETE ()`,
-		// 	stmt: &cypher.ClauseStmt{Pattern: &cypher.VertexStmt{}, Clause: cypher.DETACH_DELETE},
+		// 	stmt: &cypher.ClauseStmt{Pattern: &cypher.VertexPatn{}, Clause: cypher.DETACH_DELETE},
 		// },
 		// {
 		// 	s:    `MERGE ()`,
-		// 	stmt: &cypher.ClauseStmt{Pattern: &cypher.VertexStmt{}, Clause: cypher.MERGE},
+		// 	stmt: &cypher.ClauseStmt{Pattern: &cypher.VertexPatn{}, Clause: cypher.MERGE},
 		// },
 		// {
 		// 	s:    `REMOVE ()`,
-		// 	stmt: &cypher.ClauseStmt{Pattern: &cypher.VertexStmt{}, Clause: cypher.REMOVE},
+		// 	stmt: &cypher.ClauseStmt{Pattern: &cypher.VertexPatn{}, Clause: cypher.REMOVE},
 		// },
 		// {
 		// 	s:    `RETURN ()`,
-		// 	stmt: &cypher.ClauseStmt{Pattern: &cypher.VertexStmt{}, Clause: cypher.RETURN},
+		// 	stmt: &cypher.ClauseStmt{Pattern: &cypher.VertexPatn{}, Clause: cypher.RETURN},
 		// },
 		// {
 		// 	s:    `SET ()`,
-		// 	stmt: &cypher.ClauseStmt{Pattern: &cypher.VertexStmt{}, Clause: cypher.SET},
+		// 	stmt: &cypher.ClauseStmt{Pattern: &cypher.VertexPatn{}, Clause: cypher.SET},
 		// },
 		// {
 		// 	s:    `UNION ()`,
-		// 	stmt: &cypher.ClauseStmt{Pattern: &cypher.VertexStmt{}, Clause: cypher.UNION},
+		// 	stmt: &cypher.ClauseStmt{Pattern: &cypher.VertexPatn{}, Clause: cypher.UNION},
 		// },
 		// {
 		// 	s:    `UNWIND ()`,
-		// 	stmt: &cypher.ClauseStmt{Pattern: &cypher.VertexStmt{}, Clause: cypher.UNWIND},
+		// 	stmt: &cypher.ClauseStmt{Pattern: &cypher.VertexPatn{}, Clause: cypher.UNWIND},
 		// },
 		// {
 		// 	s:    `WITH ()`,
-		// 	stmt: &cypher.ClauseStmt{Pattern: &cypher.VertexStmt{}, Clause: cypher.WITH},
+		// 	stmt: &cypher.ClauseStmt{Pattern: &cypher.VertexPatn{}, Clause: cypher.WITH},
 		// },
 	}
 
@@ -192,31 +192,35 @@ func TestParser_Where(t *testing.T) {
 	}{
 		// {
 		// 	s:    `MATCH () WHERE`,
-		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{}, Next: &ast.WhereStmt{}},
+		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{}},
 		// },
 		// {
-		// 	s:    `MATCH () WHERE n.property <> 'value'`,
-		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{}, Next: &ast.WhereStmt{Predicate: &ast.PredicateStmt{Variable: "n", Property: "property", Operator: ast.NEQ, Value: "value"}}},
+		// 	s:    `MATCH () WHERE n.property`,
+		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.PropertyStmt{Variable: "n", Value: "property"}}},
 		// },
 		{
-			s:    `MATCH () WHERE n.number >= 1 AND n.number <= 10`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{}, Next: &ast.WhereStmt{Predicate: &ast.PredicateStmt{Variable: "n", Property: "number", Operator: ast.GTE, Value: 1, Next: &ast.AndStmt{Predicate: &ast.PredicateStmt{Variable: "n", Property: "number", Operator: ast.LTE, Value: 10}}}}},
+			s:    `MATCH () WHERE n.property <> 'value'`,
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.ComparisonExpr{Comparison: ast.NEQ, BinaryExpr: ast.BinaryExpr{X: &ast.PropertyStmt{Variable: "n", Value: "property"}, Y: &ast.Ident{Data: "value"}}}}},
 		},
 		// {
+		// 	s:    `MATCH () WHERE n.number >= 1 AND n.number <= 10`,
+		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.PropertyStmt{Variable: "n", Property: "number", Operator: ast.GTE, Value: 1, Next: &ast.AndStmt{Predicate: &ast.PropertyStmt{Variable: "n", Property: "number", Operator: ast.LTE, Value: 10}}}}},
+		// },
+		// {
 		// 	s:    `MATCH () WHERE 1 <= n.number <= 10`,
-		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{}, Next: &ast.WhereStmt{Predicate: &ast.PredicateStmt{Variable: "n", Property: "number", Operator: ast.GTE, Value: 1}}},
+		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.PropertyStmt{Variable: "n", Property: "number", Operator: ast.GTE, Value: 1}}},
 		// },
 		// {
 		// 	s:    `MATCH () WHERE n:Person`,
-		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{}, Next: &ast.WhereStmt{Predicate: &ast.PredicateStmt{Variable: "n", Property: "property", Operator: ast.NEQ, Value: "value"}}},
+		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.PropertyStmt{Variable: "n", Property: "property", Operator: ast.NEQ, Value: "value"}}},
 		// },
 		// {
 		// 	s:    `MATCH () WHERE variable IS NULL`,
-		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{}, Next: &ast.WhereStmt{Predicate: &ast.PredicateStmt{Variable: "n", Property: "property", Operator: ast.NEQ, Value: "value"}}},
+		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.PropertyStmt{Variable: "n", Property: "property", Operator: ast.NEQ, Value: "value"}}},
 		// },
 		// {
 		// 	s:    `MATCH () WHERE n["property"] = $value`,
-		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexStmt{}, Next: &ast.WhereStmt{Predicate: &ast.PredicateStmt{Variable: "n", Property: "property", Operator: ast.NEQ, Value: "value"}}},
+		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.PropertyStmt{Variable: "n", Property: "property", Operator: ast.NEQ, Value: "value"}}},
 		// },
 	}
 

@@ -102,11 +102,12 @@ func (s *Scanner) scanCharacter(ch rune) (tok token.Token, lit string) {
 	case '^':
 		return token.POW, string(ch)
 	case '=':
+		next := s.read()
+		if next == '~' {
+			return token.EQREGEX, "=~"
+		}
+		s.unread()
 		return token.EQ, string(ch)
-	case '<':
-		return token.LT, string(ch)
-	case '>':
-		return token.GT, string(ch)
 	case '{':
 		return token.LCURLY, string(ch)
 	case '}':
@@ -115,8 +116,24 @@ func (s *Scanner) scanCharacter(ch rune) (tok token.Token, lit string) {
 		return token.QUOTATION, string(ch)
 	case '\'':
 		return token.SINGLEQUOTATION, string(ch)
+	case '<':
+		next := s.read()
+		if next == '=' {
+			return token.LTE, "<="
+		}
+		if next == '>' {
+			return token.NEQ, "<>"
+		}
+		s.unread()
+		return token.LT, string(ch)
+	case '>':
+		next := s.read()
+		if next == '=' {
+			return token.GTE, ">="
+		}
+		s.unread()
+		return token.GT, string(ch)
 	}
-
 	return token.ILLEGAL, string(ch)
 }
 
@@ -167,7 +184,7 @@ func (s *Scanner) scanIdent() (tok token.Token, lit string) {
 
 	lit = buf.String()
 
-	if tok = token.Keyword(lit); tok != token.IDENT {
+	if tok = token.Clause(lit); tok != token.IDENT {
 		return tok, buf.String()
 	}
 
@@ -184,19 +201,10 @@ func (s *Scanner) scanIdent() (tok token.Token, lit string) {
 	}
 
 	switch strings.ToUpper(buf.String()) {
-
-	case "<>":
-		return token.NEQ, buf.String()
-	case "<=":
-		return token.LTE, buf.String()
-	case ">=":
-		return token.GTE, buf.String()
 	case "IS":
 		return token.IS, buf.String()
 	case "NULL":
 		return token.NULL, buf.String()
-	case "=~":
-		return token.EQREGEX, buf.String()
 	}
 
 	// Otherwise return as a regular identifier.

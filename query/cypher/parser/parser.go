@@ -102,7 +102,7 @@ func (p *Parser) KeyValue() (map[string]interface{}, error) {
 	return properties, nil
 }
 
-func (p *Parser) Node() (ast.Patn, error) {
+func (p *Parser) Node() (*ast.VertexPatn, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != token.IDENT && tok == token.LPAREN {
 		stmt := &ast.VertexPatn{}
@@ -245,7 +245,7 @@ func (p *Parser) RelationshipBody() (*ast.EdgeBodyStmt, error) {
 	return nil, nil
 }
 
-func (p *Parser) Relationship() (ast.Patn, error) {
+func (p *Parser) Relationship() (*ast.EdgePatn, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 	// Look for the start of a relationship < or -
 	if tok != token.IDENT && (tok == token.LT || tok == token.SUB) {
@@ -290,32 +290,6 @@ func (p *Parser) Relationship() (ast.Patn, error) {
 	return nil, nil
 }
 
-func (p *Parser) Comparison() (ast.Comparison, error) {
-	tok, lit := p.scanIgnoreWhitespace()
-
-	if tok == token.EQ {
-		return ast.EQ, nil
-	} else if tok == token.LT {
-		tok, _ := p.scanIgnoreWhitespace()
-		if tok == token.EQ {
-			return ast.LTE, nil
-		} else if tok == token.GT {
-			return ast.NEQ, nil
-		}
-		p.unscan()
-		return ast.LT, nil
-	} else if tok == token.GT {
-		tok, _ := p.scanIgnoreWhitespace()
-		if tok == token.EQ {
-			return ast.GTE, nil
-		}
-		p.unscan()
-		return ast.GT, nil
-	}
-
-	return ast.EQ, fmt.Errorf("found %q, expected Comparison", lit)
-}
-
 func (p *Parser) Value() (interface{}, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok == token.SINGLEQUOTATION {
@@ -347,60 +321,96 @@ func (p *Parser) Value() (interface{}, error) {
 	return emptyString, nil
 }
 
-func (p *Parser) Boolean() (ast.BooleanStmt, error) {
-	tok, _ := p.scanIgnoreWhitespace()
-	if tok == token.AND {
-		state := &ast.AndStmt{}
-		if predicate, err := p.Predicate(); err == nil {
-			state.Predicate = predicate
-		} else {
-			return nil, err
+func (p *Parser) Property() (*ast.PropertyStmt, error) {
+	tok, lit := p.scanIgnoreWhitespace()
+	if tok == token.IDENT {
+
+		state := &ast.PropertyStmt{Variable: lit}
+
+		tok, lit = p.scanIgnoreWhitespace()
+		if tok != token.DOT {
+			return nil, fmt.Errorf("found %q, expected a DOT", lit)
 		}
+		tok, lit = p.scanIgnoreWhitespace()
+		if tok != token.IDENT {
+			return nil, fmt.Errorf("found %q, expected a IDENT", lit)
+		}
+
+		state.Value = lit
+
 		return state, nil
 	}
-
 	p.unscan()
 	return nil, nil
 }
-func (p *Parser) Predicate() (*ast.PredicateStmt, error) {
-	tok, lit := p.scanIgnoreWhitespace()
-	if tok == token.IDENT {
-		state := &ast.PredicateStmt{}
-		state.Variable = lit
 
-		tok, lit := p.scanIgnoreWhitespace()
-		if tok == token.DOT {
-			tok, lit := p.scanIgnoreWhitespace()
-			if tok == token.IDENT {
-				state.Property = lit
-				if operator, err := p.Comparison(); err == nil {
-					state.Operator = operator
-				} else {
-					return nil, err
-				}
+func (p *Parser) BinaryExpr() (*ast.ComparisonExpr, error) {
+	tok, _ := p.scanIgnoreWhitespace()
+	switch tok {
+	case token.EQ:
+		return &ast.ComparisonExpr{}, nil
+	case token.NEQ:
+		return &ast.ComparisonExpr{BinaryExpr: ast.BinaryExpr{}, Comparison: ast.NEQ}, nil
+	case token.LT:
+		return &ast.ComparisonExpr{}, nil
+	case token.LTE:
+		return &ast.ComparisonExpr{}, nil
+	case token.GT:
+		return &ast.ComparisonExpr{}, nil
+	case token.GTE:
+		return &ast.ComparisonExpr{}, nil
+	}
+	p.unscan()
+	return nil, nil
+}
 
-				if value, err := p.Value(); err == nil {
-					state.Value = value
-				} else {
-					return nil, err
-				}
+func (p *Parser) Predicate() (ast.Expr, error) {
 
+	var root ast.Expr
+	var last ast.Expr
+	var binary *ast.ComparisonExpr
+
+	tok, _ := p.scanIgnoreWhitespace()
+	p.unscan()
+
+	for !tok.IsClause() && tok != token.EOF {
+
+		if property, err := p.Property(); err == nil && property != nil {
+			last = property
+		} else if err != nil {
+			return nil, err
+		} else if binaryExpr, err := p.BinaryExpr(); err == nil && binaryExpr != nil {
+			if root == nil {
+				root = binaryExpr
 			}
-		} else {
-			return nil, fmt.Errorf("found %q, expected %q", lit, token.DOT)
-		}
 
-		if b, err := p.Boolean(); err == nil && b != nil {
-			state.Next = b
+			binary = binaryExpr
+
+			// if b, ok := binaryExpr.(ast.NotEqualExpr); ok {
+			// 	binary = &b
+			// }
+		} else if err != nil {
+			return nil, err
+		} else if value, err := p.Value(); err == nil && value != nil {
+			last = &ast.Ident{value}
 		} else if err != nil {
 			return nil, err
 		}
 
-		return state, nil
+		if binary != nil {
+			if binary.X == nil {
+				binary.X = last
+			} else if binary.Y == nil {
+				binary.Y = last
+			}
+			last = nil
+		}
+
+		tok, _ = p.scanIgnoreWhitespace()
+		p.unscan()
 	}
 
-	p.unscan()
-	return nil, nil
+	return root, nil
 }
 
 func (p *Parser) Where() (ast.Stmt, error) {
@@ -412,7 +422,7 @@ func (p *Parser) Where() (ast.Stmt, error) {
 			state.Predicate = predicate
 		} else {
 			return nil, err
-		}
+		}	
 
 		return state, nil
 	}
@@ -424,8 +434,8 @@ func (p *Parser) Where() (ast.Stmt, error) {
 func (p *Parser) Match() (ast.Stmt, error) {
 	state := &ast.MatchStmt{}
 
-	var lastVertex *ast.VertexStmt
-	var lastEdge *ast.EdgeStmt
+	var lastVertex *ast.VertexPatn
+	var lastEdge *ast.EdgePatn
 
 	// Next we should loop over all the pattern.
 	for {

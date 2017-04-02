@@ -136,15 +136,15 @@ var tokens = [...]string{
 	NOT: "NOT",
 }
 
-var keywords map[string]Token
+var clauses map[string]Token
 var subClauses map[string]Token
 var comparison map[string]Token
 var boolean map[string]Token
 
 func init() {
-	keywords = make(map[string]Token)
+	clauses = make(map[string]Token)
 	for tok := clausesBag + 1; tok < clausesEnd; tok++ {
-		keywords[strings.ToLower(tokens[tok])] = tok
+		clauses[strings.ToLower(tokens[tok])] = tok
 	}
 
 	subClauses = make(map[string]Token)
@@ -183,8 +183,8 @@ func (tok Token) IsOperator() bool { return tok > operatorBeg && tok < operatorE
 // isComparison returns true for comparison tokens.
 func (tok Token) IsComparison() bool { return tok > comparisonBeg && tok < comparisonEnd }
 
-func Keyword(ident string) Token {
-	if tok, ok := keywords[strings.ToLower(ident)]; ok {
+func Clause(ident string) Token {
+	if tok, ok := clauses[strings.ToLower(ident)]; ok {
 		return tok
 	}
 	return IDENT

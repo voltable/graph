@@ -62,6 +62,23 @@
                 "^TestParser_Where"
             ],
             "showLog": true
-        }        
+        },
+           {
+            "name": "Query Cypher Scanner Test",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "remotePath": "",
+            "port": 2346,
+            "host": "127.0.0.1",
+            "program": "${workspaceRoot}/query/cypher/scanner",
+            "env": {},
+            "args": [
+                "-test.v",
+                "-test.run",
+                "^TestScanner_Scan"
+            ],
+            "showLog": true
+        }          
     ]
 }
