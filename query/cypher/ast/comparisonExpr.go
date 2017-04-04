@@ -14,8 +14,9 @@ const (
 )
 
 type ComparisonExpr struct {
-	BinaryExpr
 	Comparison
+	X Expr // left operand
+	Y Expr // right operand
 }
 
 func (*ComparisonExpr) exprNode() {}

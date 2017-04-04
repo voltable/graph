@@ -196,31 +196,36 @@ func TestParser_Where(t *testing.T) {
 		// },
 		// {
 		// 	s:    `MATCH () WHERE n.property`,
-		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.PropertyStmt{Variable: "n", Value: "property"}}},
+		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.ComparisonExpr{Variable: "n", Value: "property"}}},
+		// },
+		// {
+		// 	s:    `MATCH () WHERE n.property <> 'value'`,
+		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.ComparisonExpr{Comparison: ast.NEQ, X: &ast.PropertyStmt{Variable: "n", Value: "property"}, Y: &ast.Ident{Data: "value"}}}},
 		// },
 		{
-			s:    `MATCH () WHERE n.property <> 'value'`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.ComparisonExpr{Comparison: ast.NEQ, BinaryExpr: ast.BinaryExpr{X: &ast.PropertyStmt{Variable: "n", Value: "property"}, Y: &ast.Ident{Data: "value"}}}}},
+			s:    `MATCH () WHERE n.number >= 1 AND n.number <= 10`,
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.ComparisonExpr{Comparison: ast.GTE, X: &ast.PropertyStmt{Variable: "n", Value: "property"}, Y: &ast.Ident{Data: "value"}}}},
 		},
-		// {
-		// 	s:    `MATCH () WHERE n.number >= 1 AND n.number <= 10`,
-		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.PropertyStmt{Variable: "n", Property: "number", Operator: ast.GTE, Value: 1, Next: &ast.AndStmt{Predicate: &ast.PropertyStmt{Variable: "n", Property: "number", Operator: ast.LTE, Value: 10}}}}},
-		// },
+
+		//					AND
+		//			>=					<=
+		// n.number  		1		n.number  	10
+
 		// {
 		// 	s:    `MATCH () WHERE 1 <= n.number <= 10`,
-		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.PropertyStmt{Variable: "n", Property: "number", Operator: ast.GTE, Value: 1}}},
+		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.ComparisonExpr{Variable: "n", Property: "number", Operator: ast.GTE, Value: 1}}},
 		// },
 		// {
 		// 	s:    `MATCH () WHERE n:Person`,
-		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.PropertyStmt{Variable: "n", Property: "property", Operator: ast.NEQ, Value: "value"}}},
+		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.ComparisonExpr{Variable: "n", Property: "property", Operator: ast.NEQ, Value: "value"}}},
 		// },
 		// {
 		// 	s:    `MATCH () WHERE variable IS NULL`,
-		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.PropertyStmt{Variable: "n", Property: "property", Operator: ast.NEQ, Value: "value"}}},
+		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.ComparisonExpr{Variable: "n", Property: "property", Operator: ast.NEQ, Value: "value"}}},
 		// },
 		// {
 		// 	s:    `MATCH () WHERE n["property"] = $value`,
-		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.PropertyStmt{Variable: "n", Property: "property", Operator: ast.NEQ, Value: "value"}}},
+		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.ComparisonExpr{Variable: "n", Property: "property", Operator: ast.NEQ, Value: "value"}}},
 		// },
 	}
 

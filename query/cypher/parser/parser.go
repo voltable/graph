@@ -350,7 +350,7 @@ func (p *Parser) BinaryExpr() (*ast.ComparisonExpr, error) {
 	case token.EQ:
 		return &ast.ComparisonExpr{}, nil
 	case token.NEQ:
-		return &ast.ComparisonExpr{BinaryExpr: ast.BinaryExpr{}, Comparison: ast.NEQ}, nil
+		return &ast.ComparisonExpr{Comparison: ast.NEQ}, nil
 	case token.LT:
 		return &ast.ComparisonExpr{}, nil
 	case token.LTE:
@@ -422,7 +422,7 @@ func (p *Parser) Where() (ast.Stmt, error) {
 			state.Predicate = predicate
 		} else {
 			return nil, err
-		}	
+		}
 
 		return state, nil
 	}
