@@ -328,8 +328,12 @@ func (p *Parser) Property() (*ast.PropertyStmt, error) {
 		state := &ast.PropertyStmt{Variable: lit}
 
 		tok, lit = p.scanIgnoreWhitespace()
+
 		if tok != token.DOT {
-			return nil, fmt.Errorf("found %q, expected a DOT", lit)
+			// Must be a value
+			p.unscan()
+			p.unscan()
+			return nil, nil
 		}
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok != token.IDENT {
@@ -344,31 +348,48 @@ func (p *Parser) Property() (*ast.PropertyStmt, error) {
 	return nil, nil
 }
 
-func (p *Parser) BinaryExpr() (*ast.ComparisonExpr, error) {
+func (p *Parser) ComparisonExpr() (*ast.ComparisonExpr, error) {
 	tok, _ := p.scanIgnoreWhitespace()
 	switch tok {
 	case token.EQ:
-		return &ast.ComparisonExpr{}, nil
+		return &ast.ComparisonExpr{Comparison: ast.EQ}, nil
 	case token.NEQ:
 		return &ast.ComparisonExpr{Comparison: ast.NEQ}, nil
 	case token.LT:
-		return &ast.ComparisonExpr{}, nil
+		return &ast.ComparisonExpr{Comparison: ast.LT}, nil
 	case token.LTE:
-		return &ast.ComparisonExpr{}, nil
+		return &ast.ComparisonExpr{Comparison: ast.LTE}, nil
 	case token.GT:
-		return &ast.ComparisonExpr{}, nil
+		return &ast.ComparisonExpr{Comparison: ast.GT}, nil
 	case token.GTE:
-		return &ast.ComparisonExpr{}, nil
+		return &ast.ComparisonExpr{Comparison: ast.GTE}, nil
 	}
 	p.unscan()
 	return nil, nil
 }
 
+func (p *Parser) BooleanExpr() (*ast.BooleanExpr, error) {
+	tok, lit := p.scanIgnoreWhitespace()
+	fmt.Println(lit)
+	switch tok {
+	case token.AND:
+		return &ast.BooleanExpr{Boolean: ast.AND}, nil
+	case token.OR:
+		return &ast.BooleanExpr{Boolean: ast.OR}, nil
+	case token.NOT:
+		return &ast.BooleanExpr{Boolean: ast.NOT}, nil
+	case token.XOR:
+		return &ast.BooleanExpr{Boolean: ast.XOR}, nil
+	}
+	p.unscan()
+	return nil, nil
+}
+
+// Predicate A Shunting Algorithm to build up the AST
 func (p *Parser) Predicate() (ast.Expr, error) {
 
-	var root ast.Expr
-	var last ast.Expr
-	var binary *ast.ComparisonExpr
+	binaryStack := make(stackExpr, 0)
+	exprStack := make(stackExpr, 0)
 
 	tok, _ := p.scanIgnoreWhitespace()
 	p.unscan()
@@ -376,40 +397,52 @@ func (p *Parser) Predicate() (ast.Expr, error) {
 	for !tok.IsClause() && tok != token.EOF {
 
 		if property, err := p.Property(); err == nil && property != nil {
-			last = property
+			exprStack = exprStack.Push(property)
 		} else if err != nil {
 			return nil, err
-		} else if binaryExpr, err := p.BinaryExpr(); err == nil && binaryExpr != nil {
-			if root == nil {
-				root = binaryExpr
-			}
-
-			binary = binaryExpr
-
-			// if b, ok := binaryExpr.(ast.NotEqualExpr); ok {
-			// 	binary = &b
-			// }
+		} else if comparisonExpr, err := p.ComparisonExpr(); err == nil && comparisonExpr != nil {
+			binaryStack = binaryStack.Push(comparisonExpr)
+		} else if err != nil {
+			return nil, err
+		} else if booleanExpr, err := p.BooleanExpr(); err == nil && booleanExpr != nil {
+			binaryStack = binaryStack.Push(booleanExpr)
 		} else if err != nil {
 			return nil, err
 		} else if value, err := p.Value(); err == nil && value != nil {
-			last = &ast.Ident{value}
+			exprStack = exprStack.Push(&ast.Ident{value})
+
+			var binary ast.Expr
+			//var ok bool
+
+			binaryStack, binary, _ = binaryStack.Pop()
+			if compar, ok := binary.(*ast.ComparisonExpr); ok {
+				if exprStack, compar.Y, ok = exprStack.Pop(); ok {
+					if exprStack, compar.X, ok = exprStack.Pop(); ok {
+						exprStack = exprStack.Push(compar)
+					} else {
+						exprStack = exprStack.Push(compar.Y)
+					}
+				}
+			}
+
+			// if binaryStack, binary, ok = binaryStack.Pop(); ok {
+			// 	if compar, ok := binary.(*ast.ComparisonExpr); ok {
+			// 		exprStack, compar.Y, _ = exprStack.Pop()
+			// 		exprStack, compar.X, _ = exprStack.Pop()
+			// 		exprStack = exprStack.Push(compar)
+			// 	}
+			// }
 		} else if err != nil {
 			return nil, err
-		}
-
-		if binary != nil {
-			if binary.X == nil {
-				binary.X = last
-			} else if binary.Y == nil {
-				binary.Y = last
-			}
-			last = nil
 		}
 
 		tok, _ = p.scanIgnoreWhitespace()
 		p.unscan()
 	}
 
+	// There should only be one item on exprStack.
+	// It's the root node, so we return it.
+	exprStack, root, _ := exprStack.Pop()
 	return root, nil
 }
 
