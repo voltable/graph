@@ -198,23 +198,14 @@ func TestParser_Where(t *testing.T) {
 		// 	s:    `MATCH () WHERE n.property`,
 		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.ComparisonExpr{Variable: "n", Value: "property"}}},
 		// },
+		// {
+		// 	s:    `MATCH () WHERE n.property <> 'value'`,
+		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.ComparisonExpr{Comparison: ast.NEQ, X: &ast.PropertyStmt{Variable: "n", Value: "property"}, Y: &ast.Ident{Data: "value"}}}},
+		// },
 		{
-			s:    `MATCH () WHERE n.property <> 'value'`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.ComparisonExpr{Comparison: ast.NEQ, X: &ast.PropertyStmt{Variable: "n", Value: "property"}, Y: &ast.Ident{Data: "value"}}}},
+			s:    `MATCH () WHERE n.number >= 1 AND n.number <= 10`,
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.BooleanExpr{X: &ast.ComparisonExpr{Comparison: ast.GTE, X: &ast.PropertyStmt{Variable: "n", Value: "property"}, Y: &ast.Ident{Data: 1}}, Y: &ast.ComparisonExpr{Comparison: ast.LTE, X: &ast.PropertyStmt{Variable: "n", Value: "property"}, Y: &ast.Ident{Data: 10}}}}},
 		},
-		// {
-		// 	s:    `MATCH () WHERE n.number >= 1 AND n.number <= 10`,
-		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.ComparisonExpr{Comparison: ast.GTE, X: &ast.PropertyStmt{Variable: "n", Value: "property"}, Y: &ast.Ident{Data: "value"}}}},
-		// },
-
-		//					AND
-		//			>=					<=
-		// n.number  		1		n.number  	10
-
-		// {
-		// 	s:    `MATCH () WHERE 1 <= n.number <= 10`,
-		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.ComparisonExpr{Variable: "n", Property: "number", Operator: ast.GTE, Value: 1}}},
-		// },
 		// {
 		// 	s:    `MATCH () WHERE n:Person`,
 		// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.ComparisonExpr{Variable: "n", Property: "property", Operator: ast.NEQ, Value: "value"}}},

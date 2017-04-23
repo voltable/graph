@@ -290,8 +290,8 @@ func (p *Parser) Relationship() (*ast.EdgePatn, error) {
 	return nil, nil
 }
 
-func (p *Parser) Value() (interface{}, error) {
-	tok, lit := p.scanIgnoreWhitespace()
+func (p *Parser) Value(tok token.Token, lit string) (interface{}, error) {
+	//	tok, lit := p.scanIgnoreWhitespace()
 	if tok == token.SINGLEQUOTATION {
 		tok, lit := p.scanIgnoreWhitespace()
 		if tok == token.IDENT {
@@ -321,19 +321,19 @@ func (p *Parser) Value() (interface{}, error) {
 	return emptyString, nil
 }
 
-func (p *Parser) Property() (*ast.PropertyStmt, error) {
+func (p *Parser) PropertyOrValue() (ast.Expr, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok == token.IDENT {
 
 		state := &ast.PropertyStmt{Variable: lit}
 
-		tok, lit = p.scanIgnoreWhitespace()
+		tok2, _ := p.scanIgnoreWhitespace()
 
-		if tok != token.DOT {
-			// Must be a value
+		// Must be a value
+		if tok2 != token.DOT {
 			p.unscan()
-			p.unscan()
-			return nil, nil
+			value, err := p.Value(tok, lit)
+			return &ast.Ident{value}, err
 		}
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok != token.IDENT {
@@ -349,7 +349,8 @@ func (p *Parser) Property() (*ast.PropertyStmt, error) {
 }
 
 func (p *Parser) ComparisonExpr() (*ast.ComparisonExpr, error) {
-	tok, _ := p.scanIgnoreWhitespace()
+	tok, lit := p.scanIgnoreWhitespace()
+	fmt.Println(lit)
 	switch tok {
 	case token.EQ:
 		return &ast.ComparisonExpr{Comparison: ast.EQ}, nil
@@ -385,10 +386,45 @@ func (p *Parser) BooleanExpr() (*ast.BooleanExpr, error) {
 	return nil, nil
 }
 
+// UpdateStack builds up the AST by Shunting the stack if a expression supports children
+func UpdateStack(exprStack stackExpr, expr ast.Expr) stackExpr {
+	var item ast.Expr
+	var temp ast.Expr
+	exprStack.Push(expr)
+
+	for len(exprStack) > 1 {
+		exprStack, item, _ = exprStack.Pop()
+
+		// Don't like all of this bit need to refactor
+		compar, ok := item.(ast.OperatorExpr)
+		if !ok {
+			old := item
+			exprStack, item, _ = exprStack.Pop()
+			exprStack = exprStack.Push(old)
+		}
+
+		if ok {
+			if compar.GetX() == nil {
+				exprStack, temp, _ = exprStack.Pop()
+				compar.SetX(temp)
+				exprStack = exprStack.Push(item)
+				return exprStack
+			} else if compar.GetY() == nil {
+				exprStack, temp, _ = exprStack.Pop()
+				compar.SetY(temp)
+				exprStack = exprStack.Push(item)
+				return exprStack
+			}
+		} else {
+			exprStack = exprStack.Push(item)
+		}
+	}
+
+	return exprStack
+}
+
 // Predicate A Shunting Algorithm to build up the AST
 func (p *Parser) Predicate() (ast.Expr, error) {
-
-	binaryStack := make(stackExpr, 0)
 	exprStack := make(stackExpr, 0)
 
 	tok, _ := p.scanIgnoreWhitespace()
@@ -396,42 +432,16 @@ func (p *Parser) Predicate() (ast.Expr, error) {
 
 	for !tok.IsClause() && tok != token.EOF {
 
-		if property, err := p.Property(); err == nil && property != nil {
-			exprStack = exprStack.Push(property)
+		if property, err := p.PropertyOrValue(); err == nil && property != nil {
+			exprStack = UpdateStack(exprStack, property)
 		} else if err != nil {
 			return nil, err
 		} else if comparisonExpr, err := p.ComparisonExpr(); err == nil && comparisonExpr != nil {
-			binaryStack = binaryStack.Push(comparisonExpr)
+			exprStack = UpdateStack(exprStack, comparisonExpr)
 		} else if err != nil {
 			return nil, err
 		} else if booleanExpr, err := p.BooleanExpr(); err == nil && booleanExpr != nil {
-			binaryStack = binaryStack.Push(booleanExpr)
-		} else if err != nil {
-			return nil, err
-		} else if value, err := p.Value(); err == nil && value != nil {
-			exprStack = exprStack.Push(&ast.Ident{value})
-
-			var binary ast.Expr
-			//var ok bool
-
-			binaryStack, binary, _ = binaryStack.Pop()
-			if compar, ok := binary.(*ast.ComparisonExpr); ok {
-				if exprStack, compar.Y, ok = exprStack.Pop(); ok {
-					if exprStack, compar.X, ok = exprStack.Pop(); ok {
-						exprStack = exprStack.Push(compar)
-					} else {
-						exprStack = exprStack.Push(compar.Y)
-					}
-				}
-			}
-
-			// if binaryStack, binary, ok = binaryStack.Pop(); ok {
-			// 	if compar, ok := binary.(*ast.ComparisonExpr); ok {
-			// 		exprStack, compar.Y, _ = exprStack.Pop()
-			// 		exprStack, compar.X, _ = exprStack.Pop()
-			// 		exprStack = exprStack.Push(compar)
-			// 	}
-			// }
+			exprStack = UpdateStack(exprStack, booleanExpr)
 		} else if err != nil {
 			return nil, err
 		}

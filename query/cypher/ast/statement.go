@@ -15,7 +15,6 @@ type BlockExpr struct {
 
 // A BinaryExpr node represents a binary expression.
 type BinaryExpr struct {
-	
 	X Expr // left operand
 	Y Expr // right operand
 }
@@ -46,4 +45,11 @@ type MatchStmt struct {
 type OptionalMatchStmt struct {
 	Pattern Patn
 	Next    Stmt
+}
+
+type OperatorExpr interface {
+	GetX() Expr
+	GetY() Expr
+	SetX(x Expr)
+	SetY(x Expr)
 }

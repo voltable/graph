@@ -13,7 +13,8 @@ func (s stackExpr) Push(v ast.Expr) stackExpr {
 func (s stackExpr) Pop() (stackExpr, ast.Expr, bool) {
 	l := len(s)
 	if l > 0 {
-		return s[:l-1], s[l-1], true
+		//return s[:l-1], s[l-1], true
+		return s[1:], s[0], true
 	}
 	return s, nil, false
 }

@@ -41,3 +41,19 @@ type BooleanExpr struct {
 }
 
 func (*BooleanExpr) exprNode() {}
+
+func (b *BooleanExpr) GetX() Expr {
+	return b.X
+}
+
+func (b *BooleanExpr) GetY() Expr {
+	return b.Y
+}
+
+func (b *BooleanExpr) SetX(x Expr) {
+	b.X = x
+}
+
+func (b *BooleanExpr) SetY(y Expr) {
+	b.Y = y
+}

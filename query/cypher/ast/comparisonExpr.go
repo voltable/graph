@@ -20,3 +20,19 @@ type ComparisonExpr struct {
 }
 
 func (*ComparisonExpr) exprNode() {}
+
+func (b *ComparisonExpr) GetX() Expr {
+	return b.X
+}
+
+func (b *ComparisonExpr) GetY() Expr {
+	return b.Y
+}
+
+func (b *ComparisonExpr) SetX(x Expr) {
+	b.X = x
+}
+
+func (b *ComparisonExpr) SetY(y Expr) {
+	b.Y = y
+}
