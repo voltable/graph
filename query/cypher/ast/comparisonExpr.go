@@ -13,13 +13,20 @@ const (
 	NULL                   // NULL
 )
 
+type Parentheses int
+
+const (
+	RPAREN Parentheses = iota // )
+	LPAREN                    // (
+)
+
 type ComparisonExpr struct {
 	Comparison
 	X Expr // left operand
 	Y Expr // right operand
 }
 
-func (*ComparisonExpr) exprNode() {}
+func (ComparisonExpr) exprNode() {}
 
 func (b *ComparisonExpr) GetX() Expr {
 	return b.X

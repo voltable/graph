@@ -40,7 +40,7 @@ type BooleanExpr struct {
 	Y Expr // right operand
 }
 
-func (*BooleanExpr) exprNode() {}
+func (BooleanExpr) exprNode() {}
 
 func (b *BooleanExpr) GetX() Expr {
 	return b.X

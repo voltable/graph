@@ -8,27 +8,57 @@ import (
 )
 
 // n.number >= 1 AND n.number <= 10
-func Test_UpdateStack(t *testing.T) {
+func TestBasic_UpdateStack(t *testing.T) {
 	exprStack := make(parser.StackExpr, 0)
 
 	n1 := &ast.PropertyStmt{Variable: "n", Value: "number"}
-	exprStack = exprStack.UpdateStack(n1)
+	exprStack = exprStack.Push(n1)
 
 	n2 := &ast.ComparisonExpr{Comparison: ast.GTE}
-	exprStack = exprStack.UpdateStack(n2)
+	exprStack = exprStack.Push(n2)
 
 	n3 := &ast.Ident{Data: 1}
-	exprStack = exprStack.UpdateStack(n3)
+	exprStack = exprStack.Push(n3)
 
 	n4 := &ast.BooleanExpr{Boolean: ast.AND}
-	exprStack = exprStack.UpdateStack(n4)
+	exprStack = exprStack.Push(n4)
 
 	n5 := &ast.PropertyStmt{Variable: "n", Value: "number"}
-	exprStack = exprStack.UpdateStack(n5)
+	exprStack = exprStack.Push(n5)
 
 	n6 := &ast.ComparisonExpr{Comparison: ast.NEQ}
-	exprStack = exprStack.UpdateStack(n6)
+	exprStack = exprStack.Push(n6)
 
 	n7 := &ast.Ident{Data: 10}
-	exprStack = exprStack.UpdateStack(n7)
+	exprStack = exprStack.Push(n7)
+
+	exprStack.Shunt()
+}
+
+//n.name = 'Peter' XOR (n.age < 30 AND n.name = 'Tobias') OR NOT (n.name = 'Tobias' OR n.name = 'Peter')
+func TestDeep_UpdateStack(t *testing.T) {
+	exprStack := make(parser.StackExpr, 0)
+
+	n1 := &ast.PropertyStmt{Variable: "n", Value: "name"}
+	exprStack = exprStack.Push(n1)
+
+	n2 := &ast.ComparisonExpr{Comparison: ast.EQ}
+	exprStack = exprStack.Push(n2)
+
+	n3 := &ast.Ident{Data: "Peter"}
+	exprStack = exprStack.Push(n3)
+
+	n4 := &ast.BooleanExpr{Boolean: ast.AND}
+	exprStack = exprStack.Push(n4)
+
+	n5 := &ast.PropertyStmt{Variable: "n", Value: "number"}
+	exprStack = exprStack.Push(n5)
+
+	n6 := &ast.ComparisonExpr{Comparison: ast.NEQ}
+	exprStack = exprStack.Push(n6)
+
+	n7 := &ast.Ident{Data: 10}
+	exprStack = exprStack.Push(n7)
+
+	exprStack.Shunt()
 }

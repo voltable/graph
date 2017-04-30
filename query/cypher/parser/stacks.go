@@ -19,54 +19,93 @@ func (s StackExpr) Pop() (StackExpr, ast.Expr, bool) {
 	return s, nil, false
 }
 
-// UpdateStack builds up the AST by Shunting the stack if a expression supports children
-func (s StackExpr) UpdateStack(expr ast.Expr) StackExpr {
-	var item ast.Expr
-	var temp ast.Expr
-	s = s.Push(expr)
-
-	for len(s) > 1 {
-		s, item, _ = s.Pop()
-
-		compar, ok := item.(ast.OperatorExpr)
-		if !ok {
-			old := item
-			s, item, _ = s.Pop()
-			s = s.Push(old)
-		}
-
-		if ok {
-			if compar.GetX() == nil {
-				s, temp, _ = s.Pop()
-				compar.SetX(temp)
-				s = s.Push(item)
-				if ast.IsOperatorWithFreeXorY(temp) {
-					s.Push(temp)
-				}
-				return s
-			} else if compar.GetY() == nil {
-				s, temp, _ = s.Pop()
-				compar.SetY(temp)
-				s = s.Push(item)
-				if ast.IsOperatorWithFreeXorY(temp) {
-					s.Push(temp)
-				}
-				return s
-			}
-		} else {
-			s = s.Push(item)
-		}
-	}
-
-	return s
+func (s StackExpr) Remove(i int) (StackExpr, ast.Expr) {
+	return s[:i-1], s[i-1]
 }
 
-func (s StackExpr) setCompar(item ast.Expr, temp ast.Expr, set func(ast.Expr)) StackExpr {
-	set(temp)
-	s = s.Push(item)
-	if ast.IsOperatorWithFreeXorY(temp) {
-		s.Push(temp)
+// Shunt builds up the AST by Shunting the stack
+func (s StackExpr) Shunt() (StackExpr, error) {
+	var item ast.Expr
+	var value ast.Expr
+
+	valueStack := make(StackExpr, 0)
+	comparisonStack := make(StackExpr, 0)
+	comparisonCompletedStack := make(StackExpr, 0)
+
+	booleanStack := make(StackExpr, 0)
+
+	resultStack := make(StackExpr, 0)
+
+	for len(s) > 0 {
+		s, item, _ = s.Pop()
+
+		// If the token is a value (value here includes both Ident and PropertyStmt).
+		if _, ok := item.(*ast.Ident); ok {
+			valueStack = valueStack.Push(item)
+		} else if _, ok := item.(*ast.PropertyStmt); ok {
+			valueStack = valueStack.Push(item)
+		} else if _, ok := item.(*ast.ComparisonExpr); ok {
+			// Otherwise, the token is an operator (operator here includes both ComparisonExpr and BooleanExpr).
+			comparisonStack = comparisonStack.Push(item)
+		} else {
+			booleanStack = booleanStack.Push(item)
+
+		}
+
+		// If there are 2 values on the stack
+		if len(valueStack) >= 2 {
+			// Evaluate the operator, with the values as arguments.
+			comparisonStack, item, _ = comparisonStack.Pop()
+			if fun, ok := ast.IsOperatorWithFreeXorY(item); ok {
+				valueStack, value, _ = valueStack.Pop()
+				fun(value)
+				if fun, ok := ast.IsOperatorWithFreeXorY(item); ok {
+					valueStack, value, _ = valueStack.Pop()
+					fun(value)
+					//Push the returned results, if any, back onto the stack.
+					comparisonCompletedStack = comparisonCompletedStack.Push(item)
+				}
+			}
+		}
+
+		// If there are 2 values on the stack
+		if len(comparisonCompletedStack) >= 2 {
+			// Evaluate the operator, with the values as arguments.
+			booleanStack, item, _ = booleanStack.Pop()
+			if fun, ok := ast.IsOperatorWithFreeXorY(item); ok {
+				comparisonCompletedStack, value, _ = comparisonCompletedStack.Pop()
+				fun(value)
+				if fun, ok := ast.IsOperatorWithFreeXorY(item); ok {
+					comparisonStack, value, _ = comparisonStack.Pop()
+					fun(value)
+					//Push the returned results, if any, back onto the stack.
+					resultStack = resultStack.Push(item)
+				}
+			}
+		}
 	}
 
-	return s
+	return resultStack, nil
+}
+
+// IsChildOf returns the valid hierarchy of the AST
+func IsChildOf(parent ast.Expr, child ast.Expr) bool {
+	if _, ok := child.(*ast.ComparisonExpr); ok {
+		if _, ok := parent.(*ast.BooleanExpr); ok {
+			return true
+		}
+		return false
+	} else if _, ok := child.(*ast.PropertyStmt); ok {
+		if _, ok := parent.(*ast.ComparisonExpr); ok {
+			return true
+		}
+		return false
+	} else if _, ok := child.(*ast.Ident); ok {
+		if _, ok := parent.(*ast.ComparisonExpr); ok {
+			return true
+		}
+		return false
+	}
+
+	return false
 }

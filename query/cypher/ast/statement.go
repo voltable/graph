@@ -33,9 +33,9 @@ type Ident struct {
 	Data interface{} // denoted object; or nil
 }
 
-func (*BinaryExpr) exprNode()   {}
-func (*PropertyStmt) exprNode() {}
-func (*Ident) exprNode()        {}
+func (BinaryExpr) exprNode()   {}
+func (PropertyStmt) exprNode() {}
+func (Ident) exprNode()        {}
 
 type MatchStmt struct {
 	Pattern Patn
@@ -54,14 +54,14 @@ type OperatorExpr interface {
 	SetY(x Expr)
 }
 
-func IsOperatorWithFreeXorY(e Expr) bool {
+func IsOperatorWithFreeXorY(e Expr) (func(x Expr), bool) {
 	compar, ok := e.(OperatorExpr)
 	if ok {
 		if compar.GetX() == nil {
-			return true
+			return compar.SetX, true
 		} else if compar.GetY() == nil {
-			return true
+			return compar.SetY, true
 		}
 	}
-	return false
+	return nil, false
 }

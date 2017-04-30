@@ -386,7 +386,7 @@ func (p *Parser) BooleanExpr() (*ast.BooleanExpr, error) {
 	return nil, nil
 }
 
-// Predicate A Shunting Algorithm to build up the AST
+// Predicate pulls of each item to pass into the shunting algorithm to build up the AST
 func (p *Parser) Predicate() (ast.Expr, error) {
 	exprStack := make(StackExpr, 0)
 
@@ -396,15 +396,15 @@ func (p *Parser) Predicate() (ast.Expr, error) {
 	for !tok.IsClause() && tok != token.EOF {
 
 		if property, err := p.PropertyOrValue(); err == nil && property != nil {
-			exprStack = exprStack.UpdateStack(property)
+			exprStack = exprStack.Push(property)
 		} else if err != nil {
 			return nil, err
 		} else if comparisonExpr, err := p.ComparisonExpr(); err == nil && comparisonExpr != nil {
-			exprStack = exprStack.UpdateStack(comparisonExpr)
+			exprStack = exprStack.Push(comparisonExpr)
 		} else if err != nil {
 			return nil, err
 		} else if booleanExpr, err := p.BooleanExpr(); err == nil && booleanExpr != nil {
-			exprStack = exprStack.UpdateStack(booleanExpr)
+			exprStack = exprStack.Push(booleanExpr)
 		} else if err != nil {
 			return nil, err
 		}
@@ -413,9 +413,12 @@ func (p *Parser) Predicate() (ast.Expr, error) {
 		p.unscan()
 	}
 
+	result, err := exprStack.Shunt()
+
+
 	// The top item on the exprStack should be the root
-	exprStack, root, _ := exprStack.Pop()
-	return root, nil
+	_, root, _ := result.Pop()
+	return root, err
 }
 
 func (p *Parser) Where() (ast.Stmt, error) {
