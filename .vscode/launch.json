@@ -57,9 +57,8 @@
             "program": "${workspaceRoot}/query/cypher/parser",
             "env": {},
             "args": [
-                "-test.v",
                 "-test.run",
-                "^TestParser_Where"
+                "^Test_UpdateStack"
             ],
             "showLog": true
         },

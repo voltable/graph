@@ -53,3 +53,15 @@ type OperatorExpr interface {
 	SetX(x Expr)
 	SetY(x Expr)
 }
+
+func IsOperatorWithFreeXorY(e Expr) bool {
+	compar, ok := e.(OperatorExpr)
+	if ok {
+		if compar.GetX() == nil {
+			return true
+		} else if compar.GetY() == nil {
+			return true
+		}
+	}
+	return false
+}

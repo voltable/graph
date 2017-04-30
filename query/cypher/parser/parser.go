@@ -386,46 +386,9 @@ func (p *Parser) BooleanExpr() (*ast.BooleanExpr, error) {
 	return nil, nil
 }
 
-// UpdateStack builds up the AST by Shunting the stack if a expression supports children
-func UpdateStack(exprStack stackExpr, expr ast.Expr) stackExpr {
-	var item ast.Expr
-	var temp ast.Expr
-	exprStack.Push(expr)
-
-	for len(exprStack) > 1 {
-		exprStack, item, _ = exprStack.Pop()
-
-		// Don't like all of this bit need to refactor
-		compar, ok := item.(ast.OperatorExpr)
-		if !ok {
-			old := item
-			exprStack, item, _ = exprStack.Pop()
-			exprStack = exprStack.Push(old)
-		}
-
-		if ok {
-			if compar.GetX() == nil {
-				exprStack, temp, _ = exprStack.Pop()
-				compar.SetX(temp)
-				exprStack = exprStack.Push(item)
-				return exprStack
-			} else if compar.GetY() == nil {
-				exprStack, temp, _ = exprStack.Pop()
-				compar.SetY(temp)
-				exprStack = exprStack.Push(item)
-				return exprStack
-			}
-		} else {
-			exprStack = exprStack.Push(item)
-		}
-	}
-
-	return exprStack
-}
-
 // Predicate A Shunting Algorithm to build up the AST
 func (p *Parser) Predicate() (ast.Expr, error) {
-	exprStack := make(stackExpr, 0)
+	exprStack := make(StackExpr, 0)
 
 	tok, _ := p.scanIgnoreWhitespace()
 	p.unscan()
@@ -433,15 +396,15 @@ func (p *Parser) Predicate() (ast.Expr, error) {
 	for !tok.IsClause() && tok != token.EOF {
 
 		if property, err := p.PropertyOrValue(); err == nil && property != nil {
-			exprStack = UpdateStack(exprStack, property)
+			exprStack = exprStack.UpdateStack(property)
 		} else if err != nil {
 			return nil, err
 		} else if comparisonExpr, err := p.ComparisonExpr(); err == nil && comparisonExpr != nil {
-			exprStack = UpdateStack(exprStack, comparisonExpr)
+			exprStack = exprStack.UpdateStack(comparisonExpr)
 		} else if err != nil {
 			return nil, err
 		} else if booleanExpr, err := p.BooleanExpr(); err == nil && booleanExpr != nil {
-			exprStack = UpdateStack(exprStack, booleanExpr)
+			exprStack = exprStack.UpdateStack(booleanExpr)
 		} else if err != nil {
 			return nil, err
 		}
@@ -450,8 +413,7 @@ func (p *Parser) Predicate() (ast.Expr, error) {
 		p.unscan()
 	}
 
-	// There should only be one item on exprStack.
-	// It's the root node, so we return it.
+	// The top item on the exprStack should be the root
 	exprStack, root, _ := exprStack.Pop()
 	return root, nil
 }
