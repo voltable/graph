@@ -306,7 +306,6 @@ func (p *Parser) Value(tok token.Token, lit string) (interface{}, error) {
 
 		return emptyString, fmt.Errorf("found %q, expected %q", lit, token.IDENT)
 	} else if tok == token.IDENT {
-		fmt.Println(lit)
 		if i, err := strconv.Atoi(lit); err == nil {
 			return i, nil
 		} else if f, err := strconv.ParseFloat(lit, 64); err == nil {
@@ -349,8 +348,7 @@ func (p *Parser) PropertyOrValue() (ast.Expr, error) {
 }
 
 func (p *Parser) ComparisonExpr() (*ast.ComparisonExpr, error) {
-	tok, lit := p.scanIgnoreWhitespace()
-	fmt.Println(lit)
+	tok, _ := p.scanIgnoreWhitespace()
 	switch tok {
 	case token.EQ:
 		return &ast.ComparisonExpr{Comparison: ast.EQ}, nil
@@ -370,8 +368,7 @@ func (p *Parser) ComparisonExpr() (*ast.ComparisonExpr, error) {
 }
 
 func (p *Parser) BooleanExpr() (*ast.BooleanExpr, error) {
-	tok, lit := p.scanIgnoreWhitespace()
-	fmt.Println(lit)
+	tok, _ := p.scanIgnoreWhitespace()
 	switch tok {
 	case token.AND:
 		return &ast.BooleanExpr{Boolean: ast.AND}, nil
@@ -414,7 +411,6 @@ func (p *Parser) Predicate() (ast.Expr, error) {
 	}
 
 	result, err := exprStack.Shunt()
-
 
 	// The top item on the exprStack should be the root
 	_, root, _ := result.Pop()

@@ -58,7 +58,7 @@
             "env": {},
             "args": [
                 "-test.run",
-                "^TestBasic_UpdateStack"
+                "^TestParser_Where"
             ],
             "showLog": true
         },

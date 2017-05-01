@@ -35,7 +35,7 @@ func TestBasic_UpdateStack(t *testing.T) {
 	exprStack.Shunt()
 }
 
-//n.name = 'Peter' XOR (n.age < 30 AND n.name = 'Tobias') OR NOT (n.name = 'Tobias' OR n.name = 'Peter')
+// n.name = 'Peter' XOR (n.age < 30 AND n.name = 'Tobias') OR NOT (n.name = 'Tobias' OR n.name = 'Peter')
 func TestDeep_UpdateStack(t *testing.T) {
 	exprStack := make(parser.StackExpr, 0)
 

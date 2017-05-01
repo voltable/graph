@@ -19,10 +19,6 @@ func (s StackExpr) Pop() (StackExpr, ast.Expr, bool) {
 	return s, nil, false
 }
 
-func (s StackExpr) Remove(i int) (StackExpr, ast.Expr) {
-	return s[:i-1], s[i-1]
-}
-
 // Shunt builds up the AST by Shunting the stack
 func (s StackExpr) Shunt() (StackExpr, error) {
 	var item ast.Expr
@@ -31,9 +27,7 @@ func (s StackExpr) Shunt() (StackExpr, error) {
 	valueStack := make(StackExpr, 0)
 	comparisonStack := make(StackExpr, 0)
 	comparisonCompletedStack := make(StackExpr, 0)
-
 	booleanStack := make(StackExpr, 0)
-
 	resultStack := make(StackExpr, 0)
 
 	for len(s) > 0 {
@@ -76,7 +70,7 @@ func (s StackExpr) Shunt() (StackExpr, error) {
 				comparisonCompletedStack, value, _ = comparisonCompletedStack.Pop()
 				fun(value)
 				if fun, ok := ast.IsOperatorWithFreeXorY(item); ok {
-					comparisonStack, value, _ = comparisonStack.Pop()
+					comparisonCompletedStack, value, _ = comparisonCompletedStack.Pop()
 					fun(value)
 					//Push the returned results, if any, back onto the stack.
 					resultStack = resultStack.Push(item)
@@ -86,26 +80,4 @@ func (s StackExpr) Shunt() (StackExpr, error) {
 	}
 
 	return resultStack, nil
-}
-
-// IsChildOf returns the valid hierarchy of the AST
-func IsChildOf(parent ast.Expr, child ast.Expr) bool {
-	if _, ok := child.(*ast.ComparisonExpr); ok {
-		if _, ok := parent.(*ast.BooleanExpr); ok {
-			return true
-		}
-		return false
-	} else if _, ok := child.(*ast.PropertyStmt); ok {
-		if _, ok := parent.(*ast.ComparisonExpr); ok {
-			return true
-		}
-		return false
-	} else if _, ok := child.(*ast.Ident); ok {
-		if _, ok := parent.(*ast.ComparisonExpr); ok {
-			return true
-		}
-		return false
-	}
-
-	return false
 }
