@@ -1,5 +1,10 @@
 package ast
 
+// MathematicalExpr all maths nodes implement the MathematicalExpr interface.
+type MathematicalExpr interface {
+	mathNode()
+}
+
 // AddExpr An addition operation, such as a + b, for numeric operands.
 type AddExpr struct {
 	BinaryExpr
@@ -36,3 +41,28 @@ func (*DivideExpr) exprNode()   {}
 func (*SubtractExpr) exprNode() {}
 func (*ModuloExpr) exprNode()   {}
 func (*PowerExpr) exprNode()    {}
+
+func (*AddExpr) mathNode()      {}
+func (*MultiplyExpr) mathNode() {}
+func (*DivideExpr) mathNode()   {}
+func (*SubtractExpr) mathNode() {}
+func (*ModuloExpr) mathNode()   {}
+func (*PowerExpr) mathNode()    {}
+
+func MathPrecedence(item MathematicalExpr) int {
+	if _, ok := item.(*AddExpr); ok {
+		return 2
+	} else if _, ok := item.(*SubtractExpr); ok {
+		return 2
+	} else if _, ok := item.(*DivideExpr); ok {
+		return 3
+	} else if _, ok := item.(*MultiplyExpr); ok {
+		return 3
+	} else if _, ok := item.(*ModuloExpr); ok {
+		return 4
+	} else if _, ok := item.(*PowerExpr); ok {
+		return 4
+	} else {
+		return 20
+	}
+}

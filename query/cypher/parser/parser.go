@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
+	"github.com/RossMerr/Caudex.Graph/query/cypher/lexer"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/scanner"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/token"
 )
 
 const emptyString = ""
@@ -18,7 +18,7 @@ const MinUint uint = 1
 type Parser struct {
 	s   *scanner.Scanner
 	buf struct {
-		tok token.Token // last read token
+		tok lexer.Token // last read token
 		lit string      // last read literal
 		n   int         // buffer size (max=1)
 	}
@@ -26,7 +26,7 @@ type Parser struct {
 
 func (p *Parser) Label() (string, bool) {
 	tok, lit := p.scanIgnoreWhitespace()
-	if tok != token.IDENT && tok == token.COLON {
+	if tok != lexer.IDENT && tok == lexer.COLON {
 		tok, lit = p.scanIgnoreWhitespace()
 		return lit, true
 	}
@@ -36,12 +36,12 @@ func (p *Parser) Label() (string, bool) {
 
 func (p *Parser) Properties() (map[string]interface{}, error) {
 	tok, lit := p.scanIgnoreWhitespace()
-	if tok != token.IDENT && tok == token.LCURLY {
+	if tok != lexer.IDENT && tok == lexer.LCURLY {
 
 		if properties, err := p.KeyValue(); err == nil {
 			tok, lit = p.scanIgnoreWhitespace()
-			if tok != token.IDENT && tok != token.RCURLY {
-				return nil, fmt.Errorf("found %q, expected %q", lit, token.RCURLY)
+			if tok != lexer.IDENT && tok != lexer.RCURLY {
+				return nil, fmt.Errorf("found %q, expected %q", lit, lexer.RCURLY)
 			}
 			return properties, nil
 		}
@@ -59,26 +59,26 @@ func (p *Parser) KeyValue() (map[string]interface{}, error) {
 		var prop = lit
 
 		tok, lit = p.scanIgnoreWhitespace()
-		if tok != token.IDENT && tok != token.COLON {
-			return nil, fmt.Errorf("found %q, expected %q", lit, token.COLON)
+		if tok != lexer.IDENT && tok != lexer.COLON {
+			return nil, fmt.Errorf("found %q, expected %q", lit, lexer.COLON)
 		}
 
 		tok, lit = p.scanIgnoreWhitespace()
-		if tok != token.IDENT && tok == token.QUOTATION {
+		if tok != lexer.IDENT && tok == lexer.QUOTATION {
 			// We found a double quoted string
 			tok, lit = p.scanIgnoreWhitespace()
 			properties[prop] = lit
 			tok, lit = p.scanIgnoreWhitespace()
-			if tok != token.IDENT && tok != token.QUOTATION {
-				return nil, fmt.Errorf("found %q, expected %q", lit, token.QUOTATION)
+			if tok != lexer.IDENT && tok != lexer.QUOTATION {
+				return nil, fmt.Errorf("found %q, expected %q", lit, lexer.QUOTATION)
 			}
-		} else if tok != token.IDENT && tok == token.SINGLEQUOTATION {
+		} else if tok != lexer.IDENT && tok == lexer.SINGLEQUOTATION {
 			// We found a single quoted string
 			tok, lit = p.scanIgnoreWhitespace()
 			properties[prop] = lit
 			tok, lit = p.scanIgnoreWhitespace()
-			if tok != token.IDENT && tok != token.SINGLEQUOTATION {
-				return nil, fmt.Errorf("found %q, expected %q", lit, token.SINGLEQUOTATION)
+			if tok != lexer.IDENT && tok != lexer.SINGLEQUOTATION {
+				return nil, fmt.Errorf("found %q, expected %q", lit, lexer.SINGLEQUOTATION)
 			}
 		} else {
 			if i, err := strconv.Atoi(lit); err == nil {
@@ -92,7 +92,7 @@ func (p *Parser) KeyValue() (map[string]interface{}, error) {
 			}
 		}
 		tok, lit = p.scanIgnoreWhitespace()
-		if tok != token.COMMA {
+		if tok != lexer.COMMA {
 			p.unscan()
 			break
 		}
@@ -104,13 +104,13 @@ func (p *Parser) KeyValue() (map[string]interface{}, error) {
 
 func (p *Parser) Node() (*ast.VertexPatn, error) {
 	tok, lit := p.scanIgnoreWhitespace()
-	if tok != token.IDENT && tok == token.LPAREN {
+	if tok != lexer.IDENT && tok == lexer.LPAREN {
 		stmt := &ast.VertexPatn{}
 
 		tok, lit = p.scanIgnoreWhitespace()
-		if tok == token.RPAREN {
+		if tok == lexer.RPAREN {
 			return stmt, nil
-		} else if tok == token.IDENT {
+		} else if tok == lexer.IDENT {
 			stmt.Variable = lit
 		} else {
 			p.unscan()
@@ -127,8 +127,8 @@ func (p *Parser) Node() (*ast.VertexPatn, error) {
 		}
 
 		tok, lit = p.scanIgnoreWhitespace()
-		if tok != token.IDENT && tok != token.RPAREN {
-			return nil, fmt.Errorf("found %q, expected %q", lit, token.RPAREN)
+		if tok != lexer.IDENT && tok != lexer.RPAREN {
+			return nil, fmt.Errorf("found %q, expected %q", lit, lexer.RPAREN)
 		}
 
 		return stmt, nil
@@ -140,13 +140,13 @@ func (p *Parser) Node() (*ast.VertexPatn, error) {
 
 func (p *Parser) Length() (uint, uint, error) {
 	tok, lit := p.scanIgnoreWhitespace()
-	if tok != token.IDENT && tok == token.MUL {
+	if tok != lexer.IDENT && tok == lexer.MUL {
 		min := MinUint
 		max := MaxUint
 
 		tok, lit = p.scanIgnoreWhitespace()
 		// We have a number
-		if tok == token.IDENT {
+		if tok == lexer.IDENT {
 			if u64, err := strconv.ParseUint(lit, 10, 32); err == nil {
 				min = uint(u64)
 				max = uint(u64)
@@ -155,9 +155,9 @@ func (p *Parser) Length() (uint, uint, error) {
 			}
 
 			tok, lit = p.scanIgnoreWhitespace()
-			if tok == token.DOT {
+			if tok == lexer.DOT {
 				tok, lit = p.scanIgnoreWhitespace()
-				if tok == token.DOT {
+				if tok == lexer.DOT {
 					max = MaxUint
 					tok, lit = p.scanIgnoreWhitespace()
 					if u64, err := strconv.ParseUint(lit, 10, 32); err == nil {
@@ -169,18 +169,18 @@ func (p *Parser) Length() (uint, uint, error) {
 						p.unscan()
 					}
 				} else {
-					return 0, 0, fmt.Errorf("found %q, expected %q", lit, token.DOT)
+					return 0, 0, fmt.Errorf("found %q, expected %q", lit, lexer.DOT)
 				}
 			} else {
 				p.unscan()
 			}
 			// Else we have a range
-		} else if tok == token.DOT {
+		} else if tok == lexer.DOT {
 			tok, lit = p.scanIgnoreWhitespace()
-			if tok == token.DOT {
+			if tok == lexer.DOT {
 				min = MinUint
 				tok, lit = p.scanIgnoreWhitespace()
-				if tok == token.IDENT {
+				if tok == lexer.IDENT {
 					if u64, err := strconv.ParseUint(lit, 10, 32); err == nil {
 						max = uint(u64)
 					} else {
@@ -190,7 +190,7 @@ func (p *Parser) Length() (uint, uint, error) {
 					return 0, 0, fmt.Errorf("found %q, expected uint", lit)
 				}
 			} else {
-				return 0, 0, fmt.Errorf("found %q, expected %q", lit, token.DOT)
+				return 0, 0, fmt.Errorf("found %q, expected %q", lit, lexer.DOT)
 			}
 		} else {
 			p.unscan()
@@ -204,11 +204,11 @@ func (p *Parser) Length() (uint, uint, error) {
 
 func (p *Parser) RelationshipBody() (*ast.EdgeBodyStmt, error) {
 	tok, lit := p.scanIgnoreWhitespace()
-	if tok != token.IDENT && tok == token.LSQUARE {
+	if tok != lexer.IDENT && tok == lexer.LSQUARE {
 		stmt := &ast.EdgeBodyStmt{}
 
 		tok, lit = p.scanIgnoreWhitespace()
-		if tok == token.IDENT {
+		if tok == lexer.IDENT {
 			stmt.Variable = lit
 		} else {
 			p.unscan()
@@ -235,8 +235,8 @@ func (p *Parser) RelationshipBody() (*ast.EdgeBodyStmt, error) {
 		}
 
 		tok, lit := p.scanIgnoreWhitespace()
-		if tok != token.IDENT && tok != token.RSQUARE {
-			return nil, fmt.Errorf("found %q, expected %q", lit, token.RSQUARE)
+		if tok != lexer.IDENT && tok != lexer.RSQUARE {
+			return nil, fmt.Errorf("found %q, expected %q", lit, lexer.RSQUARE)
 		}
 		return stmt, nil
 	}
@@ -248,16 +248,16 @@ func (p *Parser) RelationshipBody() (*ast.EdgeBodyStmt, error) {
 func (p *Parser) Relationship() (*ast.EdgePatn, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 	// Look for the start of a relationship < or -
-	if tok != token.IDENT && (tok == token.LT || tok == token.SUB) {
+	if tok != lexer.IDENT && (tok == lexer.LT || tok == lexer.SUB) {
 		stmt := &ast.EdgePatn{Relationship: ast.Undirected}
 
-		if tok == token.LT {
+		if tok == lexer.LT {
 			stmt.Relationship = ast.Outbound
 
 			tok, lit = p.scanIgnoreWhitespace()
 			// Look for the end of the relationship -
-			if tok != token.IDENT && tok != token.SUB {
-				return nil, fmt.Errorf("found %q, expected %q", lit, token.SUB)
+			if tok != lexer.IDENT && tok != lexer.SUB {
+				return nil, fmt.Errorf("found %q, expected %q", lit, lexer.SUB)
 			}
 		}
 
@@ -268,15 +268,15 @@ func (p *Parser) Relationship() (*ast.EdgePatn, error) {
 		}
 
 		tok, lit = p.scanIgnoreWhitespace()
-		if tok != token.IDENT && tok != token.SUB {
-			return nil, fmt.Errorf("found %q, expected %q", lit, token.SUB)
+		if tok != lexer.IDENT && tok != lexer.SUB {
+			return nil, fmt.Errorf("found %q, expected %q", lit, lexer.SUB)
 		}
 
 		// Check for inbound relationship
-		if tok == token.SUB {
+		if tok == lexer.SUB {
 			tok, lit = p.scanIgnoreWhitespace()
 			// Look for the end of the relationship - or >
-			if tok != token.IDENT && tok == token.GT {
+			if tok != lexer.IDENT && tok == lexer.GT {
 				stmt.Relationship = ast.Inbound
 			} else {
 				p.unscan()
@@ -290,22 +290,22 @@ func (p *Parser) Relationship() (*ast.EdgePatn, error) {
 	return nil, nil
 }
 
-func (p *Parser) Value(tok token.Token, lit string) (interface{}, error) {
+func (p *Parser) Value(tok lexer.Token, lit string) (interface{}, error) {
 	//	tok, lit := p.scanIgnoreWhitespace()
-	if tok == token.SINGLEQUOTATION {
+	if tok == lexer.SINGLEQUOTATION {
 		tok, lit := p.scanIgnoreWhitespace()
-		if tok == token.IDENT {
+		if tok == lexer.IDENT {
 			value := lit
 			tok, lit := p.scanIgnoreWhitespace()
-			if tok == token.SINGLEQUOTATION {
+			if tok == lexer.SINGLEQUOTATION {
 				return value, nil
 			}
 
-			return emptyString, fmt.Errorf("found %q, expected %q", lit, token.SINGLEQUOTATION)
+			return emptyString, fmt.Errorf("found %q, expected %q", lit, lexer.SINGLEQUOTATION)
 		}
 
-		return emptyString, fmt.Errorf("found %q, expected %q", lit, token.IDENT)
-	} else if tok == token.IDENT {
+		return emptyString, fmt.Errorf("found %q, expected %q", lit, lexer.IDENT)
+	} else if tok == lexer.IDENT {
 		if i, err := strconv.Atoi(lit); err == nil {
 			return i, nil
 		} else if f, err := strconv.ParseFloat(lit, 64); err == nil {
@@ -322,20 +322,20 @@ func (p *Parser) Value(tok token.Token, lit string) (interface{}, error) {
 
 func (p *Parser) PropertyOrValue() (ast.Expr, error) {
 	tok, lit := p.scanIgnoreWhitespace()
-	if tok == token.IDENT {
+	if tok == lexer.IDENT {
 
 		state := &ast.PropertyStmt{Variable: lit}
 
 		tok2, _ := p.scanIgnoreWhitespace()
 
 		// Must be a value
-		if tok2 != token.DOT {
+		if tok2 != lexer.DOT {
 			p.unscan()
 			value, err := p.Value(tok, lit)
 			return &ast.Ident{value}, err
 		}
 		tok, lit = p.scanIgnoreWhitespace()
-		if tok != token.IDENT {
+		if tok != lexer.IDENT {
 			return nil, fmt.Errorf("found %q, expected a IDENT", lit)
 		}
 
@@ -350,17 +350,17 @@ func (p *Parser) PropertyOrValue() (ast.Expr, error) {
 func (p *Parser) ComparisonExpr() (*ast.ComparisonExpr, error) {
 	tok, _ := p.scanIgnoreWhitespace()
 	switch tok {
-	case token.EQ:
+	case lexer.EQ:
 		return &ast.ComparisonExpr{Comparison: ast.EQ}, nil
-	case token.NEQ:
+	case lexer.NEQ:
 		return &ast.ComparisonExpr{Comparison: ast.NEQ}, nil
-	case token.LT:
+	case lexer.LT:
 		return &ast.ComparisonExpr{Comparison: ast.LT}, nil
-	case token.LTE:
+	case lexer.LTE:
 		return &ast.ComparisonExpr{Comparison: ast.LTE}, nil
-	case token.GT:
+	case lexer.GT:
 		return &ast.ComparisonExpr{Comparison: ast.GT}, nil
-	case token.GTE:
+	case lexer.GTE:
 		return &ast.ComparisonExpr{Comparison: ast.GTE}, nil
 	}
 	p.unscan()
@@ -370,13 +370,13 @@ func (p *Parser) ComparisonExpr() (*ast.ComparisonExpr, error) {
 func (p *Parser) BooleanExpr() (*ast.BooleanExpr, error) {
 	tok, _ := p.scanIgnoreWhitespace()
 	switch tok {
-	case token.AND:
+	case lexer.AND:
 		return &ast.BooleanExpr{Boolean: ast.AND}, nil
-	case token.OR:
+	case lexer.OR:
 		return &ast.BooleanExpr{Boolean: ast.OR}, nil
-	case token.NOT:
+	case lexer.NOT:
 		return &ast.BooleanExpr{Boolean: ast.NOT}, nil
-	case token.XOR:
+	case lexer.XOR:
 		return &ast.BooleanExpr{Boolean: ast.XOR}, nil
 	}
 	p.unscan()
@@ -390,7 +390,7 @@ func (p *Parser) Predicate() (ast.Expr, error) {
 	tok, _ := p.scanIgnoreWhitespace()
 	p.unscan()
 
-	for !tok.IsClause() && tok != token.EOF {
+	for !tok.IsClause() && tok != lexer.EOF {
 
 		if property, err := p.PropertyOrValue(); err == nil && property != nil {
 			exprStack = exprStack.Push(property)
@@ -419,7 +419,7 @@ func (p *Parser) Predicate() (ast.Expr, error) {
 
 func (p *Parser) Where() (ast.Stmt, error) {
 	tok, _ := p.scanIgnoreWhitespace()
-	if tok == token.WHERE {
+	if tok == lexer.WHERE {
 		state := &ast.WhereStmt{}
 
 		if predicate, err := p.Predicate(); err == nil {
@@ -487,51 +487,51 @@ func (p *Parser) Clause() (ast.Stmt, error) {
 		return nil, fmt.Errorf("found %q, expected a clause", lit)
 	}
 
-	if tok == token.OPTIONAL {
+	if tok == lexer.OPTIONAL {
 		tok, lit := p.scanIgnoreWhitespace()
-		if tok == token.MATCH {
-			tok = token.OPTIONAL_MATCH
+		if tok == lexer.MATCH {
+			tok = lexer.OPTIONAL_MATCH
 		} else {
 			return nil, fmt.Errorf("found %q, expected MATCH", lit)
 		}
-	} else if tok == token.DETACH {
+	} else if tok == lexer.DETACH {
 		tok, lit := p.scanIgnoreWhitespace()
-		if tok == token.DELETE {
-			tok = token.DETACH_DELETE
+		if tok == lexer.DELETE {
+			tok = lexer.DETACH_DELETE
 		} else {
 			return nil, fmt.Errorf("found %q, expected DELETE", lit)
 		}
 	}
 
 	switch tok {
-	case token.MATCH:
+	case lexer.MATCH:
 		return p.Match()
-	case token.OPTIONAL_MATCH:
+	case lexer.OPTIONAL_MATCH:
 		return p.OptionalMatch()
 	}
 
 	return nil, fmt.Errorf("No matching statement found %q", lit)
 }
 
-func (p *Parser) SubClause() (token.Token, bool) {
+func (p *Parser) SubClause() (lexer.Token, bool) {
 	tok, _ := p.scanIgnoreWhitespace()
 
 	if tok.IsSubClause() {
-		if tok == token.ON {
+		if tok == lexer.ON {
 			tok, lit := p.scanIgnoreWhitespace()
-			if tok == token.CREATE {
-				return token.ON_CREATE, true
-			} else if tok == token.MATCH {
-				return token.ON_MATCH, true
+			if tok == lexer.CREATE {
+				return lexer.ON_CREATE, true
+			} else if tok == lexer.MATCH {
+				return lexer.ON_MATCH, true
 			} else {
 				panic(fmt.Sprintf("found %q, expected CREATE", lit))
 			}
 		}
 
-		if tok == token.ORDER {
+		if tok == lexer.ORDER {
 			tok, lit := p.scanIgnoreWhitespace()
-			if tok == token.BY {
-				return token.ORDER_BY, true
+			if tok == lexer.BY {
+				return lexer.ORDER_BY, true
 			} else {
 				panic(fmt.Sprintf("found %q, expected BY", lit))
 			}
@@ -541,7 +541,7 @@ func (p *Parser) SubClause() (token.Token, bool) {
 	}
 
 	p.unscan()
-	return token.IDENT, false
+	return lexer.IDENT, false
 }
 
 // Parse parses a cypher Clauses statement.
@@ -556,7 +556,7 @@ func NewParser(r io.Reader) *Parser {
 
 // scan returns the next token from the underlying scanner.
 // If a token has been unscanned then read that instead.
-func (p *Parser) scan() (tok token.Token, lit string) {
+func (p *Parser) scan() (tok lexer.Token, lit string) {
 	// If we have a token on the buffer, then return it.
 	if p.buf.n != 0 {
 		p.buf.n = 0
@@ -572,10 +572,10 @@ func (p *Parser) scan() (tok token.Token, lit string) {
 	return
 }
 
-// scanIgnoreWhitespace scans the next non-whitespace token.
-func (p *Parser) scanIgnoreWhitespace() (tok token.Token, lit string) {
+// scanIgnoreWhitespace scans the next non-whitespace lexer.
+func (p *Parser) scanIgnoreWhitespace() (tok lexer.Token, lit string) {
 	tok, lit = p.scan()
-	if tok == token.WS {
+	if tok == lexer.WS {
 		tok, lit = p.scan()
 	}
 	return

@@ -1,30 +1,5 @@
 package ast
 
-// // AndExpr A bitwise or logical AND operation, such as (a And b).
-// type AndExpr struct {
-// 	BinaryExpr
-// }
-
-// // OrExpr A bitwise or logical OR operation, such as (a Or b).
-// type OrExpr struct {
-// 	BinaryExpr
-// }
-
-// // NotExpr A bitwise complement or logical negation operation (Not a).
-// type NotExpr struct {
-// 	BinaryExpr
-// }
-
-// // XorExpr A bitwise or logical XOR operation, such as (a Xor b).
-// type XorExpr struct {
-// 	BinaryExpr
-// }
-
-// func (*AndExpr) exprNode() {}
-// func (*OrExpr) exprNode()  {}
-// func (*NotExpr) exprNode() {}
-// func (*XorExpr) exprNode() {}
-
 type Boolean int
 
 const (
@@ -56,4 +31,18 @@ func (b *BooleanExpr) SetX(x Expr) {
 
 func (b *BooleanExpr) SetY(y Expr) {
 	b.Y = y
+}
+
+func BooleanPrecedence(item BooleanExpr) int {
+	if item.Boolean == AND {
+		return 9
+	} else if item.Boolean == OR {
+		return 11
+	} else if item.Boolean == NOT {
+		return 2
+	} else if item.Boolean == XOR {
+		return 10
+	} else {
+		return 20
+	}
 }

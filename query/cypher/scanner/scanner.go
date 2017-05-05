@@ -6,7 +6,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/RossMerr/Caudex.Graph/query/cypher/token"
+	"github.com/RossMerr/Caudex.Graph/query/cypher/lexer"
 )
 
 var eof = rune(0)
@@ -50,7 +50,7 @@ func isLetter(ch rune) bool {
 func isDigit(ch rune) bool { return (ch >= '0' && ch <= '9') }
 
 // Scan returns the next token and literal value.
-func (s *Scanner) Scan() (tok token.Token, lit string) {
+func (s *Scanner) Scan() (tok lexer.Token, lit string) {
 	// Read the next rune.
 	ch := s.read()
 
@@ -59,7 +59,7 @@ func (s *Scanner) Scan() (tok token.Token, lit string) {
 	if isWhitespace(ch) {
 		s.unread()
 		return s.scanWhitespace()
-	} else if tok, lit := s.scanCharacter(ch); tok != token.ILLEGAL {
+	} else if tok, lit := s.scanCharacter(ch); tok != lexer.ILLEGAL {
 		return tok, lit
 	}
 
@@ -67,78 +67,78 @@ func (s *Scanner) Scan() (tok token.Token, lit string) {
 	return s.scanIdent()
 }
 
-func (s *Scanner) scanCharacter(ch rune) (tok token.Token, lit string) {
+func (s *Scanner) scanCharacter(ch rune) (tok lexer.Token, lit string) {
 	// Otherwise read the individual character.
 
 	switch ch {
 	case eof:
-		return token.EOF, ""
+		return lexer.EOF, ""
 	case '(':
-		return token.LPAREN, string(ch)
+		return lexer.LPAREN, string(ch)
 	case ')':
-		return token.RPAREN, string(ch)
+		return lexer.RPAREN, string(ch)
 	case ',':
-		return token.COMMA, string(ch)
+		return lexer.COMMA, string(ch)
 	case ':':
-		return token.COLON, string(ch)
+		return lexer.COLON, string(ch)
 	case '.':
-		return token.DOT, string(ch)
+		return lexer.DOT, string(ch)
 	case '|':
-		return token.PIPE, string(ch)
+		return lexer.PIPE, string(ch)
 	case '[':
-		return token.LSQUARE, string(ch)
+		return lexer.LSQUARE, string(ch)
 	case ']':
-		return token.RSQUARE, string(ch)
+		return lexer.RSQUARE, string(ch)
 	case '+':
-		return token.ADD, string(ch)
+		return lexer.ADD, string(ch)
 	case '-':
-		return token.SUB, string(ch)
+		return lexer.SUB, string(ch)
 	case '*':
-		return token.MUL, string(ch)
+		return lexer.MUL, string(ch)
 	case '/':
-		return token.DIV, string(ch)
+		return lexer.DIV, string(ch)
 	case '%':
-		return token.MOD, string(ch)
+		return lexer.MOD, string(ch)
 	case '^':
-		return token.POW, string(ch)
+		return lexer.POW, string(ch)
 	case '=':
 		next := s.read()
 		if next == '~' {
-			return token.EQREGEX, "=~"
+			return lexer.EQREGEX, "=~"
 		}
 		s.unread()
-		return token.EQ, string(ch)
+		return lexer.EQ, string(ch)
 	case '{':
-		return token.LCURLY, string(ch)
+		return lexer.LCURLY, string(ch)
 	case '}':
-		return token.RCURLY, string(ch)
+		return lexer.RCURLY, string(ch)
 	case '"':
-		return token.QUOTATION, string(ch)
+		return lexer.QUOTATION, string(ch)
 	case '\'':
-		return token.SINGLEQUOTATION, string(ch)
+		return lexer.SINGLEQUOTATION, string(ch)
 	case '<':
 		next := s.read()
 		if next == '=' {
-			return token.LTE, "<="
+			return lexer.LTE, "<="
 		}
 		if next == '>' {
-			return token.NEQ, "<>"
+			return lexer.NEQ, "<>"
 		}
 		s.unread()
-		return token.LT, string(ch)
+		return lexer.LT, string(ch)
 	case '>':
 		next := s.read()
 		if next == '=' {
-			return token.GTE, ">="
+			return lexer.GTE, ">="
 		}
 		s.unread()
-		return token.GT, string(ch)
+		return lexer.GT, string(ch)
 	}
-	return token.ILLEGAL, string(ch)
+	return lexer.ILLEGAL, string(ch)
 }
 
 // scanWhitespace consumes the current rune and all contiguous whitespace.
-func (s *Scanner) scanWhitespace() (tok token.Token, lit string) {
+func (s *Scanner) scanWhitespace() (tok lexer.Token, lit string) {
 	// Create a buffer and read the current character into it.
 	var buf bytes.Buffer
 	buf.WriteRune(s.read())
@@ -156,16 +156,16 @@ func (s *Scanner) scanWhitespace() (tok token.Token, lit string) {
 		}
 	}
 
-	return token.WS, buf.String()
+	return lexer.WS, buf.String()
 }
 
 func (s *Scanner) isCharacter(ch rune) bool {
 	tok, _ := s.scanCharacter(ch)
-	return tok != token.ILLEGAL
+	return tok != lexer.ILLEGAL
 }
 
 // scanIdent consumes the current rune and all contiguous ident runes.
-func (s *Scanner) scanIdent() (tok token.Token, lit string) {
+func (s *Scanner) scanIdent() (tok lexer.Token, lit string) {
 	// Create a buffer and read the current character into it.
 	var buf bytes.Buffer
 	buf.WriteRune(s.read())
@@ -184,29 +184,29 @@ func (s *Scanner) scanIdent() (tok token.Token, lit string) {
 
 	lit = buf.String()
 
-	if tok = token.Clause(lit); tok != token.IDENT {
+	if tok = lexer.Clause(lit); tok != lexer.IDENT {
 		return tok, buf.String()
 	}
 
-	if tok = token.SubClause(lit); tok != token.IDENT {
+	if tok = lexer.SubClause(lit); tok != lexer.IDENT {
 		return tok, buf.String()
 	}
 
-	if tok = token.Boolean(lit); tok != token.IDENT {
+	if tok = lexer.Boolean(lit); tok != lexer.IDENT {
 		return tok, buf.String()
 	}
 
-	if tok = token.Comparison(lit); tok != token.IDENT {
+	if tok = lexer.Comparison(lit); tok != lexer.IDENT {
 		return tok, buf.String()
 	}
 
 	switch strings.ToUpper(buf.String()) {
 	case "IS":
-		return token.IS, buf.String()
+		return lexer.IS, buf.String()
 	case "NULL":
-		return token.NULL, buf.String()
+		return lexer.NULL, buf.String()
 	}
 
 	// Otherwise return as a regular identifier.
-	return token.IDENT, buf.String()
+	return lexer.IDENT, buf.String()
 }

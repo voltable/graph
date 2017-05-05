@@ -81,3 +81,7 @@ func (s StackExpr) Shunt() (StackExpr, error) {
 
 	return resultStack, nil
 }
+
+func precedence(expr1 ast.Expr, expr2 ast.Expr) int {
+	return 0
+}
