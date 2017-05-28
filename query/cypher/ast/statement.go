@@ -65,3 +65,14 @@ func IsOperatorWithFreeXorY(e Expr) (func(x Expr), bool) {
 	}
 	return nil, false
 }
+
+func Precedence(item Expr) int {
+	if b, ok := item.(*BooleanExpr); ok {
+		return BooleanPrecedence(*b)
+	} else if b, ok := item.(*ComparisonExpr); ok {
+		return ComparisonPrecedence(*b)
+	} else if b, ok := item.(MathematicalExpr); ok {
+		return MathPrecedence(b)
+	}
+	return 20
+}

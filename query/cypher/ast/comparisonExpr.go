@@ -26,7 +26,12 @@ type ComparisonExpr struct {
 	Y Expr // right operand
 }
 
-func (ComparisonExpr) exprNode() {}
+type ParenthesesExpr struct {
+	Parentheses
+}
+
+func (ComparisonExpr) exprNode()  {}
+func (ParenthesesExpr) exprNode() {}
 
 func (b *ComparisonExpr) GetX() Expr {
 	return b.X

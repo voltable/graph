@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 )
 
@@ -19,69 +21,150 @@ func (s StackExpr) Pop() (StackExpr, ast.Expr, bool) {
 	return s, nil, false
 }
 
-// Shunt builds up the AST by Shunting the stack
-func (s StackExpr) Shunt() (StackExpr, error) {
-	var item ast.Expr
-	var value ast.Expr
+func (s StackExpr) Top() (ast.Expr, bool) {
+	l := len(s)
+	if l > 0 {
+		return s[l-1], true
+	}
+	return nil, false
+}
 
-	valueStack := make(StackExpr, 0)
-	comparisonStack := make(StackExpr, 0)
-	comparisonCompletedStack := make(StackExpr, 0)
-	booleanStack := make(StackExpr, 0)
-	resultStack := make(StackExpr, 0)
+// Shunt builds up the AST by Shunting the stack
+func (s StackExpr) Shunt() (ast.Expr, error) {
+	var item ast.Expr
+
+	exprStack := make(StackExpr, 0)
+	operatorStack := make(StackExpr, 0)
 
 	for len(s) > 0 {
 		s, item, _ = s.Pop()
+		//fmt.Printf("item: %s \n", item)
+		if p, ok := item.(*ast.ParenthesesExpr); ok {
+			if p.Parentheses == ast.LPAREN {
+				exprStack = operatorStack.Push(item)
+			} else {
+				var x ast.Expr
+				var y ast.Expr
+				expr, _ := operatorStack.Top()
+				for expr != nil && expr.(*ast.ParenthesesExpr).Parentheses != ast.LPAREN {
+					operatorStack, expr, _ = operatorStack.Pop()
+					exprStack, x, _ = exprStack.Pop()
+					exprStack, y, _ = exprStack.Pop()
+					if operator, ok := expr.(ast.OperatorExpr); ok {
+						operator.SetX(x)
+						operator.SetY(y)
+						exprStack = exprStack.Push(expr)
 
-		// If the token is a value (value here includes both Ident and PropertyStmt).
-		if _, ok := item.(*ast.Ident); ok {
-			valueStack = valueStack.Push(item)
+					}
+				}
+				// Pop the '(' off the operator stack.
+				operatorStack, _, _ = operatorStack.Pop()
+			}
+		} else if _, ok := item.(*ast.Ident); ok {
+			// If the token is a value (value here includes both Ident and PropertyStmt).
+			fmt.Printf("%s went on exprStack \n", item)
+			exprStack = exprStack.Push(item)
 		} else if _, ok := item.(*ast.PropertyStmt); ok {
-			valueStack = valueStack.Push(item)
+			// If the token is a value (value here includes both Ident and PropertyStmt).
+			fmt.Printf("%s went on exprStack \n", item)
+			exprStack = exprStack.Push(item)
 		} else if _, ok := item.(*ast.ComparisonExpr); ok {
 			// Otherwise, the token is an operator (operator here includes both ComparisonExpr and BooleanExpr).
-			comparisonStack = comparisonStack.Push(item)
-		} else {
-			booleanStack = booleanStack.Push(item)
+			var x ast.Expr
+			var y ast.Expr
+			//fmt.Printf("Precedence first: %s (%s), second: %s (%s) \n", strconv.Itoa(ast.Precedence(expr)), expr, strconv.Itoa(ast.Precedence(item)), item)
+
+			for expr, _ := operatorStack.Top(); expr != nil && ast.Precedence(expr) <= ast.Precedence(item); expr, _ = operatorStack.Top() {
+				//	fmt.Printf("first: %s (%s), second: %s (%s) \n", strconv.Itoa(ast.Precedence(expr)), expr, strconv.Itoa(ast.Precedence(item)), item)
+
+				operatorStack, expr, _ = operatorStack.Pop()
+				exprStack, x, _ = exprStack.Pop()
+				fmt.Printf("pop 1 %s \n", x)
+				exprStack, y, _ = exprStack.Pop()
+				fmt.Printf("pop 2 %s \n", y)
+				if operator, ok := expr.(ast.OperatorExpr); ok {
+					operator.SetX(x)
+					operator.SetY(y)
+					fmt.Printf("%s went on exprStack \n", expr)
+					exprStack = exprStack.Push(expr)
+
+				}
+			}
+
+			fmt.Printf("%s went on operatorStack \n", item)
+			operatorStack = operatorStack.Push(item)
+
+		} else if _, ok := item.(*ast.BooleanExpr); ok {
+			// Otherwise, the token is an operator (operator here includes both ComparisonExpr and BooleanExpr).
+			var x ast.Expr
+			var y ast.Expr
+			//fmt.Printf("Precedence first: %s (%s), second: %s (%s) \n", strconv.Itoa(ast.Precedence(expr)), expr, strconv.Itoa(ast.Precedence(item)), item)
+
+			for expr, _ := operatorStack.Top(); expr != nil && ast.Precedence(expr) <= ast.Precedence(item); expr, _ = operatorStack.Top() {
+				//	fmt.Printf(" first: %s (%s), second: %s (%s) \n", strconv.Itoa(ast.Precedence(expr)), expr, strconv.Itoa(ast.Precedence(item)), item)
+
+				operatorStack, expr, _ = operatorStack.Pop()
+				exprStack, x, _ = exprStack.Pop()
+				fmt.Printf("pop 1 %s \n", x)
+				exprStack, y, _ = exprStack.Pop()
+				fmt.Printf("pop 2 %s \n", y)
+				if operator, ok := expr.(ast.OperatorExpr); ok {
+					operator.SetX(x)
+					operator.SetY(y)
+					fmt.Printf("%s went on exprStack \n", expr)
+					exprStack = exprStack.Push(expr)
+
+				}
+			}
+			fmt.Printf("%s went on operatorStack \n", item)
+
+			operatorStack = operatorStack.Push(item)
 
 		}
 
-		// If there are 2 values on the stack
-		if len(valueStack) >= 2 {
-			// Evaluate the operator, with the values as arguments.
-			comparisonStack, item, _ = comparisonStack.Pop()
-			if fun, ok := ast.IsOperatorWithFreeXorY(item); ok {
-				valueStack, value, _ = valueStack.Pop()
-				fun(value)
-				if fun, ok := ast.IsOperatorWithFreeXorY(item); ok {
-					valueStack, value, _ = valueStack.Pop()
-					fun(value)
-					//Push the returned results, if any, back onto the stack.
-					comparisonCompletedStack = comparisonCompletedStack.Push(item)
-				}
-			}
-		}
+	}
 
-		// If there are 2 values on the stack
-		if len(comparisonCompletedStack) >= 2 {
-			// Evaluate the operator, with the values as arguments.
-			booleanStack, item, _ = booleanStack.Pop()
-			if fun, ok := ast.IsOperatorWithFreeXorY(item); ok {
-				comparisonCompletedStack, value, _ = comparisonCompletedStack.Pop()
-				fun(value)
-				if fun, ok := ast.IsOperatorWithFreeXorY(item); ok {
-					comparisonCompletedStack, value, _ = comparisonCompletedStack.Pop()
-					fun(value)
-					//Push the returned results, if any, back onto the stack.
-					resultStack = resultStack.Push(item)
-				}
-			}
+	for len(operatorStack) > 0 {
+		var expr ast.Expr
+		var x ast.Expr
+		var y ast.Expr
+		operatorStack, expr, _ = operatorStack.Pop()
+		exprStack, x, _ = exprStack.Pop()
+		exprStack, y, _ = exprStack.Pop()
+		if operator, ok := expr.(ast.OperatorExpr); ok {
+			operator.SetX(x)
+			operator.SetY(y)
+			fmt.Printf("%s went on exprStack \n", expr)
+			exprStack = exprStack.Push(expr)
+
 		}
 	}
 
-	return resultStack, nil
+	var result ast.Expr
+
+	exprStack, result, _ = exprStack.Pop()
+	return result, nil
 }
 
-func precedence(expr1 ast.Expr, expr2 ast.Expr) int {
-	return 0
+func PrintRoot(root ast.Expr) {
+	fmt.Printf("root: %s", root)
+
+	if s, ok := root.(ast.BinaryExpr); ok {
+		fmt.Printf("x: %s", s.X)
+		fmt.Printf("y: %s", s.Y)
+
+		PrintChildren(s.X)
+		PrintChildren(s.Y)
+	}
+}
+
+func PrintChildren(root ast.Expr) {
+
+	if s, ok := root.(ast.BinaryExpr); ok {
+		fmt.Printf("x: %s", s.X)
+		fmt.Printf("y: %s", s.Y)
+
+		PrintChildren(s.X)
+		PrintChildren(s.Y)
+	}
 }

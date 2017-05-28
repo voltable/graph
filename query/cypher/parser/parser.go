@@ -410,10 +410,8 @@ func (p *Parser) Predicate() (ast.Expr, error) {
 		p.unscan()
 	}
 
-	result, err := exprStack.Shunt()
+	root, err := exprStack.Shunt()
 
-	// The top item on the exprStack should be the root
-	_, root, _ := result.Pop()
 	return root, err
 }
 

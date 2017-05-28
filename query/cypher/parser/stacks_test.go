@@ -32,7 +32,14 @@ func TestBasic_UpdateStack(t *testing.T) {
 	n7 := &ast.Ident{Data: 10}
 	exprStack = exprStack.Push(n7)
 
-	exprStack.Shunt()
+	root, _ := exprStack.Shunt()
+
+	parser.PrintRoot(root)
+	// treeN4 := root.(ast.BooleanExpr)
+
+	// if treeN4.Boolean != n4.Boolean {
+	// 	t.Errorf("exp %s got %s", n4.Boolean, treeN4.Boolean)
+	// }
 }
 
 // n.name = 'Peter' XOR (n.age < 30 AND n.name = 'Tobias') OR NOT (n.name = 'Tobias' OR n.name = 'Peter')
