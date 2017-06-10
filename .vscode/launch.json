@@ -58,7 +58,7 @@
             "env": {},
             "args": [
                 "-test.run",
-                "^TestBasic_UpdateStack"
+                "^TestBasic_UpdateStackWithNot"
             ],
             "showLog": true
         },

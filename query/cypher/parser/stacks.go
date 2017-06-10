@@ -8,19 +8,21 @@ import (
 
 type StackExpr []ast.Expr
 
+// Push add's a item the the StackExpr
 func (s StackExpr) Push(v ast.Expr) StackExpr {
 	return append(s, v)
 }
 
+// Pop removes the last item on the StackExpr and returns it
 func (s StackExpr) Pop() (StackExpr, ast.Expr, bool) {
 	l := len(s)
 	if l > 0 {
 		return s[:l-1], s[l-1], true
-		//return s[1:], s[0], true
 	}
 	return s, nil, false
 }
 
+// Top returns the last item on the StackExpr without removing it
 func (s StackExpr) Top() (ast.Expr, bool) {
 	l := len(s)
 	if l > 0 {
@@ -69,60 +71,16 @@ func (s StackExpr) Shunt() (ast.Expr, error) {
 			exprStack = exprStack.Push(item)
 		} else if _, ok := item.(*ast.ComparisonExpr); ok {
 			// Otherwise, the token is an operator (operator here includes both ComparisonExpr and BooleanExpr).
-			var x ast.Expr
-			var y ast.Expr
-			//fmt.Printf("Precedence first: %s (%s), second: %s (%s) \n", strconv.Itoa(ast.Precedence(expr)), expr, strconv.Itoa(ast.Precedence(item)), item)
-
-			for expr, _ := operatorStack.Top(); expr != nil && ast.Precedence(expr) <= ast.Precedence(item); expr, _ = operatorStack.Top() {
-				//	fmt.Printf("first: %s (%s), second: %s (%s) \n", strconv.Itoa(ast.Precedence(expr)), expr, strconv.Itoa(ast.Precedence(item)), item)
-
-				operatorStack, expr, _ = operatorStack.Pop()
-				exprStack, x, _ = exprStack.Pop()
-				fmt.Printf("pop 1 %s \n", x)
-				exprStack, y, _ = exprStack.Pop()
-				fmt.Printf("pop 2 %s \n", y)
-				if operator, ok := expr.(ast.OperatorExpr); ok {
-					operator.SetX(x)
-					operator.SetY(y)
-					fmt.Printf("%s went on exprStack \n", expr)
-					exprStack = exprStack.Push(expr)
-
-				}
-			}
-
-			fmt.Printf("%s went on operatorStack \n", item)
-			operatorStack = operatorStack.Push(item)
+			shuntOoperator(item, operatorStack, exprStack)
 
 		} else if _, ok := item.(*ast.BooleanExpr); ok {
 			// Otherwise, the token is an operator (operator here includes both ComparisonExpr and BooleanExpr).
-			var x ast.Expr
-			var y ast.Expr
-			//fmt.Printf("Precedence first: %s (%s), second: %s (%s) \n", strconv.Itoa(ast.Precedence(expr)), expr, strconv.Itoa(ast.Precedence(item)), item)
-
-			for expr, _ := operatorStack.Top(); expr != nil && ast.Precedence(expr) <= ast.Precedence(item); expr, _ = operatorStack.Top() {
-				//	fmt.Printf(" first: %s (%s), second: %s (%s) \n", strconv.Itoa(ast.Precedence(expr)), expr, strconv.Itoa(ast.Precedence(item)), item)
-
-				operatorStack, expr, _ = operatorStack.Pop()
-				exprStack, x, _ = exprStack.Pop()
-				fmt.Printf("pop 1 %s \n", x)
-				exprStack, y, _ = exprStack.Pop()
-				fmt.Printf("pop 2 %s \n", y)
-				if operator, ok := expr.(ast.OperatorExpr); ok {
-					operator.SetX(x)
-					operator.SetY(y)
-					fmt.Printf("%s went on exprStack \n", expr)
-					exprStack = exprStack.Push(expr)
-
-				}
-			}
-			fmt.Printf("%s went on operatorStack \n", item)
-
-			operatorStack = operatorStack.Push(item)
-
+			shuntOoperator(item, operatorStack, exprStack)
 		}
 
 	}
 
+	// clear out anything left on the operatorStack
 	for len(operatorStack) > 0 {
 		var expr ast.Expr
 		var x ast.Expr
@@ -143,4 +101,31 @@ func (s StackExpr) Shunt() (ast.Expr, error) {
 
 	exprStack, result, _ = exprStack.Pop()
 	return result, nil
+}
+
+func shuntOoperator(item ast.Expr, operatorStack StackExpr, exprStack StackExpr) {
+	// Otherwise, the token is an operator (operator here includes both ComparisonExpr and BooleanExpr).
+	var x ast.Expr
+	var y ast.Expr
+	//fmt.Printf("Precedence first: %s (%s), second: %s (%s) \n", strconv.Itoa(ast.Precedence(expr)), expr, strconv.Itoa(ast.Precedence(item)), item)
+
+	for expr, _ := operatorStack.Top(); expr != nil && ast.Precedence(expr) <= ast.Precedence(item); expr, _ = operatorStack.Top() {
+		//	fmt.Printf(" first: %s (%s), second: %s (%s) \n", strconv.Itoa(ast.Precedence(expr)), expr, strconv.Itoa(ast.Precedence(item)), item)
+
+		operatorStack, expr, _ = operatorStack.Pop()
+		exprStack, x, _ = exprStack.Pop()
+		fmt.Printf("pop 1 %s \n", x)
+		exprStack, y, _ = exprStack.Pop()
+		fmt.Printf("pop 2 %s \n", y)
+		if operator, ok := expr.(ast.OperatorExpr); ok {
+			operator.SetX(x)
+			operator.SetY(y)
+			fmt.Printf("%s went on exprStack \n", expr)
+			exprStack = exprStack.Push(expr)
+
+		}
+	}
+	fmt.Printf("%s went on operatorStack \n", item)
+
+	operatorStack = operatorStack.Push(item)
 }
