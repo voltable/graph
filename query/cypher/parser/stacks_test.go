@@ -32,14 +32,35 @@ func TestBasic_UpdateStack(t *testing.T) {
 	n7 := &ast.Ident{Data: 10}
 	exprStack = exprStack.Push(n7)
 
-	root, _ := exprStack.Shunt()
+	result, _ := exprStack.Shunt()
 
-	parser.PrintRoot(root)
-	// treeN4 := root.(ast.BooleanExpr)
+	if result != n4 {
+		t.Errorf("found %s expected %s", result, n4)
+	}
 
-	// if treeN4.Boolean != n4.Boolean {
-	// 	t.Errorf("exp %s got %s", n4.Boolean, treeN4.Boolean)
-	// }
+	if n4.X != n2 {
+		t.Errorf("found %s expected %s", n4.X, n2)
+	}
+
+	if n2.X != n1 {
+		t.Errorf("found %s expected %s", n2.X, n1)
+	}
+
+	if n2.Y != n3 {
+		t.Errorf("found %s expected %s", n2.Y, n3)
+	}
+
+	if n4.Y != n6 {
+		t.Errorf("found %s expected %s", n4.Y, n6)
+	}
+
+	if n6.X != n5 {
+		t.Errorf("found %s expected %s", n6.X, n5)
+	}
+
+	if n6.Y != n7 {
+		t.Errorf("found %s expected %s", n6.Y, n7)
+	}
 }
 
 // n.name = 'Peter' XOR (n.age < 30 AND n.name = 'Tobias') OR NOT (n.name = 'Tobias' OR n.name = 'Peter')

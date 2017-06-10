@@ -58,7 +58,7 @@
             "env": {},
             "args": [
                 "-test.run",
-                "^TestDeep_UpdateStack"
+                "^TestBasic_UpdateStack"
             ],
             "showLog": true
         },

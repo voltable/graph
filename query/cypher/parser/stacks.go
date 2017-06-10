@@ -38,7 +38,6 @@ func (s StackExpr) Shunt() (ast.Expr, error) {
 
 	for len(s) > 0 {
 		s, item, _ = s.Pop()
-		//fmt.Printf("item: %s \n", item)
 		if p, ok := item.(*ast.ParenthesesExpr); ok {
 			if p.Parentheses == ast.LPAREN {
 				exprStack = operatorStack.Push(item)
@@ -144,27 +143,4 @@ func (s StackExpr) Shunt() (ast.Expr, error) {
 
 	exprStack, result, _ = exprStack.Pop()
 	return result, nil
-}
-
-func PrintRoot(root ast.Expr) {
-	fmt.Printf("root: %s", root)
-
-	if s, ok := root.(ast.BinaryExpr); ok {
-		fmt.Printf("x: %s", s.X)
-		fmt.Printf("y: %s", s.Y)
-
-		PrintChildren(s.X)
-		PrintChildren(s.Y)
-	}
-}
-
-func PrintChildren(root ast.Expr) {
-
-	if s, ok := root.(ast.BinaryExpr); ok {
-		fmt.Printf("x: %s", s.X)
-		fmt.Printf("y: %s", s.Y)
-
-		PrintChildren(s.X)
-		PrintChildren(s.Y)
-	}
 }
