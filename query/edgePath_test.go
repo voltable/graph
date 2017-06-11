@@ -13,8 +13,8 @@ func Test_MatchEdge(t *testing.T) {
 	vertex, _ := vertices.NewVertex()
 
 	vertexDirection, _ := vertices.NewVertex()
-	edge, _ := vertex.AddDirectedEdge(vertexDirection)
-	edge.SetLabel("foo")
+	vertex.AddDirectedEdge(vertexDirection)
+	//edge.SetLabel("foo")
 
 	frontier := query.Frontier{&query.Path{[]*vertices.Vertex{vertex}, 0}}
 
@@ -32,9 +32,9 @@ func Test_MatchEdge(t *testing.T) {
 	}, Fetch: fetch, Explored: make(map[string]bool)}
 
 	matches := p.Relationship(func(v *vertices.Edge) bool {
-		if v.Label() != "foo" {
-			t.Fatalf("Expected foo but was %s", v.Label())
-		}
+		// if v.Label() != "foo" {
+		// 	t.Fatalf("Expected foo but was %s", v.Label())
+		// }
 		return true
 	})
 
