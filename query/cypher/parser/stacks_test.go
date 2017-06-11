@@ -158,81 +158,83 @@ func TestBasic_UpdateStackWithNot(t *testing.T) {
 // n.name  'Peter'  __<__     __=__					 __=__		 	 __=__
 //				   /	|	 |	   \				/	  \	    	/ 	  \
 //				  /		|	 |	    \			n.name  'Tobias'  n.name  'Peter'
-//				n.age  30   n.name  'Tobias'
-func TestDeep_UpdateStack(t *testing.T) {
-	exprStack := make(parser.StackExpr, 0)
+//
 
-	n1 := &ast.PropertyStmt{Variable: "n", Value: "name"}
-	exprStack = exprStack.Push(n1)
+// 			n.age  30   n.name  'Tobias'
+// func TestDeep_UpdateStack(t *testing.T) {
+// 	exprStack := make(parser.StackExpr, 0)
 
-	n2 := &ast.ComparisonExpr{Comparison: ast.EQ}
-	exprStack = exprStack.Push(n2)
+// 	n1 := &ast.PropertyStmt{Variable: "n", Value: "name"}
+// 	exprStack = exprStack.Push(n1)
 
-	n3 := &ast.Ident{Data: "Peter"}
-	exprStack = exprStack.Push(n3)
+// 	n2 := &ast.ComparisonExpr{Comparison: ast.EQ}
+// 	exprStack = exprStack.Push(n2)
 
-	n4 := &ast.BooleanExpr{Boolean: ast.XOR}
-	exprStack = exprStack.Push(n4)
+// 	n3 := &ast.Ident{Data: "Peter"}
+// 	exprStack = exprStack.Push(n3)
 
-	n5 := &ast.ParenthesesExpr{Parentheses: ast.LPAREN}
-	exprStack = exprStack.Push(n5)
+// 	n4 := &ast.BooleanExpr{Boolean: ast.XOR}
+// 	exprStack = exprStack.Push(n4)
 
-	n6 := &ast.PropertyStmt{Variable: "n", Value: "age"}
-	exprStack = exprStack.Push(n6)
+// 	n5 := &ast.ParenthesesExpr{Parentheses: ast.LPAREN}
+// 	exprStack = exprStack.Push(n5)
 
-	n7 := &ast.ComparisonExpr{Comparison: ast.LT}
-	exprStack = exprStack.Push(n7)
+// 	n6 := &ast.PropertyStmt{Variable: "n", Value: "age"}
+// 	exprStack = exprStack.Push(n6)
 
-	n8 := &ast.Ident{Data: 30}
-	exprStack = exprStack.Push(n8)
+// 	n7 := &ast.ComparisonExpr{Comparison: ast.LT}
+// 	exprStack = exprStack.Push(n7)
 
-	n9 := &ast.BooleanExpr{Boolean: ast.AND}
-	exprStack = exprStack.Push(n9)
+// 	n8 := &ast.Ident{Data: 30}
+// 	exprStack = exprStack.Push(n8)
 
-	n10 := &ast.PropertyStmt{Variable: "n", Value: "name"}
-	exprStack = exprStack.Push(n10)
+// 	n9 := &ast.BooleanExpr{Boolean: ast.AND}
+// 	exprStack = exprStack.Push(n9)
 
-	n11 := &ast.Ident{Data: "Tobias"}
-	exprStack = exprStack.Push(n11)
+// 	n10 := &ast.PropertyStmt{Variable: "n", Value: "name"}
+// 	exprStack = exprStack.Push(n10)
 
-	n12 := &ast.ParenthesesExpr{Parentheses: ast.RPAREN}
-	exprStack = exprStack.Push(n12)
+// 	n11 := &ast.Ident{Data: "Tobias"}
+// 	exprStack = exprStack.Push(n11)
 
-	n13 := &ast.BooleanExpr{Boolean: ast.OR}
-	exprStack = exprStack.Push(n13)
+// 	n12 := &ast.ParenthesesExpr{Parentheses: ast.RPAREN}
+// 	exprStack = exprStack.Push(n12)
 
-	n14 := &ast.BooleanExpr{Boolean: ast.NOT}
-	exprStack = exprStack.Push(n14)
+// 	n13 := &ast.BooleanExpr{Boolean: ast.OR}
+// 	exprStack = exprStack.Push(n13)
 
-	n15 := &ast.ParenthesesExpr{Parentheses: ast.LPAREN}
-	exprStack = exprStack.Push(n15)
+// 	n14 := &ast.BooleanExpr{Boolean: ast.NOT}
+// 	exprStack = exprStack.Push(n14)
 
-	n16 := &ast.PropertyStmt{Variable: "n", Value: "name"}
-	exprStack = exprStack.Push(n16)
+// 	n15 := &ast.ParenthesesExpr{Parentheses: ast.LPAREN}
+// 	exprStack = exprStack.Push(n15)
 
-	n17 := &ast.ComparisonExpr{Comparison: ast.EQ}
-	exprStack = exprStack.Push(n17)
+// 	n16 := &ast.PropertyStmt{Variable: "n", Value: "name"}
+// 	exprStack = exprStack.Push(n16)
 
-	n18 := &ast.Ident{Data: "Tobias"}
-	exprStack = exprStack.Push(n18)
+// 	n17 := &ast.ComparisonExpr{Comparison: ast.EQ}
+// 	exprStack = exprStack.Push(n17)
 
-	n19 := &ast.BooleanExpr{Boolean: ast.OR}
-	exprStack = exprStack.Push(n19)
+// 	n18 := &ast.Ident{Data: "Tobias"}
+// 	exprStack = exprStack.Push(n18)
 
-	n20 := &ast.PropertyStmt{Variable: "n", Value: "name"}
-	exprStack = exprStack.Push(n20)
+// 	n19 := &ast.BooleanExpr{Boolean: ast.OR}
+// 	exprStack = exprStack.Push(n19)
 
-	n21 := &ast.ComparisonExpr{Comparison: ast.EQ}
-	exprStack = exprStack.Push(n21)
+// 	n20 := &ast.PropertyStmt{Variable: "n", Value: "name"}
+// 	exprStack = exprStack.Push(n20)
 
-	n22 := &ast.Ident{Data: "Peter"}
-	exprStack = exprStack.Push(n22)
+// 	n21 := &ast.ComparisonExpr{Comparison: ast.EQ}
+// 	exprStack = exprStack.Push(n21)
 
-	n23 := &ast.ParenthesesExpr{Parentheses: ast.RPAREN}
-	exprStack = exprStack.Push(n23)
+// 	n22 := &ast.Ident{Data: "Peter"}
+// 	exprStack = exprStack.Push(n22)
 
-	exprStack.Shunt()
+// 	n23 := &ast.ParenthesesExpr{Parentheses: ast.RPAREN}
+// 	exprStack = exprStack.Push(n23)
 
-	// n.name = 'Peter' XOR (n.age < 30 AND n.name = 'Tobias') OR NOT (n.name = 'Tobias' OR n.name = 'Peter')
+// 	exprStack.Shunt()
 
-}
+// 	// n.name = 'Peter' XOR (n.age < 30 AND n.name = 'Tobias') OR NOT (n.name = 'Tobias' OR n.name = 'Peter')
+
+// }
