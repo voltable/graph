@@ -1,19 +1,23 @@
 package graphs
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/RossMerr/Caudex.Graph/vertices"
+)
 
 type fakeStorageEngine struct {
-	vertices map[string]Vertex
+	vertices map[string]vertices.Vertex
 }
 
-func (f *fakeStorageEngine) Create(c ...*Vertex) error {
+func (f *fakeStorageEngine) Create(c ...*vertices.Vertex) error {
 	for _, v := range c {
 		f.vertices[v.ID()] = *v
 	}
 	return nil
 }
 
-func (f *fakeStorageEngine) Delete(c ...*Vertex) error {
+func (f *fakeStorageEngine) Delete(c ...*vertices.Vertex) error {
 	for _, v := range c {
 		delete(f.vertices, v.ID())
 	}
@@ -21,7 +25,7 @@ func (f *fakeStorageEngine) Delete(c ...*Vertex) error {
 	return nil
 }
 
-func (f *fakeStorageEngine) Find(ID string) (*Vertex, error) {
+func (f *fakeStorageEngine) Find(ID string) (*vertices.Vertex, error) {
 	if v, ok := f.vertices[ID]; ok {
 		return &v, nil
 	} else {
@@ -29,7 +33,7 @@ func (f *fakeStorageEngine) Find(ID string) (*Vertex, error) {
 	}
 }
 
-func (f *fakeStorageEngine) Update(c ...*Vertex) error {
+func (f *fakeStorageEngine) Update(c ...*vertices.Vertex) error {
 	f.Create(c...)
 	return nil
 }
