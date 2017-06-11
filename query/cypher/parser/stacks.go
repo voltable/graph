@@ -127,6 +127,7 @@ func shuntOperator(item ast.Expr, operatorStack StackExpr, exprStack StackExpr, 
 			operator.SetY(y)
 			fmt.Printf("%s went on exprStack \n", expr)
 
+			// If we find anything on the notStack we should make the operator a child of it
 			if len(notStack) > 0 {
 				var n ast.Expr
 				notStack, n, _ = notStack.Pop()
