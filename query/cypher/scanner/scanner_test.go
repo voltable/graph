@@ -4,15 +4,15 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/RossMerr/Caudex.Graph/query/cypher/lexer"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/scanner"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/token"
 )
 
 // Ensure the scanner can scan tokens correctly.
 func TestScanner_Scan(t *testing.T) {
 	var tests = []struct {
 		s   string
-		tok token.Token
+		tok lexer.Token
 		lit string
 	}{
 
@@ -50,7 +50,7 @@ func TestScanner_Scan(t *testing.T) {
 
 		// {s: `<`, tok: token.LT},
 		// {s: `>`, tok: token.GT},
-		{s: `<>`, tok: token.NEQ},
+		{s: `<>`, tok: lexer.NEQ},
 		// {s: `=`, tok: token.EQ},
 		// {s: `IS`, tok: token.IS},
 		// {s: `NULL`, tok: token.NULL},
