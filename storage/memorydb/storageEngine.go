@@ -5,7 +5,6 @@ import (
 
 	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/traversal"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
@@ -72,6 +71,6 @@ func (se *StorageEngine) Query() *query.VertexPath {
 	return nil
 }
 
-func (se *StorageEngine) QueryRoot(predicate func(*vertices.Vertex) bool) *query.Query {
-	return traversal.QueryRoot(predicate)
-}
+// func (se *StorageEngine) QueryRoot(predicate func(*vertices.Vertex) bool) *query.Query {
+// 	return traversal.QueryRoot(predicate)
+// }
