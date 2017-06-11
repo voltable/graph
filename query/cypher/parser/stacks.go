@@ -109,45 +109,25 @@ func shuntOperator(item ast.Expr, operatorStack StackExpr, exprStack StackExpr) 
 	var y ast.Expr
 	//fmt.Printf("Precedence first: %s (%s), second: %s (%s) \n", strconv.Itoa(ast.Precedence(expr)), expr, strconv.Itoa(ast.Precedence(item)), item)
 
-	for index, expr := range operatorStack {
-		if ast.Precedence(expr) <= ast.Precedence(item) {
-			expr = operatorStack[index]
-			operatorStack = append(operatorStack[:index], operatorStack[index+1:]...)
+	for expr, _ := operatorStack.Top(); expr != nil && ast.Precedence(expr) <= ast.Precedence(item); expr, _ = operatorStack.Top() {
+		//	fmt.Printf(" first: %s (%s), second: %s (%s) \n", strconv.Itoa(ast.Precedence(expr)), expr, strconv.Itoa(ast.Precedence(item)), item)
 
-			if operator, ok := expr.(ast.OperatorExpr); ok {
+		operatorStack, expr, _ = operatorStack.Pop()
+		if operator, ok := expr.(ast.OperatorExpr); ok {
 
-				exprStack, x, _ = exprStack.Pop()
-				fmt.Printf("pop 1 %s \n", x)
-				operator.SetX(x)
+			exprStack, x, _ = exprStack.Pop()
+			fmt.Printf("pop 1 %s \n", x)
+			operator.SetX(x)
 
-				exprStack, y, _ = exprStack.Pop()
-				fmt.Printf("pop 2 %s \n", y)
+			exprStack, y, _ = exprStack.Pop()
+			fmt.Printf("pop 2 %s \n", y)
 
-				operator.SetY(y)
-				fmt.Printf("%s went on exprStack \n", expr)
-				exprStack = exprStack.Push(expr)
-			}
+			operator.SetY(y)
+			fmt.Printf("%s went on exprStack \n", expr)
+			exprStack = exprStack.Push(expr)
 		}
 	}
-	// for expr, _ := operatorStack.Top(); expr != nil && ast.Precedence(expr) <= ast.Precedence(item); expr, _ = operatorStack.Top() {
-	// 	//	fmt.Printf(" first: %s (%s), second: %s (%s) \n", strconv.Itoa(ast.Precedence(expr)), expr, strconv.Itoa(ast.Precedence(item)), item)
 
-	// 	operatorStack, expr, _ = operatorStack.Pop()
-
-	// 	if operator, ok := expr.(ast.OperatorExpr); ok {
-
-	// 		exprStack, x, _ = exprStack.Pop()
-	// 		fmt.Printf("pop 1 %s \n", x)
-	// 		operator.SetX(x)
-
-	// 		exprStack, y, _ = exprStack.Pop()
-	// 		fmt.Printf("pop 2 %s \n", y)
-
-	// 		operator.SetY(y)
-	// 		fmt.Printf("%s went on exprStack \n", expr)
-	// 		exprStack = exprStack.Push(expr)
-	// 	}
-	// }
 	fmt.Printf("%s went on operatorStack \n", item)
 
 	operatorStack = operatorStack.Push(item)
