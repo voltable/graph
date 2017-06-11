@@ -37,6 +37,7 @@ func (s StackExpr) Shunt() (ast.Expr, error) {
 
 	exprStack := make(StackExpr, 0)
 	operatorStack := make(StackExpr, 0)
+	notStack := make(StackExpr, 0)
 
 	for len(s) > 0 {
 		s, item, _ = s.Pop()
@@ -71,13 +72,14 @@ func (s StackExpr) Shunt() (ast.Expr, error) {
 			exprStack = exprStack.Push(item)
 		} else if _, ok := item.(*ast.ComparisonExpr); ok {
 			// Otherwise, the token is an operator (operator here includes both ComparisonExpr and BooleanExpr).
-			operatorStack, exprStack = shuntOperator(item, operatorStack, exprStack)
+			operatorStack, exprStack, notStack = shuntOperator(item, operatorStack, exprStack, notStack)
 		} else if b, ok := item.(*ast.BooleanExpr); ok {
 			if b.Boolean == ast.NOT {
-				fmt.Println("NOT")
+				notStack = notStack.Push(item)
+			} else {
+				// Otherwise, the token is an operator (operator here includes both ComparisonExpr and BooleanExpr).
+				operatorStack, exprStack, notStack = shuntOperator(item, operatorStack, exprStack, notStack)
 			}
-			// Otherwise, the token is an operator (operator here includes both ComparisonExpr and BooleanExpr).
-			operatorStack, exprStack = shuntOperator(item, operatorStack, exprStack)
 		}
 	}
 
@@ -104,7 +106,7 @@ func (s StackExpr) Shunt() (ast.Expr, error) {
 	return result, nil
 }
 
-func shuntOperator(item ast.Expr, operatorStack StackExpr, exprStack StackExpr) (StackExpr, StackExpr) {
+func shuntOperator(item ast.Expr, operatorStack StackExpr, exprStack StackExpr, notStack StackExpr) (StackExpr, StackExpr, StackExpr) {
 	var x ast.Expr
 	var y ast.Expr
 	//fmt.Printf("Precedence first: %s (%s), second: %s (%s) \n", strconv.Itoa(ast.Precedence(expr)), expr, strconv.Itoa(ast.Precedence(item)), item)
@@ -124,7 +126,17 @@ func shuntOperator(item ast.Expr, operatorStack StackExpr, exprStack StackExpr) 
 
 			operator.SetY(y)
 			fmt.Printf("%s went on exprStack \n", expr)
-			exprStack = exprStack.Push(expr)
+
+			if len(notStack) > 0 {
+				var n ast.Expr
+				notStack, n, _ = notStack.Pop()
+				if not, ok := n.(ast.OperatorExpr); ok {
+					not.SetX(expr)
+					exprStack = exprStack.Push(n)
+				}
+			} else {
+				exprStack = exprStack.Push(expr)
+			}
 		}
 	}
 
@@ -132,5 +144,5 @@ func shuntOperator(item ast.Expr, operatorStack StackExpr, exprStack StackExpr) 
 
 	operatorStack = operatorStack.Push(item)
 
-	return operatorStack, exprStack
+	return operatorStack, exprStack, notStack
 }
