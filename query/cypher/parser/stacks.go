@@ -71,13 +71,14 @@ func (s StackExpr) Shunt() (ast.Expr, error) {
 			exprStack = exprStack.Push(item)
 		} else if _, ok := item.(*ast.ComparisonExpr); ok {
 			// Otherwise, the token is an operator (operator here includes both ComparisonExpr and BooleanExpr).
-			shuntOoperator(item, operatorStack, exprStack)
-
-		} else if _, ok := item.(*ast.BooleanExpr); ok {
+			operatorStack, exprStack = shuntOperator(item, operatorStack, exprStack)
+		} else if b, ok := item.(*ast.BooleanExpr); ok {
+			if b.Boolean == ast.NOT {
+				fmt.Println("NOT")
+			}
 			// Otherwise, the token is an operator (operator here includes both ComparisonExpr and BooleanExpr).
-			shuntOoperator(item, operatorStack, exprStack)
+			operatorStack, exprStack = shuntOperator(item, operatorStack, exprStack)
 		}
-
 	}
 
 	// clear out anything left on the operatorStack
@@ -86,10 +87,10 @@ func (s StackExpr) Shunt() (ast.Expr, error) {
 		var x ast.Expr
 		var y ast.Expr
 		operatorStack, expr, _ = operatorStack.Pop()
-		exprStack, x, _ = exprStack.Pop()
-		exprStack, y, _ = exprStack.Pop()
 		if operator, ok := expr.(ast.OperatorExpr); ok {
+			exprStack, x, _ = exprStack.Pop()
 			operator.SetX(x)
+			exprStack, y, _ = exprStack.Pop()
 			operator.SetY(y)
 			fmt.Printf("%s went on exprStack \n", expr)
 			exprStack = exprStack.Push(expr)
@@ -103,29 +104,53 @@ func (s StackExpr) Shunt() (ast.Expr, error) {
 	return result, nil
 }
 
-func shuntOoperator(item ast.Expr, operatorStack StackExpr, exprStack StackExpr) {
-	// Otherwise, the token is an operator (operator here includes both ComparisonExpr and BooleanExpr).
+func shuntOperator(item ast.Expr, operatorStack StackExpr, exprStack StackExpr) (StackExpr, StackExpr) {
 	var x ast.Expr
 	var y ast.Expr
 	//fmt.Printf("Precedence first: %s (%s), second: %s (%s) \n", strconv.Itoa(ast.Precedence(expr)), expr, strconv.Itoa(ast.Precedence(item)), item)
 
-	for expr, _ := operatorStack.Top(); expr != nil && ast.Precedence(expr) <= ast.Precedence(item); expr, _ = operatorStack.Top() {
-		//	fmt.Printf(" first: %s (%s), second: %s (%s) \n", strconv.Itoa(ast.Precedence(expr)), expr, strconv.Itoa(ast.Precedence(item)), item)
+	for index, expr := range operatorStack {
+		if ast.Precedence(expr) <= ast.Precedence(item) {
+			expr = operatorStack[index]
+			operatorStack = append(operatorStack[:index], operatorStack[index+1:]...)
 
-		operatorStack, expr, _ = operatorStack.Pop()
-		exprStack, x, _ = exprStack.Pop()
-		fmt.Printf("pop 1 %s \n", x)
-		exprStack, y, _ = exprStack.Pop()
-		fmt.Printf("pop 2 %s \n", y)
-		if operator, ok := expr.(ast.OperatorExpr); ok {
-			operator.SetX(x)
-			operator.SetY(y)
-			fmt.Printf("%s went on exprStack \n", expr)
-			exprStack = exprStack.Push(expr)
+			if operator, ok := expr.(ast.OperatorExpr); ok {
 
+				exprStack, x, _ = exprStack.Pop()
+				fmt.Printf("pop 1 %s \n", x)
+				operator.SetX(x)
+
+				exprStack, y, _ = exprStack.Pop()
+				fmt.Printf("pop 2 %s \n", y)
+
+				operator.SetY(y)
+				fmt.Printf("%s went on exprStack \n", expr)
+				exprStack = exprStack.Push(expr)
+			}
 		}
 	}
+	// for expr, _ := operatorStack.Top(); expr != nil && ast.Precedence(expr) <= ast.Precedence(item); expr, _ = operatorStack.Top() {
+	// 	//	fmt.Printf(" first: %s (%s), second: %s (%s) \n", strconv.Itoa(ast.Precedence(expr)), expr, strconv.Itoa(ast.Precedence(item)), item)
+
+	// 	operatorStack, expr, _ = operatorStack.Pop()
+
+	// 	if operator, ok := expr.(ast.OperatorExpr); ok {
+
+	// 		exprStack, x, _ = exprStack.Pop()
+	// 		fmt.Printf("pop 1 %s \n", x)
+	// 		operator.SetX(x)
+
+	// 		exprStack, y, _ = exprStack.Pop()
+	// 		fmt.Printf("pop 2 %s \n", y)
+
+	// 		operator.SetY(y)
+	// 		fmt.Printf("%s went on exprStack \n", expr)
+	// 		exprStack = exprStack.Push(expr)
+	// 	}
+	// }
 	fmt.Printf("%s went on operatorStack \n", item)
 
 	operatorStack = operatorStack.Push(item)
+
+	return operatorStack, exprStack
 }

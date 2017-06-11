@@ -75,7 +75,7 @@ func TestBasic_UpdateStack(t *testing.T) {
 //					 AND
 //			   _____/	\____
 //			  /				 \
-//		  __>=__ 		  	 NOT-----(Y is always null on a NOT)
+//		  __>=__ 		  	 NOT-----(Y is always nil on a NOT)
 //		 /	    \			  |
 //  n.number     1  		__=__
 //						   /	 \
@@ -151,7 +151,7 @@ func TestBasic_UpdateStackWithNot(t *testing.T) {
 //						     	  	   OR
 //				   ___________________/  \____________________
 //				  /						 	  		 		  \
-//		 	_____XOR_____							 		  NOT-----(Y is always null on a NOT)
+//		 	_____XOR_____							 		  NOT-----(Y is always nil on a NOT)
 //		   /	 	     \					   		  		   |
 //		__=__		 	__AND__				 			 ______OR_____
 //	   /   	 |	       /       \		    			/			  \
