@@ -20,11 +20,15 @@ func init() {
 }
 
 var (
+	// ErrVertexNotFound Vertex Not found
 	ErrVertexNotFound = errors.New("Vertex Not found")
-	ErrCreatVertex    = errors.New("Failed to create Vertex")
+
+	// ErrCreatVertex Failed to create Vertex
+	ErrCreatVertex = errors.New("Failed to create Vertex")
 )
 
 const (
+	// GraphType the underlying storage, bolt
 	GraphType          = "bolt"
 	bucketGraph bucket = "graph"
 	bucketLabel bucket = "label"
@@ -86,8 +90,8 @@ func (se *StorageEngine) Create(c ...*vertices.Vertex) error {
 }
 
 // Delete the array of vertices from the persistence
-func (g *StorageEngine) Delete(c ...*vertices.Vertex) error {
-	return g.db.Update(func(tx *bolt.Tx) error {
+func (se *StorageEngine) Delete(c ...*vertices.Vertex) error {
+	return se.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketGraph))
 		for _, vertex := range c {
 			b.Delete([]byte(vertex.ID()))
@@ -139,10 +143,11 @@ func newStorageEngine(o *graph.Options) (graph.Graph, error) {
 }
 
 // Close graph
-func (g *StorageEngine) Close() {
-	g.db.Close()
+func (se *StorageEngine) Close() {
+	se.db.Close()
 }
 
+// Query used to query the graph
 func (se *StorageEngine) Query() *query.VertexPath {
 	iterate := func() query.Iterator {
 		ch := make(chan vertices.Vertex)
@@ -169,7 +174,7 @@ func (se *StorageEngine) Query() *query.VertexPath {
 	return query.NewVertexPath(iterate, se.Find)
 }
 
-func (g *StorageEngine) backgroundTask(c chan os.Signal) {
+func (se *StorageEngine) backgroundTask(c chan os.Signal) {
 
 	go func() {
 	Loop:
