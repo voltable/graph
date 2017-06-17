@@ -54,21 +54,13 @@ func (s StackExpr) Shunt() (ast.Expr, error) {
 			if p.Parentheses == ast.LPAREN {
 				operatorStack = operatorStack.Push(item)
 			} else { // RPAREN
-				var x ast.Expr
-				var y ast.Expr
 				var expr ast.Expr
 				operatorStack, expr, _ = operatorStack.pop()
 				for expr != nil {
 					if p, ok := expr.(*ast.ParenthesesExpr); ok && p.Parentheses == ast.LPAREN {
 						break
 					} else {
-						exprStack, y, _ = exprStack.pop()
-						exprStack, x, _ = exprStack.pop()
-						if operator, ok := expr.(ast.OperatorExpr); ok {
-							operator.SetX(x)
-							operator.SetY(y)
-							exprStack = exprStack.Push(expr)
-						}
+						operatorStack, exprStack, notStack = buildExprFromOperator(expr, operatorStack, exprStack, notStack)
 					}
 					operatorStack, expr, _ = operatorStack.pop()
 
@@ -98,30 +90,8 @@ func (s StackExpr) Shunt() (ast.Expr, error) {
 	// while there are still operators on the operatorStack:
 	for len(operatorStack) > 0 {
 		var expr ast.Expr
-		var x ast.Expr
-		var y ast.Expr
 		operatorStack, expr, _ = operatorStack.pop()
-		if operator, ok := expr.(ast.OperatorExpr); ok {
-			exprStack, y, _ = exprStack.pop()
-			operator.SetY(y)
-			exprStack, x, _ = exprStack.pop()
-			operator.SetX(x)
-
-			fmt.Printf("%s went on exprStack \n", expr)
-
-			// If we find anything on the notStack we should make the operator a child of it
-			if len(notStack) > 0 {
-				var n ast.Expr
-				notStack, n, _ = notStack.pop()
-				if not, ok := n.(ast.OperatorExpr); ok {
-					not.SetX(expr)
-					exprStack = exprStack.Push(n)
-				}
-			} else {
-				exprStack = exprStack.Push(expr)
-			}
-
-		}
+		operatorStack, exprStack, notStack = buildExprFromOperator(expr, operatorStack, exprStack, notStack)
 	}
 
 	var result ast.Expr
@@ -131,43 +101,38 @@ func (s StackExpr) Shunt() (ast.Expr, error) {
 }
 
 func shuntOperator(item ast.Expr, operatorStack StackExpr, exprStack StackExpr, notStack StackExpr) (StackExpr, StackExpr, StackExpr) {
-	var x ast.Expr
-	var y ast.Expr
-	//fmt.Printf("Precedence first: %s (%s), second: %s (%s) \n", strconv.Itoa(ast.Precedence(expr)), expr, strconv.Itoa(ast.Precedence(item)), item)
 
 	for expr, _ := operatorStack.top(); expr != nil && ast.Precedence(expr) <= ast.Precedence(item); expr, _ = operatorStack.top() {
-		//	fmt.Printf(" first: %s (%s), second: %s (%s) \n", strconv.Itoa(ast.Precedence(expr)), expr, strconv.Itoa(ast.Precedence(item)), item)
-
 		operatorStack, expr, _ = operatorStack.pop()
-		if operator, ok := expr.(ast.OperatorExpr); ok {
-
-			exprStack, y, _ = exprStack.pop()
-			fmt.Printf("pop 1 %s \n", y)
-			operator.SetY(y)
-
-			exprStack, x, _ = exprStack.pop()
-			fmt.Printf("pop 2 %s \n", x)
-
-			operator.SetX(x)
-			fmt.Printf("%s went on exprStack \n", expr)
-
-			// If we find anything on the notStack we should make the operator a child of it
-			if len(notStack) > 0 {
-				var n ast.Expr
-				notStack, n, _ = notStack.pop()
-				if not, ok := n.(ast.OperatorExpr); ok {
-					not.SetX(expr)
-					exprStack = exprStack.Push(n)
-				}
-			} else {
-				exprStack = exprStack.Push(expr)
-			}
-		}
+		operatorStack, exprStack, notStack = buildExprFromOperator(expr, operatorStack, exprStack, notStack)
 	}
 
-	fmt.Printf("%s went on operatorStack \n", item)
-
 	operatorStack = operatorStack.Push(item)
+
+	return operatorStack, exprStack, notStack
+}
+
+func buildExprFromOperator(expr ast.Expr, operatorStack StackExpr, exprStack StackExpr, notStack StackExpr) (StackExpr, StackExpr, StackExpr) {
+	var y, x ast.Expr
+	if operator, ok := expr.(ast.OperatorExpr); ok {
+		exprStack, y, _ = exprStack.pop()
+		exprStack, x, _ = exprStack.pop()
+
+		operator.SetY(y)
+		operator.SetX(x)
+
+		// If we find anything on the notStack we should make the operator a child of it
+		if len(notStack) > 0 {
+			var n ast.Expr
+			notStack, n, _ = notStack.pop()
+			if not, ok := n.(ast.OperatorExpr); ok {
+				not.SetX(expr)
+				exprStack = exprStack.Push(n)
+			}
+		} else {
+			exprStack = exprStack.Push(expr)
+		}
+	}
 
 	return operatorStack, exprStack, notStack
 }
