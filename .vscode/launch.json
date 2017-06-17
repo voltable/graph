@@ -58,7 +58,7 @@
             "env": {},
             "args": [
                 "-test.run",
-                "TestBasic_Parentheses"
+                "TestBasic_UpdateStackWithNot"
             ],
             "showLog": true
         },

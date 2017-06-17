@@ -13,11 +13,20 @@ func (s StackExpr) Push(v ast.Expr) StackExpr {
 	return append(s, v)
 }
 
-// Pop removes the last item on the StackExpr and returns it
-func (s StackExpr) Pop() (StackExpr, ast.Expr, bool) {
+// pop removes the last item on the StackExpr and returns it
+func (s StackExpr) pop() (StackExpr, ast.Expr, bool) {
 	l := len(s)
 	if l > 0 {
 		return s[:l-1], s[l-1], true
+	}
+	return s, nil, false
+}
+
+// pop removes the first item on the StackExpr and returns it
+func (s StackExpr) shift() (StackExpr, ast.Expr, bool) {
+	l := len(s)
+	if l > 0 {
+		return s[1:], s[0], true
 	}
 	return s, nil, false
 }
@@ -40,7 +49,7 @@ func (s StackExpr) Shunt() (ast.Expr, error) {
 	notStack := make(StackExpr, 0)
 
 	for len(s) > 0 {
-		s, item, _ = s.Pop()
+		s, item, _ = s.shift()
 		if _, ok := item.(*ast.ParenthesesExpr); ok {
 			// if p.Parentheses == ast.RPAREN {
 			// 	operatorStack = operatorStack.Push(item)
@@ -48,20 +57,20 @@ func (s StackExpr) Shunt() (ast.Expr, error) {
 			// 	var x ast.Expr
 			// 	var y ast.Expr
 			// 	var expr ast.Expr
-			// 	operatorStack, expr, _ = operatorStack.Pop()
+			// 	operatorStack, expr, _ = operatorStack.pop()
 			// 	for expr != nil {
 			// 		if p, ok := expr.(*ast.ParenthesesExpr); ok && p.Parentheses == ast.RPAREN {
 			// 			break
 			// 		} else {
-			// 			exprStack, x, _ = exprStack.Pop()
-			// 			exprStack, y, _ = exprStack.Pop()
+			// 			exprStack, x, _ = exprStack.pop()
+			// 			exprStack, y, _ = exprStack.pop()
 			// 			if operator, ok := expr.(ast.OperatorExpr); ok {
 			// 				operator.SetX(x)
 			// 				operator.SetY(y)
 			// 				exprStack = exprStack.Push(expr)
 			// 			}
 			// 		}
-			// 		operatorStack, expr, _ = operatorStack.Pop()
+			// 		operatorStack, expr, _ = operatorStack.pop()
 
 			// 	}
 			// }
@@ -91,21 +100,33 @@ func (s StackExpr) Shunt() (ast.Expr, error) {
 		var expr ast.Expr
 		var x ast.Expr
 		var y ast.Expr
-		operatorStack, expr, _ = operatorStack.Pop()
+		operatorStack, expr, _ = operatorStack.pop()
 		if operator, ok := expr.(ast.OperatorExpr); ok {
-			exprStack, x, _ = exprStack.Pop()
-			operator.SetX(x)
-			exprStack, y, _ = exprStack.Pop()
+			exprStack, y, _ = exprStack.pop()
 			operator.SetY(y)
+			exprStack, x, _ = exprStack.pop()
+			operator.SetX(x)
+
 			fmt.Printf("%s went on exprStack \n", expr)
-			exprStack = exprStack.Push(expr)
+
+			// If we find anything on the notStack we should make the operator a child of it
+			if len(notStack) > 0 {
+				var n ast.Expr
+				notStack, n, _ = notStack.pop()
+				if not, ok := n.(ast.OperatorExpr); ok {
+					not.SetX(expr)
+					exprStack = exprStack.Push(n)
+				}
+			} else {
+				exprStack = exprStack.Push(expr)
+			}
 
 		}
 	}
 
 	var result ast.Expr
 
-	exprStack, result, _ = exprStack.Pop()
+	exprStack, result, _ = exprStack.pop()
 	return result, nil
 }
 
@@ -117,23 +138,23 @@ func shuntOperator(item ast.Expr, operatorStack StackExpr, exprStack StackExpr, 
 	for expr, _ := operatorStack.Top(); expr != nil && ast.Precedence(expr) <= ast.Precedence(item); expr, _ = operatorStack.Top() {
 		//	fmt.Printf(" first: %s (%s), second: %s (%s) \n", strconv.Itoa(ast.Precedence(expr)), expr, strconv.Itoa(ast.Precedence(item)), item)
 
-		operatorStack, expr, _ = operatorStack.Pop()
+		operatorStack, expr, _ = operatorStack.pop()
 		if operator, ok := expr.(ast.OperatorExpr); ok {
 
-			exprStack, x, _ = exprStack.Pop()
-			fmt.Printf("pop 1 %s \n", x)
-			operator.SetX(x)
-
-			exprStack, y, _ = exprStack.Pop()
-			fmt.Printf("pop 2 %s \n", y)
-
+			exprStack, y, _ = exprStack.pop()
+			fmt.Printf("pop 1 %s \n", y)
 			operator.SetY(y)
+
+			exprStack, x, _ = exprStack.pop()
+			fmt.Printf("pop 2 %s \n", x)
+
+			operator.SetX(x)
 			fmt.Printf("%s went on exprStack \n", expr)
 
 			// If we find anything on the notStack we should make the operator a child of it
 			if len(notStack) > 0 {
 				var n ast.Expr
-				notStack, n, _ = notStack.Pop()
+				notStack, n, _ = notStack.pop()
 				if not, ok := n.(ast.OperatorExpr); ok {
 					not.SetX(expr)
 					exprStack = exprStack.Push(n)
