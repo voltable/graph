@@ -73,6 +73,8 @@ func Precedence(item Expr) int {
 		return ComparisonPrecedence(*b)
 	} else if b, ok := item.(MathematicalExpr); ok {
 		return MathPrecedence(b)
+	} else if b, ok := item.(ParenthesesExpr); ok {
+		return ParenthesesPrecedence(b)
 	}
 	return 20
 }

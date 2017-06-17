@@ -41,27 +41,30 @@ func (s StackExpr) Shunt() (ast.Expr, error) {
 
 	for len(s) > 0 {
 		s, item, _ = s.Pop()
-		if p, ok := item.(*ast.ParenthesesExpr); ok {
-			if p.Parentheses == ast.LPAREN {
-				exprStack = operatorStack.Push(item)
-			} else {
-				var x ast.Expr
-				var y ast.Expr
-				expr, _ := operatorStack.Top()
-				for expr != nil && expr.(*ast.ParenthesesExpr).Parentheses != ast.LPAREN {
-					operatorStack, expr, _ = operatorStack.Pop()
-					exprStack, x, _ = exprStack.Pop()
-					exprStack, y, _ = exprStack.Pop()
-					if operator, ok := expr.(ast.OperatorExpr); ok {
-						operator.SetX(x)
-						operator.SetY(y)
-						exprStack = exprStack.Push(expr)
+		if _, ok := item.(*ast.ParenthesesExpr); ok {
+			// if p.Parentheses == ast.RPAREN {
+			// 	operatorStack = operatorStack.Push(item)
+			// } else { // LPAREN
+			// 	var x ast.Expr
+			// 	var y ast.Expr
+			// 	var expr ast.Expr
+			// 	operatorStack, expr, _ = operatorStack.Pop()
+			// 	for expr != nil {
+			// 		if p, ok := expr.(*ast.ParenthesesExpr); ok && p.Parentheses == ast.RPAREN {
+			// 			break
+			// 		} else {
+			// 			exprStack, x, _ = exprStack.Pop()
+			// 			exprStack, y, _ = exprStack.Pop()
+			// 			if operator, ok := expr.(ast.OperatorExpr); ok {
+			// 				operator.SetX(x)
+			// 				operator.SetY(y)
+			// 				exprStack = exprStack.Push(expr)
+			// 			}
+			// 		}
+			// 		operatorStack, expr, _ = operatorStack.Pop()
 
-					}
-				}
-				// Pop the '(' off the operator stack.
-				operatorStack, _, _ = operatorStack.Pop()
-			}
+			// 	}
+			// }
 		} else if _, ok := item.(*ast.Ident); ok {
 			// If the token is a value (value here includes both Ident and PropertyStmt).
 			fmt.Printf("%s went on exprStack \n", item)
@@ -83,7 +86,7 @@ func (s StackExpr) Shunt() (ast.Expr, error) {
 		}
 	}
 
-	// clear out anything left on the operatorStack
+	// while there are still operators on the operatorStack:
 	for len(operatorStack) > 0 {
 		var expr ast.Expr
 		var x ast.Expr
