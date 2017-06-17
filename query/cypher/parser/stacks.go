@@ -14,30 +14,30 @@ func (s StackExpr) Push(v ast.Expr) StackExpr {
 }
 
 // pop removes the last item on the StackExpr and returns it
-func (s StackExpr) pop() (StackExpr, ast.Expr, bool) {
+func (s StackExpr) pop() (StackExpr, ast.Expr) {
 	l := len(s)
 	if l > 0 {
-		return s[:l-1], s[l-1], true
+		return s[:l-1], s[l-1]
 	}
-	return s, nil, false
+	return s, nil
 }
 
 // pop removes the first item on the StackExpr and returns it
-func (s StackExpr) shift() (StackExpr, ast.Expr, bool) {
+func (s StackExpr) shift() (StackExpr, ast.Expr) {
 	l := len(s)
 	if l > 0 {
-		return s[1:], s[0], true
+		return s[1:], s[0]
 	}
-	return s, nil, false
+	return s, nil
 }
 
 // top returns the last item on the StackExpr without removing it
-func (s StackExpr) top() (ast.Expr, bool) {
+func (s StackExpr) top() ast.Expr {
 	l := len(s)
 	if l > 0 {
-		return s[l-1], true
+		return s[l-1]
 	}
-	return nil, false
+	return nil
 }
 
 // Shunt builds up the AST by Shunting the stack
@@ -49,20 +49,20 @@ func (s StackExpr) Shunt() (ast.Expr, error) {
 	notStack := make(StackExpr, 0)
 
 	for len(s) > 0 {
-		s, item, _ = s.shift()
+		s, item = s.shift()
 		if p, ok := item.(*ast.ParenthesesExpr); ok {
 			if p.Parentheses == ast.LPAREN {
 				operatorStack = operatorStack.Push(item)
 			} else { // RPAREN
 				var expr ast.Expr
-				operatorStack, expr, _ = operatorStack.pop()
+				operatorStack, expr = operatorStack.pop()
 				for expr != nil {
 					if p, ok := expr.(*ast.ParenthesesExpr); ok && p.Parentheses == ast.LPAREN {
 						break
 					} else {
 						operatorStack, exprStack, notStack = buildExprFromOperator(expr, operatorStack, exprStack, notStack)
 					}
-					operatorStack, expr, _ = operatorStack.pop()
+					operatorStack, expr = operatorStack.pop()
 
 				}
 			}
@@ -90,20 +90,20 @@ func (s StackExpr) Shunt() (ast.Expr, error) {
 	// while there are still operators on the operatorStack:
 	for len(operatorStack) > 0 {
 		var expr ast.Expr
-		operatorStack, expr, _ = operatorStack.pop()
+		operatorStack, expr = operatorStack.pop()
 		operatorStack, exprStack, notStack = buildExprFromOperator(expr, operatorStack, exprStack, notStack)
 	}
 
 	var result ast.Expr
 
-	exprStack, result, _ = exprStack.pop()
+	exprStack, result = exprStack.pop()
 	return result, nil
 }
 
 func shuntOperator(item ast.Expr, operatorStack StackExpr, exprStack StackExpr, notStack StackExpr) (StackExpr, StackExpr, StackExpr) {
 
-	for expr, _ := operatorStack.top(); expr != nil && ast.Precedence(expr) <= ast.Precedence(item); expr, _ = operatorStack.top() {
-		operatorStack, expr, _ = operatorStack.pop()
+	for expr := operatorStack.top(); expr != nil && ast.Precedence(expr) <= ast.Precedence(item); expr = operatorStack.top() {
+		operatorStack, expr = operatorStack.pop()
 		operatorStack, exprStack, notStack = buildExprFromOperator(expr, operatorStack, exprStack, notStack)
 	}
 
@@ -115,8 +115,8 @@ func shuntOperator(item ast.Expr, operatorStack StackExpr, exprStack StackExpr, 
 func buildExprFromOperator(expr ast.Expr, operatorStack StackExpr, exprStack StackExpr, notStack StackExpr) (StackExpr, StackExpr, StackExpr) {
 	var y, x ast.Expr
 	if operator, ok := expr.(ast.OperatorExpr); ok {
-		exprStack, y, _ = exprStack.pop()
-		exprStack, x, _ = exprStack.pop()
+		exprStack, y = exprStack.pop()
+		exprStack, x = exprStack.pop()
 
 		operator.SetY(y)
 		operator.SetX(x)
@@ -124,7 +124,7 @@ func buildExprFromOperator(expr ast.Expr, operatorStack StackExpr, exprStack Sta
 		// If we find anything on the notStack we should make the operator a child of it
 		if len(notStack) > 0 {
 			var n ast.Expr
-			notStack, n, _ = notStack.pop()
+			notStack, n = notStack.pop()
 			if not, ok := n.(ast.OperatorExpr); ok {
 				not.SetX(expr)
 				exprStack = exprStack.Push(n)

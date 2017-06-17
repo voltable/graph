@@ -289,9 +289,8 @@ func TestBasic_Parentheses(t *testing.T) {
 // n.name  'Peter'  __<__     __=__					 __=__		 	 __=__
 //				   /	|	 |	   \				/	  \	    	/ 	  \
 //				  /		|	 |	    \			n.name  'Tobias'  n.name  'Peter'
-//
+// 		    	n.age  30   n.name  'Tobias'
 
-// 			n.age  30   n.name  'Tobias'
 // func TestDeep_UpdateStack(t *testing.T) {
 // 	exprStack := make(parser.StackExpr, 0)
 
