@@ -31,8 +31,8 @@ func (s StackExpr) shift() (StackExpr, ast.Expr, bool) {
 	return s, nil, false
 }
 
-// Top returns the last item on the StackExpr without removing it
-func (s StackExpr) Top() (ast.Expr, bool) {
+// top returns the last item on the StackExpr without removing it
+func (s StackExpr) top() (ast.Expr, bool) {
 	l := len(s)
 	if l > 0 {
 		return s[l-1], true
@@ -50,30 +50,30 @@ func (s StackExpr) Shunt() (ast.Expr, error) {
 
 	for len(s) > 0 {
 		s, item, _ = s.shift()
-		if _, ok := item.(*ast.ParenthesesExpr); ok {
-			// if p.Parentheses == ast.RPAREN {
-			// 	operatorStack = operatorStack.Push(item)
-			// } else { // LPAREN
-			// 	var x ast.Expr
-			// 	var y ast.Expr
-			// 	var expr ast.Expr
-			// 	operatorStack, expr, _ = operatorStack.pop()
-			// 	for expr != nil {
-			// 		if p, ok := expr.(*ast.ParenthesesExpr); ok && p.Parentheses == ast.RPAREN {
-			// 			break
-			// 		} else {
-			// 			exprStack, x, _ = exprStack.pop()
-			// 			exprStack, y, _ = exprStack.pop()
-			// 			if operator, ok := expr.(ast.OperatorExpr); ok {
-			// 				operator.SetX(x)
-			// 				operator.SetY(y)
-			// 				exprStack = exprStack.Push(expr)
-			// 			}
-			// 		}
-			// 		operatorStack, expr, _ = operatorStack.pop()
+		if p, ok := item.(*ast.ParenthesesExpr); ok {
+			if p.Parentheses == ast.LPAREN {
+				operatorStack = operatorStack.Push(item)
+			} else { // RPAREN
+				var x ast.Expr
+				var y ast.Expr
+				var expr ast.Expr
+				operatorStack, expr, _ = operatorStack.pop()
+				for expr != nil {
+					if p, ok := expr.(*ast.ParenthesesExpr); ok && p.Parentheses == ast.LPAREN {
+						break
+					} else {
+						exprStack, y, _ = exprStack.pop()
+						exprStack, x, _ = exprStack.pop()
+						if operator, ok := expr.(ast.OperatorExpr); ok {
+							operator.SetX(x)
+							operator.SetY(y)
+							exprStack = exprStack.Push(expr)
+						}
+					}
+					operatorStack, expr, _ = operatorStack.pop()
 
-			// 	}
-			// }
+				}
+			}
 		} else if _, ok := item.(*ast.Ident); ok {
 			// If the token is a value (value here includes both Ident and PropertyStmt).
 			fmt.Printf("%s went on exprStack \n", item)
@@ -135,7 +135,7 @@ func shuntOperator(item ast.Expr, operatorStack StackExpr, exprStack StackExpr, 
 	var y ast.Expr
 	//fmt.Printf("Precedence first: %s (%s), second: %s (%s) \n", strconv.Itoa(ast.Precedence(expr)), expr, strconv.Itoa(ast.Precedence(item)), item)
 
-	for expr, _ := operatorStack.Top(); expr != nil && ast.Precedence(expr) <= ast.Precedence(item); expr, _ = operatorStack.Top() {
+	for expr, _ := operatorStack.top(); expr != nil && ast.Precedence(expr) <= ast.Precedence(item); expr, _ = operatorStack.top() {
 		//	fmt.Printf(" first: %s (%s), second: %s (%s) \n", strconv.Itoa(ast.Precedence(expr)), expr, strconv.Itoa(ast.Precedence(item)), item)
 
 		operatorStack, expr, _ = operatorStack.pop()
