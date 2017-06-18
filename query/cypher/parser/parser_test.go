@@ -185,27 +185,16 @@ func errstring(err error) string {
 }
 
 func TestParser_Where(t *testing.T) {
+
 	var tests = []struct {
 		s    string
 		stmt ast.Stmt
 		err  string
 	}{
-	// {
-	// 	s:    `MATCH () WHERE`,
-	// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{}},
-	// },
-	// {
-	// 	s:    `MATCH () WHERE n.property`,
-	// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.ComparisonExpr{Variable: "n", Value: "property"}}},
-	// },
-	// {
-	// 	s:    `MATCH () WHERE n.property <> 'value'`,
-	// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.ComparisonExpr{Comparison: ast.NEQ, X: &ast.PropertyStmt{Variable: "n", Value: "property"}, Y: &ast.Ident{Data: "value"}}}},
-	// },
-	// {
-	// 	s:    `MATCH () WHERE n.number >= 1 AND n.number <= 10`,
-	// 	stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.BooleanExpr{X: &ast.ComparisonExpr{Comparison: ast.GTE, X: &ast.PropertyStmt{Variable: "n", Value: "property"}, Y: &ast.Ident{Data: 1}}, Y: &ast.ComparisonExpr{Comparison: ast.LTE, X: &ast.PropertyStmt{Variable: "n", Value: "property"}, Y: &ast.Ident{Data: 10}}}}},
-	// },
+		{
+			s:    `MATCH () WHERE n.number >= 1 AND n.number <= 10`,
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.BooleanExpr{Boolean: ast.AND, X: &ast.ComparisonExpr{Comparison: ast.GTE, X: &ast.PropertyStmt{Variable: "n", Value: "number"}, Y: &ast.Ident{Data: 1}}, Y: &ast.ComparisonExpr{Comparison: ast.LTE, X: &ast.PropertyStmt{Variable: "n", Value: "number"}, Y: &ast.Ident{Data: 10}}}}},
+		},
 	}
 
 	for i, tt := range tests {

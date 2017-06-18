@@ -7,18 +7,18 @@ import (
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
 )
 
-// n.number1 >= 1 AND n.number2 <= 10
+// n.number >= 1 AND n.number <= 10
 // should result in the AST tree :-
 //					 AND
 //			   _____/	\_____
 //			  /				  \
 //		  __>=__ 		  	 __<=__
 //		 /	    \			/	   \
-//  n.number1     1  	n.number2   10
+//  n.number     1  	n.number   10
 func TestBasic_UpdateStack(t *testing.T) {
 	exprStack := make(parser.StackExpr, 0)
 
-	n1 := &ast.PropertyStmt{Variable: "n", Value: "number1"}
+	n1 := &ast.PropertyStmt{Variable: "n", Value: "number"}
 	exprStack = exprStack.Push(n1)
 
 	n2 := &ast.ComparisonExpr{Comparison: ast.GTE}
@@ -30,10 +30,10 @@ func TestBasic_UpdateStack(t *testing.T) {
 	n4 := &ast.BooleanExpr{Boolean: ast.AND}
 	exprStack = exprStack.Push(n4)
 
-	n5 := &ast.PropertyStmt{Variable: "n", Value: "number2"}
+	n5 := &ast.PropertyStmt{Variable: "n", Value: "number"}
 	exprStack = exprStack.Push(n5)
 
-	n6 := &ast.ComparisonExpr{Comparison: ast.NEQ}
+	n6 := &ast.ComparisonExpr{Comparison: ast.LTE}
 	exprStack = exprStack.Push(n6)
 
 	n7 := &ast.Ident{Data: 10}
@@ -162,7 +162,7 @@ func TestBasic_Parentheses(t *testing.T) {
 	n1 := &ast.ParenthesesExpr{Parentheses: ast.LPAREN}
 	exprStack = exprStack.Push(n1)
 
-	n2 := &ast.PropertyStmt{Variable: "n", Value: "name1"}
+	n2 := &ast.PropertyStmt{Variable: "n", Value: "name"}
 	exprStack = exprStack.Push(n2)
 
 	n3 := &ast.ComparisonExpr{Comparison: ast.EQ}
@@ -174,7 +174,7 @@ func TestBasic_Parentheses(t *testing.T) {
 	n5 := &ast.BooleanExpr{Boolean: ast.AND}
 	exprStack = exprStack.Push(n5)
 
-	n6 := &ast.PropertyStmt{Variable: "n", Value: "age1"}
+	n6 := &ast.PropertyStmt{Variable: "n", Value: "age"}
 	exprStack = exprStack.Push(n6)
 
 	n7 := &ast.ComparisonExpr{Comparison: ast.LT}
@@ -186,7 +186,7 @@ func TestBasic_Parentheses(t *testing.T) {
 	n9 := &ast.BooleanExpr{Boolean: ast.XOR}
 	exprStack = exprStack.Push(n9)
 
-	n10 := &ast.PropertyStmt{Variable: "n", Value: "age2"}
+	n10 := &ast.PropertyStmt{Variable: "n", Value: "age"}
 	exprStack = exprStack.Push(n10)
 
 	n11 := &ast.ComparisonExpr{Comparison: ast.GT}
@@ -201,7 +201,7 @@ func TestBasic_Parentheses(t *testing.T) {
 	n14 := &ast.BooleanExpr{Boolean: ast.AND}
 	exprStack = exprStack.Push(n14)
 
-	n15 := &ast.PropertyStmt{Variable: "n", Value: "name2"}
+	n15 := &ast.PropertyStmt{Variable: "n", Value: "name"}
 	exprStack = exprStack.Push(n15)
 
 	n16 := &ast.ComparisonExpr{Comparison: ast.EQ}
