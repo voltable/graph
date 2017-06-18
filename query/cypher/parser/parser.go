@@ -367,7 +367,7 @@ func (p *Parser) ComparisonExpr() (*ast.ComparisonExpr, error) {
 	return nil, nil
 }
 
-func (p *Parser) BooleanExpr() (*ast.BooleanExpr, error) {
+func (p *Parser) BooleanExpr() (ast.Expr, error) {
 	tok, _ := p.scanIgnoreWhitespace()
 	switch tok {
 	case lexer.AND:
@@ -375,7 +375,7 @@ func (p *Parser) BooleanExpr() (*ast.BooleanExpr, error) {
 	case lexer.OR:
 		return &ast.BooleanExpr{Boolean: ast.OR}, nil
 	case lexer.NOT:
-		return &ast.BooleanExpr{Boolean: ast.NOT}, nil
+		return &ast.NotExpr{}, nil
 	case lexer.XOR:
 		return &ast.BooleanExpr{Boolean: ast.XOR}, nil
 	}

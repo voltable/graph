@@ -1,8 +1,6 @@
 package parser
 
 import (
-	"fmt"
-
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 )
 
@@ -42,97 +40,88 @@ func (s StackExpr) top() ast.Expr {
 
 // Shunt builds up the AST by Shunting the stack
 func (s StackExpr) Shunt() (ast.Expr, error) {
-	var item ast.Expr
-
+	var item, result ast.Expr
 	exprStack := make(StackExpr, 0)
 	operatorStack := make(StackExpr, 0)
-	notStack := make(StackExpr, 0)
-
 	for len(s) > 0 {
 		s, item = s.shift()
 		if p, ok := item.(*ast.ParenthesesExpr); ok {
 			if p.Parentheses == ast.LPAREN {
 				operatorStack = operatorStack.Push(item)
 			} else { // RPAREN
-				var expr ast.Expr
-				operatorStack, expr = operatorStack.pop()
-				for expr != nil {
+				for expr := operatorStack.top(); expr != nil; expr = operatorStack.top() {
 					if p, ok := expr.(*ast.ParenthesesExpr); ok && p.Parentheses == ast.LPAREN {
 						break
 					} else {
-						operatorStack, exprStack, notStack = buildExprFromOperator(expr, operatorStack, exprStack, notStack)
+						operatorStack, exprStack, _ = shuntOperator(expr, operatorStack, exprStack)
 					}
-					operatorStack, expr = operatorStack.pop()
-
+				}
+				// remove the LPAREN
+				operatorStack, _ = operatorStack.pop()
+			}
+		} else if ok := isValue(item); ok {
+			// If the token is a value (value here includes both Ident and PropertyStmt).
+			exprStack = exprStack.Push(item)
+		} else if ok := isOperator(item); ok {
+			// Otherwise, the token is an operator (operator here includes both ComparisonExpr and BooleanExpr).
+			for expr := operatorStack.top(); expr != nil && ast.Precedence(expr) <= ast.Precedence(item); expr = operatorStack.top() {
+				if operatorStack, exprStack, ok = shuntOperator(expr, operatorStack, exprStack); !ok {
+					break
 				}
 			}
-		} else if _, ok := item.(*ast.Ident); ok {
-			// If the token is a value (value here includes both Ident and PropertyStmt).
-			fmt.Printf("%s went on exprStack \n", item)
-			exprStack = exprStack.Push(item)
-		} else if _, ok := item.(*ast.PropertyStmt); ok {
-			// If the token is a value (value here includes both Ident and PropertyStmt).
-			fmt.Printf("%s went on exprStack \n", item)
-			exprStack = exprStack.Push(item)
-		} else if _, ok := item.(*ast.ComparisonExpr); ok {
-			// Otherwise, the token is an operator (operator here includes both ComparisonExpr and BooleanExpr).
-			operatorStack, exprStack, notStack = shuntOperator(item, operatorStack, exprStack, notStack)
-		} else if b, ok := item.(*ast.BooleanExpr); ok {
-			if b.Boolean == ast.NOT {
-				notStack = notStack.Push(item)
-			} else {
-				// Otherwise, the token is an operator (operator here includes both ComparisonExpr and BooleanExpr).
-				operatorStack, exprStack, notStack = shuntOperator(item, operatorStack, exprStack, notStack)
-			}
+			operatorStack = operatorStack.Push(item)
 		}
 	}
 
 	// while there are still operators on the operatorStack:
 	for len(operatorStack) > 0 {
-		var expr ast.Expr
-		operatorStack, expr = operatorStack.pop()
-		operatorStack, exprStack, notStack = buildExprFromOperator(expr, operatorStack, exprStack, notStack)
+		expr := operatorStack.top()
+		operatorStack, exprStack, _ = shuntOperator(expr, operatorStack, exprStack)
 	}
-
-	var result ast.Expr
 
 	exprStack, result = exprStack.pop()
 	return result, nil
 }
 
-func shuntOperator(item ast.Expr, operatorStack StackExpr, exprStack StackExpr, notStack StackExpr) (StackExpr, StackExpr, StackExpr) {
-
-	for expr := operatorStack.top(); expr != nil && ast.Precedence(expr) <= ast.Precedence(item); expr = operatorStack.top() {
-		operatorStack, expr = operatorStack.pop()
-		operatorStack, exprStack, notStack = buildExprFromOperator(expr, operatorStack, exprStack, notStack)
+func isValue(item ast.Expr) bool {
+	if _, ok := item.(*ast.Ident); ok {
+		return true
+	} else if _, ok := item.(*ast.PropertyStmt); ok {
+		return true
 	}
-
-	operatorStack = operatorStack.Push(item)
-
-	return operatorStack, exprStack, notStack
+	return false
 }
 
-func buildExprFromOperator(expr ast.Expr, operatorStack StackExpr, exprStack StackExpr, notStack StackExpr) (StackExpr, StackExpr, StackExpr) {
+func isOperator(item ast.Expr) bool {
+	if _, ok := item.(*ast.ComparisonExpr); ok {
+		return true
+	} else if _, ok := item.(*ast.BooleanExpr); ok {
+		return true
+	} else if _, ok := item.(*ast.NotExpr); ok {
+		return true
+	}
+	return false
+}
+
+func shuntOperator(expr ast.Expr, operatorStack StackExpr, exprStack StackExpr) (StackExpr, StackExpr, bool) {
 	var y, x ast.Expr
-	if operator, ok := expr.(ast.OperatorExpr); ok {
+	if not, ok := expr.(*ast.NotExpr); ok {
+		if len(exprStack) < 1 {
+			return operatorStack, exprStack, false
+		}
+		operatorStack, expr = operatorStack.pop()
+		exprStack, x = exprStack.pop()
+		not.SetX(x)
+	} else if operator, ok := expr.(ast.OperatorExpr); ok {
+		if len(exprStack) < 2 {
+			return operatorStack, exprStack, false
+		}
+		operatorStack, expr = operatorStack.pop()
 		exprStack, y = exprStack.pop()
 		exprStack, x = exprStack.pop()
-
 		operator.SetY(y)
 		operator.SetX(x)
-
-		// If we find anything on the notStack we should make the operator a child of it
-		if len(notStack) > 0 {
-			var n ast.Expr
-			notStack, n = notStack.pop()
-			if not, ok := n.(ast.OperatorExpr); ok {
-				not.SetX(expr)
-				exprStack = exprStack.Push(n)
-			}
-		} else {
-			exprStack = exprStack.Push(expr)
-		}
 	}
-
-	return operatorStack, exprStack, notStack
+	exprStack = exprStack.Push(expr)
+	return operatorStack, exprStack, true
 }

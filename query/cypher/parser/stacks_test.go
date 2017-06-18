@@ -75,7 +75,7 @@ func TestBasic_UpdateStack(t *testing.T) {
 //					 AND
 //			   _____/	\____
 //			  /				 \
-//		  __>=__ 		  	 NOT-----(Y is always nil on a NOT)
+//		  __>=__ 		  	 NOT
 //		 /	    \			  |
 //  n.number     1  		__=__
 //						   /	 \
@@ -95,7 +95,7 @@ func TestBasic_UpdateStackWithNot(t *testing.T) {
 	n4 := &ast.BooleanExpr{Boolean: ast.AND}
 	exprStack = exprStack.Push(n4)
 
-	n5 := &ast.BooleanExpr{Boolean: ast.NOT}
+	n5 := &ast.NotExpr{}
 	exprStack = exprStack.Push(n5)
 
 	n6 := &ast.PropertyStmt{Variable: "n", Value: "number"}
@@ -131,10 +131,6 @@ func TestBasic_UpdateStackWithNot(t *testing.T) {
 
 	if n5.X != n7 {
 		t.Errorf("found %s expected %s", n5.X, n7)
-	}
-
-	if n5.Y != nil {
-		t.Errorf("found %s expected nil", n5.Y)
 	}
 
 	if n7.X != n6 {
@@ -282,7 +278,7 @@ func TestBasic_Parentheses(t *testing.T) {
 //						     	  	   OR
 //				   ___________________/  \____________________
 //				  /						 	  		 		  \
-//		 	_____XOR_____							 		  NOT-----(Y is always nil on a NOT)
+//		 	_____XOR_____							 		  NOT
 //		   /	 	     \					   		  		   |
 //		__=__		 	__AND__				 			 ______OR_____
 //	   /   	 |	       /       \		    			/			  \
@@ -323,47 +319,123 @@ func TestDeep_UpdateStack(t *testing.T) {
 	n10 := &ast.PropertyStmt{Variable: "n", Value: "name"}
 	exprStack = exprStack.Push(n10)
 
-	n11 := &ast.Ident{Data: "Tobias"}
+	n11 := &ast.ComparisonExpr{Comparison: ast.EQ}
 	exprStack = exprStack.Push(n11)
 
-	n12 := &ast.ParenthesesExpr{Parentheses: ast.RPAREN}
+	n12 := &ast.Ident{Data: "Tobias"}
 	exprStack = exprStack.Push(n12)
 
-	n13 := &ast.BooleanExpr{Boolean: ast.OR}
+	n13 := &ast.ParenthesesExpr{Parentheses: ast.RPAREN}
 	exprStack = exprStack.Push(n13)
 
-	n14 := &ast.BooleanExpr{Boolean: ast.NOT}
+	n14 := &ast.BooleanExpr{Boolean: ast.OR}
 	exprStack = exprStack.Push(n14)
 
-	n15 := &ast.ParenthesesExpr{Parentheses: ast.LPAREN}
+	n15 := &ast.NotExpr{}
 	exprStack = exprStack.Push(n15)
 
-	n16 := &ast.PropertyStmt{Variable: "n", Value: "name"}
+	n16 := &ast.ParenthesesExpr{Parentheses: ast.LPAREN}
 	exprStack = exprStack.Push(n16)
 
-	n17 := &ast.ComparisonExpr{Comparison: ast.EQ}
+	n17 := &ast.PropertyStmt{Variable: "n", Value: "name"}
 	exprStack = exprStack.Push(n17)
 
-	n18 := &ast.Ident{Data: "Tobias"}
+	n18 := &ast.ComparisonExpr{Comparison: ast.EQ}
 	exprStack = exprStack.Push(n18)
 
-	n19 := &ast.BooleanExpr{Boolean: ast.OR}
+	n19 := &ast.Ident{Data: "Tobias"}
 	exprStack = exprStack.Push(n19)
 
-	n20 := &ast.PropertyStmt{Variable: "n", Value: "name"}
+	n20 := &ast.BooleanExpr{Boolean: ast.OR}
 	exprStack = exprStack.Push(n20)
 
-	n21 := &ast.ComparisonExpr{Comparison: ast.EQ}
+	n21 := &ast.PropertyStmt{Variable: "n", Value: "name"}
 	exprStack = exprStack.Push(n21)
 
-	n22 := &ast.Ident{Data: "Peter"}
+	n22 := &ast.ComparisonExpr{Comparison: ast.EQ}
 	exprStack = exprStack.Push(n22)
 
-	n23 := &ast.ParenthesesExpr{Parentheses: ast.RPAREN}
+	n23 := &ast.Ident{Data: "Peter"}
 	exprStack = exprStack.Push(n23)
 
-	exprStack.Shunt()
+	n24 := &ast.ParenthesesExpr{Parentheses: ast.RPAREN}
+	exprStack = exprStack.Push(n24)
 
-	// n.name = 'Peter' XOR (n.age < 30 AND n.name = 'Tobias') OR NOT (n.name = 'Tobias' OR n.name = 'Peter')
+	result, _ := exprStack.Shunt()
 
+	if result != n14 {
+		t.Errorf("found %s expected %s", result, n14)
+	}
+
+	if n14.X != n4 {
+		t.Errorf("found %s expected %s", n14.X, n4)
+	}
+
+	if n4.X != n2 {
+		t.Errorf("found %s expected %s", n4.X, n2)
+	}
+
+	if n2.X != n1 {
+		t.Errorf("found %s expected %s", n2.X, n1)
+	}
+
+	if n4.Y != n9 {
+		t.Errorf("found %s expected %s", n4.Y, n9)
+	}
+
+	if n9.X != n7 {
+		t.Errorf("found %s expected %s", n9.X, n7)
+	}
+
+	if n7.X != n6 {
+		t.Errorf("found %s expected %s", n7.X, n6)
+	}
+
+	if n7.Y != n8 {
+		t.Errorf("found %s expected %s", n7.Y, n8)
+	}
+
+	if n9.Y != n11 {
+		t.Errorf("found %s expected %s", n9.Y, n11)
+	}
+
+	if n11.X != n10 {
+		t.Errorf("found %s expected %s", n11.X, n10)
+	}
+
+	if n11.Y != n12 {
+		t.Errorf("found %s expected %s", n11.Y, n12)
+	}
+
+	if n14.Y != n15 {
+		t.Errorf("found %s expected %s", n14.Y, n15)
+	}
+
+	if n15.X != n20 {
+		t.Errorf("found %s expected %s", n15.X, n20)
+	}
+
+	if n20.X != n18 {
+		t.Errorf("found %s expected %s", n20.X, n18)
+	}
+
+	if n18.X != n17 {
+		t.Errorf("found %s expected %s", n18.X, n17)
+	}
+
+	if n18.Y != n19 {
+		t.Errorf("found %s expected %s", n18.Y, n19)
+	}
+
+	if n20.Y != n22 {
+		t.Errorf("found %s expected %s", n20.Y, n22)
+	}
+
+	if n22.X != n21 {
+		t.Errorf("found %s expected %s", n22.X, n22)
+	}
+
+	if n22.Y != n23 {
+		t.Errorf("found %s expected %s", n22.Y, n23)
+	}
 }
