@@ -120,18 +120,18 @@ func TestParser_Clauses(t *testing.T) {
 			s:    `MATCH ()`,
 			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}},
 		},
-		// {
-		// 	s:    `OPTIONAL MATCH`,
-		// 	stmt: &cypher.OptionalMatchStmt{},
-		// },
-		// {
-		// 	s:    `CREATE ()`,
-		// 	stmt: &cypher.CreateStmt{Pattern: &cypher.VertexPatn{}},
-		// },
-		// {
-		// 	s:    `DELETE ()`,
-		// 	stmt: &cypher.ClauseStmt{Pattern: &cypher.VertexPatn{}, Clause: cypher.DELETE},
-		// },
+		{
+			s:    `OPTIONAL MATCH ()`,
+			stmt: &ast.OptionalMatchStmt{Pattern: &ast.VertexPatn{}},
+		},
+		{
+			s:    `CREATE ()`,
+			stmt: &ast.CreateStmt{Pattern: &ast.VertexPatn{}},
+		},
+		{
+			s:    `DELETE ()`,
+			stmt: &ast.DeleteStmt{Pattern: &ast.VertexPatn{}},
+		},
 		// {
 		// 	s:    `DETACH DELETE ()`,
 		// 	stmt: &cypher.ClauseStmt{Pattern: &cypher.VertexPatn{}, Clause: cypher.DETACH_DELETE},

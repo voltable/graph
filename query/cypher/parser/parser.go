@@ -435,7 +435,29 @@ func (p *Parser) Where() (ast.Stmt, error) {
 
 func (p *Parser) Match() (ast.Stmt, error) {
 	state := &ast.MatchStmt{}
+	pattern, next, err := p.pattern()
+	if err == nil {
+		state.Pattern = pattern
+		state.Next = next
+		return state, nil
+	}
+	return nil, err
+}
 
+func (p *Parser) OptionalMatch() (ast.Stmt, error) {
+	state := &ast.OptionalMatchStmt{}
+	pattern, next, err := p.pattern()
+	if err == nil {
+		state.Pattern = pattern
+		state.Next = next
+		return state, nil
+	}
+	return nil, err
+}
+
+func (p *Parser) pattern() (ast.Patn, ast.Stmt, error) {
+	var pattern ast.Patn
+	var next ast.Stmt
 	var lastVertex *ast.VertexPatn
 	var lastEdge *ast.EdgePatn
 
@@ -444,38 +466,55 @@ func (p *Parser) Match() (ast.Stmt, error) {
 
 		if node, err := p.Node(); err == nil && node != nil {
 			lastVertex = node
-			if state.Pattern == nil {
-				state.Pattern = lastVertex
+			if pattern == nil {
+				pattern = lastVertex
 			}
 			if lastEdge != nil {
 				lastEdge.Vertex = node
 			}
 		} else if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
 		if relationship, err := p.Relationship(); err == nil && relationship != nil {
 			lastEdge = relationship
 			lastVertex.Edge = relationship
 		} else if err != nil {
-			return nil, err
+			return nil, nil, err
 		} else {
 			break
 		}
 	}
 
 	if where, err := p.Where(); err == nil && where != nil {
-		state.Next = where
+		next = where
 	} else if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return state, nil
+	return pattern, next, nil
 }
 
-func (p *Parser) OptionalMatch() (ast.Stmt, error) {
-	state := &ast.OptionalMatchStmt{}
-	return state, nil
+func (p *Parser) Create() (ast.Stmt, error) {
+	state := &ast.CreateStmt{}
+	pattern, next, err := p.pattern()
+	if err == nil {
+		state.Pattern = pattern
+		state.Next = next
+		return state, nil
+	}
+	return nil, err
+}
+
+func (p *Parser) Delete() (ast.Stmt, error) {
+	state := &ast.DeleteStmt{}
+	pattern, next, err := p.pattern()
+	if err == nil {
+		state.Pattern = pattern
+		state.Next = next
+		return state, nil
+	}
+	return nil, err
 }
 
 func (p *Parser) Clause() (ast.Stmt, error) {
@@ -486,14 +525,14 @@ func (p *Parser) Clause() (ast.Stmt, error) {
 	}
 
 	if tok == lexer.OPTIONAL {
-		tok, lit := p.scanIgnoreWhitespace()
+		tok, lit = p.scanIgnoreWhitespace()
 		if tok == lexer.MATCH {
 			tok = lexer.OPTIONAL_MATCH
 		} else {
 			return nil, fmt.Errorf("found %q, expected MATCH", lit)
 		}
 	} else if tok == lexer.DETACH {
-		tok, lit := p.scanIgnoreWhitespace()
+		tok, lit = p.scanIgnoreWhitespace()
 		if tok == lexer.DELETE {
 			tok = lexer.DETACH_DELETE
 		} else {
@@ -506,6 +545,10 @@ func (p *Parser) Clause() (ast.Stmt, error) {
 		return p.Match()
 	case lexer.OPTIONAL_MATCH:
 		return p.OptionalMatch()
+	case lexer.CREATE:
+		return p.Create()
+	case lexer.DELETE:
+		return p.Delete()
 	}
 
 	return nil, fmt.Errorf("No matching statement found %q", lit)

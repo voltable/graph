@@ -54,16 +54,14 @@ type OperatorExpr interface {
 	SetY(x Expr)
 }
 
-func IsOperatorWithFreeXorY(e Expr) (func(x Expr), bool) {
-	compar, ok := e.(OperatorExpr)
-	if ok {
-		if compar.GetX() == nil {
-			return compar.SetX, true
-		} else if compar.GetY() == nil {
-			return compar.SetY, true
-		}
-	}
-	return nil, false
+type CreateStmt struct {
+	Pattern Patn
+	Next    Stmt
+}
+
+type DeleteStmt struct {
+	Pattern Patn
+	Next    Stmt
 }
 
 func Precedence(item Expr) int {
