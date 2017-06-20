@@ -10,11 +10,12 @@ import (
 func main() {
 	var g graph.Graph
 	var err error
-	if g, err = graph.NewGraph("bolt", &graph.Options{"test"}); err != nil {
+	if g, err = graph.NewGraph("bolt", &graph.Options{Name: "test"}); err != nil {
 		panic(err)
 	}
+	q, err := g.Query("")
 
-	slice := g.Query().Node(func(v *vertices.Vertex) bool {
+	slice := q.Node(func(v *vertices.Vertex) bool {
 		return v.Label() == "foo"
 	}).Relationship(func(e *vertices.Edge) bool {
 		return true
