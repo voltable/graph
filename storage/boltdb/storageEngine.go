@@ -148,7 +148,7 @@ func (se *StorageEngine) Close() {
 }
 
 // Query used to query the graph
-func (se *StorageEngine) Query() *query.VertexPath {
+func (se *StorageEngine) Query(q string) (*query.VertexPath, error) {
 	iterate := func() query.Iterator {
 		ch := make(chan vertices.Vertex)
 		go se.db.View(func(tx *bolt.Tx) error {
@@ -171,7 +171,7 @@ func (se *StorageEngine) Query() *query.VertexPath {
 		}
 	}
 
-	return query.NewVertexPath(iterate, se.Find)
+	return query.NewVertexPath(iterate, se.Find), nil
 }
 
 func (se *StorageEngine) backgroundTask(c chan os.Signal) {

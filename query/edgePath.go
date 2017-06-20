@@ -4,15 +4,15 @@ import (
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
-type Predicate func(interface{}) bool
+// type Predicate func(interface{}) bool
 
-type Query struct {
-	Iterate        func() Iterator
-	Explored       map[string]bool
-	Fetch          func(string) (*vertices.Vertex, error)
-	PrePredicate   []Predicate
-	PostPredicatey []Predicate
-}
+// type Query struct {
+// 	Iterate        func() Iterator
+// 	Explored       map[string]bool
+// 	Fetch          func(string) (*vertices.Vertex, error)
+// 	PrePredicate   []Predicate
+// 	PostPredicatey []Predicate
+// }
 
 // EdgePath represents the Edge part of a Path
 type EdgePath struct {

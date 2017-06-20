@@ -3,6 +3,10 @@ package query
 import "github.com/RossMerr/Caudex.Graph/vertices"
 
 type (
+	Query interface {
+		Parser(string) (*VertexPath, error)
+	}
+
 	// Iterator is an alias for function to iterate over data.
 	Iterator func() (item interface{}, ok bool)
 

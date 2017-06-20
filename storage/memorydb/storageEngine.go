@@ -21,8 +21,9 @@ var (
 )
 
 type StorageEngine struct {
-	vertices map[string]vertices.Vertex
-	Options  *graph.Options
+	vertices    map[string]vertices.Vertex
+	Options     *graph.Options
+	queryEngine query.Query
 }
 
 func (se *StorageEngine) Close() {
@@ -30,7 +31,11 @@ func (se *StorageEngine) Close() {
 }
 
 func newStorageEngine(o *graph.Options) (graph.Graph, error) {
-	se := StorageEngine{Options: o, vertices: make(map[string]vertices.Vertex)}
+	queryEngine, err := query.NewQuery(o.QueryEngine)
+	if err != nil {
+		return nil, err
+	}
+	se := StorageEngine{Options: o, vertices: make(map[string]vertices.Vertex), queryEngine: queryEngine}
 	return &se, nil
 }
 
@@ -67,8 +72,8 @@ func (se *StorageEngine) Update(c ...*vertices.Vertex) error {
 	return nil
 }
 
-func (se *StorageEngine) Query() *query.VertexPath {
-	return nil
+func (se *StorageEngine) Query(q string) (*query.VertexPath, error) {
+	return se.queryEngine.Parser(q)
 }
 
 // func (se *StorageEngine) QueryRoot(predicate func(*vertices.Vertex) bool) *query.Query {
