@@ -1,18 +1,28 @@
 package ast
 
+// Comparison operators
 type Comparison int
 
 const (
-	EQ   Comparison = iota // =
-	NEQ                    // <>
-	LT                     // <
-	LTE                    // <=
-	GT                     // >
-	GTE                    // >=
-	IS                     // IS
-	NULL                   // NULL
+	// EQ equality
+	EQ Comparison = iota // =
+	// NEQ inequality
+	NEQ // <>
+	// LT less than
+	LT // <
+	// LTE less than or equal to
+	LTE // <=
+	// GT greater than
+	GT // >
+	// GTE greater than or equal to
+	GTE // >=
+	// IS used of IS NULL
+	IS // IS
+	// NULL used for IS NULL
+	NULL // NULL
 )
 
+// ComparisonExpr comparison expression
 type ComparisonExpr struct {
 	Comparison
 	X Expr // left operand

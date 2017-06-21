@@ -25,7 +25,9 @@ type QueryEngine struct {
 
 // Parser in a cypher query as a string and get back VertexPath that is abstracted from the cypher AST
 func (qe QueryEngine) Parser(q string) (*query.VertexPath, error) {
-	_, err := parser.NewParser(strings.NewReader(q)).Parse()
-
-	return nil, err
+	stmt, err := parser.NewParser(strings.NewReader(q)).Parse()
+	if err != nil {
+		return nil, err
+	}
+	return ToVertexPath(stmt)
 }
