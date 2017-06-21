@@ -42,31 +42,31 @@ func TestBasic_UpdateStack(t *testing.T) {
 	result, _ := exprStack.Shunt()
 
 	if result != n4 {
-		t.Errorf("found %s expected %s", result, n4)
+		t.Errorf("found %#v expected %#v", result, n4)
 	}
 
 	if n4.X != n2 {
-		t.Errorf("found %s expected %s", n4.X, n2)
+		t.Errorf("found %#v expected %#v", n4.X, n2)
 	}
 
 	if n2.X != n1 {
-		t.Errorf("found %s expected %s", n2.X, n1)
+		t.Errorf("found %#v expected %#v", n2.X, n1)
 	}
 
 	if n2.Y != n3 {
-		t.Errorf("found %s expected %s", n2.Y, n3)
+		t.Errorf("found %#v expected %#v", n2.Y, n3)
 	}
 
 	if n4.Y != n6 {
-		t.Errorf("found %s expected %s", n4.Y, n6)
+		t.Errorf("found %#v expected %#v", n4.Y, n6)
 	}
 
 	if n6.X != n5 {
-		t.Errorf("found %s expected %s", n6.X, n5)
+		t.Errorf("found %#v expected %#v", n6.X, n5)
 	}
 
 	if n6.Y != n7 {
-		t.Errorf("found %s expected %s", n6.Y, n7)
+		t.Errorf("found %#v expected %#v", n6.Y, n7)
 	}
 }
 
@@ -110,35 +110,35 @@ func TestBasic_UpdateStackWithNot(t *testing.T) {
 	result, _ := exprStack.Shunt()
 
 	if result != n4 {
-		t.Errorf("found %s expected %s", result, n4)
+		t.Errorf("found %#v expected %#v", result, n4)
 	}
 
 	if n4.X != n2 {
-		t.Errorf("found %s expected %s", n4.X, n2)
+		t.Errorf("found %#v expected %#v", n4.X, n2)
 	}
 
 	if n2.X != n1 {
-		t.Errorf("found %s expected %s", n2.X, n1)
+		t.Errorf("found %#v expected %#v", n2.X, n1)
 	}
 
 	if n2.Y != n3 {
-		t.Errorf("found %s expected %s", n2.Y, n3)
+		t.Errorf("found %#v expected %#v", n2.Y, n3)
 	}
 
 	if n4.Y != n5 {
-		t.Errorf("found %s expected %s", n4.Y, n5)
+		t.Errorf("found %#v expected %#v", n4.Y, n5)
 	}
 
 	if n5.X != n7 {
-		t.Errorf("found %s expected %s", n5.X, n7)
+		t.Errorf("found %#v expected %#v", n5.X, n7)
 	}
 
 	if n7.X != n6 {
-		t.Errorf("found %s expected %s", n7.X, n6)
+		t.Errorf("found %#v expected %#v", n7.X, n6)
 	}
 
 	if n7.Y != n8 {
-		t.Errorf("found %s expected %s", n7.Y, n8)
+		t.Errorf("found %#v expected %#v", n7.Y, n8)
 	}
 }
 
@@ -213,63 +213,63 @@ func TestBasic_Parentheses(t *testing.T) {
 	result, _ := exprStack.Shunt()
 
 	if result != n14 {
-		t.Errorf("found %s expected %s", result, n14)
+		t.Errorf("found %#v expected %#v", result, n14)
 	}
 
 	if n14.X != n9 {
-		t.Errorf("found %s expected %s", n14.X, n9)
+		t.Errorf("found %#v expected %#v", n14.X, n9)
 	}
 
 	if n9.X != n5 {
-		t.Errorf("found %s expected %s", n9.X, n5)
+		t.Errorf("found %#v expected %#v", n9.X, n5)
 	}
 
 	if n5.X != n3 {
-		t.Errorf("found %s expected %s", n5.X, n3)
+		t.Errorf("found %#v expected %#v", n5.X, n3)
 	}
 
 	if n3.X != n2 {
-		t.Errorf("found %s expected %s", n3.X, n2)
+		t.Errorf("found %#v expected %#v", n3.X, n2)
 	}
 
 	if n3.Y != n4 {
-		t.Errorf("found %s expected %s", n3.Y, n4)
+		t.Errorf("found %#v expected %#v", n3.Y, n4)
 	}
 
 	if n5.Y != n7 {
-		t.Errorf("found %s expected %s", n5.Y, n7)
+		t.Errorf("found %#v expected %#v", n5.Y, n7)
 	}
 
 	if n7.X != n6 {
-		t.Errorf("found %s expected %s", n7.X, n6)
+		t.Errorf("found %#v expected %#v", n7.X, n6)
 	}
 
 	if n7.Y != n8 {
-		t.Errorf("found %s expected %s", n7.Y, n8)
+		t.Errorf("found %#v expected %#v", n7.Y, n8)
 	}
 
 	if n9.Y != n11 {
-		t.Errorf("found %s expected %s", n9.Y, n11)
+		t.Errorf("found %#v expected %#v", n9.Y, n11)
 	}
 
 	if n11.X != n10 {
-		t.Errorf("found %s expected %s", n11.X, n11)
+		t.Errorf("found %#v expected %#v", n11.X, n11)
 	}
 
 	if n11.Y != n12 {
-		t.Errorf("found %s expected %s", n11.Y, n12)
+		t.Errorf("found %#v expected %#v", n11.Y, n12)
 	}
 
 	if n14.Y != n16 {
-		t.Errorf("found %s expected %s", n14.Y, n16)
+		t.Errorf("found %#v expected %#v", n14.Y, n16)
 	}
 
 	if n16.X != n15 {
-		t.Errorf("found %s expected %s", n16.X, n15)
+		t.Errorf("found %#v expected %#v", n16.X, n15)
 	}
 
 	if n16.Y != n17 {
-		t.Errorf("found %s expected %s", n16.Y, n17)
+		t.Errorf("found %#v expected %#v", n16.Y, n17)
 	}
 }
 
@@ -364,78 +364,78 @@ func TestDeep_UpdateStack(t *testing.T) {
 	result, _ := exprStack.Shunt()
 
 	if result != n14 {
-		t.Errorf("found %s expected %s", result, n14)
+		t.Errorf("found %#v expected %#v", result, n14)
 	}
 
 	if n14.X != n4 {
-		t.Errorf("found %s expected %s", n14.X, n4)
+		t.Errorf("found %#v expected %#v", n14.X, n4)
 	}
 
 	if n4.X != n2 {
-		t.Errorf("found %s expected %s", n4.X, n2)
+		t.Errorf("found %#v expected %#v", n4.X, n2)
 	}
 
 	if n2.X != n1 {
-		t.Errorf("found %s expected %s", n2.X, n1)
+		t.Errorf("found %#v expected %#v", n2.X, n1)
 	}
 
 	if n4.Y != n9 {
-		t.Errorf("found %s expected %s", n4.Y, n9)
+		t.Errorf("found %#v expected %#v", n4.Y, n9)
 	}
 
 	if n9.X != n7 {
-		t.Errorf("found %s expected %s", n9.X, n7)
+		t.Errorf("found %#v expected %#v", n9.X, n7)
 	}
 
 	if n7.X != n6 {
-		t.Errorf("found %s expected %s", n7.X, n6)
+		t.Errorf("found %#v expected %#v", n7.X, n6)
 	}
 
 	if n7.Y != n8 {
-		t.Errorf("found %s expected %s", n7.Y, n8)
+		t.Errorf("found %#v expected %#v", n7.Y, n8)
 	}
 
 	if n9.Y != n11 {
-		t.Errorf("found %s expected %s", n9.Y, n11)
+		t.Errorf("found %#v expected %#v", n9.Y, n11)
 	}
 
 	if n11.X != n10 {
-		t.Errorf("found %s expected %s", n11.X, n10)
+		t.Errorf("found %#v expected %#v", n11.X, n10)
 	}
 
 	if n11.Y != n12 {
-		t.Errorf("found %s expected %s", n11.Y, n12)
+		t.Errorf("found %#v expected %#v", n11.Y, n12)
 	}
 
 	if n14.Y != n15 {
-		t.Errorf("found %s expected %s", n14.Y, n15)
+		t.Errorf("found %#v expected %#v", n14.Y, n15)
 	}
 
 	if n15.X != n20 {
-		t.Errorf("found %s expected %s", n15.X, n20)
+		t.Errorf("found %#v expected %#v", n15.X, n20)
 	}
 
 	if n20.X != n18 {
-		t.Errorf("found %s expected %s", n20.X, n18)
+		t.Errorf("found %#v expected %#v", n20.X, n18)
 	}
 
 	if n18.X != n17 {
-		t.Errorf("found %s expected %s", n18.X, n17)
+		t.Errorf("found %#v expected %#v", n18.X, n17)
 	}
 
 	if n18.Y != n19 {
-		t.Errorf("found %s expected %s", n18.Y, n19)
+		t.Errorf("found %#v expected %#v", n18.Y, n19)
 	}
 
 	if n20.Y != n22 {
-		t.Errorf("found %s expected %s", n20.Y, n22)
+		t.Errorf("found %#v expected %#v", n20.Y, n22)
 	}
 
 	if n22.X != n21 {
-		t.Errorf("found %s expected %s", n22.X, n22)
+		t.Errorf("found %#v expected %#v", n22.X, n22)
 	}
 
 	if n22.Y != n23 {
-		t.Errorf("found %s expected %s", n22.Y, n23)
+		t.Errorf("found %#v expected %#v", n22.Y, n23)
 	}
 }

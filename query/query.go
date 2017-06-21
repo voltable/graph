@@ -3,7 +3,9 @@ package query
 import "github.com/RossMerr/Caudex.Graph/vertices"
 
 type (
+	// Query is the interface that a queryEngine must implement
 	Query interface {
+		// Parser in a string which is your query you want to run, get back a vertexPath that is abstracted from any query language or AST
 		Parser(string) (*VertexPath, error)
 	}
 

@@ -11,7 +11,11 @@ import (
 )
 
 const emptyString = ""
+
+// MaxUint the max size of a uint in golang
 const MaxUint uint = ^uint(0)
+
+// MinUint the min size of a uint
 const MinUint uint = 1
 
 // Parser represents a parser.
@@ -24,7 +28,7 @@ type Parser struct {
 	}
 }
 
-func (p *Parser) Label() (string, bool) {
+func (p *Parser) label() (string, bool) {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != lexer.IDENT && tok == lexer.COLON {
 		tok, lit = p.scanIgnoreWhitespace()
@@ -34,7 +38,7 @@ func (p *Parser) Label() (string, bool) {
 	return emptyString, false
 }
 
-func (p *Parser) Properties() (map[string]interface{}, error) {
+func (p *Parser) properties() (map[string]interface{}, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != lexer.IDENT && tok == lexer.LCURLY {
 
@@ -102,7 +106,7 @@ func (p *Parser) KeyValue() (map[string]interface{}, error) {
 	return properties, nil
 }
 
-func (p *Parser) Node() (*ast.VertexPatn, error) {
+func (p *Parser) node() (*ast.VertexPatn, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != lexer.IDENT && tok == lexer.LPAREN {
 		stmt := &ast.VertexPatn{}
@@ -116,11 +120,11 @@ func (p *Parser) Node() (*ast.VertexPatn, error) {
 			p.unscan()
 		}
 
-		if label, ok := p.Label(); ok {
+		if label, ok := p.label(); ok {
 			stmt.Label = label
 		}
 
-		if properties, err := p.Properties(); err == nil && properties != nil {
+		if properties, err := p.properties(); err == nil && properties != nil {
 			stmt.Properties = properties
 		} else if err != nil {
 			return nil, err
@@ -138,7 +142,7 @@ func (p *Parser) Node() (*ast.VertexPatn, error) {
 	return nil, nil
 }
 
-func (p *Parser) Length() (uint, uint, error) {
+func (p *Parser) length() (uint, uint, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != lexer.IDENT && tok == lexer.MUL {
 		min := MinUint
@@ -202,7 +206,7 @@ func (p *Parser) Length() (uint, uint, error) {
 	return 0, 0, nil
 }
 
-func (p *Parser) RelationshipBody() (*ast.EdgeBodyStmt, error) {
+func (p *Parser) relationshipBody() (*ast.EdgeBodyStmt, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != lexer.IDENT && tok == lexer.LSQUARE {
 		stmt := &ast.EdgeBodyStmt{}
@@ -214,11 +218,11 @@ func (p *Parser) RelationshipBody() (*ast.EdgeBodyStmt, error) {
 			p.unscan()
 		}
 
-		if label, ok := p.Label(); ok {
+		if label, ok := p.label(); ok {
 			stmt.Label = label
 		}
 
-		if min, max, err := p.Length(); err == nil && (min != 0 && max != 00) {
+		if min, max, err := p.length(); err == nil && (min != 0 && max != 00) {
 			stmt.LengthMinimum = min
 			stmt.LengthMaximum = max
 		} else if err != nil {
@@ -228,7 +232,7 @@ func (p *Parser) RelationshipBody() (*ast.EdgeBodyStmt, error) {
 			stmt.LengthMaximum = 1
 		}
 
-		if properties, err := p.Properties(); err == nil && properties != nil {
+		if properties, err := p.properties(); err == nil && properties != nil {
 			stmt.Properties = properties
 		} else if err != nil {
 			return nil, err
@@ -245,7 +249,7 @@ func (p *Parser) RelationshipBody() (*ast.EdgeBodyStmt, error) {
 	return nil, nil
 }
 
-func (p *Parser) Relationship() (*ast.EdgePatn, error) {
+func (p *Parser) relationship() (*ast.EdgePatn, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 	// Look for the start of a relationship < or -
 	if tok != lexer.IDENT && (tok == lexer.LT || tok == lexer.SUB) {
@@ -261,7 +265,7 @@ func (p *Parser) Relationship() (*ast.EdgePatn, error) {
 			}
 		}
 
-		if body, err := p.RelationshipBody(); err == nil && body != nil {
+		if body, err := p.relationshipBody(); err == nil && body != nil {
 			stmt.Body = body
 		} else if err != nil {
 			return nil, err
@@ -290,7 +294,7 @@ func (p *Parser) Relationship() (*ast.EdgePatn, error) {
 	return nil, nil
 }
 
-func (p *Parser) Value(tok lexer.Token, lit string) (interface{}, error) {
+func (p *Parser) value(tok lexer.Token, lit string) (interface{}, error) {
 	//	tok, lit := p.scanIgnoreWhitespace()
 	if tok == lexer.SINGLEQUOTATION {
 		tok, lit := p.scanIgnoreWhitespace()
@@ -320,7 +324,7 @@ func (p *Parser) Value(tok lexer.Token, lit string) (interface{}, error) {
 	return emptyString, nil
 }
 
-func (p *Parser) PropertyOrValue() (ast.Expr, error) {
+func (p *Parser) propertyOrValue() (ast.Expr, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok == lexer.IDENT {
 
@@ -331,8 +335,8 @@ func (p *Parser) PropertyOrValue() (ast.Expr, error) {
 		// Must be a value
 		if tok2 != lexer.DOT {
 			p.unscan()
-			value, err := p.Value(tok, lit)
-			return &ast.Ident{value}, err
+			value, err := p.value(tok, lit)
+			return &ast.Ident{Data: value}, err
 		}
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok != lexer.IDENT {
@@ -347,7 +351,7 @@ func (p *Parser) PropertyOrValue() (ast.Expr, error) {
 	return nil, nil
 }
 
-func (p *Parser) ComparisonExpr() (*ast.ComparisonExpr, error) {
+func (p *Parser) comparisonExpr() (*ast.ComparisonExpr, error) {
 	tok, _ := p.scanIgnoreWhitespace()
 	switch tok {
 	case lexer.EQ:
@@ -367,7 +371,7 @@ func (p *Parser) ComparisonExpr() (*ast.ComparisonExpr, error) {
 	return nil, nil
 }
 
-func (p *Parser) BooleanExpr() (ast.Expr, error) {
+func (p *Parser) booleanExpr() (ast.Expr, error) {
 	tok, _ := p.scanIgnoreWhitespace()
 	switch tok {
 	case lexer.AND:
@@ -392,15 +396,15 @@ func (p *Parser) Predicate() (ast.Expr, error) {
 
 	for !tok.IsClause() && tok != lexer.EOF {
 
-		if property, err := p.PropertyOrValue(); err == nil && property != nil {
+		if property, err := p.propertyOrValue(); err == nil && property != nil {
 			exprStack = exprStack.Push(property)
 		} else if err != nil {
 			return nil, err
-		} else if comparisonExpr, err := p.ComparisonExpr(); err == nil && comparisonExpr != nil {
+		} else if comparisonExpr, err := p.comparisonExpr(); err == nil && comparisonExpr != nil {
 			exprStack = exprStack.Push(comparisonExpr)
 		} else if err != nil {
 			return nil, err
-		} else if booleanExpr, err := p.BooleanExpr(); err == nil && booleanExpr != nil {
+		} else if booleanExpr, err := p.booleanExpr(); err == nil && booleanExpr != nil {
 			exprStack = exprStack.Push(booleanExpr)
 		} else if err != nil {
 			return nil, err
@@ -415,7 +419,7 @@ func (p *Parser) Predicate() (ast.Expr, error) {
 	return root, err
 }
 
-func (p *Parser) Where() (ast.Stmt, error) {
+func (p *Parser) where() (ast.Stmt, error) {
 	tok, _ := p.scanIgnoreWhitespace()
 	if tok == lexer.WHERE {
 		state := &ast.WhereStmt{}
@@ -433,7 +437,7 @@ func (p *Parser) Where() (ast.Stmt, error) {
 	return nil, nil
 }
 
-func (p *Parser) Match() (ast.Stmt, error) {
+func (p *Parser) match() (ast.Stmt, error) {
 	state := &ast.MatchStmt{}
 	pattern, next, err := p.pattern()
 	if err == nil {
@@ -444,7 +448,7 @@ func (p *Parser) Match() (ast.Stmt, error) {
 	return nil, err
 }
 
-func (p *Parser) OptionalMatch() (ast.Stmt, error) {
+func (p *Parser) optionalMatch() (ast.Stmt, error) {
 	state := &ast.OptionalMatchStmt{}
 	pattern, next, err := p.pattern()
 	if err == nil {
@@ -464,7 +468,7 @@ func (p *Parser) pattern() (ast.Patn, ast.Stmt, error) {
 	// Next we should loop over all the pattern.
 	for {
 
-		if node, err := p.Node(); err == nil && node != nil {
+		if node, err := p.node(); err == nil && node != nil {
 			lastVertex = node
 			if pattern == nil {
 				pattern = lastVertex
@@ -476,7 +480,7 @@ func (p *Parser) pattern() (ast.Patn, ast.Stmt, error) {
 			return nil, nil, err
 		}
 
-		if relationship, err := p.Relationship(); err == nil && relationship != nil {
+		if relationship, err := p.relationship(); err == nil && relationship != nil {
 			lastEdge = relationship
 			lastVertex.Edge = relationship
 		} else if err != nil {
@@ -486,7 +490,7 @@ func (p *Parser) pattern() (ast.Patn, ast.Stmt, error) {
 		}
 	}
 
-	if where, err := p.Where(); err == nil && where != nil {
+	if where, err := p.where(); err == nil && where != nil {
 		next = where
 	} else if err != nil {
 		return nil, nil, err
@@ -495,7 +499,7 @@ func (p *Parser) pattern() (ast.Patn, ast.Stmt, error) {
 	return pattern, next, nil
 }
 
-func (p *Parser) Create() (ast.Stmt, error) {
+func (p *Parser) create() (ast.Stmt, error) {
 	state := &ast.CreateStmt{}
 	pattern, next, err := p.pattern()
 	if err == nil {
@@ -506,7 +510,7 @@ func (p *Parser) Create() (ast.Stmt, error) {
 	return nil, err
 }
 
-func (p *Parser) Delete() (ast.Stmt, error) {
+func (p *Parser) delete() (ast.Stmt, error) {
 	state := &ast.DeleteStmt{}
 	pattern, next, err := p.pattern()
 	if err == nil {
@@ -517,7 +521,7 @@ func (p *Parser) Delete() (ast.Stmt, error) {
 	return nil, err
 }
 
-func (p *Parser) Clause() (ast.Stmt, error) {
+func (p *Parser) clause() (ast.Stmt, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 
 	if !tok.IsClause() {
@@ -542,19 +546,19 @@ func (p *Parser) Clause() (ast.Stmt, error) {
 
 	switch tok {
 	case lexer.MATCH:
-		return p.Match()
+		return p.match()
 	case lexer.OPTIONAL_MATCH:
-		return p.OptionalMatch()
+		return p.optionalMatch()
 	case lexer.CREATE:
-		return p.Create()
+		return p.create()
 	case lexer.DELETE:
-		return p.Delete()
+		return p.delete()
 	}
 
 	return nil, fmt.Errorf("No matching statement found %q", lit)
 }
 
-func (p *Parser) SubClause() (lexer.Token, bool) {
+func (p *Parser) subClause() (lexer.Token, bool) {
 	tok, _ := p.scanIgnoreWhitespace()
 
 	if tok.IsSubClause() {
@@ -573,9 +577,8 @@ func (p *Parser) SubClause() (lexer.Token, bool) {
 			tok, lit := p.scanIgnoreWhitespace()
 			if tok == lexer.BY {
 				return lexer.ORDER_BY, true
-			} else {
-				panic(fmt.Sprintf("found %q, expected BY", lit))
 			}
+			panic(fmt.Sprintf("found %q, expected BY", lit))
 		}
 
 		return tok, true
@@ -587,7 +590,7 @@ func (p *Parser) SubClause() (lexer.Token, bool) {
 
 // Parse parses a cypher Clauses statement.
 func (p *Parser) Parse() (ast.Stmt, error) {
-	return p.Clause()
+	return p.clause()
 }
 
 // NewParser returns a new instance of Parser.

@@ -4,6 +4,7 @@ import (
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 )
 
+// StackExpr a simple stack for the AST
 type StackExpr []ast.Expr
 
 // Push add's a item the the StackExpr
