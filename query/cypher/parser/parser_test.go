@@ -78,15 +78,15 @@ func TestParser_Pattern(t *testing.T) {
 		},
 		{
 			s:    `MATCH (:Person)-[:Owns*]-(:Car)`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person", Edge: &ast.EdgePatn{Body: &ast.EdgeBodyStmt{Label: "Owns", LengthMinimum: 1, LengthMaximum: parser.MaxUint}, Vertex: &ast.VertexPatn{Label: "Car"}}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person", Edge: &ast.EdgePatn{Body: &ast.EdgeBodyStmt{Type: "Owns", LengthMinimum: 1, LengthMaximum: parser.MaxUint}, Vertex: &ast.VertexPatn{Label: "Car"}}}},
 		},
 		{
 			s:    `MATCH (:Person)-[:Owns*2..5]-(:Car)`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person", Edge: &ast.EdgePatn{Body: &ast.EdgeBodyStmt{Label: "Owns", LengthMinimum: 2, LengthMaximum: 5}, Vertex: &ast.VertexPatn{Label: "Car"}}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person", Edge: &ast.EdgePatn{Body: &ast.EdgeBodyStmt{Type: "Owns", LengthMinimum: 2, LengthMaximum: 5}, Vertex: &ast.VertexPatn{Label: "Car"}}}},
 		},
 		{
 			s:    `MATCH (:Person)-[purchased:Owns*]-(:Car)`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person", Edge: &ast.EdgePatn{Body: &ast.EdgeBodyStmt{Variable: "purchased", Label: "Owns", LengthMinimum: 1, LengthMaximum: parser.MaxUint}, Vertex: &ast.VertexPatn{Label: "Car"}}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person", Edge: &ast.EdgePatn{Body: &ast.EdgeBodyStmt{Variable: "purchased", Type: "Owns", LengthMinimum: 1, LengthMaximum: parser.MaxUint}, Vertex: &ast.VertexPatn{Label: "Car"}}}},
 		},
 		{
 			s:    `MATCH (:Person)-[* {blocked:false}]-(:Car)`,
@@ -94,7 +94,7 @@ func TestParser_Pattern(t *testing.T) {
 		},
 		{
 			s:    `MATCH (:Person)-[purchased:Owns*2..5 {blocked:false}]-(:Car)`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person", Edge: &ast.EdgePatn{Body: &ast.EdgeBodyStmt{Variable: "purchased", Label: "Owns", LengthMinimum: 2, LengthMaximum: 5, Properties: map[string]interface{}{"blocked": false}}, Vertex: &ast.VertexPatn{Label: "Car"}}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Label: "Person", Edge: &ast.EdgePatn{Body: &ast.EdgeBodyStmt{Variable: "purchased", Type: "Owns", LengthMinimum: 2, LengthMaximum: 5, Properties: map[string]interface{}{"blocked": false}}, Vertex: &ast.VertexPatn{Label: "Car"}}}},
 		},
 	}
 

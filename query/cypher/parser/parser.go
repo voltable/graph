@@ -219,7 +219,7 @@ func (p *Parser) relationshipBody() (*ast.EdgeBodyStmt, error) {
 		}
 
 		if label, ok := p.label(); ok {
-			stmt.Label = label
+			stmt.Type = label
 		}
 
 		if min, max, err := p.length(); err == nil && (min != 0 && max != 00) {

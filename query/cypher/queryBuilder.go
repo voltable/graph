@@ -8,6 +8,7 @@ import (
 )
 
 // ToVertexPath converts a cypher.Stmt to a VertexPath to keep it all abstracted
+
 func ToVertexPath(stmt ast.Stmt) (*query.VertexPath, error) {
 
 	var s []query.PredicateVertex
@@ -30,6 +31,22 @@ func buildPredicateVertex(patn *ast.VertexPatn) query.PredicateVertex {
 		}
 
 		for key, value := range patn.Properties {
+			if v.Property(key) != value {
+				return false
+			}
+		}
+
+		return true
+	}
+}
+
+func buildPredicateEdge(patn *ast.EdgePatn) query.PredicateEdge {
+	return func(v *vertices.Edge) bool {
+		if patn.Body.Type != v.RelationshipType() {
+			return false
+		}
+
+		for key, value := range patn.Body.Properties {
 			if v.Property(key) != value {
 				return false
 			}

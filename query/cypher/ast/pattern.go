@@ -34,7 +34,7 @@ type EdgePatn struct {
 type EdgeBodyStmt struct {
 	Variable      string
 	Properties    map[string]interface{}
-	Label         string
+	Type          string
 	LengthMinimum uint
 	LengthMaximum uint
 }
