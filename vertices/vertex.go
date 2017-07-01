@@ -28,7 +28,7 @@ func NewVertex() (*Vertex, error) {
 		return nil, errCreatVertexID
 	}
 
-	v := Vertex{id: id, edges: make(map[string]*Edge)}
+	v := Vertex{id: id, edges: make(map[string]*Edge), properties: make(map[string]interface{})}
 	return &v, nil
 }
 
