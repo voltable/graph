@@ -46,6 +46,10 @@ func (v *Vertex) DeleteProperty(name string) {
 	delete(v.properties, name)
 }
 
+func (v *Vertex) PropertiesCount() int {
+	return len(v.properties)
+}
+
 // ID vertex id
 func (v *Vertex) ID() string {
 	return v.id

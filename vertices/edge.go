@@ -1,5 +1,7 @@
 package vertices
 
+import uuid "github.com/hashicorp/go-uuid"
+
 type (
 	// An Edge connects two Vertex in a graph.
 	Edge struct {
@@ -12,6 +14,18 @@ type (
 
 	Edges []*Edge
 )
+
+func NewEdge() (*Edge, error) {
+	var id string
+	var err error
+
+	if id, err = uuid.GenerateUUID(); err != nil {
+		return nil, errCreatVertexID
+	}
+
+	v := Edge{id: id, properties: make(map[string]interface{})}
+	return &v, nil
+}
 
 func (e *Edge) ID() string {
 	return e.id
@@ -49,6 +63,10 @@ func (e *Edge) Property(name string) interface{} {
 
 func (e *Edge) DeleteProperty(name string) {
 	delete(e.properties, name)
+}
+
+func (e *Edge) PropertiesCount() int {
+	return len(e.properties)
 }
 
 func (a Edges) Len() int           { return len(a) }

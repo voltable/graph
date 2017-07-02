@@ -54,6 +54,10 @@ func (patn *VertexPatn) ToPredicateVertex() query.PredicateVertex {
 			return false
 		}
 
+		if len(patn.Properties) != v.PropertiesCount() {
+			return false
+		}
+
 		for key, value := range patn.Properties {
 			if v.Property(key) != value {
 				return false
@@ -68,6 +72,10 @@ func (patn *VertexPatn) ToPredicateVertex() query.PredicateVertex {
 func (patn *EdgePatn) ToPredicateEdge() query.PredicateEdge {
 	return func(v *vertices.Edge) bool {
 		if patn.Body.Type != v.RelationshipType() {
+			return false
+		}
+
+		if len(patn.Body.Properties) != v.PropertiesCount() {
 			return false
 		}
 
