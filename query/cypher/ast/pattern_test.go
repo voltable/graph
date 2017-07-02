@@ -58,6 +58,23 @@ func Test_ToPredicateVertexPropertiesFail(t *testing.T) {
 	}
 }
 
+func Test_ToPredicateVertexPropertiesFailEmpty(t *testing.T) {
+	properties := make(map[string]interface{})
+	properties["name"] = "test"
+
+	vp := ast.VertexPatn{Variable: "n", Label: "Person", Properties: properties}
+	predicate := vp.ToPredicateVertex()
+
+	v, _ := vertices.NewVertex()
+	v.SetLabel("Person")
+
+	result := predicate(v)
+
+	if result == true {
+		t.Errorf("predicate failed")
+	}
+}
+
 func Test_ToPredicateEdge(t *testing.T) {
 	properties := make(map[string]interface{})
 	properties["name"] = "test"
@@ -98,6 +115,22 @@ func Test_ToPredicateEdgePropertiesFail(t *testing.T) {
 
 	v, _ := vertices.NewEdge()
 	v.SetProperty("name", "hello")
+
+	result := predicate(v)
+
+	if result == true {
+		t.Errorf("predicate failed")
+	}
+}
+
+func Test_ToPredicateEdgePropertiesFailEmpty(t *testing.T) {
+	properties := make(map[string]interface{})
+	properties["name"] = "test"
+	eb := &ast.EdgeBodyStmt{Properties: properties}
+	vp := ast.EdgePatn{Body: eb}
+	predicate := vp.ToPredicateEdge()
+
+	v, _ := vertices.NewEdge()
 
 	result := predicate(v)
 
