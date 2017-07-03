@@ -47,6 +47,7 @@ func (b *ComparisonExpr) SetY(y Expr) {
 	b.Y = y
 }
 
+// ComparisonPrecedence returns the precedence (order of importance)
 func ComparisonPrecedence(item ComparisonExpr) int {
 	if item.Comparison == EQ {
 		return 8

@@ -56,6 +56,5 @@ func BooleanPrecedence(item BooleanExpr) int {
 }
 
 func NotPrecedence(item NotExpr) int {
-	//return 2
 	return 13
 }
