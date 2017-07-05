@@ -1,15 +1,9 @@
 package ast_test
 
-import (
-	"testing"
+// func Test_Precedence(t *testing.T) {
 
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
-)
-
-func Test_Precedence(t *testing.T) {
-
-	boolean := &ast.BooleanExpr{}
-	if ast.Precedence(boolean) != 20 {
-		t.Errorf("boolean expected")
-	}
-}
+// 	boolean := &ast.BooleanExpr{}
+// 	if ast.Precedence(boolean) != 20 {
+// 		t.Errorf("boolean expected")
+// 	}
+// }
