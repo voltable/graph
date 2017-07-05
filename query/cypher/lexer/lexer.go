@@ -29,8 +29,8 @@ const (
 	YIELD
 	clausesEnd
 
-	//DETACH_DELETE
-	//OPTIONAL_MATCH
+	DETACH_DELETE
+	OPTIONAL_MATCH
 
 	subClausesBag
 	LIMIT
