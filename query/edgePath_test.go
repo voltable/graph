@@ -16,7 +16,8 @@ func Test_MatchEdge(t *testing.T) {
 	vertex.AddDirectedEdge(vertexDirection)
 	//edge.SetLabel("foo")
 
-	frontier := query.Frontier{&query.Path{[]*vertices.Vertex{vertex}, 0}}
+	frontier := query.Frontier{}
+	frontier = frontier.Append([]*vertices.Vertex{vertex}, 0)
 
 	it := func() (item interface{}, ok bool) {
 		state = XOR(state)

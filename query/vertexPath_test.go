@@ -16,7 +16,8 @@ func Test_MatchVertex(t *testing.T) {
 	vertexDirection, _ := vertices.NewVertex()
 	vertex.AddDirectedEdge(vertexDirection)
 
-	frontier := query.Frontier{&query.Path{[]*vertices.Vertex{vertex}, 0}}
+	frontier := query.Frontier{}
+	frontier = frontier.Append([]*vertices.Vertex{vertex}, 0)
 
 	it := func() (item interface{}, ok bool) {
 		state = XOR(state)

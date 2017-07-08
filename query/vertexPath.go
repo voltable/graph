@@ -33,8 +33,8 @@ func (t *VertexPath) Node(predicate PredicateVertex) *EdgePath {
 				for item, ok = next(); ok; item, ok = next() {
 					if frontier, is := item.(Frontier); is {
 						sort.Sort(frontier)
-						path := frontier.peek()
-						vertex := path.Vertices[len(path.Vertices)-1]
+						vertices := frontier.peek()
+						vertex := vertices[len(vertices)-1]
 						t.explored[vertex.ID()] = true
 						if predicate(vertex) {
 							return frontier, true

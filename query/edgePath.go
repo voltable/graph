@@ -30,13 +30,13 @@ func (t *EdgePath) Relationship(predicate PredicateEdge) *VertexPath {
 			return func() (item interface{}, ok bool) {
 				for item, ok = next(); ok; item, ok = next() {
 					if frontier, is := item.(Frontier); is {
-						path, frontier := frontier.pop()
-						vertex := path.Vertices[len(path.Vertices)-1]
+						vertices, cost, frontier := frontier.pop()
+						vertex := vertices[len(vertices)-1]
 						for _, e := range vertex.Edges() {
 							if _, ok := t.explored[e.ID()]; !ok {
 								if predicate(e) {
 									if v, err := t.fetch(e.ID()); err != nil {
-										frontier = append(frontier, &Path{append(path.Vertices, v), path.Cost + e.Weight()})
+										frontier = frontier.Append(append(vertices, v), cost+e.Weight())
 										return frontier, true
 									}
 								}
@@ -64,8 +64,8 @@ func (t *EdgePath) ToSlice() []*vertices.Vertex {
 	next := t.Iterate()
 	for item, ok := next(); ok; item, ok = next() {
 		if frontier, is := item.(Frontier); is {
-			path, _ := frontier.pop()
-			vertex := path.Vertices[len(path.Vertices)-1]
+			vertices, _, _ := frontier.pop()
+			vertex := vertices[len(vertices)-1]
 			slice = append(slice, vertex)
 
 		}

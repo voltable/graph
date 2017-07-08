@@ -27,19 +27,26 @@ type (
 	//PredicateEdge apply the predicate over the edge
 	PredicateEdge func(*vertices.Edge) bool
 
-	Path struct {
+	frontierPath struct {
 		Vertices []*vertices.Vertex
 		Cost     float32
 	}
 
-	Frontier []*Path
+	// Frontier priority queue containing vertices to be explored
+	Frontier []*frontierPath
 )
 
-func (f Frontier) Len() int               { return len(f) }
-func (f Frontier) Swap(i, j int)          { f[i], f[j] = f[j], f[i] }
-func (f Frontier) Less(i, j int) bool     { return f[i].Cost < f[j].Cost }
-func (f Frontier) pop() (*Path, Frontier) { return f[0], f[1:] }
-func (f Frontier) peek() *Path            { return f[0] }
+func (f Frontier) Len() int           { return len(f) }
+func (f Frontier) Swap(i, j int)      { f[i], f[j] = f[j], f[i] }
+func (f Frontier) Less(i, j int) bool { return f[i].Cost < f[j].Cost }
+func (f Frontier) pop() ([]*vertices.Vertex, float32, Frontier) {
+	return f[0].Vertices, f[0].Cost, f[1:]
+}
+func (f Frontier) peek() []*vertices.Vertex { return f[0].Vertices }
+func (f Frontier) Append(vertices []*vertices.Vertex, cost float32) Frontier {
+	f = append(f, &frontierPath{vertices, cost})
+	return f
+}
 
 func NewQuery() *Query {
 	q := &Query{Vertices: []PredicateVertex{}, Edges: []PredicateEdge{}}
