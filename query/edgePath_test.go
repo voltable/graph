@@ -27,9 +27,9 @@ func Test_MatchEdge(t *testing.T) {
 		return vertex, nil
 	}
 
-	p := query.EdgePath{Iterate: func() query.Iterator {
+	p := query.NewEdgePath(func() query.Iterator {
 		return it
-	}, Fetch: fetch, Explored: make(map[string]bool)}
+	}, fetch)
 
 	matches := p.Relationship(func(v *vertices.Edge) bool {
 		// if v.Label() != "foo" {

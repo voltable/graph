@@ -9,7 +9,7 @@ import (
 var queryRegistry = make(map[string]QueryRegistration)
 
 var (
-	ErrQueryNotRegistred = errors.New("This query is not registered.")
+	errQueryNotRegistred = errors.New("This query is not registered.")
 )
 
 type NewQueryFunc func() (Query, error)
@@ -32,7 +32,7 @@ func RegisterQuery(name string, register QueryRegistration) {
 func NewQuery(name string) (Query, error) {
 	r, registered := queryRegistry[name]
 	if !registered {
-		return nil, ErrQueryNotRegistred
+		return nil, errQueryNotRegistred
 	}
 
 	return r.NewFunc()

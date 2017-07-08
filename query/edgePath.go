@@ -17,8 +17,13 @@ import (
 // EdgePath represents the Edge part of a Path
 type EdgePath struct {
 	Iterate  func() Iterator
-	Explored map[string]bool
-	Fetch    func(string) (*vertices.Vertex, error)
+	explored map[string]bool
+	fetch    func(string) (*vertices.Vertex, error)
+}
+
+// NewEdgePath constructs a new EdgePath
+func NewEdgePath(i func() Iterator, f func(string) (*vertices.Vertex, error)) *EdgePath {
+	return &EdgePath{Iterate: i, fetch: f, explored: make(map[string]bool)}
 }
 
 // Relationship returns all edges matching the predicate
@@ -28,8 +33,8 @@ func (t *EdgePath) Relationship(predicate PredicateEdge) *VertexPath {
 	}
 
 	return &VertexPath{
-		Explored: t.Explored,
-		Fetch:    t.Fetch,
+		explored: t.explored,
+		fetch:    t.fetch,
 		Iterate: func() Iterator {
 			next := t.Iterate()
 			return func() (item interface{}, ok bool) {
@@ -38,9 +43,9 @@ func (t *EdgePath) Relationship(predicate PredicateEdge) *VertexPath {
 						path, frontier := frontier.pop()
 						vertex := path.Vertices[len(path.Vertices)-1]
 						for _, e := range vertex.Edges() {
-							if _, ok := t.Explored[e.ID()]; !ok {
+							if _, ok := t.explored[e.ID()]; !ok {
 								if predicate(e) {
-									if v, err := t.Fetch(e.ID()); err != nil {
+									if v, err := t.fetch(e.ID()); err != nil {
 										frontier = append(frontier, &Path{append(path.Vertices, v), path.Cost + e.Weight()})
 										return frontier, true
 									}
@@ -62,7 +67,7 @@ func AllEdges() PredicateEdge {
 	}
 }
 
-// Returns the final matching Vertexs of the query to a slice
+// ToSlice returns the final matching Vertexs of the query to a slice
 func (t *EdgePath) ToSlice() []*vertices.Vertex {
 
 	slice := []*vertices.Vertex{}

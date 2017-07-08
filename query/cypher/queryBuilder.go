@@ -16,11 +16,9 @@ func ToVertexPath(stmt ast.Stmt) (*query.VertexPath, error) {
 		pattern := b.Pattern
 		for pattern != nil {
 			if v, ok := b.Pattern.(*ast.VertexPatn); ok {
-				// todo need to iterate over this
 				pv = append(pv, v.ToPredicateVertex())
 				pattern = v.Edge
 			} else if e, ok := b.Pattern.(*ast.EdgePatn); ok {
-				// todo need to iterate over this
 				pe = append(pe, e.ToPredicateEdge())
 				pattern = e.Vertex
 			}

@@ -9,12 +9,13 @@ import (
 // VertexPath represents the Vertex part of a Path
 type VertexPath struct {
 	Iterate  func() Iterator
-	Explored map[string]bool
-	Fetch    func(string) (*vertices.Vertex, error)
+	explored map[string]bool
+	fetch    func(string) (*vertices.Vertex, error)
 }
 
+// NewVertexPath construts a new VertexPath
 func NewVertexPath(i func() Iterator, f func(string) (*vertices.Vertex, error)) *VertexPath {
-	return &VertexPath{Explored: make(map[string]bool), Fetch: f, Iterate: i}
+	return &VertexPath{explored: make(map[string]bool), fetch: f, Iterate: i}
 }
 
 // Node returns all Verteces matching the predicate
@@ -24,8 +25,8 @@ func (t *VertexPath) Node(predicate PredicateVertex) *EdgePath {
 	}
 
 	return &EdgePath{
-		Explored: t.Explored,
-		Fetch:    t.Fetch,
+		explored: t.explored,
+		fetch:    t.fetch,
 		Iterate: func() Iterator {
 			next := t.Iterate()
 			return func() (item interface{}, ok bool) {
@@ -34,7 +35,7 @@ func (t *VertexPath) Node(predicate PredicateVertex) *EdgePath {
 						sort.Sort(frontier)
 						path := frontier.peek()
 						vertex := path.Vertices[len(path.Vertices)-1]
-						t.Explored[vertex.ID()] = true
+						t.explored[vertex.ID()] = true
 						if predicate(vertex) {
 							return frontier, true
 						}

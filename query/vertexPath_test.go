@@ -23,9 +23,9 @@ func Test_MatchVertex(t *testing.T) {
 		return frontier, state
 	}
 
-	p := query.VertexPath{Iterate: func() query.Iterator {
+	p := query.NewVertexPath(func() query.Iterator {
 		return it
-	}, Explored: make(map[string]bool)}
+	}, nil)
 
 	matches := p.Node(func(v *vertices.Vertex) bool {
 		if v.Label() != "foo" {
