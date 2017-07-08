@@ -1,12 +1,21 @@
 package query
 
-import "github.com/RossMerr/Caudex.Graph/vertices"
+import (
+	"github.com/RossMerr/Caudex.Graph/vertices"
+)
 
 type (
-	// Query is the interface that a queryEngine must implement
-	Query interface {
+
+	// Query used to hold predicates that makes up a query path
+	Query struct {
+		Vertices []PredicateVertex
+		Edges    []PredicateEdge
+	}
+
+	// QueryEngine is the interface that a queryEngine must implement
+	QueryEngine interface {
 		// Parser in a string which is your query you want to run, get back a vertexPath that is abstracted from any query language or AST
-		Parser(string) (*VertexPath, error)
+		Parser(string) (*Query, error)
 	}
 
 	// Iterator is an alias for function to iterate over data.
@@ -31,3 +40,8 @@ func (f Frontier) Swap(i, j int)          { f[i], f[j] = f[j], f[i] }
 func (f Frontier) Less(i, j int) bool     { return f[i].Cost < f[j].Cost }
 func (f Frontier) pop() (*Path, Frontier) { return f[0], f[1:] }
 func (f Frontier) peek() *Path            { return f[0] }
+
+func NewQuery() *Query {
+	q := &Query{Vertices: []PredicateVertex{}, Edges: []PredicateEdge{}}
+	return q
+}

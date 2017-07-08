@@ -8,14 +8,14 @@ import (
 )
 
 func init() {
-	query.RegisterQuery(queryType, query.QueryRegistration{
+	query.RegisterQueryEngine(queryType, query.QueryEngineRegistration{
 		NewFunc: newQueryEngine,
 	})
 }
 
 const queryType = "Cypher"
 
-func newQueryEngine() (query.Query, error) {
+func newQueryEngine() (query.QueryEngine, error) {
 	return &QueryEngine{}, nil
 }
 
@@ -23,11 +23,11 @@ func newQueryEngine() (query.Query, error) {
 type QueryEngine struct {
 }
 
-// Parser in a cypher query as a string and get back VertexPath that is abstracted from the cypher AST
-func (qe QueryEngine) Parser(q string) (*query.VertexPath, error) {
+// Parser in a cypher query as a string and get back Query that is abstracted from the cypher AST
+func (qe QueryEngine) Parser(q string) (*query.Query, error) {
 	stmt, err := parser.NewParser(strings.NewReader(q)).Parse()
 	if err != nil {
 		return nil, err
 	}
-	return ToVertexPath(stmt)
+	return ToQuery(stmt)
 }

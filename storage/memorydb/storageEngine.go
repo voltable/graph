@@ -23,7 +23,7 @@ var (
 type StorageEngine struct {
 	vertices    map[string]vertices.Vertex
 	Options     *graph.Options
-	queryEngine query.Query
+	queryEngine query.QueryEngine
 }
 
 func (se *StorageEngine) Close() {
@@ -31,7 +31,7 @@ func (se *StorageEngine) Close() {
 }
 
 func newStorageEngine(o *graph.Options) (graph.Graph, error) {
-	queryEngine, err := query.NewQuery(o.QueryEngine)
+	queryEngine, err := query.NewQueryEngine(o.QueryEngine)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +72,7 @@ func (se *StorageEngine) Update(c ...*vertices.Vertex) error {
 	return nil
 }
 
-func (se *StorageEngine) Query(q string) (*query.VertexPath, error) {
+func (se *StorageEngine) Query(q string) (*query.Query, error) {
 	return se.queryEngine.Parser(q)
 }
 

@@ -148,30 +148,31 @@ func (se *StorageEngine) Close() {
 }
 
 // Query used to query the graph
-func (se *StorageEngine) Query(q string) (*query.VertexPath, error) {
-	iterate := func() query.Iterator {
-		ch := make(chan vertices.Vertex)
-		go se.db.View(func(tx *bolt.Tx) error {
-			b := tx.Bucket([]byte(bucketGraph))
-			b.ForEach(func(k, v []byte) error {
-				vertex := vertices.Vertex{}
-				if err := json.Unmarshal(v, vertex); err == nil {
-					ch <- vertex
-				}
-				return nil
-			})
-			close(ch)
-			return nil
-		})
+func (se *StorageEngine) Query(q string) (*query.Query, error) {
+	// iterate := func() query.Iterator {
+	// 	ch := make(chan vertices.Vertex)
+	// 	go se.db.View(func(tx *bolt.Tx) error {
+	// 		b := tx.Bucket([]byte(bucketGraph))
+	// 		b.ForEach(func(k, v []byte) error {
+	// 			vertex := vertices.Vertex{}
+	// 			if err := json.Unmarshal(v, vertex); err == nil {
+	// 				ch <- vertex
+	// 			}
+	// 			return nil
+	// 		})
+	// 		close(ch)
+	// 		return nil
+	// 	})
 
-		return func() (item interface{}, ok bool) {
-			v, ok := <-ch
-			frontier := query.Frontier{&query.Path{[]*vertices.Vertex{&v}, 0}}
-			return frontier, ok
-		}
-	}
+	// 	return func() (item interface{}, ok bool) {
+	// 		v, ok := <-ch
+	// 		frontier := query.Frontier{&query.Path{[]*vertices.Vertex{&v}, 0}}
+	// 		return frontier, ok
+	// 	}
+	// }
 
-	return query.NewVertexPath(iterate, se.Find), nil
+	//return query.NewVertexPath(iterate, se.Find), nil
+	return nil, nil
 }
 
 func (se *StorageEngine) backgroundTask(c chan os.Signal) {

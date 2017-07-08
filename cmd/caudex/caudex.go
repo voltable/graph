@@ -1,10 +1,7 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 func main() {
@@ -13,19 +10,19 @@ func main() {
 	if g, err = graph.NewGraph("bolt", &graph.Options{Name: "test"}); err != nil {
 		panic(err)
 	}
-	q, err := g.Query("")
+	//	q, err := g.Query("")
 
-	slice := q.Node(func(v *vertices.Vertex) bool {
-		return v.Label() == "foo"
-	}).Relationship(func(e *vertices.Edge) bool {
-		return true
-	}).Node(func(v *vertices.Vertex) bool {
-		return v.Label() == "foo"
-	}).ToSlice()
+	// slice := q.Node(func(v *vertices.Vertex) bool {
+	// 	return v.Label() == "foo"
+	// }).Relationship(func(e *vertices.Edge) bool {
+	// 	return true
+	// }).Node(func(v *vertices.Vertex) bool {
+	// 	return v.Label() == "foo"
+	// }).ToSlice()
 
-	for _, v := range slice {
-		fmt.Println(v)
-	}
+	// for _, v := range slice {
+	// 	fmt.Println(v)
+	// }
 
 	g.Close()
 }

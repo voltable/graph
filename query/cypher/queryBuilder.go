@@ -6,9 +6,10 @@ import (
 	"github.com/RossMerr/Caudex.Graph/query"
 )
 
-// ToVertexPath converts a cypher.Stmt to a VertexPath to keep it all abstracted
-func ToVertexPath(stmt ast.Stmt) (*query.VertexPath, error) {
+// ToQuery converts a cypher.Stmt to a Query to keep it all abstracted
+func ToQuery(stmt ast.Stmt) (*query.Query, error) {
 
+	q := query.NewQuery()
 	var pv []query.PredicateVertex
 	var pe []query.PredicateEdge
 
@@ -25,5 +26,7 @@ func ToVertexPath(stmt ast.Stmt) (*query.VertexPath, error) {
 		}
 	}
 
-	return nil, nil
+	q.Edges = pe
+	q.Vertices = pv
+	return q, nil
 }
