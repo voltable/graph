@@ -12,10 +12,36 @@ type (
 		Edges    []PredicateEdge
 	}
 
-	// QueryEngine is the interface that a queryEngine must implement
-	QueryEngine interface {
-		// Parser in a string which is your query you want to run, get back a vertexPath that is abstracted from any query language or AST
-		Parser(string) (*Query, error)
+	// QueryPath is a walk in the graph in a alternating sequence of vertices and edges
+	QueryPath struct {
+		next PredicateVertexPath
+	}
+
+	PatternLength struct {
+		LengthMinimum uint
+		LengthMaximum uint
+	}
+
+	VertexNext interface {
+		Next() EdgeNext
+		Length() PatternLength
+	}
+
+	EdgeNext interface {
+		Next() VertexNext
+		Length() PatternLength
+	}
+
+	PredicateVertexPath struct {
+		PredicateVertex
+		next   EdgeNext
+		length PatternLength
+	}
+
+	PredicateEdgePath struct {
+		PredicateEdge
+		next   VertexNext
+		length PatternLength
 	}
 
 	// Iterator is an alias for function to iterate over data.
@@ -26,29 +52,25 @@ type (
 
 	//PredicateEdge apply the predicate over the edge
 	PredicateEdge func(*vertices.Edge) bool
-
-	frontierPath struct {
-		Vertices []*vertices.Vertex
-		Cost     float32
-	}
-
-	// Frontier priority queue containing vertices to be explored
-	Frontier []*frontierPath
 )
-
-func (f Frontier) Len() int           { return len(f) }
-func (f Frontier) Swap(i, j int)      { f[i], f[j] = f[j], f[i] }
-func (f Frontier) Less(i, j int) bool { return f[i].Cost < f[j].Cost }
-func (f Frontier) pop() ([]*vertices.Vertex, float32, Frontier) {
-	return f[0].Vertices, f[0].Cost, f[1:]
-}
-func (f Frontier) peek() []*vertices.Vertex { return f[0].Vertices }
-func (f Frontier) Append(vertices []*vertices.Vertex, cost float32) Frontier {
-	f = append(f, &frontierPath{vertices, cost})
-	return f
-}
 
 func NewQuery() *Query {
 	q := &Query{Vertices: []PredicateVertex{}, Edges: []PredicateEdge{}}
 	return q
+}
+
+func (p PredicateVertexPath) Next() EdgeNext {
+	return p.next
+}
+
+func (p PredicateEdgePath) Next() VertexNext {
+	return p.next
+}
+
+func (p PredicateVertexPath) Length() PatternLength {
+	return p.length
+}
+
+func (p PredicateEdgePath) Length() PatternLength {
+	return p.length
 }
