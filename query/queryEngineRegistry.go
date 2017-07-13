@@ -15,7 +15,7 @@ var (
 // QueryEngine is the interface that a queryEngine must implement
 type QueryEngine interface {
 	// Parser in a string which is your query you want to run, get back a vertexPath that is abstracted from any query language or AST
-	Parser(string) (*Query, error)
+	Parser(string) (*QueryPath, error)
 }
 
 type NewQueryFunc func() (QueryEngine, error)

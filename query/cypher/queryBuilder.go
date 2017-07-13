@@ -6,27 +6,25 @@ import (
 	"github.com/RossMerr/Caudex.Graph/query"
 )
 
-// ToQuery converts a cypher.Stmt to a Query to keep it all abstracted
-func ToQuery(stmt ast.Stmt) (*query.Query, error) {
-
-	q := query.NewQuery()
-	var pv []query.PredicateVertex
-	var pe []query.PredicateEdge
-
+// ToQueryPath converts a cypher.Stmt to a QueryPath to keep it all abstracted
+func ToQueryPath(stmt ast.Stmt) (*query.QueryPath, error) {
+	q := query.NewQueryPath()
+	var next func(query.Path)
+	next = q.SetNext
 	if b, ok := stmt.(*ast.CreateStmt); ok {
 		pattern := b.Pattern
 		for pattern != nil {
 			if v, ok := b.Pattern.(*ast.VertexPatn); ok {
-				pv = append(pv, v.ToPredicateVertex())
-				pattern = v.Edge
+				pvp := query.PredicateVertexPath{PredicateVertex: v.ToPredicateVertex()}
+				next(&pvp)
+				next = pvp.SetNext
 			} else if e, ok := b.Pattern.(*ast.EdgePatn); ok {
-				pe = append(pe, e.ToPredicateEdge())
-				pattern = e.Vertex
+				pvp := query.PredicateEdgePath{PredicateEdge: e.ToPredicateEdge()}
+				next(&pvp)
+				next = pvp.SetNext
 			}
 		}
 	}
 
-	q.Edges = pe
-	q.Vertices = pv
 	return q, nil
 }

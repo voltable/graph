@@ -72,7 +72,7 @@ func (se *StorageEngine) Update(c ...*vertices.Vertex) error {
 	return nil
 }
 
-func (se *StorageEngine) Query(q string) (*query.Query, error) {
+func (se *StorageEngine) Query(q string) (*query.QueryPath, error) {
 	return se.queryEngine.Parser(q)
 }
 
