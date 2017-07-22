@@ -101,8 +101,9 @@ func (p *PredicateEdgePath) Length() *VariableLength {
 }
 
 // SetLength sets the lengths for the pattern matching
-func (p *PredicateEdgePath) SetLength(l VariableLength) {
-	p.length = l
+func (p *PredicateEdgePath) SetLength(minimum uint, maximum uint) {
+	length := VariableLength{Maximum: maximum, Minimum: minimum}
+	p.length = length
 }
 
 func (p *PredicateEdgePath) path()   {}

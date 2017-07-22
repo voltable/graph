@@ -71,6 +71,15 @@ type DeleteStmt struct {
 	Next    Stmt
 }
 
+type PatternStmt interface {
+	patternNode()
+}
+
+func (DeleteStmt) patternNode()        {}
+func (CreateStmt) patternNode()        {}
+func (OptionalMatchStmt) patternNode() {}
+func (MatchStmt) patternNode()         {}
+
 // Precedence sorts Expr by thier precedence
 func Precedence(item Expr) int {
 	if b, ok := item.(*BooleanExpr); ok {

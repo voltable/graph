@@ -12,8 +12,8 @@ func Test_ToPredicateVertex(t *testing.T) {
 	properties := make(map[string]interface{})
 	properties["name"] = "test"
 
-	vp := ast.VertexPatn{Variable: "n", Label: "Person", Properties: properties}
-	predicate := vp.ToPredicateVertex()
+	vp := &ast.VertexPatn{Variable: "n", Label: "Person", Properties: properties}
+	predicate := ast.ToPredicateVertex(vp)
 
 	v, _ := vertices.NewVertex()
 	v.SetLabel("Person")
@@ -29,7 +29,7 @@ func Test_ToPredicateVertexLabelFail(t *testing.T) {
 	properties := make(map[string]interface{})
 
 	vp := ast.VertexPatn{Variable: "n", Label: "World", Properties: properties}
-	predicate := vp.ToPredicateVertex()
+	predicate := ast.ToPredicateVertex(&vp)
 
 	v, _ := vertices.NewVertex()
 	v.SetLabel("Person")
@@ -45,7 +45,7 @@ func Test_ToPredicateVertexPropertiesFail(t *testing.T) {
 	properties["name"] = "test"
 
 	vp := ast.VertexPatn{Variable: "n", Label: "Person", Properties: properties}
-	predicate := vp.ToPredicateVertex()
+	predicate := ast.ToPredicateVertex(&vp)
 
 	v, _ := vertices.NewVertex()
 	v.SetLabel("Person")
@@ -63,7 +63,7 @@ func Test_ToPredicateVertexPropertiesFailEmpty(t *testing.T) {
 	properties["name"] = "test"
 
 	vp := ast.VertexPatn{Variable: "n", Label: "Person", Properties: properties}
-	predicate := vp.ToPredicateVertex()
+	predicate := ast.ToPredicateVertex(&vp)
 
 	v, _ := vertices.NewVertex()
 	v.SetLabel("Person")
@@ -80,7 +80,7 @@ func Test_ToPredicateEdge(t *testing.T) {
 	properties["name"] = "test"
 	eb := &ast.EdgeBodyStmt{Type: "Person", Properties: properties}
 	vp := ast.EdgePatn{Body: eb}
-	predicate := vp.ToPredicateEdge()
+	predicate := ast.ToPredicateEdge(&vp)
 
 	v, _ := vertices.NewEdge()
 	v.SetRelationshipType("Person")
@@ -95,7 +95,7 @@ func Test_ToPredicateEdge(t *testing.T) {
 func Test_ToPredicateEdgeTypeFail(t *testing.T) {
 	eb := &ast.EdgeBodyStmt{}
 	vp := ast.EdgePatn{Body: eb}
-	predicate := vp.ToPredicateEdge()
+	predicate := ast.ToPredicateEdge(&vp)
 
 	v, _ := vertices.NewEdge()
 	v.SetRelationshipType("Person")
@@ -111,7 +111,7 @@ func Test_ToPredicateEdgePropertiesFail(t *testing.T) {
 	properties["name"] = "test"
 	eb := &ast.EdgeBodyStmt{Properties: properties}
 	vp := ast.EdgePatn{Body: eb}
-	predicate := vp.ToPredicateEdge()
+	predicate := ast.ToPredicateEdge(&vp)
 
 	v, _ := vertices.NewEdge()
 	v.SetProperty("name", "hello")
@@ -128,7 +128,7 @@ func Test_ToPredicateEdgePropertiesFailEmpty(t *testing.T) {
 	properties["name"] = "test"
 	eb := &ast.EdgeBodyStmt{Properties: properties}
 	vp := ast.EdgePatn{Body: eb}
-	predicate := vp.ToPredicateEdge()
+	predicate := ast.ToPredicateEdge(&vp)
 
 	v, _ := vertices.NewEdge()
 

@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/RossMerr/Caudex.Graph/query"
+	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
 )
 
@@ -29,5 +30,5 @@ func (qe QueryEngine) Parser(q string) (*query.QueryPath, error) {
 	if err != nil {
 		return nil, err
 	}
-	return ToQueryPath(stmt)
+	return ToQueryPath(stmt, ast.ToPredicateVertex, ast.ToPredicateEdge)
 }

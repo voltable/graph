@@ -48,7 +48,7 @@ func (*VertexPatn) patnNode() {}
 func (*EdgePatn) patnNode()   {}
 
 // ToPredicateVertex creates a PredicateVertex out of the VertexPatn
-func (patn *VertexPatn) ToPredicateVertex() query.PredicateVertex {
+func ToPredicateVertex(patn *VertexPatn) query.PredicateVertex {
 	return func(v *vertices.Vertex) bool {
 		if patn.Label != v.Label() {
 			return false
@@ -69,7 +69,7 @@ func (patn *VertexPatn) ToPredicateVertex() query.PredicateVertex {
 }
 
 // ToPredicateEdge creates a PredicateEdge out of the EdgePatn
-func (patn *EdgePatn) ToPredicateEdge() query.PredicateEdge {
+func ToPredicateEdge(patn *EdgePatn) query.PredicateEdge {
 	return func(v *vertices.Edge) bool {
 		if patn.Body.Type != v.RelationshipType() {
 			return false
