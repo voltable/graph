@@ -3,8 +3,6 @@ package cypher_test
 import (
 	"testing"
 
-	"fmt"
-
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
@@ -12,8 +10,8 @@ import (
 )
 
 func Test_ToQueryPath(t *testing.T) {
-	v := &ast.VertexPatn{Variable: "you"}
-	want := &query.QueryPath{}
+	edgePatn := &ast.EdgePatn{}
+	vertexPatn := &ast.VertexPatn{Variable: "bar", Edge: edgePatn}
 	var b bool
 
 	toPredicateVertex := func(*ast.VertexPatn) query.PredicateVertex {
@@ -23,17 +21,41 @@ func Test_ToQueryPath(t *testing.T) {
 	}
 
 	toPredicateEdge := func(patn *ast.EdgePatn) query.PredicateEdge {
-		return func(*vertices.Edge) bool {
+		return func(e *vertices.Edge) bool {
 			return b
 		}
 	}
 
-	want.SetNext(&query.PredicateVertexPath{PredicateVertex: toPredicateVertex(v)})
+	want := &query.QueryPath{}
+	vertexPath := &query.PredicateVertexPath{PredicateVertex: toPredicateVertex(vertexPatn)}
+	vertexPath.SetNext(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(edgePatn)})
+	want.SetNext(vertexPath)
 
-	got, _ := cypher.ToQueryPath(&ast.MatchStmt{Pattern: v}, toPredicateVertex, toPredicateEdge)
+	got, _ := cypher.ToQueryPath(&ast.MatchStmt{Pattern: vertexPatn}, toPredicateVertex, toPredicateEdge)
 
-	if fmt.Sprintf("%v", got.Next()) != fmt.Sprintf("%v", want.Next()) {
-		t.Errorf("ToQueryPath() = %w, want %w", got.Next(), want.Next())
+	v, _ := got.Next().(query.VertexNext)
+	if v == nil {
+		t.Errorf("VertexNext")
 	}
 
+	pv, _ := v.(*query.PredicateVertexPath)
+
+	if pv == nil {
+		t.Errorf("PredicateVertexPath")
+	}
+
+	e, _ := pv.Next().(query.EdgeNext)
+	if e == nil {
+		t.Errorf("EdgeNext")
+	}
+
+	pe, _ := e.(*query.PredicateEdgePath)
+	if pe == nil {
+		t.Errorf("PredicateEdgePath")
+	}
+
+	last, _ := pe.Next().(query.VertexNext)
+	if last != nil {
+		t.Errorf("VertexNext")
+	}
 }

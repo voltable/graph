@@ -22,7 +22,9 @@ func ToQueryPath(stmt ast.Stmt, toPredicateVertex func(*ast.VertexPatn) query.Pr
 
 			} else if e, ok := pattern.(*ast.EdgePatn); ok && e != nil {
 				pvp := query.PredicateEdgePath{PredicateEdge: toPredicateEdge(e)}
-				pvp.SetLength(e.Body.LengthMinimum, e.Body.LengthMaximum)
+				if e.Body != nil {
+					pvp.SetLength(e.Body.LengthMinimum, e.Body.LengthMaximum)
+				}
 				next(&pvp)
 				next = pvp.SetNext
 				pattern = e.Vertex
@@ -32,6 +34,7 @@ func ToQueryPath(stmt ast.Stmt, toPredicateVertex func(*ast.VertexPatn) query.Pr
 		}
 	}
 
+	next = nil
 	return q, nil
 }
 
