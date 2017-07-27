@@ -10,7 +10,7 @@ import (
 )
 
 func Test_ToQueryPath(t *testing.T) {
-	edgePatn := &ast.EdgePatn{}
+	edgePatn := &ast.EdgePatn{Body: &ast.EdgeBodyStmt{LengthMinimum: 2, LengthMaximum: 5}}
 	vertexPatn := &ast.VertexPatn{Variable: "bar", Edge: edgePatn}
 	var b bool
 
@@ -54,8 +54,39 @@ func Test_ToQueryPath(t *testing.T) {
 		t.Errorf("PredicateEdgePath")
 	}
 
+	if pe.Length().Minimum != 2 {
+		t.Errorf("Minimum")
+	}
+
+	if pe.Length().Maximum != 5 {
+		t.Errorf("Maximum")
+	}
+
 	last, _ := pe.Next().(query.VertexNext)
 	if last != nil {
 		t.Errorf("VertexNext")
+	}
+}
+
+func Test_IsPattern(t *testing.T) {
+
+	if _, ok := cypher.IsPattern(&ast.DeleteStmt{}); !ok {
+		t.Errorf("DeleteStmt")
+	}
+
+	if _, ok := cypher.IsPattern(&ast.CreateStmt{}); !ok {
+		t.Errorf("CreateStmt")
+	}
+
+	if _, ok := cypher.IsPattern(&ast.OptionalMatchStmt{}); !ok {
+		t.Errorf("OptionalMatchStmt")
+	}
+
+	if _, ok := cypher.IsPattern(&ast.MatchStmt{}); !ok {
+		t.Errorf("MatchStmt")
+	}
+
+	if _, ok := cypher.IsPattern(&ast.WhereStmt{}); ok {
+		t.Errorf("WhereStmt")
 	}
 }

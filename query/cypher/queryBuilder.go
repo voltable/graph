@@ -12,7 +12,7 @@ func ToQueryPath(stmt ast.Stmt, toPredicateVertex func(*ast.VertexPatn) query.Pr
 	q := query.NewQueryPath()
 	var next func(query.Path)
 	next = q.SetNext
-	if pattern, ok := isPattern(stmt); ok {
+	if pattern, ok := IsPattern(stmt); ok {
 		for pattern != nil {
 			if v, ok := pattern.(*ast.VertexPatn); ok && v != nil {
 				pvp := query.PredicateVertexPath{PredicateVertex: toPredicateVertex(v)}
@@ -38,7 +38,7 @@ func ToQueryPath(stmt ast.Stmt, toPredicateVertex func(*ast.VertexPatn) query.Pr
 	return q, nil
 }
 
-func isPattern(item ast.Stmt) (ast.Patn, bool) {
+func IsPattern(item ast.Stmt) (ast.Patn, bool) {
 	if b, ok := item.(*ast.DeleteStmt); ok {
 		return b.Pattern, true
 	} else if b, ok := item.(*ast.CreateStmt); ok {
