@@ -14,6 +14,11 @@ func init() {
 	})
 }
 
+// RegisterQueryEngine forces the call of init
+func RegisterQueryEngine() {
+	// Forces the call of init
+}
+
 const queryType = "Cypher"
 
 func newQueryEngine() (query.QueryEngine, error) {

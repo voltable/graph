@@ -31,6 +31,10 @@ type (
 		path()
 	}
 
+	Next interface {
+		nextInterface() Next
+	}
+
 	// PredicateVertexPath is the Vertex implementation part of the QueryPath sequence
 	PredicateVertexPath struct {
 		PredicateVertex
@@ -108,3 +112,6 @@ func (p *PredicateEdgePath) SetLength(minimum uint, maximum uint) {
 
 func (p *PredicateEdgePath) path()   {}
 func (p *PredicateVertexPath) path() {}
+
+func (p *PredicateEdgePath) nextInterface()   {}
+func (p *PredicateVertexPath) nextInterface() {}

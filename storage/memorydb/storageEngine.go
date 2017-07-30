@@ -10,7 +10,7 @@ import (
 
 func init() {
 	graph.RegisterGraph(GraphType, graph.GraphRegistration{
-		NewFunc: newStorageEngine,
+		NewFunc: NewStorageEngine,
 	})
 }
 
@@ -30,7 +30,8 @@ func (se *StorageEngine) Close() {
 
 }
 
-func newStorageEngine(o *graph.Options) (graph.Graph, error) {
+// NewStorageEngine creates anew in memory storage engine
+func NewStorageEngine(o *graph.Options) (graph.Graph, error) {
 	queryEngine, err := query.NewQueryEngine(o.QueryEngine)
 	if err != nil {
 		return nil, err
