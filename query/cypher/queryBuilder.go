@@ -8,8 +8,8 @@ import (
 
 // ToQueryPath converts a cypher.Stmt to a QueryPath the queryPath is used to walk the graph
 func ToQueryPath(stmt ast.Stmt, toPredicateVertex func(*ast.VertexPatn) query.PredicateVertex,
-	toPredicateEdge func(patn *ast.EdgePatn) query.PredicateEdge) (*query.QueryPath, error) {
-	q := query.NewQueryPath()
+	toPredicateEdge func(patn *ast.EdgePatn) query.PredicateEdge) (query.Path, error) {
+	q, _ := query.NewPath()
 	var next func(query.Path)
 	next = q.SetNext
 	if pattern, ok := IsPattern(stmt); ok {

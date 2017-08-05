@@ -30,7 +30,7 @@ type QueryEngine struct {
 }
 
 // Parser in a cypher query as a string and get back Query that is abstracted from the cypher AST
-func (qe QueryEngine) Parser(q string) (*query.QueryPath, error) {
+func (qe QueryEngine) Parser(q string) (query.Path, error) {
 	stmt, err := parser.NewParser(strings.NewReader(q)).Parse()
 	if err != nil {
 		return nil, err

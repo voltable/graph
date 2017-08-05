@@ -1,15 +1,12 @@
 package query
 
 import (
+	"errors"
+
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 type (
-	// QueryPath is a walk in the graph in a alternating sequence of vertices and edges
-	QueryPath struct {
-		next VertexNext
-	}
-
 	// VariableLength a range for pattern matching
 	VariableLength struct {
 		Minimum uint
@@ -18,33 +15,38 @@ type (
 
 	// VertexNext is the Vertex part of the QueryPath sequence
 	VertexNext interface {
-		Next() EdgeNext
+		//Next() Path
 	}
 
 	// EdgeNext is the Edge part of the QueryPath sequence
 	EdgeNext interface {
-		Next() VertexNext
+		//Next() Path
 		Length() *VariableLength
 	}
 
+	// Path is a walk in the graph in a alternating sequence of vertices and edges
 	Path interface {
-		path()
+		Next() Path
+		SetNext(path Path)
+		//nextPath() Path
 	}
 
-	Next interface {
-		nextInterface() Next
+	// root is the start of the path
+	Root struct {
+		next Path
 	}
 
 	// PredicateVertexPath is the Vertex implementation part of the QueryPath sequence
 	PredicateVertexPath struct {
 		PredicateVertex
-		next EdgeNext
+		next Path
 	}
 
 	// PredicateEdgePath is the Edge implementation part of the QueryPath sequence
 	PredicateEdgePath struct {
 		PredicateEdge
-		next   VertexNext
+		next Path
+
 		length VariableLength
 	}
 
@@ -58,25 +60,54 @@ type (
 	PredicateEdge func(*vertices.Edge) bool
 )
 
-func NewQueryPath() *QueryPath {
-	q := &QueryPath{}
-	return q
+var (
+	errPredicateVertexPath = errors.New("Expected PredicateVertexPath")
+	errPredicateEdgePath   = errors.New("Expected PredicateEdgePath")
+)
+
+func NewPath() (Path, error) {
+	path := &Root{}
+	return path, nil
 }
 
-// Next returns the next Vertex in the QueryPath
-func (p *QueryPath) Next() VertexNext {
+// SetNext sets the next Vertex or Edge in the Path
+func SetNext(p Path, path Path) error {
+	if _, ok := p.(*PredicateVertexPath); ok {
+		if v, ok := path.(*PredicateEdgePath); ok {
+			p.SetNext(v)
+		} else {
+			return errPredicateEdgePath
+		}
+	} else if _, ok := p.(*PredicateEdgePath); ok {
+		if v, ok := path.(*PredicateVertexPath); ok {
+			p.SetNext(v)
+		} else {
+			return errPredicateVertexPath
+		}
+	}
+
+	return nil
+}
+
+// Next returns the next Vertex or Edge in the Path
+func Next(p Path) Path {
+	return p.Next()
+}
+
+// Next returns the next Edge in the QueryPath
+func (p *Root) Next() Path {
 	return p.next
 }
 
 // SetNext sets the next Edge in the QueryPath
-func (p *QueryPath) SetNext(path Path) {
+func (p *Root) SetNext(path Path) {
 	if v, ok := path.(*PredicateVertexPath); ok {
 		p.next = v
 	}
 }
 
 // Next returns the next Edge in the QueryPath
-func (p *PredicateVertexPath) Next() EdgeNext {
+func (p *PredicateVertexPath) Next() Path {
 	return p.next
 }
 
@@ -88,7 +119,7 @@ func (p *PredicateVertexPath) SetNext(path Path) {
 }
 
 // Next returns the next Vertex in the QueryPath
-func (p *PredicateEdgePath) Next() VertexNext {
+func (p *PredicateEdgePath) Next() Path {
 	return p.next
 }
 
@@ -109,9 +140,3 @@ func (p *PredicateEdgePath) SetLength(minimum uint, maximum uint) {
 	length := VariableLength{Maximum: maximum, Minimum: minimum}
 	p.length = length
 }
-
-func (p *PredicateEdgePath) path()   {}
-func (p *PredicateVertexPath) path() {}
-
-func (p *PredicateEdgePath) nextInterface()   {}
-func (p *PredicateVertexPath) nextInterface() {}

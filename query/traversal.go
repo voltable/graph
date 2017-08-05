@@ -11,8 +11,8 @@ func NewTraversal() *Traversal {
 
 // Travers run's the query over the graph
 func (t *Traversal) Travers(query *Query) error {
-	//var next func() Next
-	//next = query.path.Next
+	// var next func() Next
+	// next = query.path.Next
 
 	return nil
 }

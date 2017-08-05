@@ -9,13 +9,13 @@ import (
 var queryEngineRegistry = make(map[string]QueryEngineRegistration)
 
 var (
-	errQueryNotRegistred = errors.New("This query is not registered.")
+	errQueryNotRegistred = errors.New("This query is not registered")
 )
 
 // QueryEngine is the interface that a queryEngine must implement
 type QueryEngine interface {
 	// Parser in a string which is your query you want to run, get back a vertexPath that is abstracted from any query language or AST
-	Parser(string) (*QueryPath, error)
+	Parser(string) (Path, error)
 }
 
 type NewQueryFunc func() (QueryEngine, error)
