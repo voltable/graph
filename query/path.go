@@ -57,7 +57,7 @@ type (
 	PredicateVertex func(v *vertices.Vertex) bool
 
 	//PredicateEdge apply the predicate over the edge
-	PredicateEdge func(*vertices.Edge) bool
+	PredicateEdge func(e *vertices.Edge) bool
 )
 
 var (

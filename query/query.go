@@ -6,3 +6,7 @@ type Query struct {
 	path    Path
 	Results []interface{}
 }
+
+func NewQuery(path Path) *Query {
+	return &Query{path: path}
+}

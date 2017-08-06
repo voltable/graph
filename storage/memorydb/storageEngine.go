@@ -73,10 +73,14 @@ func (se *StorageEngine) Update(c ...*vertices.Vertex) error {
 	return nil
 }
 
-func (se *StorageEngine) Query(q string) (query.Path, error) {
-	return se.queryEngine.Parser(q)
+func (se *StorageEngine) Query(str string) (*query.Query, error) {
+	path, err := se.queryEngine.Parser(str)
+	q := query.NewQuery(path)
+	t := query.NewTraversal(se.Find)
+	t.Travers(se.all(), q)
+	return q, err
 }
 
-// func (se *StorageEngine) QueryRoot(predicate func(*vertices.Vertex) bool) *query.Query {
-// 	return traversal.QueryRoot(predicate)
-// }
+func (se *StorageEngine) all() func() query.Iterator {
+	return nil
+}
