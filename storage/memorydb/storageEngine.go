@@ -77,10 +77,11 @@ func (se *StorageEngine) Query(str string) (*query.Query, error) {
 	path, err := se.queryEngine.Parser(str)
 	q := query.NewQuery(path)
 	t := query.NewTraversal(se.Find)
-	t.Travers(se.all(), q)
+	// should do something clever to pick the right index not just iterate
+	t.Travers(se.forEach(), q)
 	return q, err
 }
 
-func (se *StorageEngine) all() func() query.Iterator {
+func (se *StorageEngine) forEach() func() query.Iterator {
 	return nil
 }

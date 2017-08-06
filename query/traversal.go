@@ -16,18 +16,22 @@ func NewTraversal(fetch func(string) (*vertices.Vertex, error)) *Traversal {
 func (t *Traversal) Travers(i func() Iterator, q *Query) error {
 	edgePath := NewEdgePath(i, t.fetch)
 	vertexPath := NewVertexPath(i, t.fetch)
-
+	var iterate func() Iterator
 	p := q.path.Next()
 	for p != nil {
 		if pv, ok := p.(*PredicateVertexPath); ok {
 			edgePath = vertexPath.Node(pv.PredicateVertex)
+			iterate = vertexPath.Iterate
 		} else if pe, ok := p.(*PredicateEdgePath); ok {
 			vertexPath = edgePath.Relationship(pe.PredicateEdge)
+			iterate = edgePath.Iterate
 		} else {
 			break
 		}
 
 		p = p.Next()
 	}
+
+	iterate()
 	return nil
 }

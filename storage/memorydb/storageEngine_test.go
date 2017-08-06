@@ -21,4 +21,5 @@ func Test_Query(t *testing.T) {
 
 	v, _ := vertices.NewVertex()
 	g.Create(v)
+	g.Query("")
 }
