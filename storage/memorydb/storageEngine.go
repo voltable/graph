@@ -24,6 +24,7 @@ type StorageEngine struct {
 	vertices    map[string]vertices.Vertex
 	Options     *graph.Options
 	queryEngine query.QueryEngine
+	traversal   query.Traversal
 }
 
 func (se *StorageEngine) Close() {
@@ -36,7 +37,12 @@ func NewStorageEngine(o *graph.Options) (graph.Graph, error) {
 	if err != nil {
 		return nil, err
 	}
-	se := StorageEngine{Options: o, vertices: make(map[string]vertices.Vertex), queryEngine: queryEngine}
+	se := StorageEngine{
+		Options:     o,
+		vertices:    make(map[string]vertices.Vertex),
+		queryEngine: queryEngine}
+
+	se.traversal = *query.NewTraversal(se.Find)
 	return &se, nil
 }
 
@@ -75,13 +81,21 @@ func (se *StorageEngine) Update(c ...*vertices.Vertex) error {
 
 func (se *StorageEngine) Query(str string) (*query.Query, error) {
 	path, err := se.queryEngine.Parser(str)
+
+	if err != nil {
+		return nil, err
+	}
+
 	q := query.NewQuery(path)
-	t := query.NewTraversal(se.Find)
 	// should do something clever to pick the right index not just iterate
-	t.Travers(se.forEach(), q)
+	se.traversal.Travers(se.forEach(), q)
 	return q, err
 }
 
 func (se *StorageEngine) forEach() func() query.Iterator {
-	return nil
+	return func() query.Iterator {
+		return func() (item interface{}, ok bool) {
+			return nil, true
+		}
+	}
 }
