@@ -22,6 +22,7 @@ var (
 
 type StorageEngine struct {
 	vertices    map[string]vertices.Vertex
+	keys        []string
 	Options     *graph.Options
 	queryEngine query.QueryEngine
 	traversal   query.Traversal
@@ -50,6 +51,7 @@ func NewStorageEngine(o *graph.Options) (graph.Graph, error) {
 func (se *StorageEngine) Create(c ...*vertices.Vertex) error {
 	for _, v := range c {
 		se.vertices[v.ID()] = *v
+		se.keys = append(se.keys, v.ID())
 	}
 
 	return nil
@@ -59,6 +61,14 @@ func (se *StorageEngine) Create(c ...*vertices.Vertex) error {
 func (se *StorageEngine) Delete(c ...*vertices.Vertex) error {
 	for _, v := range c {
 		delete(se.vertices, v.ID())
+		for i, k := range se.keys {
+			if k == v.ID() {
+				se.keys = append(se.keys[:i], se.keys[i+1:]...)
+				break
+
+			}
+		}
+		//delete(se.keys, v.ID())
 	}
 
 	return nil
@@ -86,16 +96,25 @@ func (se *StorageEngine) Query(str string) (*query.Query, error) {
 		return nil, err
 	}
 
-	q := query.NewQuery(path)
+	q := query.NewQuery(path, str)
+
 	// should do something clever to pick the right index not just iterate
-	se.traversal.Travers(se.forEach(), q)
+	err = se.traversal.Travers(se.forEach(), q)
 	return q, err
 }
 
 func (se *StorageEngine) forEach() func() query.Iterator {
 	return func() query.Iterator {
+		position := 0
+		length := len(se.keys)
 		return func() (item interface{}, ok bool) {
-			return nil, true
+			if position < length {
+				key := se.keys[position]
+				v := se.vertices[key]
+				position = position + 1
+				return v, true
+			}
+			return nil, false
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package memorydb_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
@@ -19,7 +20,21 @@ func Test_Query(t *testing.T) {
 		t.Errorf("Failed to create the storageEngine %v", err)
 	}
 
-	v, _ := vertices.NewVertex()
-	g.Create(v)
-	g.Query("")
+	v1, _ := vertices.NewVertex()
+	v1.SetLabel("person")
+	v1.SetProperty("name", "john smith")
+	g.Create(v1)
+
+	v2, _ := vertices.NewVertex()
+	v2.SetLabel("place")
+	v2.SetProperty("name", "london")
+	g.Create(v2)
+
+	q, err := g.Query("MATCH (n:Person)")
+
+	if err != nil {
+		t.Errorf("Bad Query")
+	}
+
+	fmt.Printf("%q", q)
 }

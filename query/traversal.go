@@ -21,17 +21,23 @@ func (t *Traversal) Travers(i func() Iterator, q *Query) error {
 	for p != nil {
 		if pv, ok := p.(*PredicateVertexPath); ok {
 			edgePath = vertexPath.Node(pv.PredicateVertex)
-			iterate = vertexPath.Iterate
+			iterate = edgePath.Iterate
 		} else if pe, ok := p.(*PredicateEdgePath); ok {
 			vertexPath = edgePath.Relationship(pe.PredicateEdge)
-			iterate = edgePath.Iterate
-		} else {
-			break
+			iterate = vertexPath.Iterate
 		}
 
 		p = p.Next()
 	}
+	iterator := iterate()
 
-	iterate()
+	for {
+		result, ok := iterator()
+		if !ok {
+			break
+		}
+		q.Results = append(q.Results, result)
+	}
+
 	return nil
 }

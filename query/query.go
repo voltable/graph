@@ -7,6 +7,6 @@ type Query struct {
 	Results []interface{}
 }
 
-func NewQuery(path Path) *Query {
-	return &Query{path: path}
+func NewQuery(path Path, query string) *Query {
+	return &Query{path: path, query: query}
 }

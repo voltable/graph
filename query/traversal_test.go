@@ -1,53 +1,45 @@
 package query_test
 
-import (
-	"testing"
+// func Test_Traversal_Travers(t *testing.T) {
 
-	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
-	"github.com/RossMerr/Caudex.Graph/vertices"
-)
+// 	fetch := func(string) (*vertices.Vertex, error) {
+// 		return nil, nil
+// 	}
+// 	traversal := query.NewTraversal(fetch)
 
-func Test_Traversal_Travers(t *testing.T) {
+// 	it := func() (item interface{}, ok bool) {
+// 		//state = XOR(state)
+// 		//return frontier, state
+// 		return nil, true
+// 	}
 
-	fetch := func(string) (*vertices.Vertex, error) {
-		return nil, nil
-	}
-	traversal := query.NewTraversal(fetch)
+// 	path := &query.Root{}
 
-	it := func() (item interface{}, ok bool) {
-		//state = XOR(state)
-		//return frontier, state
-		return nil, true
-	}
+// 	edgePatn := &ast.EdgePatn{Body: &ast.EdgeBodyStmt{LengthMinimum: 2, LengthMaximum: 5}}
+// 	vertexPatn := &ast.VertexPatn{Variable: "bar", Edge: edgePatn}
+// 	var b bool
 
-	path := &query.Root{}
+// 	toPredicateVertex := func(*ast.VertexPatn) query.PredicateVertex {
+// 		return func(v *vertices.Vertex) bool {
+// 			return b
+// 		}
+// 	}
 
-	edgePatn := &ast.EdgePatn{Body: &ast.EdgeBodyStmt{LengthMinimum: 2, LengthMaximum: 5}}
-	vertexPatn := &ast.VertexPatn{Variable: "bar", Edge: edgePatn}
-	var b bool
+// 	toPredicateEdge := func(patn *ast.EdgePatn) query.PredicateEdge {
+// 		return func(e *vertices.Edge) bool {
+// 			return b
+// 		}
+// 	}
+// 	vertexPath := &query.PredicateVertexPath{PredicateVertex: toPredicateVertex(vertexPatn)}
+// 	vertexPath.SetNext(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(edgePatn)})
+// 	path.SetNext(vertexPath)
 
-	toPredicateVertex := func(*ast.VertexPatn) query.PredicateVertex {
-		return func(v *vertices.Vertex) bool {
-			return b
-		}
-	}
+// 	q := query.NewQuery(path, "")
+// 	err := traversal.Travers(func() query.Iterator {
+// 		return it
+// 	}, q)
 
-	toPredicateEdge := func(patn *ast.EdgePatn) query.PredicateEdge {
-		return func(e *vertices.Edge) bool {
-			return b
-		}
-	}
-	vertexPath := &query.PredicateVertexPath{PredicateVertex: toPredicateVertex(vertexPatn)}
-	vertexPath.SetNext(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(edgePatn)})
-	path.SetNext(vertexPath)
-
-	q := query.NewQuery(path)
-	err := traversal.Travers(func() query.Iterator {
-		return it
-	}, q)
-
-	if err != nil {
-		t.Errorf("Travers")
-	}
-}
+// 	if err != nil {
+// 		t.Errorf("Travers")
+// 	}
+// }

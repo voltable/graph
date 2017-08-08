@@ -4,7 +4,10 @@ import (
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
-// EdgePath represents the Edge part of a Path
+// EdgePath is used to store data from the result of a Uniform Cost Search over edges.
+//
+// It only acts as one part of a Path from a walk in the graph you want to traverse acting on the edge part.
+// See VertexPath for walking over the Vertices.
 type EdgePath struct {
 	Iterate  func() Iterator
 	explored map[string]bool
@@ -17,6 +20,8 @@ func NewEdgePath(i func() Iterator, f func(string) (*vertices.Vertex, error)) *E
 }
 
 // Relationship returns all edges matching the predicate
+//
+// The query is lazy only running on calling Iterate() from the VertexPath
 func (t *EdgePath) Relationship(predicate PredicateEdge) *VertexPath {
 	if predicate == nil {
 		predicate = AllEdges()

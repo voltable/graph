@@ -6,7 +6,10 @@ import (
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
-// VertexPath represents the Vertex part of a Path
+// VertexPath is used to store data from the result of a Uniform Cost Search over vertexes.
+//
+// It only acts as one part of a Path from a walk in the graph you want to traverse acting on the Vertex part.
+// See EdgePath for walking over the Edge.
 type VertexPath struct {
 	Iterate  func() Iterator
 	explored map[string]bool
@@ -19,6 +22,8 @@ func NewVertexPath(i func() Iterator, f func(string) (*vertices.Vertex, error)) 
 }
 
 // Node returns all Verteces matching the predicate
+//
+// The query is lazy only running on calling Iterate() from the EdgePath
 func (t *VertexPath) Node(predicate PredicateVertex) *EdgePath {
 	if predicate == nil {
 		predicate = AllVertices()
