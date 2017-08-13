@@ -24,3 +24,9 @@ func (f Frontier) Append(vertices []*vertices.Vertex, cost float32) Frontier {
 	f = append(f, &frontierPath{vertices, cost})
 	return f
 }
+
+func NewFrontier(v *vertices.Vertex) Frontier {
+	f := Frontier{}
+	f = f.Append([]*vertices.Vertex{v}, 0)
+	return f
+}

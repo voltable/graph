@@ -13,31 +13,24 @@ func NewTraversal(fetch func(string) (*vertices.Vertex, error)) *Traversal {
 }
 
 // Travers run's the query over the graph
-func (t *Traversal) Travers(i func() Iterator, q *Query) error {
+func (t *Traversal) Travers(i func() Iterator, q *Query) {
 	edgePath := NewEdgePath(i, t.fetch)
 	vertexPath := NewVertexPath(i, t.fetch)
-	var iterate func() Iterator
+	var result interface{}
+	var iterated bool
 	p := q.path.Next()
 	for p != nil {
 		if pv, ok := p.(*PredicateVertexPath); ok {
 			edgePath = vertexPath.Node(pv.PredicateVertex)
-			iterate = edgePath.Iterate
+			result, iterated = edgePath.Iterate()()
+
 		} else if pe, ok := p.(*PredicateEdgePath); ok {
 			vertexPath = edgePath.Relationship(pe.PredicateEdge)
-			iterate = vertexPath.Iterate
+			result, iterated = vertexPath.Iterate()()
 		}
-
+		if iterated {
+			q.Results = append(q.Results, result)
+		}
 		p = p.Next()
 	}
-	iterator := iterate()
-
-	for {
-		result, ok := iterator()
-		if !ok {
-			break
-		}
-		q.Results = append(q.Results, result)
-	}
-
-	return nil
 }

@@ -52,13 +52,9 @@ func Test_Traversal_Travers(t *testing.T) {
 	path.SetNext(vertexPath)
 
 	q := query.NewQuery(path, "")
-	err := traversal.Travers(func() query.Iterator {
+	traversal.Travers(func() query.Iterator {
 		return it
 	}, q)
-
-	if err != nil {
-		t.Errorf("Travers failed")
-	}
 
 	if len(q.Results) != 1 {
 		t.Errorf("Failed to match")

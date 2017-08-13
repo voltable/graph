@@ -99,7 +99,7 @@ func (se *StorageEngine) Query(str string) (*query.Query, error) {
 	q := query.NewQuery(path, str)
 
 	// should do something clever to pick the right index not just iterate
-	err = se.traversal.Travers(se.forEach(), q)
+	se.traversal.Travers(se.forEach(), q)
 	return q, err
 }
 
@@ -112,7 +112,7 @@ func (se *StorageEngine) forEach() func() query.Iterator {
 				key := se.keys[position]
 				v := se.vertices[key]
 				position = position + 1
-				return v, true
+				return query.NewFrontier(&v), true
 			}
 			return nil, false
 		}

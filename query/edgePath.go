@@ -6,7 +6,7 @@ import (
 
 // EdgePath is used to store data from the result of a Uniform Cost Search over edges.
 //
-// It only acts as one part of a Path from a walk in the graph you want to traverse acting on the edge part.
+// It only acts as one part of a Path from a walk in the graph you want to traverse acting on the edge.
 // See VertexPath for walking over the Vertices.
 type EdgePath struct {
 	Iterate  func() Iterator

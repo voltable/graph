@@ -15,12 +15,10 @@ type (
 
 	// VertexNext is the Vertex part of the QueryPath sequence
 	VertexNext interface {
-		//Next() Path
 	}
 
 	// EdgeNext is the Edge part of the QueryPath sequence
 	EdgeNext interface {
-		//Next() Path
 		Length() *VariableLength
 	}
 
@@ -28,7 +26,6 @@ type (
 	Path interface {
 		Next() Path
 		SetNext(path Path)
-		//nextPath() Path
 	}
 
 	// root is the start of the path

@@ -1,6 +1,8 @@
 package ast
 
 import (
+	"strings"
+
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
@@ -50,11 +52,7 @@ func (*EdgePatn) patnNode()   {}
 // ToPredicateVertex creates a PredicateVertex out of the VertexPatn
 func ToPredicateVertex(patn *VertexPatn) query.PredicateVertex {
 	return func(v *vertices.Vertex) bool {
-		if patn.Label != v.Label() {
-			return false
-		}
-
-		if len(patn.Properties) != v.PropertiesCount() {
+		if strings.ToLower(patn.Label) != strings.ToLower(v.Label()) {
 			return false
 		}
 
@@ -71,11 +69,7 @@ func ToPredicateVertex(patn *VertexPatn) query.PredicateVertex {
 // ToPredicateEdge creates a PredicateEdge out of the EdgePatn
 func ToPredicateEdge(patn *EdgePatn) query.PredicateEdge {
 	return func(v *vertices.Edge) bool {
-		if patn.Body.Type != v.RelationshipType() {
-			return false
-		}
-
-		if len(patn.Body.Properties) != v.PropertiesCount() {
+		if strings.ToLower(patn.Body.Type) != strings.ToLower(v.RelationshipType()) {
 			return false
 		}
 

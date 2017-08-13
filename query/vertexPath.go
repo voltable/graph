@@ -8,7 +8,7 @@ import (
 
 // VertexPath is used to store data from the result of a Uniform Cost Search over vertexes.
 //
-// It only acts as one part of a Path from a walk in the graph you want to traverse acting on the Vertex part.
+// It only acts as one part of a Path from a walk in the graph you want to traverse acting on the Vertex.
 // See EdgePath for walking over the Edge.
 type VertexPath struct {
 	Iterate  func() Iterator
