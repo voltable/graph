@@ -326,6 +326,7 @@ func (p *Parser) value(tok lexer.Token, lit string) (interface{}, error) {
 
 func (p *Parser) propertyOrValue() (ast.Expr, error) {
 	tok, lit := p.scanIgnoreWhitespace()
+
 	if tok == lexer.IDENT {
 
 		state := &ast.PropertyStmt{Variable: lit}
@@ -349,6 +350,15 @@ func (p *Parser) propertyOrValue() (ast.Expr, error) {
 	}
 	p.unscan()
 	return nil, nil
+}
+
+func (p *Parser) stringValue() (ast.Expr, error) {
+	tok, lit, err := p.scanForQuotation()
+	if tok == lexer.IDENT {
+		return &ast.Ident{Data: lit}, nil
+	}
+	p.unscan()
+	return nil, err
 }
 
 func (p *Parser) comparisonExpr() (*ast.ComparisonExpr, error) {
@@ -397,6 +407,10 @@ func (p *Parser) Predicate() (ast.Expr, error) {
 	for !tok.IsClause() && tok != lexer.EOF {
 
 		if property, err := p.propertyOrValue(); err == nil && property != nil {
+			exprStack = exprStack.Push(property)
+		} else if err != nil {
+			return nil, err
+		} else if property, err := p.stringValue(); err == nil && property != nil {
 			exprStack = exprStack.Push(property)
 		} else if err != nil {
 			return nil, err
@@ -621,6 +635,27 @@ func (p *Parser) scanIgnoreWhitespace() (tok lexer.Token, lit string) {
 	tok, lit = p.scan()
 	if tok == lexer.WS {
 		tok, lit = p.scan()
+	}
+	return
+}
+
+// scanForQuotation scans the next matching quotations lexer.
+func (p *Parser) scanForQuotation() (tok lexer.Token, lit string, err error) {
+	tok, lit = p.scan()
+	if tok == lexer.QUOTATION || tok == lexer.SINGLEQUOTATION {
+		lit = emptyString
+		for {
+			tok2, s := p.scan()
+			if tok2 != lexer.QUOTATION && tok2 != lexer.SINGLEQUOTATION {
+				lit += s
+			} else if tok2 == lexer.EOF {
+				err = fmt.Errorf("No matching quotaation found %q", lit)
+				return
+			} else {
+				tok = lexer.IDENT
+				break
+			}
+		}
 	}
 	return
 }

@@ -1,7 +1,6 @@
 package memorydb_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
@@ -30,11 +29,13 @@ func Test_Query(t *testing.T) {
 	v2.SetProperty("name", "london")
 	g.Create(v2)
 
-	q, err := g.Query("MATCH (n:Person)")
+	q, err := g.Query("MATCH (n:Person) WHERE n.name = 'john smith'")
 
 	if err != nil {
 		t.Errorf("Bad Query")
 	}
 
-	fmt.Printf("%q", q)
+	if len(q.Results) != 1 {
+		t.Errorf("Failed to match")
+	}
 }

@@ -156,6 +156,7 @@ func (se *StorageEngine) Query(q string) (*query.Query, error) {
 	// 		b.ForEach(func(k, v []byte) error {
 	// 			vertex := vertices.Vertex{}
 	// 			if err := json.Unmarshal(v, vertex); err == nil {
+	//				//TODO need to return a frontier query.NewFrontier(&v), true
 	// 				ch <- vertex
 	// 			}
 	// 			return nil
