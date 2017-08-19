@@ -2,6 +2,7 @@ package vertices
 
 import (
 	"errors"
+	"strings"
 
 	uuid "github.com/hashicorp/go-uuid"
 )
@@ -99,7 +100,7 @@ func (v *Vertex) removeRelationshipsF(f func(id string, e Edge) bool) Digraph {
 }
 
 func (v *Vertex) SetLabel(label string) *Vertex {
-	v.label = label
+	v.label = strings.ToLower(label)
 	return v
 }
 

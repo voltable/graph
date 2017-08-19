@@ -1,6 +1,7 @@
 package vertices
 
 import uuid "github.com/hashicorp/go-uuid"
+import "strings"
 
 type (
 	// An Edge connects two Vertex in a graph.
@@ -48,7 +49,7 @@ func (e *Edge) RelationshipType() string {
 
 // SetRelationshipType the type of relationship
 func (e *Edge) SetRelationshipType(label string) {
-	e.relationshipType = label
+	e.relationshipType = strings.ToLower(label)
 }
 
 // SetProperty set a property to store against this Edge

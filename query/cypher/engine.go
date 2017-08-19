@@ -9,28 +9,28 @@ import (
 )
 
 func init() {
-	query.RegisterQueryEngine(queryType, query.QueryEngineRegistration{
-		NewFunc: newQueryEngine,
+	query.RegisterEngine(queryType, query.EngineRegistration{
+		NewFunc: newEngine,
 	})
 }
 
-// RegisterQueryEngine forces the call of init
-func RegisterQueryEngine() {
+// RegisterEngine forces the call of init
+func RegisterEngine() {
 	// Forces the call of init
 }
 
 const queryType = "Cypher"
 
-func newQueryEngine() (query.QueryEngine, error) {
-	return &QueryEngine{}, nil
+func newEngine() (query.Engine, error) {
+	return &Engine{}, nil
 }
 
-// QueryEngine is a implementation of the Query interface used to pass cypher queries
-type QueryEngine struct {
+// Engine is a implementation of the Query interface used to pass cypher queries
+type Engine struct {
 }
 
 // Parser in a cypher query as a string and get back Query that is abstracted from the cypher AST
-func (qe QueryEngine) Parser(q string) (query.Path, error) {
+func (qe Engine) Parser(q string) (query.Path, error) {
 	stmt, err := parser.NewParser(strings.NewReader(q)).Parse()
 	if err != nil {
 		return nil, err

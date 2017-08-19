@@ -7,7 +7,7 @@ type frontierPath struct {
 	Cost     float32
 }
 
-// Frontier priority queue containing vertices to be explored
+// Frontier priority queue containing vertices to be explored and the cost for a Uniform Cost Search
 type Frontier []*frontierPath
 
 func (f Frontier) Len() int                 { return len(f) }
@@ -25,6 +25,7 @@ func (f Frontier) Append(vertices []*vertices.Vertex, cost float32) Frontier {
 	return f
 }
 
+// NewFrontier create the Frontier using the inistal Vertex as the root of the graph
 func NewFrontier(v *vertices.Vertex) Frontier {
 	f := Frontier{}
 	f = f.Append([]*vertices.Vertex{v}, 0)

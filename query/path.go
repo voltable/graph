@@ -28,7 +28,7 @@ type (
 		SetNext(path Path)
 	}
 
-	// root is the start of the path
+	// Root is the start of the path
 	Root struct {
 		next Path
 	}

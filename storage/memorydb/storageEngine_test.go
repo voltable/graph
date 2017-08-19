@@ -11,7 +11,7 @@ import (
 )
 
 func Test_Query(t *testing.T) {
-	cypher.RegisterQueryEngine()
+	cypher.RegisterEngine()
 	options := graph.NewOptions()
 	g, err := memorydb.NewStorageEngine(options)
 

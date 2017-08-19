@@ -7,6 +7,7 @@ type Query struct {
 	Results []interface{}
 }
 
+// NewQuery creates the instial Query object with the path create from the query string and path object
 func NewQuery(path Path, query string) *Query {
 	return &Query{path: path, query: query}
 }

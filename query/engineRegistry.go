@@ -6,37 +6,37 @@ import (
 	"github.com/Sirupsen/logrus"
 )
 
-var queryEngineRegistry = make(map[string]QueryEngineRegistration)
+var engineRegistry = make(map[string]EngineRegistration)
 
 var (
 	errQueryNotRegistred = errors.New("This query is not registered")
 )
 
-// QueryEngine is the interface that a queryEngine must implement
-type QueryEngine interface {
+// Engine is the interface that a engine must implement
+type Engine interface {
 	// Parser in a string which is your query you want to run, get back a vertexPath that is abstracted from any query language or AST
 	Parser(string) (Path, error)
 }
 
-type NewQueryFunc func() (QueryEngine, error)
+type NewQueryFunc func() (Engine, error)
 
-type QueryEngineRegistration struct {
+type EngineRegistration struct {
 	NewFunc NewQueryFunc
 }
 
-func RegisterQueryEngine(name string, register QueryEngineRegistration) {
+func RegisterEngine(name string, register EngineRegistration) {
 	if register.NewFunc == nil {
 		logrus.Panic("NewFunc must not be nil")
 	}
 
-	if _, found := queryEngineRegistry[name]; found {
+	if _, found := engineRegistry[name]; found {
 		logrus.Panicf("Already registered Query %q.", name)
 	}
-	queryEngineRegistry[name] = register
+	engineRegistry[name] = register
 }
 
-func NewQueryEngine(name string) (QueryEngine, error) {
-	r, registered := queryEngineRegistry[name]
+func NewQueryEngine(name string) (Engine, error) {
+	r, registered := engineRegistry[name]
 	if !registered {
 		return nil, errQueryNotRegistred
 	}

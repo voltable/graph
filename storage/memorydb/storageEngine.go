@@ -24,7 +24,7 @@ type StorageEngine struct {
 	vertices    map[string]vertices.Vertex
 	keys        []string
 	Options     *graph.Options
-	queryEngine query.QueryEngine
+	queryEngine query.Engine
 	traversal   query.Traversal
 }
 
