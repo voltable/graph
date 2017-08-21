@@ -53,8 +53,11 @@ type (
 	// PredicateVertex apply the predicate over the vertex
 	PredicateVertex func(v *vertices.Vertex) bool
 
-	//PredicateEdge apply the predicate over the edge
+	// PredicateEdge apply the predicate over the edge
 	PredicateEdge func(e *vertices.Edge) bool
+
+	// PredicateExpression apply the predicate over the Expr
+	PredicateExpression func(e *Path) bool
 )
 
 var (

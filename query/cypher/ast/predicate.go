@@ -40,3 +40,31 @@ func ToPredicateEdge(patn *EdgePatn) query.PredicateEdge {
 		return true
 	}
 }
+
+// ToPredicateExpression creates a PredicateExpression out of the Expr
+// func ToPredicateExpression(item Expr) (query.PredicateExpression, error) {
+
+// 	// if b, ok := item.(*BooleanExpr); ok {
+// 	// 	return BooleanPrecedence(*b)
+// 	// } else if b, ok := item.(*NotExpr); ok {
+// 	// 	return NotPrecedence(*b)
+// 	// } else if b, ok := item.(*ComparisonExpr); ok {
+// 	// 	return ComparisonPrecedence(*b)
+// 	// } else if b, ok := item.(MathematicalExpr); ok {
+// 	// 	return MathPrecedence(b)
+// 	// } else if b, ok := item.(ParenthesesExpr); ok {
+// 	// 	return ParenthesesPrecedence(b)
+// 	// }
+
+// 	if b, ok := item.(*ComparisonExpr); ok {
+// 		return func(path *query.Path) bool {
+// 			strings.Compare(b.)
+// 			b.Comparison.
+// 			return false
+// 		}, nil
+// 	}
+// 	return func(path *query.Path) bool {
+
+// 		return false
+// 	}, fmt.Errorf("")
+// }

@@ -4,53 +4,82 @@ import (
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
+	"github.com/RossMerr/Caudex.Graph/vertices"
 )
+
+func Test_Evaluate(t *testing.T) {
+	var tests = []struct {
+		c      ast.ComparisonExpr
+		v      *vertices.Vertex
+		p      *ast.VertexPatn
+		result bool
+		err    string
+	}{
+		{
+			c:      ast.ComparisonExpr{Comparison: ast.EQ},
+			v:      &vertices.Vertex{},
+			p:      &ast.VertexPatn{},
+			result: false,
+		},
+		{
+			c:      ast.ComparisonExpr{Comparison: ast.EQ},
+			v:      &vertices.Vertex{},
+			p:      &ast.VertexPatn{},
+			result: false,
+		},
+	}
+
+	for _, tt := range tests {
+		tt.c.Evaluate(tt.v, tt.p)
+	}
+}
 
 func Test_ComparisonPrecedence(t *testing.T) {
 
-	c := ast.ComparisonExpr{Comparison: ast.EQ}
-
-	if ast.ComparisonPrecedence(c) != 8 {
-		t.Errorf("comparison expected %v", ast.EQ)
+	var tests = []struct {
+		c ast.ComparisonExpr
+		p int
+	}{
+		{
+			c: ast.ComparisonExpr{Comparison: ast.EQ},
+			p: 8,
+		}, {
+			c: ast.ComparisonExpr{Comparison: ast.NEQ},
+			p: 8,
+		}, {
+			c: ast.ComparisonExpr{Comparison: ast.LT},
+			p: 7,
+		}, {
+			c: ast.ComparisonExpr{Comparison: ast.LTE},
+			p: 7,
+		}, {
+			c: ast.ComparisonExpr{Comparison: ast.GT},
+			p: 7,
+		}, {
+			c: ast.ComparisonExpr{Comparison: ast.GTE},
+			p: 7,
+		}, {
+			c: ast.ComparisonExpr{Comparison: ast.IS_NULL},
+			p: 7,
+		}, {
+			c: ast.ComparisonExpr{Comparison: ast.IS_NOT_NULL},
+			p: 7,
+		},
 	}
 
-	c.Comparison = ast.NEQ
-	if ast.ComparisonPrecedence(c) != 8 {
-		t.Errorf("comparison expected %v", ast.NEQ)
+	for i, tt := range tests {
+		precedence := ast.ComparisonPrecedence(tt.c)
+		if precedence != tt.p {
+			t.Errorf("%d. %q: comparison mismatch:\n  exp=%d\n  got=%d\n\n", i, tt.c, tt.p, precedence)
+		}
+	}
+}
+
+// Swaps the boolean
+func XOR(b bool) bool {
+	if b == true {
+		return false
 	}
 
-	c.Comparison = ast.LT
-	if ast.ComparisonPrecedence(c) != 7 {
-		t.Errorf("comparison expected %v", ast.LT)
-	}
-
-	c.Comparison = ast.LTE
-	if ast.ComparisonPrecedence(c) != 7 {
-		t.Errorf("comparison expected %v", ast.LTE)
-	}
-
-	c.Comparison = ast.GT
-	if ast.ComparisonPrecedence(c) != 7 {
-		t.Errorf("comparison expected %v", ast.GT)
-	}
-
-	c.Comparison = ast.GTE
-	if ast.ComparisonPrecedence(c) != 7 {
-		t.Errorf("comparison expected %v", ast.GTE)
-	}
-
-	c.Comparison = ast.IS
-	if ast.ComparisonPrecedence(c) != 7 {
-		t.Errorf("comparison expected %v", ast.IS)
-	}
-
-	c.Comparison = ast.NULL
-	if ast.ComparisonPrecedence(c) != 7 {
-		t.Errorf("comparison expected %v", ast.NULL)
-	}
-
-	c.Comparison = 10
-	if ast.ComparisonPrecedence(c) != 20 {
-		t.Errorf("comparison expected")
-	}
+	return true
 }
