@@ -8,6 +8,7 @@ import (
 )
 
 func Test_Evaluate(t *testing.T) {
+
 	var tests = []struct {
 		c      ast.ComparisonExpr
 		v      *vertices.Vertex
@@ -15,22 +16,41 @@ func Test_Evaluate(t *testing.T) {
 		result bool
 		err    string
 	}{
+		// {
+		// 	c:      ast.ComparisonExpr{Comparison: ast.EQ},
+		// 	v:      &vertices.Vertex{},
+		// 	p:      &ast.VertexPatn{},
+		// 	result: true,
+		// },
+		// {
+		// 	c:      ast.ComparisonExpr{Comparison: ast.NEQ, X: ast.PropertyStmt{}, Y: ast.Ident{}},
+		// 	v:      &vertices.Vertex{},
+		// 	p:      &ast.VertexPatn{Variable: "Person"},
+		// 	result: true,
+		// },
+		// {
+		// 	c:      ast.ComparisonExpr{Comparison: ast.IS_NULL, X: ast.PropertyStmt{Variable: "Person"}, Y: ast.Ident{}},
+		// 	v:      &vertices.Vertex{},
+		// 	p:      &ast.VertexPatn{Variable: "Person"},
+		// 	result: true,
+		// },
 		{
-			c:      ast.ComparisonExpr{Comparison: ast.EQ},
-			v:      &vertices.Vertex{},
-			p:      &ast.VertexPatn{},
-			result: false,
-		},
-		{
-			c:      ast.ComparisonExpr{Comparison: ast.EQ},
-			v:      &vertices.Vertex{},
-			p:      &ast.VertexPatn{},
-			result: false,
+			c: ast.ComparisonExpr{Comparison: ast.IS_NOT_NULL, X: ast.PropertyStmt{Variable: "Person"}, Y: ast.Ident{}},
+			v: func() *vertices.Vertex {
+				x, _ := vertices.NewVertex()
+				x.SetProperty("Person", "John Smith")
+				return x
+			}(),
+			p:      &ast.VertexPatn{Variable: "Person"},
+			result: true,
 		},
 	}
 
-	for _, tt := range tests {
-		tt.c.Evaluate(tt.v, tt.p)
+	for i, tt := range tests {
+		result := tt.c.Evaluate(tt.v, tt.p)
+		if result != tt.result {
+			t.Errorf("%d.  %q: comparison mismatch:\n  exp=%t\n  got=%t\n\n", i, tt.c, tt.result, result)
+		}
 	}
 }
 

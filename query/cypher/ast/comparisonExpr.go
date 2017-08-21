@@ -60,6 +60,7 @@ func resolve(expr Expr, vertex *vertices.Vertex, pattern *VertexPatn) interface{
 		if prop.Variable == pattern.Variable {
 			return vertex.Property(prop.Value)
 		}
+		return false
 	} else if prop, ok := expr.(Ident); ok {
 		return prop.Data
 	}

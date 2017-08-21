@@ -21,7 +21,13 @@ var (
 	errIdNotSet      = errors.New("Use NewVertex to create a new Vertex")
 )
 
+// NewVertex creates the default vertex
 func NewVertex() (*Vertex, error) {
+	return NewVertexWithLabel("")
+}
+
+// NewVertexWithLabel create a vertex with the set label
+func NewVertexWithLabel(label string) (*Vertex, error) {
 	var id string
 	var err error
 
@@ -29,7 +35,7 @@ func NewVertex() (*Vertex, error) {
 		return nil, errCreatVertexID
 	}
 
-	v := Vertex{id: id, edges: make(map[string]*Edge), properties: make(map[string]interface{})}
+	v := Vertex{id: id, edges: make(map[string]*Edge), properties: make(map[string]interface{}), label: label}
 	return &v, nil
 }
 
