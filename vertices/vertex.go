@@ -2,6 +2,7 @@ package vertices
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	uuid "github.com/hashicorp/go-uuid"
@@ -41,12 +42,25 @@ func NewVertexWithLabel(label string) (*Vertex, error) {
 
 // SetProperty set a property to store against this Vertex
 func (v *Vertex) SetProperty(name string, property interface{}) {
+	//fmt.Printf("property %q\n", property)
 	v.properties[name] = property
+}
+
+func (v *Vertex) SetPropertyInt(name string, property int) {
+	fmt.Printf("SetPropertyInt %d\n", property)
+
+	v.properties[name] = property
+
+	fmt.Printf("SetPropertyInt %p\n", v.properties[name])
 }
 
 // Property gets a property to store on the Vertex
 func (v *Vertex) Property(name string) interface{} {
-	return v.properties[name]
+	if value, ok := v.properties[name]; ok {
+		return value
+	}
+
+	return nil
 }
 
 func (v *Vertex) DeleteProperty(name string) {

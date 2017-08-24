@@ -1,6 +1,7 @@
 package ast_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
@@ -29,22 +30,37 @@ func Test_Evaluate(t *testing.T) {
 		// 	result: true,
 		// },
 		// {
-		// 	c:      ast.ComparisonExpr{Comparison: ast.IS_NULL, X: ast.PropertyStmt{Variable: "Person"}, Y: ast.Ident{}},
+		// 	c:      ast.ComparisonExpr{Comparison: ast.IS_NULL, X: ast.PropertyStmt{Variable: "n"}, Y: ast.Ident{}},
 		// 	v:      &vertices.Vertex{},
-		// 	p:      &ast.VertexPatn{Variable: "Person"},
+		// 	p:      &ast.VertexPatn{Variable: "n"},
+		// 	result: true,
+		// },
+		// {
+		// 	c: ast.ComparisonExpr{Comparison: ast.IS_NOT_NULL, X: ast.PropertyStmt{Variable: "n", Value: "Person"}, Y: ast.Ident{}},
+		// 	v: func() *vertices.Vertex {
+		// 		x, _ := vertices.NewVertex()
+		// 		x.SetProperty("Person", "John Smith")
+		// 		return x
+		// 	}(),
+		// 	p:      &ast.VertexPatn{Variable: "n"},
 		// 	result: true,
 		// },
 		{
-			c: ast.ComparisonExpr{Comparison: ast.IS_NOT_NULL, X: ast.PropertyStmt{Variable: "Person"}, Y: ast.Ident{}},
+			c: ast.ComparisonExpr{Comparison: ast.LT, X: ast.PropertyStmt{Variable: "n", Value: "Age"}, Y: ast.Ident{Data: 1}},
 			v: func() *vertices.Vertex {
 				x, _ := vertices.NewVertex()
-				x.SetProperty("Person", "John Smith")
+
+				x.SetPropertyInt("Age", 10)
 				return x
 			}(),
-			p:      &ast.VertexPatn{Variable: "Person"},
+			p:      &ast.VertexPatn{Variable: "n"},
 			result: true,
 		},
 	}
+	x, _ := vertices.NewVertex()
+
+	x.SetPropertyInt("Age", 10)
+	fmt.Printf("age %q\n", x.Property("Age"))
 
 	for i, tt := range tests {
 		result := tt.c.Evaluate(tt.v, tt.p)

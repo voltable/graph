@@ -1,6 +1,8 @@
 package ast
 
 import (
+	"fmt"
+
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
@@ -58,6 +60,8 @@ func (b *ComparisonExpr) SetY(y Expr) {
 func resolve(expr Expr, vertex *vertices.Vertex, pattern *VertexPatn) interface{} {
 	if prop, ok := expr.(PropertyStmt); ok {
 		if prop.Variable == pattern.Variable {
+			fmt.Printf("Value %q\n", vertex.Property(prop.Value))
+			fmt.Printf("vertex %q\n", vertex)
 			return vertex.Property(prop.Value)
 		}
 		return false
@@ -88,7 +92,9 @@ func (b *ComparisonExpr) Evaluate(vertex *vertices.Vertex, pattern *VertexPatn) 
 			return x == nil
 		} else if b.Comparison == IS_NOT_NULL {
 			return x != nil
+
 		} else if b.Comparison == LT {
+			fmt.Printf("hello %q\n", x)
 			switch i := x.(type) {
 			case float64:
 				return i < y.(float64)
