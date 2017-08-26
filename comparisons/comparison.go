@@ -1,7 +1,5 @@
 package comparisons
 
-import "fmt"
-
 // Comparison operators
 type Comparison int
 
@@ -31,15 +29,9 @@ func Compare(comparison Comparison, x interface{}, y interface{}) bool {
 		return x != nil
 
 	}
-
-	fmt.Printf("%v\n", x)
-	fmt.Printf("%v\n", y)
-
 	x64, xOk := toFloat(x)
 	y64, yOk := toFloat(y)
 
-	fmt.Printf("%v\n", x64)
-	fmt.Printf("%v\n", y64)
 	if xOk && yOk {
 		return comparisonFloat64(comparison, x64, y64)
 	}
