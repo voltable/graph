@@ -7,34 +7,41 @@ import (
 )
 
 func Test_MathPrecedence(t *testing.T) {
-
-	add := &ast.AddExpr{}
-	if ast.MathPrecedence(add) != 2 {
-		t.Errorf("add expected")
+	var tests = []struct {
+		expr   ast.MathematicalExpr
+		result int
+		err    string
+	}{
+		{
+			expr:   &ast.AddExpr{},
+			result: 2,
+		},
+		{
+			expr:   &ast.SubtractExpr{},
+			result: 2,
+		},
+		{
+			expr:   &ast.DivideExpr{},
+			result: 3,
+		},
+		{
+			expr:   &ast.MultiplyExpr{},
+			result: 3,
+		},
+		{
+			expr:   &ast.ModuloExpr{},
+			result: 4,
+		},
+		{
+			expr:   &ast.PowerExpr{},
+			result: 4,
+		},
 	}
 
-	subtract := &ast.SubtractExpr{}
-	if ast.MathPrecedence(subtract) != 2 {
-		t.Errorf("subtract expected")
-	}
-
-	divide := &ast.DivideExpr{}
-	if ast.MathPrecedence(divide) != 3 {
-		t.Errorf("divide expected")
-	}
-
-	multiply := &ast.MultiplyExpr{}
-	if ast.MathPrecedence(multiply) != 3 {
-		t.Errorf("multiply expected")
-	}
-
-	modulo := &ast.ModuloExpr{}
-	if ast.MathPrecedence(modulo) != 4 {
-		t.Errorf("modulo expected")
-	}
-
-	power := &ast.PowerExpr{}
-	if ast.MathPrecedence(power) != 4 {
-		t.Errorf("power expected")
+	for i, tt := range tests {
+		result := ast.MathPrecedence(tt.expr)
+		if result != tt.result {
+			t.Errorf("%d.  %q: comparison mismatch:\n  exp=%v\n  got=%v\n\n", i, tt.expr, tt.result, result)
+		}
 	}
 }

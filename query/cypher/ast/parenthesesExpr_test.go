@@ -7,19 +7,29 @@ import (
 )
 
 func Test_ParenthesesPrecedence(t *testing.T) {
-
-	p := ast.ParenthesesExpr{Parentheses: ast.LPAREN}
-	if ast.ParenthesesPrecedence(p) != 11 {
-		t.Errorf("LPAREN expected")
+	var tests = []struct {
+		expr   ast.ParenthesesExpr
+		result int
+		err    string
+	}{
+		{
+			expr:   ast.ParenthesesExpr{Parentheses: ast.LPAREN},
+			result: 11,
+		},
+		{
+			expr:   ast.ParenthesesExpr{Parentheses: ast.RPAREN},
+			result: 12,
+		},
+		{
+			expr:   ast.ParenthesesExpr{Parentheses: 20},
+			result: 20,
+		},
 	}
 
-	p.Parentheses = ast.RPAREN
-	if ast.ParenthesesPrecedence(p) != 12 {
-		t.Errorf("RPAREN expected")
-	}
-
-	p.Parentheses = 20
-	if ast.ParenthesesPrecedence(p) != 20 {
-		t.Errorf("Unknown expected")
+	for i, tt := range tests {
+		result := ast.ParenthesesPrecedence(tt.expr)
+		if result != tt.result {
+			t.Errorf("%d.  %q: comparison mismatch:\n  exp=%v\n  got=%v\n\n", i, tt.expr, tt.result, result)
+		}
 	}
 }
