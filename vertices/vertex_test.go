@@ -63,3 +63,12 @@ func Test_AddDirectedEdge(t *testing.T) {
 		t.Fatalf("Expected 0 edge but was %s", len(results2))
 	}
 }
+
+func Test_Value(t *testing.T) {
+	x, _ := vertices.NewVertex()
+	x.SetProperty("Age", 10)
+	if x.Property("Age") != 10 {
+		t.Fatalf("Expected %d edge but was %v", 10, x.Property("Age"))
+	}
+
+}

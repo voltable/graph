@@ -1,36 +1,13 @@
 package ast
 
 import (
-	"fmt"
-
+	"github.com/RossMerr/Caudex.Graph/comparisons"
 	"github.com/RossMerr/Caudex.Graph/vertices"
-)
-
-// Comparison operators
-type Comparison int
-
-const (
-	// EQ equality
-	EQ Comparison = iota // =
-	// NEQ inequality
-	NEQ // <>
-	// LT less than
-	LT // <
-	// LTE less than or equal to
-	LTE // <=
-	// GT greater than
-	GT // >
-	// GTE greater than or equal to
-	GTE // >=
-	// IS_NULL used of IS NULL
-	IS_NULL
-	// IS_NOT_NULL used for IS NULL
-	IS_NOT_NULL
 )
 
 // ComparisonExpr comparison expression
 type ComparisonExpr struct {
-	Comparison
+	comparisons.Comparison
 	X Expr // left operand
 	Y Expr // right operand
 }
@@ -60,8 +37,6 @@ func (b *ComparisonExpr) SetY(y Expr) {
 func resolve(expr Expr, vertex *vertices.Vertex, pattern *VertexPatn) interface{} {
 	if prop, ok := expr.(PropertyStmt); ok {
 		if prop.Variable == pattern.Variable {
-			fmt.Printf("Value %q\n", vertex.Property(prop.Value))
-			fmt.Printf("vertex %q\n", vertex)
 			return vertex.Property(prop.Value)
 		}
 		return false
@@ -81,72 +56,15 @@ func resolve(expr Expr, vertex *vertices.Vertex, pattern *VertexPatn) interface{
 // Finally the Vertex is the vertex you want to run the Evaluate over to check for a match
 func (b *ComparisonExpr) Evaluate(vertex *vertices.Vertex, pattern *VertexPatn) bool {
 
-	if b.Comparison == EQ {
+	if b.Comparison == comparisons.EQ {
 		return resolve(b.GetX(), vertex, pattern) == resolve(b.GetY(), vertex, pattern)
-	} else if b.Comparison == NEQ {
+	} else if b.Comparison == comparisons.NEQ {
 		return resolve(b.GetX(), vertex, pattern) != resolve(b.GetY(), vertex, pattern)
 	} else {
 		x := resolve(b.GetX(), vertex, pattern)
 		y := resolve(b.GetY(), vertex, pattern)
-		if b.Comparison == IS_NULL {
-			return x == nil
-		} else if b.Comparison == IS_NOT_NULL {
-			return x != nil
 
-		} else if b.Comparison == LT {
-			fmt.Printf("hello %q\n", x)
-			switch i := x.(type) {
-			case float64:
-				return i < y.(float64)
-			case float32:
-				return i < y.(float32)
-			case int64:
-				return i < y.(int64)
-			case int:
-				return i < y.(int)
-			case int16:
-				return i < y.(int16)
-			}
-		} else if b.Comparison == LTE {
-			switch i := x.(type) {
-			case float64:
-				return i <= y.(float64)
-			case float32:
-				return i <= y.(float32)
-			case int64:
-				return i <= y.(int64)
-			case int:
-				return i <= y.(int)
-			case int16:
-				return i <= y.(int16)
-			}
-		} else if b.Comparison == GT {
-			switch i := x.(type) {
-			case float64:
-				return i > y.(float64)
-			case float32:
-				return i > y.(float32)
-			case int64:
-				return i > y.(int64)
-			case int:
-				return i > y.(int)
-			case int16:
-				return i > y.(int16)
-			}
-		} else if b.Comparison == GTE {
-			switch i := x.(type) {
-			case float64:
-				return i >= y.(float64)
-			case float32:
-				return i >= y.(float32)
-			case int64:
-				return i >= y.(int64)
-			case int:
-				return i >= y.(int)
-			case int16:
-				return i >= y.(int16)
-			}
-		}
+		return comparisons.Compare(b.Comparison, x, y)
 	}
 
 	return false
@@ -154,21 +72,21 @@ func (b *ComparisonExpr) Evaluate(vertex *vertices.Vertex, pattern *VertexPatn) 
 
 // ComparisonPrecedence returns the precedence (order of importance)
 func ComparisonPrecedence(item ComparisonExpr) int {
-	if item.Comparison == EQ {
+	if item.Comparison == comparisons.EQ {
 		return 8
-	} else if item.Comparison == NEQ {
+	} else if item.Comparison == comparisons.NEQ {
 		return 8
-	} else if item.Comparison == LT {
+	} else if item.Comparison == comparisons.LT {
 		return 7
-	} else if item.Comparison == LTE {
+	} else if item.Comparison == comparisons.LTE {
 		return 7
-	} else if item.Comparison == GT {
+	} else if item.Comparison == comparisons.GT {
 		return 7
-	} else if item.Comparison == GTE {
+	} else if item.Comparison == comparisons.GTE {
 		return 7
-	} else if item.Comparison == IS_NULL {
+	} else if item.Comparison == comparisons.IS_NULL {
 		return 7
-	} else if item.Comparison == IS_NOT_NULL {
+	} else if item.Comparison == comparisons.IS_NOT_NULL {
 		return 7
 	} else {
 		return 20
