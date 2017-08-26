@@ -22,6 +22,7 @@ const (
 	IS_NOT_NULL
 )
 
+// Compare function is a abstract comparison which converts the interfaces to the same type
 func Compare(comparison Comparison, x interface{}, y interface{}) bool {
 	if comparison == IS_NULL {
 		return x == nil
