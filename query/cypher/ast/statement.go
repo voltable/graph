@@ -80,7 +80,7 @@ func (CreateStmt) patternNode()        {}
 func (OptionalMatchStmt) patternNode() {}
 func (MatchStmt) patternNode()         {}
 
-// Precedence sorts Expr by thier precedence
+// Precedence sorts Expr by their precedence
 func Precedence(item Expr) int {
 	if b, ok := item.(*BooleanExpr); ok {
 		return BooleanPrecedence(*b)

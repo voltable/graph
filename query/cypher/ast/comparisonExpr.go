@@ -51,7 +51,7 @@ func resolve(expr Expr, vertex *vertices.Vertex, pattern *VertexPatn) interface{
 //
 // The ComparisonExpr comes from building the AST so it is part of the WHERE clause
 //     WHERE n.age < 30
-// The VertexPatn is part of the a MATCH statment within the query
+// The VertexPatn is part of the a MATCH statement within the query
 //     MATCH (n:Person)
 // Finally the Vertex is the vertex you want to run the Evaluate over to check for a match
 func (b *ComparisonExpr) Evaluate(vertex *vertices.Vertex, pattern *VertexPatn) bool {
