@@ -66,8 +66,6 @@ func (b *ComparisonExpr) Evaluate(vertex *vertices.Vertex, pattern *VertexPatn) 
 
 		return comparisons.Compare(b.Comparison, x, y)
 	}
-
-	return false
 }
 
 // ComparisonPrecedence returns the precedence (order of importance)

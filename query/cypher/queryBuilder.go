@@ -34,7 +34,6 @@ func ToQueryPath(stmt ast.Stmt, toPredicateVertex func(*ast.VertexPatn) query.Pr
 		}
 	}
 
-	next = nil
 	return q, nil
 }
 

@@ -65,6 +65,7 @@ var (
 	errPredicateEdgePath   = errors.New("Expected PredicateEdgePath")
 )
 
+// NewPath creates a Path object used to walk the graph
 func NewPath() (Path, error) {
 	path := &Root{}
 	return path, nil

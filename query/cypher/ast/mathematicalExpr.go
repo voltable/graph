@@ -49,6 +49,7 @@ func (*SubtractExpr) mathNode() {}
 func (*ModuloExpr) mathNode()   {}
 func (*PowerExpr) mathNode()    {}
 
+// MathPrecedence returns the precedence (order of importance)
 func MathPrecedence(item MathematicalExpr) int {
 	if _, ok := item.(*AddExpr); ok {
 		return 2

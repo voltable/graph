@@ -32,7 +32,7 @@ type Parser struct {
 func (p *Parser) label() (string, bool) {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != lexer.IDENT && tok == lexer.COLON {
-		tok, lit = p.scanIgnoreWhitespace()
+		_, lit = p.scanIgnoreWhitespace()
 		return lit, true
 	}
 	p.unscan()
@@ -96,7 +96,7 @@ func (p *Parser) KeyValue() (map[string]interface{}, error) {
 				properties[prop] = lit
 			}
 		}
-		tok, lit = p.scanIgnoreWhitespace()
+		tok, _ = p.scanIgnoreWhitespace()
 		if tok != lexer.COMMA {
 			p.unscan()
 			break
@@ -279,7 +279,7 @@ func (p *Parser) relationship() (*ast.EdgePatn, error) {
 
 		// Check for inbound relationship
 		if tok == lexer.SUB {
-			tok, lit = p.scanIgnoreWhitespace()
+			tok, _ = p.scanIgnoreWhitespace()
 			// Look for the end of the relationship - or >
 			if tok != lexer.IDENT && tok == lexer.GT {
 				stmt.Relationship = ast.Inbound

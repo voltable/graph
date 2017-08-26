@@ -48,7 +48,6 @@ type (
 func createBolt(o *graph.Options) *bolt.DB {
 	var err error
 	var db *bolt.DB
-	var b *bolt.Bucket
 
 	logrus.Info("Opening " + o.Name)
 	// It will be created if it doesn't exist.
@@ -58,11 +57,13 @@ func createBolt(o *graph.Options) *bolt.DB {
 
 	// create the bucket to hold the Adjacency list.
 	db.Update(func(tx *bolt.Tx) error {
-		if b, err = tx.CreateBucketIfNotExists([]byte(bucketGraph)); err != nil {
+		_, err := tx.CreateBucketIfNotExists([]byte(bucketGraph))
+		if err != nil {
 			logrus.Panic(err)
 		}
 
-		if b, err = tx.CreateBucketIfNotExists([]byte(bucketIndex)); err != nil {
+		_, err = tx.CreateBucketIfNotExists([]byte(bucketIndex))
+		if err != nil {
 			logrus.Panic(err)
 		}
 
