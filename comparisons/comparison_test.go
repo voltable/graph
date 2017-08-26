@@ -217,6 +217,66 @@ func Test_Compare(t *testing.T) {
 			x:          math.MaxInt8,
 			result:     true,
 		},
+
+		// string
+
+		{
+			comparison: comparisons.EQ,
+			y:          "OK",
+			x:          "OK",
+			result:     true,
+		},
+
+		{
+			comparison: comparisons.EQ,
+			y:          "FOO",
+			x:          "BAR",
+			result:     false,
+		},
+
+		{
+			comparison: comparisons.NEQ,
+			y:          "OK",
+			x:          "OK",
+			result:     false,
+		},
+
+		{
+			comparison: comparisons.NEQ,
+			y:          "FOO",
+			x:          "BAR",
+			result:     true,
+		},
+
+		// bool
+
+		{
+			comparison: comparisons.EQ,
+			y:          true,
+			x:          true,
+			result:     true,
+		},
+
+		{
+			comparison: comparisons.EQ,
+			y:          true,
+			x:          false,
+			result:     false,
+		},
+
+		{
+			comparison: comparisons.NEQ,
+			y:          true,
+			x:          true,
+			result:     false,
+		},
+
+		{
+			comparison: comparisons.NEQ,
+			y:          true,
+			x:          false,
+			result:     true,
+		},
 	}
 
 	for i, tt := range tests {

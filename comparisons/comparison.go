@@ -36,6 +36,30 @@ func Compare(comparison Comparison, x interface{}, y interface{}) bool {
 		return comparisonFloat64(comparison, x64, y64)
 	}
 
+	xs, sxok := x.(string)
+	ys, syok := y.(string)
+
+	if sxok && syok {
+		switch comparison {
+		case EQ:
+			return xs == ys
+		case NEQ:
+			return xs != ys
+		}
+	}
+
+	xb, bxok := x.(bool)
+	yb, byok := y.(bool)
+
+	if bxok && byok {
+		switch comparison {
+		case EQ:
+			return xb == yb
+		case NEQ:
+			return xb != yb
+		}
+	}
+
 	return false
 }
 
