@@ -1,9 +1,10 @@
 package ast_test
 
 import (
-	"fmt"
+	"math"
 	"testing"
 
+	"github.com/RossMerr/Caudex.Graph/comparisons"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
@@ -17,50 +18,45 @@ func Test_Evaluate(t *testing.T) {
 		result bool
 		err    string
 	}{
-		// {
-		// 	c:      ast.ComparisonExpr{Comparison: ast.EQ},
-		// 	v:      &vertices.Vertex{},
-		// 	p:      &ast.VertexPatn{},
-		// 	result: true,
-		// },
-		// {
-		// 	c:      ast.ComparisonExpr{Comparison: ast.NEQ, X: ast.PropertyStmt{}, Y: ast.Ident{}},
-		// 	v:      &vertices.Vertex{},
-		// 	p:      &ast.VertexPatn{Variable: "Person"},
-		// 	result: true,
-		// },
-		// {
-		// 	c:      ast.ComparisonExpr{Comparison: ast.IS_NULL, X: ast.PropertyStmt{Variable: "n"}, Y: ast.Ident{}},
-		// 	v:      &vertices.Vertex{},
-		// 	p:      &ast.VertexPatn{Variable: "n"},
-		// 	result: true,
-		// },
-		// {
-		// 	c: ast.ComparisonExpr{Comparison: ast.IS_NOT_NULL, X: ast.PropertyStmt{Variable: "n", Value: "Person"}, Y: ast.Ident{}},
-		// 	v: func() *vertices.Vertex {
-		// 		x, _ := vertices.NewVertex()
-		// 		x.SetProperty("Person", "John Smith")
-		// 		return x
-		// 	}(),
-		// 	p:      &ast.VertexPatn{Variable: "n"},
-		// 	result: true,
-		// },
 		{
-			c: ast.ComparisonExpr{Comparison: ast.LT, X: ast.PropertyStmt{Variable: "n", Value: "Age"}, Y: ast.Ident{Data: 1}},
+			c:      ast.ComparisonExpr{Comparison: comparisons.EQ},
+			v:      &vertices.Vertex{},
+			p:      &ast.VertexPatn{},
+			result: true,
+		},
+		{
+			c:      ast.ComparisonExpr{Comparison: comparisons.NEQ, X: ast.PropertyStmt{}, Y: ast.Ident{}},
+			v:      &vertices.Vertex{},
+			p:      &ast.VertexPatn{Variable: "Person"},
+			result: true,
+		},
+		{
+			c:      ast.ComparisonExpr{Comparison: comparisons.IS_NULL, X: ast.PropertyStmt{Variable: "n"}, Y: ast.Ident{}},
+			v:      &vertices.Vertex{},
+			p:      &ast.VertexPatn{Variable: "n"},
+			result: true,
+		},
+		{
+			c: ast.ComparisonExpr{Comparison: comparisons.IS_NOT_NULL, X: ast.PropertyStmt{Variable: "n", Value: "Person"}, Y: ast.Ident{}},
 			v: func() *vertices.Vertex {
 				x, _ := vertices.NewVertex()
-
-				x.SetPropertyInt("Age", 10)
+				x.SetProperty("Person", "John Smith")
+				return x
+			}(),
+			p:      &ast.VertexPatn{Variable: "n"},
+			result: true,
+		},
+		{
+			c: ast.ComparisonExpr{Comparison: comparisons.LT, X: ast.PropertyStmt{Variable: "n", Value: "Age"}, Y: ast.Ident{Data: math.MaxInt32}},
+			v: func() *vertices.Vertex {
+				x, _ := vertices.NewVertex()
+				x.SetProperty("Age", math.MaxInt32-1)
 				return x
 			}(),
 			p:      &ast.VertexPatn{Variable: "n"},
 			result: true,
 		},
 	}
-	x, _ := vertices.NewVertex()
-
-	x.SetPropertyInt("Age", 10)
-	fmt.Printf("age %q\n", x.Property("Age"))
 
 	for i, tt := range tests {
 		result := tt.c.Evaluate(tt.v, tt.p)
@@ -77,28 +73,28 @@ func Test_ComparisonPrecedence(t *testing.T) {
 		p int
 	}{
 		{
-			c: ast.ComparisonExpr{Comparison: ast.EQ},
+			c: ast.ComparisonExpr{Comparison: comparisons.EQ},
 			p: 8,
 		}, {
-			c: ast.ComparisonExpr{Comparison: ast.NEQ},
+			c: ast.ComparisonExpr{Comparison: comparisons.NEQ},
 			p: 8,
 		}, {
-			c: ast.ComparisonExpr{Comparison: ast.LT},
+			c: ast.ComparisonExpr{Comparison: comparisons.LT},
 			p: 7,
 		}, {
-			c: ast.ComparisonExpr{Comparison: ast.LTE},
+			c: ast.ComparisonExpr{Comparison: comparisons.LTE},
 			p: 7,
 		}, {
-			c: ast.ComparisonExpr{Comparison: ast.GT},
+			c: ast.ComparisonExpr{Comparison: comparisons.GT},
 			p: 7,
 		}, {
-			c: ast.ComparisonExpr{Comparison: ast.GTE},
+			c: ast.ComparisonExpr{Comparison: comparisons.GTE},
 			p: 7,
 		}, {
-			c: ast.ComparisonExpr{Comparison: ast.IS_NULL},
+			c: ast.ComparisonExpr{Comparison: comparisons.IS_NULL},
 			p: 7,
 		}, {
-			c: ast.ComparisonExpr{Comparison: ast.IS_NOT_NULL},
+			c: ast.ComparisonExpr{Comparison: comparisons.IS_NOT_NULL},
 			p: 7,
 		},
 	}
