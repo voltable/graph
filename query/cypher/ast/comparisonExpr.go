@@ -1,13 +1,13 @@
 package ast
 
 import (
-	"github.com/RossMerr/Caudex.Graph/comparisons"
+	"github.com/RossMerr/Caudex.Graph/expressions"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 // ComparisonExpr comparison expression
 type ComparisonExpr struct {
-	comparisons.Comparison
+	expressions.Comparison
 	Left  Expr // left operand
 	Right Expr // right operand
 }
@@ -56,35 +56,35 @@ func resolve(expr Expr, vertex *vertices.Vertex, pattern *VertexPatn) interface{
 // Finally the Vertex is the vertex you want to run the Evaluate over to check for a match
 func (b *ComparisonExpr) Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bool {
 
-	if b.Comparison == comparisons.EQ {
+	if b.Comparison == expressions.EQ {
 		return resolve(b.GetLeft(), vertex, pattern) == resolve(b.GetRight(), vertex, pattern)
-	} else if b.Comparison == comparisons.NEQ {
+	} else if b.Comparison == expressions.NEQ {
 		return resolve(b.GetLeft(), vertex, pattern) != resolve(b.GetRight(), vertex, pattern)
 	} else {
 		x := resolve(b.GetLeft(), vertex, pattern)
 		y := resolve(b.GetRight(), vertex, pattern)
 
-		return comparisons.Compare(b.Comparison, x, y)
+		return expressions.Compare(b.Comparison, x, y)
 	}
 }
 
 // ComparisonPrecedence returns the precedence (order of importance)
 func ComparisonPrecedence(item ComparisonExpr) int {
-	if item.Comparison == comparisons.EQ {
+	if item.Comparison == expressions.EQ {
 		return 8
-	} else if item.Comparison == comparisons.NEQ {
+	} else if item.Comparison == expressions.NEQ {
 		return 8
-	} else if item.Comparison == comparisons.LT {
+	} else if item.Comparison == expressions.LT {
 		return 7
-	} else if item.Comparison == comparisons.LTE {
+	} else if item.Comparison == expressions.LTE {
 		return 7
-	} else if item.Comparison == comparisons.GT {
+	} else if item.Comparison == expressions.GT {
 		return 7
-	} else if item.Comparison == comparisons.GTE {
+	} else if item.Comparison == expressions.GTE {
 		return 7
-	} else if item.Comparison == comparisons.IS_NULL {
+	} else if item.Comparison == expressions.IS_NULL {
 		return 7
-	} else if item.Comparison == comparisons.IS_NOT_NULL {
+	} else if item.Comparison == expressions.IS_NOT_NULL {
 		return 7
 	} else {
 		return 20

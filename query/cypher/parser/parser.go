@@ -5,7 +5,7 @@ import (
 	"io"
 	"strconv"
 
-	"github.com/RossMerr/Caudex.Graph/comparisons"
+	"github.com/RossMerr/Caudex.Graph/expressions"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/lexer"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/scanner"
@@ -366,17 +366,17 @@ func (p *Parser) comparisonExpr() (*ast.ComparisonExpr, error) {
 	tok, _ := p.scanIgnoreWhitespace()
 	switch tok {
 	case lexer.EQ:
-		return &ast.ComparisonExpr{Comparison: comparisons.EQ}, nil
+		return &ast.ComparisonExpr{Comparison: expressions.EQ}, nil
 	case lexer.NEQ:
-		return &ast.ComparisonExpr{Comparison: comparisons.NEQ}, nil
+		return &ast.ComparisonExpr{Comparison: expressions.NEQ}, nil
 	case lexer.LT:
-		return &ast.ComparisonExpr{Comparison: comparisons.LT}, nil
+		return &ast.ComparisonExpr{Comparison: expressions.LT}, nil
 	case lexer.LTE:
-		return &ast.ComparisonExpr{Comparison: comparisons.LTE}, nil
+		return &ast.ComparisonExpr{Comparison: expressions.LTE}, nil
 	case lexer.GT:
-		return &ast.ComparisonExpr{Comparison: comparisons.GT}, nil
+		return &ast.ComparisonExpr{Comparison: expressions.GT}, nil
 	case lexer.GTE:
-		return &ast.ComparisonExpr{Comparison: comparisons.GTE}, nil
+		return &ast.ComparisonExpr{Comparison: expressions.GTE}, nil
 	}
 	p.unscan()
 	return nil, nil

@@ -3,6 +3,8 @@ package query_test
 import (
 	"testing"
 
+	"github.com/RossMerr/Caudex.Graph/expressions"
+
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
@@ -20,7 +22,7 @@ func Test_MatchVertex(t *testing.T) {
 	frontier = frontier.Append([]*vertices.Vertex{vertex}, 0)
 
 	it := func() (item interface{}, ok bool) {
-		state = XOR(state)
+		state = expressions.XORSwap(state)
 		return frontier, state
 	}
 
@@ -38,13 +40,4 @@ func Test_MatchVertex(t *testing.T) {
 	next := matches.Iterate()
 
 	next()
-}
-
-// Swaps the boolean
-func XOR(b bool) bool {
-	if b == true {
-		return false
-	}
-
-	return true
 }

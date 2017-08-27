@@ -1,4 +1,4 @@
-package comparisons
+package expressions
 
 // Comparison operators
 type Comparison int

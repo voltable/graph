@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/RossMerr/Caudex.Graph/expressions"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
@@ -64,6 +65,9 @@ func (b *BooleanExpr) Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bo
 			}
 			if b.Boolean == OR {
 				return l.Interpret(vertex, pattern) || r.Interpret(vertex, pattern)
+			}
+			if b.Boolean == XOR {
+				return expressions.XOR(l.Interpret(vertex, pattern), r.Interpret(vertex, pattern))
 			}
 		}
 	}

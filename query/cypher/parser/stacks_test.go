@@ -3,7 +3,7 @@ package parser_test
 import (
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/comparisons"
+	"github.com/RossMerr/Caudex.Graph/expressions"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
 )
@@ -22,7 +22,7 @@ func TestBasic_UpdateStack(t *testing.T) {
 	n1 := &ast.PropertyStmt{Variable: "n", Value: "number"}
 	exprStack = exprStack.Push(n1)
 
-	n2 := &ast.ComparisonExpr{Comparison: comparisons.GTE}
+	n2 := &ast.ComparisonExpr{Comparison: expressions.GTE}
 	exprStack = exprStack.Push(n2)
 
 	n3 := &ast.Ident{Data: 1}
@@ -34,7 +34,7 @@ func TestBasic_UpdateStack(t *testing.T) {
 	n5 := &ast.PropertyStmt{Variable: "n", Value: "number"}
 	exprStack = exprStack.Push(n5)
 
-	n6 := &ast.ComparisonExpr{Comparison: comparisons.LTE}
+	n6 := &ast.ComparisonExpr{Comparison: expressions.LTE}
 	exprStack = exprStack.Push(n6)
 
 	n7 := &ast.Ident{Data: 10}
@@ -87,7 +87,7 @@ func TestBasic_UpdateStackWithNot(t *testing.T) {
 	n1 := &ast.PropertyStmt{Variable: "n", Value: "number"}
 	exprStack = exprStack.Push(n1)
 
-	n2 := &ast.ComparisonExpr{Comparison: comparisons.GTE}
+	n2 := &ast.ComparisonExpr{Comparison: expressions.GTE}
 	exprStack = exprStack.Push(n2)
 
 	n3 := &ast.Ident{Data: 1}
@@ -102,7 +102,7 @@ func TestBasic_UpdateStackWithNot(t *testing.T) {
 	n6 := &ast.PropertyStmt{Variable: "n", Value: "number"}
 	exprStack = exprStack.Push(n6)
 
-	n7 := &ast.ComparisonExpr{Comparison: comparisons.EQ}
+	n7 := &ast.ComparisonExpr{Comparison: expressions.EQ}
 	exprStack = exprStack.Push(n7)
 
 	n8 := &ast.Ident{Data: 10}
@@ -166,7 +166,7 @@ func TestBasic_Parentheses(t *testing.T) {
 	n2 := &ast.PropertyStmt{Variable: "n", Value: "name"}
 	exprStack = exprStack.Push(n2)
 
-	n3 := &ast.ComparisonExpr{Comparison: comparisons.EQ}
+	n3 := &ast.ComparisonExpr{Comparison: expressions.EQ}
 	exprStack = exprStack.Push(n3)
 
 	n4 := &ast.Ident{Data: "Peter"}
@@ -178,7 +178,7 @@ func TestBasic_Parentheses(t *testing.T) {
 	n6 := &ast.PropertyStmt{Variable: "n", Value: "age"}
 	exprStack = exprStack.Push(n6)
 
-	n7 := &ast.ComparisonExpr{Comparison: comparisons.LT}
+	n7 := &ast.ComparisonExpr{Comparison: expressions.LT}
 	exprStack = exprStack.Push(n7)
 
 	n8 := &ast.Ident{Data: 30}
@@ -190,7 +190,7 @@ func TestBasic_Parentheses(t *testing.T) {
 	n10 := &ast.PropertyStmt{Variable: "n", Value: "age"}
 	exprStack = exprStack.Push(n10)
 
-	n11 := &ast.ComparisonExpr{Comparison: comparisons.GT}
+	n11 := &ast.ComparisonExpr{Comparison: expressions.GT}
 	exprStack = exprStack.Push(n11)
 
 	n12 := &ast.Ident{Data: 30}
@@ -205,7 +205,7 @@ func TestBasic_Parentheses(t *testing.T) {
 	n15 := &ast.PropertyStmt{Variable: "n", Value: "name"}
 	exprStack = exprStack.Push(n15)
 
-	n16 := &ast.ComparisonExpr{Comparison: comparisons.EQ}
+	n16 := &ast.ComparisonExpr{Comparison: expressions.EQ}
 	exprStack = exprStack.Push(n16)
 
 	n17 := &ast.Ident{Data: "Tobias"}
@@ -293,7 +293,7 @@ func TestDeep_UpdateStack(t *testing.T) {
 	n1 := &ast.PropertyStmt{Variable: "n", Value: "name"}
 	exprStack = exprStack.Push(n1)
 
-	n2 := &ast.ComparisonExpr{Comparison: comparisons.EQ}
+	n2 := &ast.ComparisonExpr{Comparison: expressions.EQ}
 	exprStack = exprStack.Push(n2)
 
 	n3 := &ast.Ident{Data: "Peter"}
@@ -308,7 +308,7 @@ func TestDeep_UpdateStack(t *testing.T) {
 	n6 := &ast.PropertyStmt{Variable: "n", Value: "age"}
 	exprStack = exprStack.Push(n6)
 
-	n7 := &ast.ComparisonExpr{Comparison: comparisons.LT}
+	n7 := &ast.ComparisonExpr{Comparison: expressions.LT}
 	exprStack = exprStack.Push(n7)
 
 	n8 := &ast.Ident{Data: 30}
@@ -320,7 +320,7 @@ func TestDeep_UpdateStack(t *testing.T) {
 	n10 := &ast.PropertyStmt{Variable: "n", Value: "name"}
 	exprStack = exprStack.Push(n10)
 
-	n11 := &ast.ComparisonExpr{Comparison: comparisons.EQ}
+	n11 := &ast.ComparisonExpr{Comparison: expressions.EQ}
 	exprStack = exprStack.Push(n11)
 
 	n12 := &ast.Ident{Data: "Tobias"}
@@ -341,7 +341,7 @@ func TestDeep_UpdateStack(t *testing.T) {
 	n17 := &ast.PropertyStmt{Variable: "n", Value: "name"}
 	exprStack = exprStack.Push(n17)
 
-	n18 := &ast.ComparisonExpr{Comparison: comparisons.EQ}
+	n18 := &ast.ComparisonExpr{Comparison: expressions.EQ}
 	exprStack = exprStack.Push(n18)
 
 	n19 := &ast.Ident{Data: "Tobias"}
@@ -353,7 +353,7 @@ func TestDeep_UpdateStack(t *testing.T) {
 	n21 := &ast.PropertyStmt{Variable: "n", Value: "name"}
 	exprStack = exprStack.Push(n21)
 
-	n22 := &ast.ComparisonExpr{Comparison: comparisons.EQ}
+	n22 := &ast.ComparisonExpr{Comparison: expressions.EQ}
 	exprStack = exprStack.Push(n22)
 
 	n23 := &ast.Ident{Data: "Peter"}

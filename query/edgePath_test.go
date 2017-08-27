@@ -3,6 +3,8 @@ package query_test
 import (
 	"testing"
 
+	"github.com/RossMerr/Caudex.Graph/expressions"
+
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
@@ -14,13 +16,12 @@ func Test_MatchEdge(t *testing.T) {
 
 	vertexDirection, _ := vertices.NewVertex()
 	vertex.AddDirectedEdge(vertexDirection)
-	//edge.SetLabel("foo")
 
 	frontier := query.Frontier{}
 	frontier = frontier.Append([]*vertices.Vertex{vertex}, 0)
 
 	it := func() (item interface{}, ok bool) {
-		state = XOR(state)
+		state = expressions.XORSwap(state)
 		return frontier, state
 	}
 
@@ -33,9 +34,6 @@ func Test_MatchEdge(t *testing.T) {
 	}, fetch)
 
 	matches := p.Relationship(func(v *vertices.Edge) bool {
-		// if v.Label() != "foo" {
-		// 	t.Fatalf("Expected foo but was %s", v.Label())
-		// }
 		return true
 	})
 

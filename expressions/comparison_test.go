@@ -1,48 +1,48 @@
-package comparisons_test
+package expressions_test
 
 import (
 	"math"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/comparisons"
+	"github.com/RossMerr/Caudex.Graph/expressions"
 )
 
 func Test_Compare(t *testing.T) {
 
 	var tests = []struct {
-		comparison comparisons.Comparison
+		comparison expressions.Comparison
 		x          interface{}
 		y          interface{}
 		result     bool
 	}{
 		/// LT
 		{
-			comparison: comparisons.LT,
+			comparison: expressions.LT,
 			x:          math.SmallestNonzeroFloat64,
 			y:          math.MaxFloat64,
 
 			result: true,
 		},
 		{
-			comparison: comparisons.LT,
+			comparison: expressions.LT,
 			x:          math.SmallestNonzeroFloat32,
 			y:          math.MaxFloat32,
 			result:     true,
 		},
 		{
-			comparison: comparisons.LT,
+			comparison: expressions.LT,
 			x:          math.MinInt32,
 			y:          math.MaxInt32,
 			result:     true,
 		},
 		{
-			comparison: comparisons.LT,
+			comparison: expressions.LT,
 			x:          math.MinInt16,
 			y:          math.MaxInt16,
 			result:     true,
 		},
 		{
-			comparison: comparisons.LT,
+			comparison: expressions.LT,
 			x:          math.MinInt8,
 			y:          math.MaxInt8,
 			result:     true,
@@ -51,32 +51,32 @@ func Test_Compare(t *testing.T) {
 		///// LTE
 
 		{
-			comparison: comparisons.LTE,
+			comparison: expressions.LTE,
 			x:          math.SmallestNonzeroFloat64,
 			y:          math.MaxFloat64,
 
 			result: true,
 		},
 		{
-			comparison: comparisons.LTE,
+			comparison: expressions.LTE,
 			x:          math.SmallestNonzeroFloat32,
 			y:          math.MaxFloat32,
 			result:     true,
 		},
 		{
-			comparison: comparisons.LTE,
+			comparison: expressions.LTE,
 			x:          math.MinInt32,
 			y:          math.MaxInt32,
 			result:     true,
 		},
 		{
-			comparison: comparisons.LTE,
+			comparison: expressions.LTE,
 			x:          math.MinInt16,
 			y:          math.MaxInt16,
 			result:     true,
 		},
 		{
-			comparison: comparisons.LTE,
+			comparison: expressions.LTE,
 			x:          math.MinInt8,
 			y:          math.MaxInt8,
 			result:     true,
@@ -85,32 +85,32 @@ func Test_Compare(t *testing.T) {
 		///// GT
 
 		{
-			comparison: comparisons.GT,
+			comparison: expressions.GT,
 			y:          math.SmallestNonzeroFloat64,
 			x:          math.MaxFloat64,
 
 			result: true,
 		},
 		{
-			comparison: comparisons.GT,
+			comparison: expressions.GT,
 			y:          math.SmallestNonzeroFloat32,
 			x:          math.MaxFloat32,
 			result:     true,
 		},
 		{
-			comparison: comparisons.GT,
+			comparison: expressions.GT,
 			y:          math.MinInt32,
 			x:          math.MaxInt32,
 			result:     true,
 		},
 		{
-			comparison: comparisons.GT,
+			comparison: expressions.GT,
 			y:          math.MinInt16,
 			x:          math.MaxInt16,
 			result:     true,
 		},
 		{
-			comparison: comparisons.GT,
+			comparison: expressions.GT,
 			y:          math.MinInt8,
 			x:          math.MaxInt8,
 			result:     true,
@@ -119,32 +119,32 @@ func Test_Compare(t *testing.T) {
 		///// GTE
 
 		{
-			comparison: comparisons.GTE,
+			comparison: expressions.GTE,
 			y:          math.SmallestNonzeroFloat64,
 			x:          math.MaxFloat64,
 
 			result: true,
 		},
 		{
-			comparison: comparisons.GTE,
+			comparison: expressions.GTE,
 			y:          math.SmallestNonzeroFloat32,
 			x:          math.MaxFloat32,
 			result:     true,
 		},
 		{
-			comparison: comparisons.GTE,
+			comparison: expressions.GTE,
 			y:          math.MinInt32,
 			x:          math.MaxInt32,
 			result:     true,
 		},
 		{
-			comparison: comparisons.GTE,
+			comparison: expressions.GTE,
 			y:          math.MinInt16,
 			x:          math.MaxInt16,
 			result:     true,
 		},
 		{
-			comparison: comparisons.GTE,
+			comparison: expressions.GTE,
 			y:          math.MinInt8,
 			x:          math.MaxInt8,
 			result:     true,
@@ -153,32 +153,32 @@ func Test_Compare(t *testing.T) {
 		///// NEQ
 
 		{
-			comparison: comparisons.NEQ,
+			comparison: expressions.NEQ,
 			y:          math.SmallestNonzeroFloat64,
 			x:          math.MaxFloat64,
 
 			result: true,
 		},
 		{
-			comparison: comparisons.NEQ,
+			comparison: expressions.NEQ,
 			y:          math.SmallestNonzeroFloat32,
 			x:          math.MaxFloat32,
 			result:     true,
 		},
 		{
-			comparison: comparisons.NEQ,
+			comparison: expressions.NEQ,
 			y:          math.MinInt32,
 			x:          math.MaxInt32,
 			result:     true,
 		},
 		{
-			comparison: comparisons.NEQ,
+			comparison: expressions.NEQ,
 			y:          math.MinInt16,
 			x:          math.MaxInt16,
 			result:     true,
 		},
 		{
-			comparison: comparisons.NEQ,
+			comparison: expressions.NEQ,
 			y:          math.MinInt8,
 			x:          math.MaxInt8,
 			result:     true,
@@ -187,32 +187,32 @@ func Test_Compare(t *testing.T) {
 		///// EQ
 
 		{
-			comparison: comparisons.EQ,
+			comparison: expressions.EQ,
 			y:          math.MaxFloat64,
 			x:          math.MaxFloat64,
 
 			result: true,
 		},
 		{
-			comparison: comparisons.EQ,
+			comparison: expressions.EQ,
 			y:          math.MaxFloat32,
 			x:          math.MaxFloat32,
 			result:     true,
 		},
 		{
-			comparison: comparisons.EQ,
+			comparison: expressions.EQ,
 			y:          math.MaxInt32,
 			x:          math.MaxInt32,
 			result:     true,
 		},
 		{
-			comparison: comparisons.EQ,
+			comparison: expressions.EQ,
 			y:          math.MaxInt16,
 			x:          math.MaxInt16,
 			result:     true,
 		},
 		{
-			comparison: comparisons.EQ,
+			comparison: expressions.EQ,
 			y:          math.MaxInt8,
 			x:          math.MaxInt8,
 			result:     true,
@@ -221,28 +221,28 @@ func Test_Compare(t *testing.T) {
 		// string
 
 		{
-			comparison: comparisons.EQ,
+			comparison: expressions.EQ,
 			y:          "OK",
 			x:          "OK",
 			result:     true,
 		},
 
 		{
-			comparison: comparisons.EQ,
+			comparison: expressions.EQ,
 			y:          "FOO",
 			x:          "BAR",
 			result:     false,
 		},
 
 		{
-			comparison: comparisons.NEQ,
+			comparison: expressions.NEQ,
 			y:          "OK",
 			x:          "OK",
 			result:     false,
 		},
 
 		{
-			comparison: comparisons.NEQ,
+			comparison: expressions.NEQ,
 			y:          "FOO",
 			x:          "BAR",
 			result:     true,
@@ -251,28 +251,28 @@ func Test_Compare(t *testing.T) {
 		// bool
 
 		{
-			comparison: comparisons.EQ,
+			comparison: expressions.EQ,
 			y:          true,
 			x:          true,
 			result:     true,
 		},
 
 		{
-			comparison: comparisons.EQ,
+			comparison: expressions.EQ,
 			y:          true,
 			x:          false,
 			result:     false,
 		},
 
 		{
-			comparison: comparisons.NEQ,
+			comparison: expressions.NEQ,
 			y:          true,
 			x:          true,
 			result:     false,
 		},
 
 		{
-			comparison: comparisons.NEQ,
+			comparison: expressions.NEQ,
 			y:          true,
 			x:          false,
 			result:     true,
@@ -280,7 +280,7 @@ func Test_Compare(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		result := comparisons.Compare(tt.comparison, tt.x, tt.y)
+		result := expressions.Compare(tt.comparison, tt.x, tt.y)
 		if result != tt.result {
 			t.Errorf("%d. comparison mismatch:\n  exp=%t\n  got=%t\n\n", i, tt.result, result)
 		}

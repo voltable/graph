@@ -3,6 +3,8 @@ package query_test
 import (
 	"testing"
 
+	"github.com/RossMerr/Caudex.Graph/expressions"
+
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/vertices"
@@ -26,7 +28,7 @@ func Test_Traversal_Travers(t *testing.T) {
 
 	state := false
 	it := func() (item interface{}, ok bool) {
-		state = XOR(state)
+		state = expressions.XORSwap(state)
 		return frontier, state
 	}
 

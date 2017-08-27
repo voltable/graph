@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/comparisons"
+	"github.com/RossMerr/Caudex.Graph/expressions"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
 )
@@ -194,11 +194,11 @@ func TestParser_Where(t *testing.T) {
 	}{
 		{
 			s:    `MATCH () WHERE n.number >= 1 AND n.number <= 10`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.BooleanExpr{Boolean: ast.AND, Left: &ast.ComparisonExpr{Comparison: comparisons.GTE, Left: &ast.PropertyStmt{Variable: "n", Value: "number"}, Right: &ast.Ident{Data: 1}}, Right: &ast.ComparisonExpr{Comparison: comparisons.LTE, Left: &ast.PropertyStmt{Variable: "n", Value: "number"}, Right: &ast.Ident{Data: 10}}}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.BooleanExpr{Boolean: ast.AND, Left: &ast.ComparisonExpr{Comparison: expressions.GTE, Left: &ast.PropertyStmt{Variable: "n", Value: "number"}, Right: &ast.Ident{Data: 1}}, Right: &ast.ComparisonExpr{Comparison: expressions.LTE, Left: &ast.PropertyStmt{Variable: "n", Value: "number"}, Right: &ast.Ident{Data: 10}}}}},
 		},
 		{
 			s:    `MATCH () WHERE n.name = "john smith"`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.ComparisonExpr{Comparison: comparisons.EQ, Left: &ast.PropertyStmt{Variable: "n", Value: "name"}, Right: &ast.Ident{Data: "john smith"}}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.ComparisonExpr{Comparison: expressions.EQ, Left: &ast.PropertyStmt{Variable: "n", Value: "name"}, Right: &ast.Ident{Data: "john smith"}}}},
 		},
 	}
 
