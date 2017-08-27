@@ -1,5 +1,7 @@
 package ast
 
+import "github.com/RossMerr/Caudex.Graph/vertices"
+
 // Stmt all statments implement the Stmt interface.
 type Stmt interface {
 }
@@ -16,8 +18,8 @@ type BlockExpr struct {
 
 // A BinaryExpr node represents a binary expression.
 type BinaryExpr struct {
-	X Expr // left operand
-	Y Expr // right operand
+	Left  Expr // left operand
+	Right Expr // right operand
 }
 
 // PropertyStmt represents a node property.
@@ -52,11 +54,13 @@ type OptionalMatchStmt struct {
 	Next    Stmt
 }
 
+// OperatorExpr is a NonTerminal
 type OperatorExpr interface {
-	GetX() Expr
-	GetY() Expr
-	SetX(x Expr)
-	SetY(x Expr)
+	GetLeft() Expr
+	GetRight() Expr
+	SetLeft(x Expr)
+	SetRight(x Expr)
+	Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bool
 }
 
 // CreateStmt used to create nodes and relationships.

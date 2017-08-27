@@ -8,30 +8,30 @@ import (
 // ComparisonExpr comparison expression
 type ComparisonExpr struct {
 	comparisons.Comparison
-	X Expr // left operand
-	Y Expr // right operand
+	Left  Expr // left operand
+	Right Expr // right operand
 }
 
 func (ComparisonExpr) exprNode() {}
 
-// GetX return value store in X, left side
-func (b *ComparisonExpr) GetX() Expr {
-	return b.X
+// GetLeft return value store in left side
+func (b *ComparisonExpr) GetLeft() Expr {
+	return b.Left
 }
 
-// GetY return value store in Y, right side
-func (b *ComparisonExpr) GetY() Expr {
-	return b.Y
+// GetRight return value store in right side
+func (b *ComparisonExpr) GetRight() Expr {
+	return b.Right
 }
 
-// SetX stores the Expr in X, left side
-func (b *ComparisonExpr) SetX(x Expr) {
-	b.X = x
+// SetLeft stores the Expr in left side
+func (b *ComparisonExpr) SetLeft(left Expr) {
+	b.Left = left
 }
 
-// SetY stores the Expr in Y, right side
-func (b *ComparisonExpr) SetY(y Expr) {
-	b.Y = y
+// SetRight stores the Expr in right side
+func (b *ComparisonExpr) SetRight(right Expr) {
+	b.Right = right
 }
 
 func resolve(expr Expr, vertex *vertices.Vertex, pattern *VertexPatn) interface{} {
@@ -47,22 +47,22 @@ func resolve(expr Expr, vertex *vertices.Vertex, pattern *VertexPatn) interface{
 	return nil
 }
 
-// Evaluate runs the ComparisonExpr over a Vertex and VertexPatn to check for a match
+// Interpret runs the ComparisonExpr over a Vertex and VertexPatn to check for a match
 //
 // The ComparisonExpr comes from building the AST so it is part of the WHERE clause
 //     WHERE n.age < 30
 // The VertexPatn is part of the a MATCH statement within the query
 //     MATCH (n:Person)
 // Finally the Vertex is the vertex you want to run the Evaluate over to check for a match
-func (b *ComparisonExpr) Evaluate(vertex *vertices.Vertex, pattern *VertexPatn) bool {
+func (b *ComparisonExpr) Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bool {
 
 	if b.Comparison == comparisons.EQ {
-		return resolve(b.GetX(), vertex, pattern) == resolve(b.GetY(), vertex, pattern)
+		return resolve(b.GetLeft(), vertex, pattern) == resolve(b.GetRight(), vertex, pattern)
 	} else if b.Comparison == comparisons.NEQ {
-		return resolve(b.GetX(), vertex, pattern) != resolve(b.GetY(), vertex, pattern)
+		return resolve(b.GetLeft(), vertex, pattern) != resolve(b.GetRight(), vertex, pattern)
 	} else {
-		x := resolve(b.GetX(), vertex, pattern)
-		y := resolve(b.GetY(), vertex, pattern)
+		x := resolve(b.GetLeft(), vertex, pattern)
+		y := resolve(b.GetRight(), vertex, pattern)
 
 		return comparisons.Compare(b.Comparison, x, y)
 	}

@@ -105,23 +105,23 @@ func isOperator(item ast.Expr) bool {
 }
 
 func shuntOperator(expr ast.Expr, operatorStack StackExpr, exprStack StackExpr) (StackExpr, StackExpr, bool) {
-	var y, x ast.Expr
+	var right, left ast.Expr
 	if not, ok := expr.(*ast.NotExpr); ok {
 		if len(exprStack) < 1 {
 			return operatorStack, exprStack, false
 		}
 		operatorStack, expr = operatorStack.pop()
-		exprStack, x = exprStack.pop()
-		not.SetX(x)
+		exprStack, left = exprStack.pop()
+		not.SetLeft(left)
 	} else if operator, ok := expr.(ast.OperatorExpr); ok {
 		if len(exprStack) < 2 {
 			return operatorStack, exprStack, false
 		}
 		operatorStack, expr = operatorStack.pop()
-		exprStack, y = exprStack.pop()
-		exprStack, x = exprStack.pop()
-		operator.SetY(y)
-		operator.SetX(x)
+		exprStack, right = exprStack.pop()
+		exprStack, left = exprStack.pop()
+		operator.SetRight(right)
+		operator.SetLeft(left)
 	}
 	exprStack = exprStack.Push(expr)
 	return operatorStack, exprStack, true

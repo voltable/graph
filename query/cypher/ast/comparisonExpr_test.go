@@ -9,7 +9,7 @@ import (
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
-func Test_Evaluate(t *testing.T) {
+func Test_Interpret(t *testing.T) {
 
 	var tests = []struct {
 		c      ast.ComparisonExpr
@@ -25,19 +25,19 @@ func Test_Evaluate(t *testing.T) {
 			result: true,
 		},
 		{
-			c:      ast.ComparisonExpr{Comparison: comparisons.NEQ, X: ast.PropertyStmt{}, Y: ast.Ident{}},
+			c:      ast.ComparisonExpr{Comparison: comparisons.NEQ, Left: ast.PropertyStmt{}, Right: ast.Ident{}},
 			v:      &vertices.Vertex{},
 			p:      &ast.VertexPatn{Variable: "Person"},
 			result: true,
 		},
 		{
-			c:      ast.ComparisonExpr{Comparison: comparisons.IS_NULL, X: ast.PropertyStmt{Variable: "n"}, Y: ast.Ident{}},
+			c:      ast.ComparisonExpr{Comparison: comparisons.IS_NULL, Left: ast.PropertyStmt{Variable: "n"}, Right: ast.Ident{}},
 			v:      &vertices.Vertex{},
 			p:      &ast.VertexPatn{Variable: "n"},
 			result: true,
 		},
 		{
-			c: ast.ComparisonExpr{Comparison: comparisons.IS_NOT_NULL, X: ast.PropertyStmt{Variable: "n", Value: "Person"}, Y: ast.Ident{}},
+			c: ast.ComparisonExpr{Comparison: comparisons.IS_NOT_NULL, Left: ast.PropertyStmt{Variable: "n", Value: "Person"}, Right: ast.Ident{}},
 			v: func() *vertices.Vertex {
 				x, _ := vertices.NewVertex()
 				x.SetProperty("Person", "John Smith")
@@ -47,7 +47,7 @@ func Test_Evaluate(t *testing.T) {
 			result: true,
 		},
 		{
-			c: ast.ComparisonExpr{Comparison: comparisons.LT, X: ast.PropertyStmt{Variable: "n", Value: "Age"}, Y: ast.Ident{Data: math.MaxInt32}},
+			c: ast.ComparisonExpr{Comparison: comparisons.LT, Left: ast.PropertyStmt{Variable: "n", Value: "Age"}, Right: ast.Ident{Data: math.MaxInt32}},
 			v: func() *vertices.Vertex {
 				x, _ := vertices.NewVertex()
 				x.SetProperty("Age", math.MaxInt32-1)
@@ -59,7 +59,7 @@ func Test_Evaluate(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		result := tt.c.Evaluate(tt.v, tt.p)
+		result := tt.c.Interpret(tt.v, tt.p)
 		if result != tt.result {
 			t.Errorf("%d.  %q: comparison mismatch:\n  exp=%t\n  got=%t\n\n", i, tt.c, tt.result, result)
 		}
