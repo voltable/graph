@@ -194,7 +194,7 @@ func TestParser_Where(t *testing.T) {
 	}{
 		{
 			s:    `MATCH () WHERE n.number >= 1 AND n.number <= 10`,
-			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.BooleanExpr{Boolean: ast.AND, Left: &ast.ComparisonExpr{Comparison: expressions.GTE, Left: &ast.PropertyStmt{Variable: "n", Value: "number"}, Right: &ast.Ident{Data: 1}}, Right: &ast.ComparisonExpr{Comparison: expressions.LTE, Left: &ast.PropertyStmt{Variable: "n", Value: "number"}, Right: &ast.Ident{Data: 10}}}}},
+			stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{}, Next: &ast.WhereStmt{Predicate: &ast.BooleanExpr{Boolean: expressions.AND, Left: &ast.ComparisonExpr{Comparison: expressions.GTE, Left: &ast.PropertyStmt{Variable: "n", Value: "number"}, Right: &ast.Ident{Data: 1}}, Right: &ast.ComparisonExpr{Comparison: expressions.LTE, Left: &ast.PropertyStmt{Variable: "n", Value: "number"}, Right: &ast.Ident{Data: 10}}}}},
 		},
 		{
 			s:    `MATCH () WHERE n.name = "john smith"`,

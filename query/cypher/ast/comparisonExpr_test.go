@@ -9,7 +9,7 @@ import (
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
-func Test_Interpret(t *testing.T) {
+func Test_ComparisonExprInterpret(t *testing.T) {
 
 	var tests = []struct {
 		c      ast.ComparisonExpr

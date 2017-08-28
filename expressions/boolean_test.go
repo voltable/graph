@@ -60,7 +60,7 @@ func Test_XOR(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		result := expressions.XOR(tt.a, tt.b)
+		result := expressions.XORExclusive(tt.a, tt.b)
 		if result != tt.result {
 			t.Errorf("%d. xor:\n  exp=%v\n  got=%v\n\n", i, tt.result, result)
 		}

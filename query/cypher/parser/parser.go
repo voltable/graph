@@ -386,13 +386,13 @@ func (p *Parser) booleanExpr() (ast.Expr, error) {
 	tok, _ := p.scanIgnoreWhitespace()
 	switch tok {
 	case lexer.AND:
-		return &ast.BooleanExpr{Boolean: ast.AND}, nil
+		return &ast.BooleanExpr{Boolean: expressions.AND}, nil
 	case lexer.OR:
-		return &ast.BooleanExpr{Boolean: ast.OR}, nil
+		return &ast.BooleanExpr{Boolean: expressions.OR}, nil
 	case lexer.NOT:
 		return &ast.NotExpr{}, nil
 	case lexer.XOR:
-		return &ast.BooleanExpr{Boolean: ast.XOR}, nil
+		return &ast.BooleanExpr{Boolean: expressions.XOR}, nil
 	}
 	p.unscan()
 	return nil, nil

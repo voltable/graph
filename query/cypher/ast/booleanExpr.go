@@ -5,22 +5,8 @@ import (
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
-type Boolean int
-
-const (
-	// AND a bitwise or logical AND operation, such as (a And b).
-	AND Boolean = iota
-	// OR a bitwise or logical OR operation, such as (a Or b).
-	OR
-	// XOR a bitwise or logical XOR operation, such as (a Xor b).
-	XOR
-
-// NOT a bitwise complement or logical negation operation (Not a).
-//NOT
-)
-
 type BooleanExpr struct {
-	Boolean
+	expressions.Boolean
 	Left  Expr // left operand
 	Right Expr // right operand
 }
@@ -60,14 +46,14 @@ func (b *BooleanExpr) Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bo
 	right := b.GetRight()
 	if l, ok := left.(OperatorExpr); ok {
 		if r, ok := right.(OperatorExpr); ok {
-			if b.Boolean == AND {
+			if b.Boolean == expressions.AND {
 				return l.Interpret(vertex, pattern) && r.Interpret(vertex, pattern)
 			}
-			if b.Boolean == OR {
+			if b.Boolean == expressions.OR {
 				return l.Interpret(vertex, pattern) || r.Interpret(vertex, pattern)
 			}
-			if b.Boolean == XOR {
-				return expressions.XOR(l.Interpret(vertex, pattern), r.Interpret(vertex, pattern))
+			if b.Boolean == expressions.XOR {
+				return expressions.XORExclusive(l.Interpret(vertex, pattern), r.Interpret(vertex, pattern))
 			}
 		}
 	}
@@ -77,11 +63,11 @@ func (b *BooleanExpr) Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bo
 
 // BooleanPrecedence returns the precedence (order of importance)
 func BooleanPrecedence(item BooleanExpr) int {
-	if item.Boolean == AND {
+	if item.Boolean == expressions.AND {
 		return 9
-	} else if item.Boolean == OR {
+	} else if item.Boolean == expressions.OR {
 		return 11
-	} else if item.Boolean == XOR {
+	} else if item.Boolean == expressions.XOR {
 		return 10
 	} else {
 		return 20

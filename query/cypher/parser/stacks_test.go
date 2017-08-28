@@ -28,7 +28,7 @@ func TestBasic_UpdateStack(t *testing.T) {
 	n3 := &ast.Ident{Data: 1}
 	exprStack = exprStack.Push(n3)
 
-	n4 := &ast.BooleanExpr{Boolean: ast.AND}
+	n4 := &ast.BooleanExpr{Boolean: expressions.AND}
 	exprStack = exprStack.Push(n4)
 
 	n5 := &ast.PropertyStmt{Variable: "n", Value: "number"}
@@ -93,7 +93,7 @@ func TestBasic_UpdateStackWithNot(t *testing.T) {
 	n3 := &ast.Ident{Data: 1}
 	exprStack = exprStack.Push(n3)
 
-	n4 := &ast.BooleanExpr{Boolean: ast.AND}
+	n4 := &ast.BooleanExpr{Boolean: expressions.AND}
 	exprStack = exprStack.Push(n4)
 
 	n5 := &ast.NotExpr{}
@@ -172,7 +172,7 @@ func TestBasic_Parentheses(t *testing.T) {
 	n4 := &ast.Ident{Data: "Peter"}
 	exprStack = exprStack.Push(n4)
 
-	n5 := &ast.BooleanExpr{Boolean: ast.AND}
+	n5 := &ast.BooleanExpr{Boolean: expressions.AND}
 	exprStack = exprStack.Push(n5)
 
 	n6 := &ast.PropertyStmt{Variable: "n", Value: "age"}
@@ -184,7 +184,7 @@ func TestBasic_Parentheses(t *testing.T) {
 	n8 := &ast.Ident{Data: 30}
 	exprStack = exprStack.Push(n8)
 
-	n9 := &ast.BooleanExpr{Boolean: ast.XOR}
+	n9 := &ast.BooleanExpr{Boolean: expressions.XOR}
 	exprStack = exprStack.Push(n9)
 
 	n10 := &ast.PropertyStmt{Variable: "n", Value: "age"}
@@ -199,7 +199,7 @@ func TestBasic_Parentheses(t *testing.T) {
 	n13 := &ast.ParenthesesExpr{Parentheses: ast.RPAREN}
 	exprStack = exprStack.Push(n13)
 
-	n14 := &ast.BooleanExpr{Boolean: ast.AND}
+	n14 := &ast.BooleanExpr{Boolean: expressions.AND}
 	exprStack = exprStack.Push(n14)
 
 	n15 := &ast.PropertyStmt{Variable: "n", Value: "name"}
@@ -299,7 +299,7 @@ func TestDeep_UpdateStack(t *testing.T) {
 	n3 := &ast.Ident{Data: "Peter"}
 	exprStack = exprStack.Push(n3)
 
-	n4 := &ast.BooleanExpr{Boolean: ast.XOR}
+	n4 := &ast.BooleanExpr{Boolean: expressions.XOR}
 	exprStack = exprStack.Push(n4)
 
 	n5 := &ast.ParenthesesExpr{Parentheses: ast.LPAREN}
@@ -314,7 +314,7 @@ func TestDeep_UpdateStack(t *testing.T) {
 	n8 := &ast.Ident{Data: 30}
 	exprStack = exprStack.Push(n8)
 
-	n9 := &ast.BooleanExpr{Boolean: ast.AND}
+	n9 := &ast.BooleanExpr{Boolean: expressions.AND}
 	exprStack = exprStack.Push(n9)
 
 	n10 := &ast.PropertyStmt{Variable: "n", Value: "name"}
@@ -329,7 +329,7 @@ func TestDeep_UpdateStack(t *testing.T) {
 	n13 := &ast.ParenthesesExpr{Parentheses: ast.RPAREN}
 	exprStack = exprStack.Push(n13)
 
-	n14 := &ast.BooleanExpr{Boolean: ast.OR}
+	n14 := &ast.BooleanExpr{Boolean: expressions.OR}
 	exprStack = exprStack.Push(n14)
 
 	n15 := &ast.NotExpr{}
@@ -347,7 +347,7 @@ func TestDeep_UpdateStack(t *testing.T) {
 	n19 := &ast.Ident{Data: "Tobias"}
 	exprStack = exprStack.Push(n19)
 
-	n20 := &ast.BooleanExpr{Boolean: ast.OR}
+	n20 := &ast.BooleanExpr{Boolean: expressions.OR}
 	exprStack = exprStack.Push(n20)
 
 	n21 := &ast.PropertyStmt{Variable: "n", Value: "name"}
