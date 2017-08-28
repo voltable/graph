@@ -112,8 +112,8 @@ func shuntOperator(expr ast.Expr, operatorStack StackExpr, exprStack StackExpr) 
 		}
 		operatorStack, expr = operatorStack.pop()
 		exprStack, left = exprStack.pop()
-		not.SetLeft(left)
-	} else if operator, ok := expr.(ast.OperatorExpr); ok {
+		not.SetValue(left)
+	} else if operator, ok := expr.(ast.NonTerminalExpr); ok {
 		if len(exprStack) < 2 {
 			return operatorStack, exprStack, false
 		}

@@ -130,8 +130,8 @@ func TestBasic_UpdateStackWithNot(t *testing.T) {
 		t.Errorf("found %#v expected %#v", n4.Right, n5)
 	}
 
-	if n5.Left != n7 {
-		t.Errorf("found %#v expected %#v", n5.Left, n7)
+	if n5.GetValue() != n7 {
+		t.Errorf("found %#v expected %#v", n5.GetValue(), n7)
 	}
 
 	if n7.Left != n6 {
@@ -412,8 +412,8 @@ func TestDeep_UpdateStack(t *testing.T) {
 		t.Errorf("found %#v expected %#v", n14.Right, n15)
 	}
 
-	if n15.Left != n20 {
-		t.Errorf("found %#v expected %#v", n15.Left, n20)
+	if n15.GetValue() != n20 {
+		t.Errorf("found %#v expected %#v", n15.GetValue(), n20)
 	}
 
 	if n20.Left != n18 {

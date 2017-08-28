@@ -54,12 +54,19 @@ type OptionalMatchStmt struct {
 	Next    Stmt
 }
 
-// OperatorExpr is a NonTerminal
-type OperatorExpr interface {
+// NonTerminalExpr is a NonTerminal
+type NonTerminalExpr interface {
 	GetLeft() Expr
 	GetRight() Expr
 	SetLeft(x Expr)
 	SetRight(x Expr)
+	Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bool
+}
+
+// TerminalExpr is a Terminal
+type TerminalExpr interface {
+	GetValue() Expr
+	SetValue(x Expr)
 	Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bool
 }
 

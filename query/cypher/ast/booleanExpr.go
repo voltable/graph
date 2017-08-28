@@ -13,7 +13,7 @@ type BooleanExpr struct {
 
 // NotExpr a bitwise complement or logical negation operation (Not a).
 type NotExpr struct {
-	Left Expr // left operand
+	value Expr // left operand
 }
 
 func (BooleanExpr) exprNode() {}
@@ -35,8 +35,12 @@ func (b *BooleanExpr) SetRight(right Expr) {
 	b.Right = right
 }
 
-func (b *NotExpr) SetLeft(left Expr) {
-	b.Left = left
+func (b *NotExpr) SetValue(left Expr) {
+	b.value = left
+}
+
+func (b *NotExpr) GetValue() Expr {
+	return b.value
 }
 
 // Interpret runs the BooleanExpr over a Vertex and VertexPatn to check for a match
@@ -44,8 +48,8 @@ func (b *BooleanExpr) Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bo
 
 	left := b.GetLeft()
 	right := b.GetRight()
-	if l, ok := left.(OperatorExpr); ok {
-		if r, ok := right.(OperatorExpr); ok {
+	if l, ok := left.(NonTerminalExpr); ok {
+		if r, ok := right.(NonTerminalExpr); ok {
 			if b.Boolean == expressions.AND {
 				return l.Interpret(vertex, pattern) && r.Interpret(vertex, pattern)
 			}
@@ -69,9 +73,8 @@ func BooleanPrecedence(item BooleanExpr) int {
 		return 11
 	} else if item.Boolean == expressions.XOR {
 		return 10
-	} else {
-		return 20
 	}
+	return 20
 }
 
 // NotPrecedence returns the precedence (order of importance)
