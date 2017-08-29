@@ -34,32 +34,32 @@ func Test_BooleanPrecedence(t *testing.T) {
 func Test_BooleanExprInterpret(t *testing.T) {
 
 	var tests = []struct {
-		c      ast.BooleanExpr
+		c      *ast.BooleanExpr
 		v      *vertices.Vertex
 		p      *ast.VertexPatn
 		result bool
 		err    string
 	}{
-	// {
-	// 	//					 AND
-	// 	//			   _____/	\_____
-	// 	//			  /				  \
-	// 	//		  __>__ 		  	 __<__
-	// 	//		 /	    \			/	   \
-	// 	//   n.age     	10  	n.age     1000
-	// 	c: ast.BooleanExpr{Boolean: expressions.AND,
-	// 		Left:  ast.ComparisonExpr{Comparison: expressions.GT, Left: ast.PropertyStmt{Variable: "n", Value: "Age"}, Right: ast.Ident{Data: 10}},
-	// 		Right: ast.ComparisonExpr{Comparison: expressions.LT, Left: ast.PropertyStmt{Variable: "n", Value: "Age"}, Right: ast.Ident{Data: 1000}},
-	// 	},
+		{
+			//					 AND
+			//			   _____/	\_____
+			//			  /				  \
+			//		  __>__ 		  	 __<__
+			//		 /	    \			/	   \
+			//   n.age     	10  	n.age     1000
+			c: ast.NewBooleanExpr(expressions.AND,
+				ast.NewComparisonExpr(expressions.GT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 10}),
+				ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 1000}),
+			),
 
-	// 	v: func() *vertices.Vertex {
-	// 		x, _ := vertices.NewVertex()
-	// 		x.SetProperty("Age", 100)
-	// 		return x
-	// 	}(),
-	// 	p:      &ast.VertexPatn{Variable: "n"},
-	// 	result: true,
-	// },
+			v: func() *vertices.Vertex {
+				x, _ := vertices.NewVertex()
+				x.SetProperty("Age", 100)
+				return x
+			}(),
+			p:      &ast.VertexPatn{Variable: "n"},
+			result: true,
+		},
 	}
 
 	for i, tt := range tests {

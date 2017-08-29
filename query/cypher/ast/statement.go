@@ -82,7 +82,6 @@ type TerminalExpr interface {
 type InterpretExpr interface {
 	exprNode()
 	interpretNode()
-	//Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bool
 }
 
 func (Ident) interpretNode() {}
