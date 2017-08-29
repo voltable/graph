@@ -5,42 +5,40 @@ import (
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
+// BooleanExpr boolean expression
 type BooleanExpr struct {
 	expressions.Boolean
-	Left  Expr // left operand
-	Right Expr // right operand
+	left  Expr // left operand
+	right Expr // right operand
 }
 
-// NotExpr a bitwise complement or logical negation operation (Not a).
-type NotExpr struct {
-	value Expr // left operand
-}
+var _ NonTerminalExpr = (*BooleanExpr)(nil)
 
 func (BooleanExpr) exprNode() {}
-func (NotExpr) exprNode()     {}
 
+// NewBooleanExpr creates a BooleanExpr
+func NewBooleanExpr(boolean expressions.Boolean, left Expr, right Expr) *BooleanExpr {
+	return &BooleanExpr{Boolean: boolean, left: left, right: right}
+}
+
+// GetLeft return value store in left side
 func (b *BooleanExpr) GetLeft() Expr {
-	return b.Left
+	return b.left
 }
 
+// GetRight return value store in right side
 func (b *BooleanExpr) GetRight() Expr {
-	return b.Right
+	return b.right
 }
 
+// SetLeft stores the Expr in left side
 func (b *BooleanExpr) SetLeft(left Expr) {
-	b.Left = left
+	b.left = left
 }
 
+// SetRight stores the Expr in right side
 func (b *BooleanExpr) SetRight(right Expr) {
-	b.Right = right
-}
-
-func (b *NotExpr) SetValue(left Expr) {
-	b.value = left
-}
-
-func (b *NotExpr) GetValue() Expr {
-	return b.value
+	b.right = right
 }
 
 // Interpret runs the BooleanExpr over a Vertex and VertexPatn to check for a match
@@ -75,9 +73,4 @@ func BooleanPrecedence(item BooleanExpr) int {
 		return 10
 	}
 	return 20
-}
-
-// NotPrecedence returns the precedence (order of importance)
-func NotPrecedence(item NotExpr) int {
-	return 13
 }

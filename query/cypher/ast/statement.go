@@ -54,7 +54,7 @@ type OptionalMatchStmt struct {
 	Next    Stmt
 }
 
-// NonTerminalExpr is a NonTerminal
+// NonTerminalExpr is a NonTerminal symbol which can still be broken down e.g. a BooleanExpr
 type NonTerminalExpr interface {
 	GetLeft() Expr
 	GetRight() Expr
@@ -63,10 +63,15 @@ type NonTerminalExpr interface {
 	Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bool
 }
 
-// TerminalExpr is a Terminal
+// TerminalExpr is a Terminal symbol which cannot be broken down further e.g. a Ident
 type TerminalExpr interface {
 	GetValue() Expr
 	SetValue(x Expr)
+	Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bool
+}
+
+// InterpretExpr is the base interface for the NonTerminalExpr and TerminalExpr
+type InterpretExpr interface {
 	Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bool
 }
 

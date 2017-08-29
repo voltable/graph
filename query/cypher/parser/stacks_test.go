@@ -46,28 +46,28 @@ func TestBasic_UpdateStack(t *testing.T) {
 		t.Errorf("found %#v expected %#v", result, n4)
 	}
 
-	if n4.Left != n2 {
-		t.Errorf("found %#v expected %#v", n4.Left, n2)
+	if n4.GetLeft() != n2 {
+		t.Errorf("found %#v expected %#v", n4.GetLeft(), n2)
 	}
 
-	if n2.Left != n1 {
-		t.Errorf("found %#v expected %#v", n2.Left, n1)
+	if n2.GetLeft() != n1 {
+		t.Errorf("found %#v expected %#v", n2.GetLeft(), n1)
 	}
 
-	if n2.Right != n3 {
-		t.Errorf("found %#v expected %#v", n2.Right, n3)
+	if n2.GetRight() != n3 {
+		t.Errorf("found %#v expected %#v", n2.GetRight(), n3)
 	}
 
-	if n4.Right != n6 {
-		t.Errorf("found %#v expected %#v", n4.Right, n6)
+	if n4.GetRight() != n6 {
+		t.Errorf("found %#v expected %#v", n4.GetRight(), n6)
 	}
 
-	if n6.Left != n5 {
-		t.Errorf("found %#v expected %#v", n6.Left, n5)
+	if n6.GetLeft() != n5 {
+		t.Errorf("found %#v expected %#v", n6.GetLeft(), n5)
 	}
 
-	if n6.Right != n7 {
-		t.Errorf("found %#v expected %#v", n6.Right, n7)
+	if n6.GetRight() != n7 {
+		t.Errorf("found %#v expected %#v", n6.GetRight(), n7)
 	}
 }
 
@@ -114,32 +114,32 @@ func TestBasic_UpdateStackWithNot(t *testing.T) {
 		t.Errorf("found %#v expected %#v", result, n4)
 	}
 
-	if n4.Left != n2 {
-		t.Errorf("found %#v expected %#v", n4.Left, n2)
+	if n4.GetLeft() != n2 {
+		t.Errorf("found %#v expected %#v", n4.GetLeft(), n2)
 	}
 
-	if n2.Left != n1 {
-		t.Errorf("found %#v expected %#v", n2.Left, n1)
+	if n2.GetLeft() != n1 {
+		t.Errorf("found %#v expected %#v", n2.GetLeft(), n1)
 	}
 
-	if n2.Right != n3 {
-		t.Errorf("found %#v expected %#v", n2.Right, n3)
+	if n2.GetRight() != n3 {
+		t.Errorf("found %#v expected %#v", n2.GetRight(), n3)
 	}
 
-	if n4.Right != n5 {
-		t.Errorf("found %#v expected %#v", n4.Right, n5)
+	if n4.GetRight() != n5 {
+		t.Errorf("found %#v expected %#v", n4.GetRight(), n5)
 	}
 
 	if n5.GetValue() != n7 {
 		t.Errorf("found %#v expected %#v", n5.GetValue(), n7)
 	}
 
-	if n7.Left != n6 {
-		t.Errorf("found %#v expected %#v", n7.Left, n6)
+	if n7.GetLeft() != n6 {
+		t.Errorf("found %#v expected %#v", n7.GetLeft(), n6)
 	}
 
-	if n7.Right != n8 {
-		t.Errorf("found %#v expected %#v", n7.Right, n8)
+	if n7.GetRight() != n8 {
+		t.Errorf("found %#v expected %#v", n7.GetRight(), n8)
 	}
 }
 
@@ -217,60 +217,60 @@ func TestBasic_Parentheses(t *testing.T) {
 		t.Errorf("found %#v expected %#v", result, n14)
 	}
 
-	if n14.Left != n9 {
-		t.Errorf("found %#v expected %#v", n14.Left, n9)
+	if n14.GetLeft() != n9 {
+		t.Errorf("found %#v expected %#v", n14.GetLeft(), n9)
 	}
 
-	if n9.Left != n5 {
-		t.Errorf("found %#v expected %#v", n9.Left, n5)
+	if n9.GetLeft() != n5 {
+		t.Errorf("found %#v expected %#v", n9.GetLeft(), n5)
 	}
 
-	if n5.Left != n3 {
-		t.Errorf("found %#v expected %#v", n5.Left, n3)
+	if n5.GetLeft() != n3 {
+		t.Errorf("found %#v expected %#v", n5.GetLeft(), n3)
 	}
 
-	if n3.Left != n2 {
-		t.Errorf("found %#v expected %#v", n3.Left, n2)
+	if n3.GetLeft() != n2 {
+		t.Errorf("found %#v expected %#v", n3.GetLeft(), n2)
 	}
 
-	if n3.Right != n4 {
-		t.Errorf("found %#v expected %#v", n3.Right, n4)
+	if n3.GetRight() != n4 {
+		t.Errorf("found %#v expected %#v", n3.GetRight(), n4)
 	}
 
-	if n5.Right != n7 {
-		t.Errorf("found %#v expected %#v", n5.Right, n7)
+	if n5.GetRight() != n7 {
+		t.Errorf("found %#v expected %#v", n5.GetRight(), n7)
 	}
 
-	if n7.Left != n6 {
-		t.Errorf("found %#v expected %#v", n7.Left, n6)
+	if n7.GetLeft() != n6 {
+		t.Errorf("found %#v expected %#v", n7.GetLeft(), n6)
 	}
 
-	if n7.Right != n8 {
-		t.Errorf("found %#v expected %#v", n7.Right, n8)
+	if n7.GetRight() != n8 {
+		t.Errorf("found %#v expected %#v", n7.GetRight(), n8)
 	}
 
-	if n9.Right != n11 {
-		t.Errorf("found %#v expected %#v", n9.Right, n11)
+	if n9.GetRight() != n11 {
+		t.Errorf("found %#v expected %#v", n9.GetRight(), n11)
 	}
 
-	if n11.Left != n10 {
-		t.Errorf("found %#v expected %#v", n11.Left, n11)
+	if n11.GetLeft() != n10 {
+		t.Errorf("found %#v expected %#v", n11.GetLeft(), n11)
 	}
 
-	if n11.Right != n12 {
-		t.Errorf("found %#v expected %#v", n11.Right, n12)
+	if n11.GetRight() != n12 {
+		t.Errorf("found %#v expected %#v", n11.GetRight(), n12)
 	}
 
-	if n14.Right != n16 {
-		t.Errorf("found %#v expected %#v", n14.Right, n16)
+	if n14.GetRight() != n16 {
+		t.Errorf("found %#v expected %#v", n14.GetRight(), n16)
 	}
 
-	if n16.Left != n15 {
-		t.Errorf("found %#v expected %#v", n16.Left, n15)
+	if n16.GetLeft() != n15 {
+		t.Errorf("found %#v expected %#v", n16.GetLeft(), n15)
 	}
 
-	if n16.Right != n17 {
-		t.Errorf("found %#v expected %#v", n16.Right, n17)
+	if n16.GetRight() != n17 {
+		t.Errorf("found %#v expected %#v", n16.GetRight(), n17)
 	}
 }
 
@@ -368,75 +368,75 @@ func TestDeep_UpdateStack(t *testing.T) {
 		t.Errorf("found %#v expected %#v", result, n14)
 	}
 
-	if n14.Left != n4 {
-		t.Errorf("found %#v expected %#v", n14.Left, n4)
+	if n14.GetLeft() != n4 {
+		t.Errorf("found %#v expected %#v", n14.GetLeft(), n4)
 	}
 
-	if n4.Left != n2 {
-		t.Errorf("found %#v expected %#v", n4.Left, n2)
+	if n4.GetLeft() != n2 {
+		t.Errorf("found %#v expected %#v", n4.GetLeft(), n2)
 	}
 
-	if n2.Left != n1 {
-		t.Errorf("found %#v expected %#v", n2.Left, n1)
+	if n2.GetLeft() != n1 {
+		t.Errorf("found %#v expected %#v", n2.GetLeft(), n1)
 	}
 
-	if n4.Right != n9 {
-		t.Errorf("found %#v expected %#v", n4.Right, n9)
+	if n4.GetRight() != n9 {
+		t.Errorf("found %#v expected %#v", n4.GetRight(), n9)
 	}
 
-	if n9.Left != n7 {
-		t.Errorf("found %#v expected %#v", n9.Left, n7)
+	if n9.GetLeft() != n7 {
+		t.Errorf("found %#v expected %#v", n9.GetLeft(), n7)
 	}
 
-	if n7.Left != n6 {
-		t.Errorf("found %#v expected %#v", n7.Left, n6)
+	if n7.GetLeft() != n6 {
+		t.Errorf("found %#v expected %#v", n7.GetLeft(), n6)
 	}
 
-	if n7.Right != n8 {
-		t.Errorf("found %#v expected %#v", n7.Right, n8)
+	if n7.GetRight() != n8 {
+		t.Errorf("found %#v expected %#v", n7.GetRight(), n8)
 	}
 
-	if n9.Right != n11 {
-		t.Errorf("found %#v expected %#v", n9.Right, n11)
+	if n9.GetRight() != n11 {
+		t.Errorf("found %#v expected %#v", n9.GetRight(), n11)
 	}
 
-	if n11.Left != n10 {
-		t.Errorf("found %#v expected %#v", n11.Left, n10)
+	if n11.GetLeft() != n10 {
+		t.Errorf("found %#v expected %#v", n11.GetLeft(), n10)
 	}
 
-	if n11.Right != n12 {
-		t.Errorf("found %#v expected %#v", n11.Right, n12)
+	if n11.GetRight() != n12 {
+		t.Errorf("found %#v expected %#v", n11.GetRight(), n12)
 	}
 
-	if n14.Right != n15 {
-		t.Errorf("found %#v expected %#v", n14.Right, n15)
+	if n14.GetRight() != n15 {
+		t.Errorf("found %#v expected %#v", n14.GetRight(), n15)
 	}
 
 	if n15.GetValue() != n20 {
 		t.Errorf("found %#v expected %#v", n15.GetValue(), n20)
 	}
 
-	if n20.Left != n18 {
-		t.Errorf("found %#v expected %#v", n20.Left, n18)
+	if n20.GetLeft() != n18 {
+		t.Errorf("found %#v expected %#v", n20.GetLeft(), n18)
 	}
 
-	if n18.Left != n17 {
-		t.Errorf("found %#v expected %#v", n18.Left, n17)
+	if n18.GetLeft() != n17 {
+		t.Errorf("found %#v expected %#v", n18.GetLeft(), n17)
 	}
 
-	if n18.Right != n19 {
-		t.Errorf("found %#v expected %#v", n18.Right, n19)
+	if n18.GetRight() != n19 {
+		t.Errorf("found %#v expected %#v", n18.GetRight(), n19)
 	}
 
-	if n20.Right != n22 {
-		t.Errorf("found %#v expected %#v", n20.Right, n22)
+	if n20.GetRight() != n22 {
+		t.Errorf("found %#v expected %#v", n20.GetRight(), n22)
 	}
 
-	if n22.Left != n21 {
-		t.Errorf("found %#v expected %#v", n22.Left, n22)
+	if n22.GetLeft() != n21 {
+		t.Errorf("found %#v expected %#v", n22.GetLeft(), n22)
 	}
 
-	if n22.Right != n23 {
-		t.Errorf("found %#v expected %#v", n22.Right, n23)
+	if n22.GetRight() != n23 {
+		t.Errorf("found %#v expected %#v", n22.GetRight(), n23)
 	}
 }

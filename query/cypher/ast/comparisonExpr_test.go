@@ -12,32 +12,32 @@ import (
 func Test_ComparisonExprInterpret(t *testing.T) {
 
 	var tests = []struct {
-		c      ast.ComparisonExpr
+		c      *ast.ComparisonExpr
 		v      *vertices.Vertex
 		p      *ast.VertexPatn
 		result bool
 		err    string
 	}{
 		{
-			c:      ast.ComparisonExpr{Comparison: expressions.EQ},
+			c:      &ast.ComparisonExpr{Comparison: expressions.EQ},
 			v:      &vertices.Vertex{},
 			p:      &ast.VertexPatn{},
 			result: true,
 		},
 		{
-			c:      ast.ComparisonExpr{Comparison: expressions.NEQ, Left: ast.PropertyStmt{}, Right: ast.Ident{}},
+			c:      ast.NewComparisonExpr(expressions.NEQ, ast.PropertyStmt{}, ast.Ident{}),
 			v:      &vertices.Vertex{},
 			p:      &ast.VertexPatn{Variable: "Person"},
 			result: true,
 		},
 		{
-			c:      ast.ComparisonExpr{Comparison: expressions.IS_NULL, Left: ast.PropertyStmt{Variable: "n"}, Right: ast.Ident{}},
+			c:      ast.NewComparisonExpr(expressions.IS_NULL, ast.PropertyStmt{Variable: "n"}, ast.Ident{}),
 			v:      &vertices.Vertex{},
 			p:      &ast.VertexPatn{Variable: "n"},
 			result: true,
 		},
 		{
-			c: ast.ComparisonExpr{Comparison: expressions.IS_NOT_NULL, Left: ast.PropertyStmt{Variable: "n", Value: "Person"}, Right: ast.Ident{}},
+			c: ast.NewComparisonExpr(expressions.IS_NOT_NULL, ast.PropertyStmt{Variable: "n", Value: "Person"}, ast.Ident{}),
 			v: func() *vertices.Vertex {
 				x, _ := vertices.NewVertex()
 				x.SetProperty("Person", "John Smith")
@@ -47,7 +47,7 @@ func Test_ComparisonExprInterpret(t *testing.T) {
 			result: true,
 		},
 		{
-			c: ast.ComparisonExpr{Comparison: expressions.LT, Left: ast.PropertyStmt{Variable: "n", Value: "Age"}, Right: ast.Ident{Data: math.MaxInt32}},
+			c: ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: math.MaxInt32}),
 			v: func() *vertices.Vertex {
 				x, _ := vertices.NewVertex()
 				x.SetProperty("Age", math.MaxInt32-1)

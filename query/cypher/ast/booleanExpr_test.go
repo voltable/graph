@@ -31,14 +31,6 @@ func Test_BooleanPrecedence(t *testing.T) {
 	}
 }
 
-func Test_NotPrecedence(t *testing.T) {
-	c := ast.NotExpr{}
-
-	if ast.NotPrecedence(c) != 13 {
-		t.Errorf("not expected")
-	}
-}
-
 func Test_BooleanExprInterpret(t *testing.T) {
 
 	var tests = []struct {

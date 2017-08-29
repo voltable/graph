@@ -8,30 +8,37 @@ import (
 // ComparisonExpr comparison expression
 type ComparisonExpr struct {
 	expressions.Comparison
-	Left  Expr // left operand
-	Right Expr // right operand
+	left  Expr // left operand
+	right Expr // right operand
 }
+
+var _ NonTerminalExpr = (*ComparisonExpr)(nil)
 
 func (ComparisonExpr) exprNode() {}
 
+// NewComparisonExpr creates a ComparisonExpr
+func NewComparisonExpr(comparison expressions.Comparison, left Expr, right Expr) *ComparisonExpr {
+	return &ComparisonExpr{Comparison: comparison, left: left, right: right}
+}
+
 // GetLeft return value store in left side
 func (b *ComparisonExpr) GetLeft() Expr {
-	return b.Left
+	return b.left
 }
 
 // GetRight return value store in right side
 func (b *ComparisonExpr) GetRight() Expr {
-	return b.Right
+	return b.right
 }
 
 // SetLeft stores the Expr in left side
 func (b *ComparisonExpr) SetLeft(left Expr) {
-	b.Left = left
+	b.left = left
 }
 
 // SetRight stores the Expr in right side
 func (b *ComparisonExpr) SetRight(right Expr) {
-	b.Right = right
+	b.right = right
 }
 
 func resolve(expr Expr, vertex *vertices.Vertex, pattern *VertexPatn) interface{} {
@@ -56,13 +63,16 @@ func resolve(expr Expr, vertex *vertices.Vertex, pattern *VertexPatn) interface{
 // Finally the Vertex is the vertex you want to run the Evaluate over to check for a match
 func (b *ComparisonExpr) Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bool {
 
+	left := b.GetLeft()
+	right := b.GetRight()
+
 	if b.Comparison == expressions.EQ {
-		return resolve(b.GetLeft(), vertex, pattern) == resolve(b.GetRight(), vertex, pattern)
+		return resolve(left, vertex, pattern) == resolve(right, vertex, pattern)
 	} else if b.Comparison == expressions.NEQ {
-		return resolve(b.GetLeft(), vertex, pattern) != resolve(b.GetRight(), vertex, pattern)
+		return resolve(left, vertex, pattern) != resolve(right, vertex, pattern)
 	} else {
-		x := resolve(b.GetLeft(), vertex, pattern)
-		y := resolve(b.GetRight(), vertex, pattern)
+		x := resolve(left, vertex, pattern)
+		y := resolve(right, vertex, pattern)
 
 		return expressions.Compare(b.Comparison, x, y)
 	}
