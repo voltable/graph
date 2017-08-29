@@ -28,6 +28,8 @@ type PropertyStmt struct {
 	Value    string
 }
 
+func (PropertyStmt) interpretNode() {}
+
 // WhereStmt used to adds constraints to the patterns in a MATCH or OPTIONAL MATCH clause or filters the results of a WITH clause.
 type WhereStmt struct {
 	Predicate Expr
@@ -56,24 +58,34 @@ type OptionalMatchStmt struct {
 
 // NonTerminalExpr is a NonTerminal symbol which can still be broken down e.g. a BooleanExpr
 type NonTerminalExpr interface {
-	GetLeft() Expr
-	GetRight() Expr
-	SetLeft(x Expr)
-	SetRight(x Expr)
+	exprNode()
+	interpretNode()
+
+	GetLeft() InterpretExpr
+	GetRight() InterpretExpr
+	SetLeft(x InterpretExpr)
+	SetRight(x InterpretExpr)
 	Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bool
 }
 
 // TerminalExpr is a Terminal symbol which cannot be broken down further e.g. a Ident
 type TerminalExpr interface {
-	GetValue() Expr
-	SetValue(x Expr)
+	exprNode()
+	interpretNode()
+
+	GetValue() InterpretExpr
+	SetValue(x InterpretExpr)
 	Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bool
 }
 
 // InterpretExpr is the base interface for the NonTerminalExpr and TerminalExpr
 type InterpretExpr interface {
-	Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bool
+	exprNode()
+	interpretNode()
+	//Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bool
 }
+
+func (Ident) interpretNode() {}
 
 // CreateStmt used to create nodes and relationships.
 type CreateStmt struct {

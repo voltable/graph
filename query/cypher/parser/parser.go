@@ -325,7 +325,7 @@ func (p *Parser) value(tok lexer.Token, lit string) (interface{}, error) {
 	return emptyString, nil
 }
 
-func (p *Parser) propertyOrValue() (ast.Expr, error) {
+func (p *Parser) propertyOrValue() (ast.InterpretExpr, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 
 	if tok == lexer.IDENT {
@@ -353,7 +353,7 @@ func (p *Parser) propertyOrValue() (ast.Expr, error) {
 	return nil, nil
 }
 
-func (p *Parser) stringValue() (ast.Expr, error) {
+func (p *Parser) stringValue() (ast.InterpretExpr, error) {
 	tok, lit, err := p.scanForQuotation()
 	if tok == lexer.IDENT {
 		return &ast.Ident{Data: lit}, nil
@@ -382,7 +382,7 @@ func (p *Parser) comparisonExpr() (*ast.ComparisonExpr, error) {
 	return nil, nil
 }
 
-func (p *Parser) booleanExpr() (ast.Expr, error) {
+func (p *Parser) booleanExpr() (ast.InterpretExpr, error) {
 	tok, _ := p.scanIgnoreWhitespace()
 	switch tok {
 	case lexer.AND:

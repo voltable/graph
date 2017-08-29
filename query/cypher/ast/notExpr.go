@@ -4,18 +4,19 @@ import "github.com/RossMerr/Caudex.Graph/vertices"
 
 // NotExpr a bitwise complement or logical negation operation (Not a).
 type NotExpr struct {
-	value Expr // left operand
+	value InterpretExpr // left operand
 }
 
 var _ TerminalExpr = (*NotExpr)(nil)
 
-func (NotExpr) exprNode() {}
+func (NotExpr) exprNode()      {}
+func (NotExpr) interpretNode() {}
 
-func (b *NotExpr) SetValue(left Expr) {
+func (b *NotExpr) SetValue(left InterpretExpr) {
 	b.value = left
 }
 
-func (b *NotExpr) GetValue() Expr {
+func (b *NotExpr) GetValue() InterpretExpr {
 	return b.value
 }
 

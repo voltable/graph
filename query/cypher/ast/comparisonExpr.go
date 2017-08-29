@@ -8,40 +8,41 @@ import (
 // ComparisonExpr comparison expression
 type ComparisonExpr struct {
 	expressions.Comparison
-	left  Expr // left operand
-	right Expr // right operand
+	left  InterpretExpr // left operand
+	right InterpretExpr // right operand
 }
 
 var _ NonTerminalExpr = (*ComparisonExpr)(nil)
 
-func (ComparisonExpr) exprNode() {}
+func (ComparisonExpr) exprNode()      {}
+func (ComparisonExpr) interpretNode() {}
 
 // NewComparisonExpr creates a ComparisonExpr
-func NewComparisonExpr(comparison expressions.Comparison, left Expr, right Expr) *ComparisonExpr {
+func NewComparisonExpr(comparison expressions.Comparison, left InterpretExpr, right InterpretExpr) *ComparisonExpr {
 	return &ComparisonExpr{Comparison: comparison, left: left, right: right}
 }
 
 // GetLeft return value store in left side
-func (b *ComparisonExpr) GetLeft() Expr {
+func (b *ComparisonExpr) GetLeft() InterpretExpr {
 	return b.left
 }
 
 // GetRight return value store in right side
-func (b *ComparisonExpr) GetRight() Expr {
+func (b *ComparisonExpr) GetRight() InterpretExpr {
 	return b.right
 }
 
 // SetLeft stores the Expr in left side
-func (b *ComparisonExpr) SetLeft(left Expr) {
+func (b *ComparisonExpr) SetLeft(left InterpretExpr) {
 	b.left = left
 }
 
 // SetRight stores the Expr in right side
-func (b *ComparisonExpr) SetRight(right Expr) {
+func (b *ComparisonExpr) SetRight(right InterpretExpr) {
 	b.right = right
 }
 
-func resolve(expr Expr, vertex *vertices.Vertex, pattern *VertexPatn) interface{} {
+func resolve(expr InterpretExpr, vertex *vertices.Vertex, pattern *VertexPatn) interface{} {
 	if prop, ok := expr.(PropertyStmt); ok {
 		if prop.Variable == pattern.Variable {
 			return vertex.Property(prop.Value)

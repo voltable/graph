@@ -11,7 +11,8 @@ type ParenthesesExpr struct {
 	Parentheses
 }
 
-func (ParenthesesExpr) exprNode() {}
+func (ParenthesesExpr) exprNode()      {}
+func (ParenthesesExpr) interpretNode() {}
 
 func ParenthesesPrecedence(item ParenthesesExpr) int {
 	if item.Parentheses == LPAREN {

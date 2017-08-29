@@ -5,15 +5,15 @@ import (
 )
 
 // StackExpr a simple stack for the AST
-type StackExpr []ast.Expr
+type StackExpr []ast.InterpretExpr
 
 // Push add's a item the the StackExpr
-func (s StackExpr) Push(v ast.Expr) StackExpr {
+func (s StackExpr) Push(v ast.InterpretExpr) StackExpr {
 	return append(s, v)
 }
 
 // pop removes the last item on the StackExpr and returns it
-func (s StackExpr) pop() (StackExpr, ast.Expr) {
+func (s StackExpr) pop() (StackExpr, ast.InterpretExpr) {
 	l := len(s)
 	if l > 0 {
 		return s[:l-1], s[l-1]
@@ -22,7 +22,7 @@ func (s StackExpr) pop() (StackExpr, ast.Expr) {
 }
 
 // pop removes the first item on the StackExpr and returns it
-func (s StackExpr) shift() (StackExpr, ast.Expr) {
+func (s StackExpr) shift() (StackExpr, ast.InterpretExpr) {
 	l := len(s)
 	if l > 0 {
 		return s[1:], s[0]
@@ -31,7 +31,7 @@ func (s StackExpr) shift() (StackExpr, ast.Expr) {
 }
 
 // top returns the last item on the StackExpr without removing it
-func (s StackExpr) top() ast.Expr {
+func (s StackExpr) top() ast.InterpretExpr {
 	l := len(s)
 	if l > 0 {
 		return s[l-1]
@@ -40,8 +40,8 @@ func (s StackExpr) top() ast.Expr {
 }
 
 // Shunt builds up the AST by Shunting the stack
-func (s StackExpr) Shunt() (ast.Expr, error) {
-	var item, result ast.Expr
+func (s StackExpr) Shunt() (ast.InterpretExpr, error) {
+	var item, result ast.InterpretExpr
 	exprStack := make(StackExpr, 0)
 	operatorStack := make(StackExpr, 0)
 	for len(s) > 0 {
@@ -84,7 +84,7 @@ func (s StackExpr) Shunt() (ast.Expr, error) {
 	return result, nil
 }
 
-func isValue(item ast.Expr) bool {
+func isValue(item ast.InterpretExpr) bool {
 	if _, ok := item.(*ast.Ident); ok {
 		return true
 	} else if _, ok := item.(*ast.PropertyStmt); ok {
@@ -93,7 +93,7 @@ func isValue(item ast.Expr) bool {
 	return false
 }
 
-func isOperator(item ast.Expr) bool {
+func isOperator(item ast.InterpretExpr) bool {
 	if _, ok := item.(*ast.ComparisonExpr); ok {
 		return true
 	} else if _, ok := item.(*ast.BooleanExpr); ok {
@@ -104,8 +104,8 @@ func isOperator(item ast.Expr) bool {
 	return false
 }
 
-func shuntOperator(expr ast.Expr, operatorStack StackExpr, exprStack StackExpr) (StackExpr, StackExpr, bool) {
-	var right, left ast.Expr
+func shuntOperator(expr ast.InterpretExpr, operatorStack StackExpr, exprStack StackExpr) (StackExpr, StackExpr, bool) {
+	var right, left ast.InterpretExpr
 	if not, ok := expr.(*ast.NotExpr); ok {
 		if len(exprStack) < 1 {
 			return operatorStack, exprStack, false
