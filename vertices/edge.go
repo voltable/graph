@@ -6,9 +6,10 @@ import "strings"
 type (
 	// An Edge connects two Vertex in a graph.
 	Edge struct {
-		id               string
-		isDirected       Digraph
-		weight           float32
+		id         string
+		isDirected Digraph
+		// Weight of a path in a weighted graph
+		Weight           float32
 		relationshipType string
 		properties       map[string]interface{}
 	}
@@ -30,16 +31,6 @@ func NewEdge() (*Edge, error) {
 
 func (e *Edge) ID() string {
 	return e.id
-}
-
-// Weight of a path in a weighted graph
-func (e *Edge) Weight() float32 {
-	return e.weight
-}
-
-// SetWeight sets the edge weight
-func (e *Edge) SetWeight(weight float32) {
-	e.weight = weight
 }
 
 // RelationshipType the type of relationship
@@ -72,4 +63,4 @@ func (e *Edge) PropertiesCount() int {
 
 func (a Edges) Len() int           { return len(a) }
 func (a Edges) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a Edges) Less(i, j int) bool { return a[i].weight > a[j].weight }
+func (a Edges) Less(i, j int) bool { return a[i].Weight > a[j].Weight }

@@ -93,7 +93,6 @@ func (se *StorageEngine) Update(c ...*vertices.Vertex) error {
 
 func (se *StorageEngine) Query(str string) (*query.Query, error) {
 	path, err := se.queryEngine.Parser(str)
-
 	if err != nil {
 		return nil, err
 	}
@@ -102,6 +101,9 @@ func (se *StorageEngine) Query(str string) (*query.Query, error) {
 	results := se.traversal.Travers(se.forEach(), path)
 
 	query := query.NewQuery(path, str, results)
+
+	err = se.queryEngine.Filter(query)
+
 	return query, err
 }
 

@@ -1,6 +1,7 @@
 package cypher
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/RossMerr/Caudex.Graph/query"
@@ -22,25 +23,96 @@ func RegisterEngine() {
 const queryType = "Cypher"
 
 func newEngine() (query.Engine, error) {
-	return &Engine{}, nil
+	e := NewEngine(ast.ToPredicateVertex, ast.ToPredicateEdge)
+
+	e.toPath = e.ToQueryPath
+	return e, nil
+}
+
+func NewEngine(toPredicateVertex func(*ast.VertexPatn) query.PredicateVertex,
+	toPredicateEdge func(patn *ast.EdgePatn) query.PredicateEdge) *Engine {
+	e := &Engine{
+		parser:            parser.NewParser(),
+		toPredicateVertex: toPredicateVertex,
+		toPredicateEdge:   toPredicateEdge,
+	}
+
+	e.toPath = e.ToQueryPath
+	return e
 }
 
 // Engine is a implementation of the Query interface used to pass cypher queries
 type Engine struct {
+	parser            *parser.Parser
+	toPredicateVertex func(*ast.VertexPatn) query.PredicateVertex
+	toPredicateEdge   func(patn *ast.EdgePatn) query.PredicateEdge
+	toPath            func(stmt ast.Stmt) (query.Path, error)
 }
 
 var _ query.Engine = (*Engine)(nil)
 
 // Parser in a cypher query as a string and get back Query that is abstracted from the cypher AST
 func (qe Engine) Parser(q string) (query.Path, error) {
-	stmt, err := parser.NewParser(strings.NewReader(q)).Parse()
+	stmt, err := qe.parser.Parse(strings.NewReader(q))
 	if err != nil {
 		return nil, err
 	}
-	path, err := ToQueryPath(stmt, ast.ToPredicateVertex, ast.ToPredicateEdge)
+	path, err := qe.toPath(stmt)
 	if err != nil {
 		return nil, err
 	}
 
 	return path, nil
+}
+
+// Filter is used to run any final part of the AST on the result set
+func (qe Engine) Filter(q *query.Query) error {
+	if root, ok := q.Path.(*Root); ok {
+		fmt.Printf("%v", root)
+	}
+
+	return nil
+}
+
+// ToQueryPath converts a cypher.Stmt to a QueryPath the queryPath is used to walk the graph
+func (qe Engine) ToQueryPath(stmt ast.Stmt) (query.Path, error) {
+	q, _ := NewPath(stmt)
+	var next func(query.Path)
+	next = q.SetNext
+	if pattern, ok := IsPattern(stmt); ok {
+		for pattern != nil {
+			if v, ok := pattern.(*ast.VertexPatn); ok && v != nil {
+				pvp := query.PredicateVertexPath{PredicateVertex: qe.toPredicateVertex(v)}
+				next(&pvp)
+				next = pvp.SetNext
+				pattern = v.Edge
+
+			} else if e, ok := pattern.(*ast.EdgePatn); ok && e != nil {
+				pvp := query.PredicateEdgePath{PredicateEdge: qe.toPredicateEdge(e)}
+				if e.Body != nil {
+					pvp.SetLength(e.Body.LengthMinimum, e.Body.LengthMaximum)
+				}
+				next(&pvp)
+				next = pvp.SetNext
+				pattern = e.Vertex
+			} else {
+				break
+			}
+		}
+	}
+
+	return q, nil
+}
+
+func IsPattern(item ast.Stmt) (ast.Patn, bool) {
+	if b, ok := item.(*ast.DeleteStmt); ok {
+		return b.Pattern, true
+	} else if b, ok := item.(*ast.CreateStmt); ok {
+		return b.Pattern, true
+	} else if b, ok := item.(*ast.OptionalMatchStmt); ok {
+		return b.Pattern, true
+	} else if b, ok := item.(*ast.MatchStmt); ok {
+		return b.Pattern, true
+	}
+	return nil, false
 }

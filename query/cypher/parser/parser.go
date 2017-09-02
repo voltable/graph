@@ -604,13 +604,14 @@ func (p *Parser) subClause() (lexer.Token, bool) {
 }
 
 // Parse parses a cypher Clauses statement.
-func (p *Parser) Parse() (ast.Stmt, error) {
+func (p *Parser) Parse(r io.Reader) (ast.Stmt, error) {
+	p.s = scanner.NewScanner(r)
 	return p.clause()
 }
 
 // NewParser returns a new instance of Parser.
-func NewParser(r io.Reader) *Parser {
-	return &Parser{s: scanner.NewScanner(r)}
+func NewParser() *Parser {
+	return &Parser{}
 }
 
 // scan returns the next token from the underlying scanner.

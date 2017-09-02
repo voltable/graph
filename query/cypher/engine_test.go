@@ -9,6 +9,14 @@ import (
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
+func Test_Filter(t *testing.T) {
+	se := &cypher.Engine{}
+
+	q := &query.Query{Path: &cypher.Root{}}
+
+	se.Filter(q)
+}
+
 func Test_ToQueryPath(t *testing.T) {
 	edgePatn := &ast.EdgePatn{Body: &ast.EdgeBodyStmt{LengthMinimum: 2, LengthMaximum: 5}}
 	vertexPatn := &ast.VertexPatn{Variable: "bar", Edge: edgePatn}
@@ -31,7 +39,9 @@ func Test_ToQueryPath(t *testing.T) {
 	vertexPath.SetNext(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(edgePatn)})
 	want.SetNext(vertexPath)
 
-	got, _ := cypher.ToQueryPath(&ast.MatchStmt{Pattern: vertexPatn}, toPredicateVertex, toPredicateEdge)
+	engine := cypher.NewEngine(toPredicateVertex, toPredicateEdge)
+
+	got, _ := engine.ToQueryPath(&ast.MatchStmt{Pattern: vertexPatn})
 
 	v, _ := got.Next().(query.VertexNext)
 	if v == nil {

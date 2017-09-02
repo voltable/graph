@@ -16,9 +16,9 @@ func NewTraversal(fetch func(string) (*vertices.Vertex, error)) *Traversal {
 func (t *Traversal) Travers(i func() Iterator, path Path) []interface{} {
 	edgePath := NewEdgePath(i, t.fetch)
 	vertexPath := NewVertexPath(i, t.fetch)
-	var result interface{}
 	results := make([]interface{}, 0)
-	var iterated bool
+	iterated := false
+	var result interface{}
 	for p := path.Next(); p != nil; p = p.Next() {
 		if pv, ok := p.(*PredicateVertexPath); ok {
 			edgePath = vertexPath.Node(pv.PredicateVertex)

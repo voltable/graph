@@ -100,7 +100,7 @@ func TestParser_Pattern(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		stmt, err := parser.NewParser(strings.NewReader(tt.s)).Parse()
+		stmt, err := parser.NewParser().Parse(strings.NewReader(tt.s))
 		if !reflect.DeepEqual(tt.err, errstring(err)) {
 			t.Errorf("%d. %q: error mismatch:\n  exp=%s\n  got=%s\n\n", i, tt.s, tt.err, err)
 		} else if tt.err == "" && !reflect.DeepEqual(tt.stmt, stmt) {
@@ -168,7 +168,7 @@ func TestParser_Clauses(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		stmt, err := parser.NewParser(strings.NewReader(tt.s)).Parse()
+		stmt, err := parser.NewParser().Parse(strings.NewReader(tt.s))
 		if !reflect.DeepEqual(tt.err, errstring(err)) {
 			t.Errorf("%d. %q: error mismatch:\n  exp=%s\n  got=%s\n\n", i, tt.s, tt.err, err)
 		} else if tt.err == "" && !reflect.DeepEqual(tt.stmt, stmt) {
@@ -203,7 +203,7 @@ func TestParser_Where(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		stmt, err := parser.NewParser(strings.NewReader(tt.s)).Parse()
+		stmt, err := parser.NewParser().Parse(strings.NewReader(tt.s))
 		if !reflect.DeepEqual(tt.err, errstring(err)) {
 			t.Errorf("%d. %q: error mismatch:\n  exp=%s\n  got=%s\n\n", i, tt.s, tt.err, err)
 		} else if tt.err == "" && !reflect.DeepEqual(tt.stmt, stmt) {
