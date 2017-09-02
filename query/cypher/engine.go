@@ -30,10 +30,17 @@ type Engine struct {
 }
 
 // Parser in a cypher query as a string and get back Query that is abstracted from the cypher AST
-func (qe Engine) Parser(q string) (query.Path, error) {
+func (qe Engine) Parser(q string) (query.QueryInternal, error) {
 	stmt, err := parser.NewParser(strings.NewReader(q)).Parse()
 	if err != nil {
 		return nil, err
 	}
-	return ToQueryPath(stmt, ast.ToPredicateVertex, ast.ToPredicateEdge)
+	path, err := ToQueryPath(stmt, ast.ToPredicateVertex, ast.ToPredicateEdge)
+	if err != nil {
+		return nil, err
+	}
+
+	query := NewQuery(stmt, path)
+
+	return query, nil
 }

@@ -55,6 +55,20 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			result: true,
 		},
 		{
+			c: ast.NewBooleanExpr(expressions.AND,
+				ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 10}),
+				ast.NewComparisonExpr(expressions.GT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 1000}),
+			),
+
+			v: func() *vertices.Vertex {
+				x, _ := vertices.NewVertex()
+				x.SetProperty("Age", 100)
+				return x
+			}(),
+			p:      &ast.VertexPatn{Variable: "n"},
+			result: false,
+		},
+		{
 			c: ast.NewBooleanExpr(expressions.OR,
 				ast.NewComparisonExpr(expressions.GT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 10}),
 				ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 1000}),
@@ -69,6 +83,20 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			result: true,
 		},
 		{
+			c: ast.NewBooleanExpr(expressions.OR,
+				ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 10}),
+				ast.NewComparisonExpr(expressions.GT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 1000}),
+			),
+
+			v: func() *vertices.Vertex {
+				x, _ := vertices.NewVertex()
+				x.SetProperty("Age", 100)
+				return x
+			}(),
+			p:      &ast.VertexPatn{Variable: "n"},
+			result: false,
+		},
+		{
 			c: ast.NewBooleanExpr(expressions.XOR,
 				ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 10}),
 				ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 1000}),
@@ -81,6 +109,21 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			}(),
 			p:      &ast.VertexPatn{Variable: "n"},
 			result: true,
+		},
+
+		{
+			c: ast.NewBooleanExpr(expressions.XOR,
+				ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 10}),
+				ast.NewComparisonExpr(expressions.GT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 1000}),
+			),
+
+			v: func() *vertices.Vertex {
+				x, _ := vertices.NewVertex()
+				x.SetProperty("Age", 100)
+				return x
+			}(),
+			p:      &ast.VertexPatn{Variable: "n"},
+			result: false,
 		},
 	}
 

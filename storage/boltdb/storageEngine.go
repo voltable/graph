@@ -149,7 +149,7 @@ func (se *StorageEngine) Close() {
 }
 
 // Query used to query the graph
-func (se *StorageEngine) Query(q string) (*query.Query, error) {
+func (se *StorageEngine) Query(q string) (query.Query, error) {
 	// iterate := func() query.Iterator {
 	// 	ch := make(chan vertices.Vertex)
 	// 	go se.db.View(func(tx *bolt.Tx) error {

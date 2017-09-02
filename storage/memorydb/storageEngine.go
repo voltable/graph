@@ -89,18 +89,17 @@ func (se *StorageEngine) Update(c ...*vertices.Vertex) error {
 	return nil
 }
 
-func (se *StorageEngine) Query(str string) (*query.Query, error) {
-	path, err := se.queryEngine.Parser(str)
+func (se *StorageEngine) Query(str string) (query.Query, error) {
+	query, err := se.queryEngine.Parser(str)
 
 	if err != nil {
 		return nil, err
 	}
 
-	q := query.NewQuery(path, str)
-
 	// should do something clever to pick the right index not just iterate
-	se.traversal.Travers(se.forEach(), q)
-	return q, err
+	se.traversal.Travers(se.forEach(), query)
+
+	return query, err
 }
 
 func (se *StorageEngine) forEach() func() query.Iterator {

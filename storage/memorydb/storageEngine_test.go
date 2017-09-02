@@ -35,7 +35,7 @@ func Test_Query(t *testing.T) {
 		t.Errorf("Bad Query")
 	}
 
-	if len(q.Results) != 1 {
+	if len(q.Results()) != 1 {
 		t.Errorf("Failed to match")
 	}
 }

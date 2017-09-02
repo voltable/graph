@@ -53,12 +53,14 @@ func Test_Traversal_Travers(t *testing.T) {
 	vertexPath.SetNext(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(edgePatn)})
 	path.SetNext(vertexPath)
 
-	q := query.NewQuery(path, "")
+	q := NewQuery(nil, path)
 	traversal.Travers(func() query.Iterator {
 		return it
 	}, q)
 
-	if len(q.Results) != 1 {
+	if len(q.Results()) != 1 {
 		t.Errorf("Failed to match")
 	}
 }
+
+
