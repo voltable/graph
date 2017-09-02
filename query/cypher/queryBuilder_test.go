@@ -26,7 +26,7 @@ func Test_ToQueryPath(t *testing.T) {
 		}
 	}
 
-	want := &query.Root{}
+	want := &cypher.Root{}
 	vertexPath := &query.PredicateVertexPath{PredicateVertex: toPredicateVertex(vertexPatn)}
 	vertexPath.SetNext(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(edgePatn)})
 	want.SetNext(vertexPath)

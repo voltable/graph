@@ -11,5 +11,5 @@ type Graph interface {
 	Delete(...*vertices.Vertex) error
 	Update(...*vertices.Vertex) error
 	Close()
-	Query(string) (query.Query, error)
+	Query(string) (*query.Query, error)
 }

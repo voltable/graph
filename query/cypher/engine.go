@@ -29,8 +29,10 @@ func newEngine() (query.Engine, error) {
 type Engine struct {
 }
 
+var _ query.Engine = (*Engine)(nil)
+
 // Parser in a cypher query as a string and get back Query that is abstracted from the cypher AST
-func (qe Engine) Parser(q string) (query.QueryInternal, error) {
+func (qe Engine) Parser(q string) (query.Path, error) {
 	stmt, err := parser.NewParser(strings.NewReader(q)).Parse()
 	if err != nil {
 		return nil, err
@@ -40,7 +42,5 @@ func (qe Engine) Parser(q string) (query.QueryInternal, error) {
 		return nil, err
 	}
 
-	query := NewQuery(stmt, path)
-
-	return query, nil
+	return path, nil
 }

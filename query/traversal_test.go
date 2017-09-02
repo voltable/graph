@@ -32,7 +32,7 @@ func Test_Traversal_Travers(t *testing.T) {
 		return frontier, state
 	}
 
-	path := &query.Root{}
+	path, _ := NewPath()
 
 	edgePatn := &ast.EdgePatn{Body: &ast.EdgeBodyStmt{LengthMinimum: 2, LengthMaximum: 5}}
 	vertexPatn := &ast.VertexPatn{Variable: "bar", Edge: edgePatn}
@@ -53,14 +53,11 @@ func Test_Traversal_Travers(t *testing.T) {
 	vertexPath.SetNext(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(edgePatn)})
 	path.SetNext(vertexPath)
 
-	q := NewQuery(nil, path)
-	traversal.Travers(func() query.Iterator {
+	results := traversal.Travers(func() query.Iterator {
 		return it
-	}, q)
+	}, path)
 
-	if len(q.Results()) != 1 {
+	if len(results) != 1 {
 		t.Errorf("Failed to match")
 	}
 }
-
-

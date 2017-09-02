@@ -29,9 +29,9 @@ type (
 	}
 
 	// Root is the start of the path
-	Root struct {
-		next Path
-	}
+	// Root struct {
+	// 	next Path
+	// }
 
 	// PredicateVertexPath is the Vertex implementation part of the QueryPath sequence
 	PredicateVertexPath struct {
@@ -66,10 +66,10 @@ var (
 )
 
 // NewPath creates a Path object used to walk the graph
-func NewPath() (Path, error) {
-	path := &Root{}
-	return path, nil
-}
+// func NewPath() (Path, error) {
+// 	path := &Root{}
+// 	return path, nil
+// }
 
 // SetNext sets the next Vertex or Edge in the Path
 func SetNext(p Path, path Path) error {
@@ -95,17 +95,17 @@ func Next(p Path) Path {
 	return p.Next()
 }
 
-// Next returns the next Edge in the QueryPath
-func (p *Root) Next() Path {
-	return p.next
-}
+// // Next returns the next Edge in the QueryPath
+// func (p *Root) Next() Path {
+// 	return p.next
+// }
 
-// SetNext sets the next Edge in the QueryPath
-func (p *Root) SetNext(path Path) {
-	if v, ok := path.(*PredicateVertexPath); ok {
-		p.next = v
-	}
-}
+// // SetNext sets the next Edge in the QueryPath
+// func (p *Root) SetNext(path Path) {
+// 	if v, ok := path.(*PredicateVertexPath); ok {
+// 		p.next = v
+// 	}
+// }
 
 // Next returns the next Edge in the QueryPath
 func (p *PredicateVertexPath) Next() Path {
