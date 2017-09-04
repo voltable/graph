@@ -1,7 +1,9 @@
 package cypher_test
 
 import (
+	"fmt"
 	"io"
+	"reflect"
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph/query"
@@ -19,32 +21,82 @@ func Test_Filter(t *testing.T) {
 	se.Filter(q)
 }
 
-type ParserMock struct{}
-
-func (p *ParserMock) Parse(r io.Reader) (ast.Stmt, error) {
-	return nil, nil
+type FakeParser struct {
+	err error
 }
 
-func NewPaserMock() parser.Parser {
+func (p *FakeParser) Parse(r io.Reader) (ast.Stmt, error) {
+	return nil, p.err
+}
 
-	return &ParserMock{}
+func NewFakePaser(err error) parser.Parser {
+
+	return &FakeParser{err: err}
 }
 
 func Test_Parser(t *testing.T) {
-	se := cypher.NewEngine()
-	se.Parser = NewPaserMock()
-	se.ToPredicateVertex = func(*ast.VertexPatn) query.PredicateVertex {
+
+	toPredicateVertex := func(*ast.VertexPatn) query.PredicateVertex {
 		return func(v *vertices.Vertex) bool {
 			return false
 		}
 	}
-	se.ToPredicateEdge = func(patn *ast.EdgePatn) query.PredicateEdge {
+	toPredicateEdge := func(patn *ast.EdgePatn) query.PredicateEdge {
 		return func(e *vertices.Edge) bool {
 			return false
 		}
 	}
 
-	se.Parse("str")
+	tests := []struct {
+		e               *cypher.Engine
+		p               parser.Parser
+		predicateVertex func(*ast.VertexPatn) query.PredicateVertex
+		predicateEdge   func(patn *ast.EdgePatn) query.PredicateEdge
+		path            func(stmt ast.Stmt) (query.Path, error)
+		s               string
+		err             string
+	}{
+		{
+			e:               cypher.NewEngine(),
+			p:               NewFakePaser(nil),
+			predicateVertex: toPredicateVertex,
+			predicateEdge:   toPredicateEdge,
+			s:               "str",
+		},
+		{
+			e:               cypher.NewEngine(),
+			p:               NewFakePaser(fmt.Errorf("paser error")),
+			predicateVertex: toPredicateVertex,
+			predicateEdge:   toPredicateEdge,
+			s:               "str",
+			err:             "paser error",
+		},
+		{
+			e:               cypher.NewEngine(),
+			p:               NewFakePaser(nil),
+			predicateVertex: toPredicateVertex,
+			predicateEdge:   toPredicateEdge,
+			s:               "str",
+			path: func(stmt ast.Stmt) (query.Path, error) {
+				return nil, fmt.Errorf("path error")
+			},
+			err: "path error",
+		},
+	}
+
+	for i, tt := range tests {
+		tt.e.Parser = tt.p
+		tt.e.ToPredicateEdge = tt.predicateEdge
+		tt.e.ToPredicateVertex = tt.predicateVertex
+
+		if tt.path != nil {
+			tt.e.ToPath = tt.path
+		}
+		_, err := tt.e.Parse(tt.s)
+		if !reflect.DeepEqual(tt.err, errstring(err)) {
+			t.Errorf("%d. %q: error mismatch:\n  exp=%s\n  got=%s\n\n", i, tt.s, tt.err, err)
+		}
+	}
 }
 
 func Test_ToQueryPath(t *testing.T) {
@@ -131,4 +183,12 @@ func Test_IsPattern(t *testing.T) {
 	if _, ok := cypher.IsPattern(&ast.WhereStmt{}); ok {
 		t.Errorf("WhereStmt")
 	}
+}
+
+// errstring returns the string representation of an error.
+func errstring(err error) string {
+	if err != nil {
+		return err.Error()
+	}
+	return ""
 }
