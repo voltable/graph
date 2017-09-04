@@ -9,26 +9,41 @@ import (
 )
 
 func Test_BooleanPrecedence(t *testing.T) {
-	c := ast.BooleanExpr{Boolean: expressions.AND}
 
-	if ast.BooleanPrecedence(c) != 9 {
-		t.Errorf("boolean expected %v", expressions.AND)
+	var tests = []struct {
+		c        ast.BooleanExpr
+		p        int
+		expected expressions.Boolean
+		err      string
+	}{
+		{
+			c:        ast.BooleanExpr{Boolean: expressions.AND},
+			p:        9,
+			expected: expressions.AND,
+		},
+		{
+			c:        ast.BooleanExpr{Boolean: expressions.OR},
+			p:        11,
+			expected: expressions.OR,
+		},
+		{
+			c:        ast.BooleanExpr{Boolean: expressions.XOR},
+			p:        10,
+			expected: expressions.XOR,
+		},
+		{
+			c:        ast.BooleanExpr{Boolean: 100},
+			p:        20,
+			expected: 20,
+		},
 	}
 
-	c.Boolean = expressions.OR
-	if ast.BooleanPrecedence(c) != 11 {
-		t.Errorf("boolean expected %v", expressions.OR)
+	for i, tt := range tests {
+		if ast.BooleanPrecedence(tt.c) != tt.p {
+			t.Errorf("%d. boolean expected %v", i, tt.expected)
+		}
 	}
 
-	c.Boolean = expressions.XOR
-	if ast.BooleanPrecedence(c) != 10 {
-		t.Errorf("boolean expected %v", expressions.XOR)
-	}
-
-	c.Boolean = 100
-	if ast.BooleanPrecedence(c) != 20 {
-		t.Errorf("boolean expected")
-	}
 }
 
 func Test_BooleanExprInterpret(t *testing.T) {
