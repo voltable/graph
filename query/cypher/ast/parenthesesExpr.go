@@ -11,6 +11,9 @@ type ParenthesesExpr struct {
 	Parentheses
 }
 
+var _ Expr = (*ParenthesesExpr)(nil)
+var _ InterpretExpr = (*ParenthesesExpr)(nil)
+
 func (ParenthesesExpr) exprNode()      {}
 func (ParenthesesExpr) interpretNode() {}
 
