@@ -23,41 +23,38 @@ func RegisterEngine() {
 const queryType = "Cypher"
 
 func newEngine() (query.Engine, error) {
-	e := NewEngine(ast.ToPredicateVertex, ast.ToPredicateEdge)
-
-	e.toPath = e.ToQueryPath
+	e := NewEngine()
 	return e, nil
 }
 
-func NewEngine(toPredicateVertex func(*ast.VertexPatn) query.PredicateVertex,
-	toPredicateEdge func(patn *ast.EdgePatn) query.PredicateEdge) *Engine {
+func NewEngine() *Engine {
 	e := &Engine{
-		parser:            parser.NewParser(),
-		toPredicateVertex: toPredicateVertex,
-		toPredicateEdge:   toPredicateEdge,
+		IParser:           parser.NewParser(),
+		ToPredicateVertex: ast.ToPredicateVertex,
+		ToPredicateEdge:   ast.ToPredicateEdge,
 	}
 
-	e.toPath = e.ToQueryPath
+	e.ToPath = e.ToQueryPath
 	return e
 }
 
 // Engine is a implementation of the Query interface used to pass cypher queries
 type Engine struct {
-	parser            *parser.Parser
-	toPredicateVertex func(*ast.VertexPatn) query.PredicateVertex
-	toPredicateEdge   func(patn *ast.EdgePatn) query.PredicateEdge
-	toPath            func(stmt ast.Stmt) (query.Path, error)
+	IParser           parser.IParser
+	ToPredicateVertex func(*ast.VertexPatn) query.PredicateVertex
+	ToPredicateEdge   func(patn *ast.EdgePatn) query.PredicateEdge
+	ToPath            func(stmt ast.Stmt) (query.Path, error)
 }
 
 var _ query.Engine = (*Engine)(nil)
 
 // Parser in a cypher query as a string and get back Query that is abstracted from the cypher AST
 func (qe Engine) Parser(q string) (query.Path, error) {
-	stmt, err := qe.parser.Parse(strings.NewReader(q))
+	stmt, err := qe.IParser.Parse(strings.NewReader(q))
 	if err != nil {
 		return nil, err
 	}
-	path, err := qe.toPath(stmt)
+	path, err := qe.ToPath(stmt)
 	if err != nil {
 		return nil, err
 	}
@@ -82,13 +79,13 @@ func (qe Engine) ToQueryPath(stmt ast.Stmt) (query.Path, error) {
 	if pattern, ok := IsPattern(stmt); ok {
 		for pattern != nil {
 			if v, ok := pattern.(*ast.VertexPatn); ok && v != nil {
-				pvp := query.PredicateVertexPath{PredicateVertex: qe.toPredicateVertex(v)}
+				pvp := query.PredicateVertexPath{PredicateVertex: qe.ToPredicateVertex(v)}
 				next(&pvp)
 				next = pvp.SetNext
 				pattern = v.Edge
 
 			} else if e, ok := pattern.(*ast.EdgePatn); ok && e != nil {
-				pvp := query.PredicateEdgePath{PredicateEdge: qe.toPredicateEdge(e)}
+				pvp := query.PredicateEdgePath{PredicateEdge: qe.ToPredicateEdge(e)}
 				if e.Body != nil {
 					pvp.SetLength(e.Body.LengthMinimum, e.Body.LengthMaximum)
 				}

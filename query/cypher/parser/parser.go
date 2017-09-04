@@ -29,6 +29,12 @@ type Parser struct {
 	}
 }
 
+type IParser interface {
+	Parse(r io.Reader) (ast.Stmt, error)
+}
+
+var _ IParser = (*Parser)(nil)
+
 func (p *Parser) label() (string, bool) {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != lexer.IDENT && tok == lexer.COLON {

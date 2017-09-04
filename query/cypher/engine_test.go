@@ -1,11 +1,13 @@
 package cypher_test
 
 import (
+	"io"
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
+	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
@@ -15,6 +17,34 @@ func Test_Filter(t *testing.T) {
 	q := &query.Query{Path: &cypher.Root{}}
 
 	se.Filter(q)
+}
+
+type ParserMock struct{}
+
+func (p *ParserMock) Parse(r io.Reader) (ast.Stmt, error) {
+	return nil, nil
+}
+
+func NewPaserMock() parser.IParser {
+
+	return &ParserMock{}
+}
+
+func Test_Parser(t *testing.T) {
+	se := cypher.NewEngine()
+	se.IParser = NewPaserMock()
+	se.ToPredicateVertex = func(*ast.VertexPatn) query.PredicateVertex {
+		return func(v *vertices.Vertex) bool {
+			return false
+		}
+	}
+	se.ToPredicateEdge = func(patn *ast.EdgePatn) query.PredicateEdge {
+		return func(e *vertices.Edge) bool {
+			return false
+		}
+	}
+
+	se.Parser("str")
 }
 
 func Test_ToQueryPath(t *testing.T) {
@@ -39,7 +69,9 @@ func Test_ToQueryPath(t *testing.T) {
 	vertexPath.SetNext(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(edgePatn)})
 	want.SetNext(vertexPath)
 
-	engine := cypher.NewEngine(toPredicateVertex, toPredicateEdge)
+	engine := cypher.NewEngine()
+	engine.ToPredicateEdge = toPredicateEdge
+	engine.ToPredicateVertex = toPredicateVertex
 
 	got, _ := engine.ToQueryPath(&ast.MatchStmt{Pattern: vertexPatn})
 
