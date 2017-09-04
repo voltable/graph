@@ -25,14 +25,14 @@ func (p *ParserMock) Parse(r io.Reader) (ast.Stmt, error) {
 	return nil, nil
 }
 
-func NewPaserMock() parser.IParser {
+func NewPaserMock() parser.Parser {
 
 	return &ParserMock{}
 }
 
 func Test_Parser(t *testing.T) {
 	se := cypher.NewEngine()
-	se.IParser = NewPaserMock()
+	se.Parser = NewPaserMock()
 	se.ToPredicateVertex = func(*ast.VertexPatn) query.PredicateVertex {
 		return func(v *vertices.Vertex) bool {
 			return false
@@ -44,7 +44,7 @@ func Test_Parser(t *testing.T) {
 		}
 	}
 
-	se.Parser("str")
+	se.Parse("str")
 }
 
 func Test_ToQueryPath(t *testing.T) {

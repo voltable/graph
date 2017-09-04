@@ -19,8 +19,8 @@ const MaxUint uint = ^uint(0)
 // MinUint the min size of a uint
 const MinUint uint = 1
 
-// Parser represents a parser.
-type Parser struct {
+// CypherParser represents a parser.
+type CypherParser struct {
 	s   *scanner.Scanner
 	buf struct {
 		tok lexer.Token // last read token
@@ -29,13 +29,13 @@ type Parser struct {
 	}
 }
 
-type IParser interface {
+type Parser interface {
 	Parse(r io.Reader) (ast.Stmt, error)
 }
 
-var _ IParser = (*Parser)(nil)
+var _ Parser = (*CypherParser)(nil)
 
-func (p *Parser) label() (string, bool) {
+func (p *CypherParser) label() (string, bool) {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != lexer.IDENT && tok == lexer.COLON {
 		_, lit = p.scanIgnoreWhitespace()
@@ -45,7 +45,7 @@ func (p *Parser) label() (string, bool) {
 	return emptyString, false
 }
 
-func (p *Parser) properties() (map[string]interface{}, error) {
+func (p *CypherParser) properties() (map[string]interface{}, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != lexer.IDENT && tok == lexer.LCURLY {
 
@@ -63,7 +63,7 @@ func (p *Parser) properties() (map[string]interface{}, error) {
 }
 
 // KeyValue Loop over all our comma-delimited fields.
-func (p *Parser) KeyValue() (map[string]interface{}, error) {
+func (p *CypherParser) KeyValue() (map[string]interface{}, error) {
 	var properties = make(map[string]interface{})
 	for {
 		tok, lit := p.scanIgnoreWhitespace()
@@ -113,7 +113,7 @@ func (p *Parser) KeyValue() (map[string]interface{}, error) {
 	return properties, nil
 }
 
-func (p *Parser) node() (*ast.VertexPatn, error) {
+func (p *CypherParser) node() (*ast.VertexPatn, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != lexer.IDENT && tok == lexer.LPAREN {
 		stmt := &ast.VertexPatn{}
@@ -149,7 +149,7 @@ func (p *Parser) node() (*ast.VertexPatn, error) {
 	return nil, nil
 }
 
-func (p *Parser) length() (uint, uint, error) {
+func (p *CypherParser) length() (uint, uint, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != lexer.IDENT && tok == lexer.MUL {
 		min := MinUint
@@ -213,7 +213,7 @@ func (p *Parser) length() (uint, uint, error) {
 	return 0, 0, nil
 }
 
-func (p *Parser) relationshipBody() (*ast.EdgeBodyStmt, error) {
+func (p *CypherParser) relationshipBody() (*ast.EdgeBodyStmt, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 	if tok != lexer.IDENT && tok == lexer.LSQUARE {
 		stmt := &ast.EdgeBodyStmt{}
@@ -256,7 +256,7 @@ func (p *Parser) relationshipBody() (*ast.EdgeBodyStmt, error) {
 	return nil, nil
 }
 
-func (p *Parser) relationship() (*ast.EdgePatn, error) {
+func (p *CypherParser) relationship() (*ast.EdgePatn, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 	// Look for the start of a relationship < or -
 	if tok != lexer.IDENT && (tok == lexer.LT || tok == lexer.SUB) {
@@ -301,7 +301,7 @@ func (p *Parser) relationship() (*ast.EdgePatn, error) {
 	return nil, nil
 }
 
-func (p *Parser) value(tok lexer.Token, lit string) (interface{}, error) {
+func (p *CypherParser) value(tok lexer.Token, lit string) (interface{}, error) {
 	//	tok, lit := p.scanIgnoreWhitespace()
 	if tok == lexer.SINGLEQUOTATION {
 		tok, lit := p.scanIgnoreWhitespace()
@@ -331,7 +331,7 @@ func (p *Parser) value(tok lexer.Token, lit string) (interface{}, error) {
 	return emptyString, nil
 }
 
-func (p *Parser) propertyOrValue() (ast.InterpretExpr, error) {
+func (p *CypherParser) propertyOrValue() (ast.InterpretExpr, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 
 	if tok == lexer.IDENT {
@@ -359,7 +359,7 @@ func (p *Parser) propertyOrValue() (ast.InterpretExpr, error) {
 	return nil, nil
 }
 
-func (p *Parser) stringValue() (ast.InterpretExpr, error) {
+func (p *CypherParser) stringValue() (ast.InterpretExpr, error) {
 	tok, lit, err := p.scanForQuotation()
 	if tok == lexer.IDENT {
 		return &ast.Ident{Data: lit}, nil
@@ -368,7 +368,7 @@ func (p *Parser) stringValue() (ast.InterpretExpr, error) {
 	return nil, err
 }
 
-func (p *Parser) comparisonExpr() (*ast.ComparisonExpr, error) {
+func (p *CypherParser) comparisonExpr() (*ast.ComparisonExpr, error) {
 	tok, _ := p.scanIgnoreWhitespace()
 	switch tok {
 	case lexer.EQ:
@@ -388,7 +388,7 @@ func (p *Parser) comparisonExpr() (*ast.ComparisonExpr, error) {
 	return nil, nil
 }
 
-func (p *Parser) booleanExpr() (ast.InterpretExpr, error) {
+func (p *CypherParser) booleanExpr() (ast.InterpretExpr, error) {
 	tok, _ := p.scanIgnoreWhitespace()
 	switch tok {
 	case lexer.AND:
@@ -405,7 +405,7 @@ func (p *Parser) booleanExpr() (ast.InterpretExpr, error) {
 }
 
 // Predicate pulls of each item to pass into the shunting algorithm to build up the AST
-func (p *Parser) Predicate() (ast.Expr, error) {
+func (p *CypherParser) Predicate() (ast.Expr, error) {
 	exprStack := make(StackExpr, 0)
 
 	tok, _ := p.scanIgnoreWhitespace()
@@ -440,7 +440,7 @@ func (p *Parser) Predicate() (ast.Expr, error) {
 	return root, err
 }
 
-func (p *Parser) where() (ast.Stmt, error) {
+func (p *CypherParser) where() (ast.Stmt, error) {
 	tok, _ := p.scanIgnoreWhitespace()
 	if tok == lexer.WHERE {
 		state := &ast.WhereStmt{}
@@ -458,7 +458,7 @@ func (p *Parser) where() (ast.Stmt, error) {
 	return nil, nil
 }
 
-func (p *Parser) match() (ast.Stmt, error) {
+func (p *CypherParser) match() (ast.Stmt, error) {
 	state := &ast.MatchStmt{}
 	pattern, next, err := p.pattern()
 	if err == nil {
@@ -469,7 +469,7 @@ func (p *Parser) match() (ast.Stmt, error) {
 	return nil, err
 }
 
-func (p *Parser) optionalMatch() (ast.Stmt, error) {
+func (p *CypherParser) optionalMatch() (ast.Stmt, error) {
 	state := &ast.OptionalMatchStmt{}
 	pattern, next, err := p.pattern()
 	if err == nil {
@@ -480,7 +480,7 @@ func (p *Parser) optionalMatch() (ast.Stmt, error) {
 	return nil, err
 }
 
-func (p *Parser) pattern() (ast.Patn, ast.Stmt, error) {
+func (p *CypherParser) pattern() (ast.Patn, ast.Stmt, error) {
 	var pattern ast.Patn
 	var next ast.Stmt
 	var lastVertex *ast.VertexPatn
@@ -520,7 +520,7 @@ func (p *Parser) pattern() (ast.Patn, ast.Stmt, error) {
 	return pattern, next, nil
 }
 
-func (p *Parser) create() (ast.Stmt, error) {
+func (p *CypherParser) create() (ast.Stmt, error) {
 	state := &ast.CreateStmt{}
 	pattern, next, err := p.pattern()
 	if err == nil {
@@ -531,7 +531,7 @@ func (p *Parser) create() (ast.Stmt, error) {
 	return nil, err
 }
 
-func (p *Parser) delete() (ast.Stmt, error) {
+func (p *CypherParser) delete() (ast.Stmt, error) {
 	state := &ast.DeleteStmt{}
 	pattern, next, err := p.pattern()
 	if err == nil {
@@ -542,7 +542,7 @@ func (p *Parser) delete() (ast.Stmt, error) {
 	return nil, err
 }
 
-func (p *Parser) clause() (ast.Stmt, error) {
+func (p *CypherParser) clause() (ast.Stmt, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 
 	if !tok.IsClause() {
@@ -579,7 +579,7 @@ func (p *Parser) clause() (ast.Stmt, error) {
 	return nil, fmt.Errorf("No matching statement found %q", lit)
 }
 
-func (p *Parser) subClause() (lexer.Token, bool) {
+func (p *CypherParser) subClause() (lexer.Token, bool) {
 	tok, _ := p.scanIgnoreWhitespace()
 
 	if tok.IsSubClause() {
@@ -610,19 +610,19 @@ func (p *Parser) subClause() (lexer.Token, bool) {
 }
 
 // Parse parses a cypher Clauses statement.
-func (p *Parser) Parse(r io.Reader) (ast.Stmt, error) {
+func (p *CypherParser) Parse(r io.Reader) (ast.Stmt, error) {
 	p.s = scanner.NewScanner(r)
 	return p.clause()
 }
 
 // NewParser returns a new instance of Parser.
-func NewParser() *Parser {
-	return &Parser{}
+func NewParser() *CypherParser {
+	return &CypherParser{}
 }
 
 // scan returns the next token from the underlying scanner.
 // If a token has been unscanned then read that instead.
-func (p *Parser) scan() (tok lexer.Token, lit string) {
+func (p *CypherParser) scan() (tok lexer.Token, lit string) {
 	// If we have a token on the buffer, then return it.
 	if p.buf.n != 0 {
 		p.buf.n = 0
@@ -639,7 +639,7 @@ func (p *Parser) scan() (tok lexer.Token, lit string) {
 }
 
 // scanIgnoreWhitespace scans the next non-whitespace lexer.
-func (p *Parser) scanIgnoreWhitespace() (tok lexer.Token, lit string) {
+func (p *CypherParser) scanIgnoreWhitespace() (tok lexer.Token, lit string) {
 	tok, lit = p.scan()
 	if tok == lexer.WS {
 		tok, lit = p.scan()
@@ -648,7 +648,7 @@ func (p *Parser) scanIgnoreWhitespace() (tok lexer.Token, lit string) {
 }
 
 // scanForQuotation scans the next matching quotations lexer.
-func (p *Parser) scanForQuotation() (tok lexer.Token, lit string, err error) {
+func (p *CypherParser) scanForQuotation() (tok lexer.Token, lit string, err error) {
 	tok, lit = p.scan()
 	if tok == lexer.QUOTATION || tok == lexer.SINGLEQUOTATION {
 		lit = emptyString
@@ -669,4 +669,4 @@ func (p *Parser) scanForQuotation() (tok lexer.Token, lit string, err error) {
 }
 
 // unscan pushes the previously read token back onto the buffer.
-func (p *Parser) unscan() { p.buf.n = 1 }
+func (p *CypherParser) unscan() { p.buf.n = 1 }

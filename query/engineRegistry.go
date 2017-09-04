@@ -14,8 +14,8 @@ var (
 
 // Engine is the interface that a engine must implement
 type Engine interface {
-	// Parser in a string which is your query you want to run, get back a vertexPath that is abstracted from any query language or AST
-	Parser(string) (Path, error)
+	// Parse in a string which is your query you want to run, get back a vertexPath that is abstracted from any query language or AST
+	Parse(string) (Path, error)
 
 	// Filter is used to run any final part of the AST on the result set
 	Filter(*Query) error

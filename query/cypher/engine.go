@@ -29,7 +29,7 @@ func newEngine() (query.Engine, error) {
 
 func NewEngine() *Engine {
 	e := &Engine{
-		IParser:           parser.NewParser(),
+		Parser:            parser.NewParser(),
 		ToPredicateVertex: ast.ToPredicateVertex,
 		ToPredicateEdge:   ast.ToPredicateEdge,
 	}
@@ -40,7 +40,7 @@ func NewEngine() *Engine {
 
 // Engine is a implementation of the Query interface used to pass cypher queries
 type Engine struct {
-	IParser           parser.IParser
+	Parser            parser.Parser
 	ToPredicateVertex func(*ast.VertexPatn) query.PredicateVertex
 	ToPredicateEdge   func(patn *ast.EdgePatn) query.PredicateEdge
 	ToPath            func(stmt ast.Stmt) (query.Path, error)
@@ -48,9 +48,9 @@ type Engine struct {
 
 var _ query.Engine = (*Engine)(nil)
 
-// Parser in a cypher query as a string and get back Query that is abstracted from the cypher AST
-func (qe Engine) Parser(q string) (query.Path, error) {
-	stmt, err := qe.IParser.Parse(strings.NewReader(q))
+// Parse in a cypher query as a string and get back Query that is abstracted from the cypher AST
+func (qe Engine) Parse(q string) (query.Path, error) {
+	stmt, err := qe.Parser.Parse(strings.NewReader(q))
 	if err != nil {
 		return nil, err
 	}
