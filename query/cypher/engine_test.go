@@ -164,24 +164,33 @@ func Test_ToQueryPath(t *testing.T) {
 
 func Test_IsPattern(t *testing.T) {
 
-	if _, ok := cypher.IsPattern(&ast.DeleteStmt{}); !ok {
-		t.Errorf("DeleteStmt")
+	var tests = []struct {
+		c      ast.Stmt
+		result bool
+	}{
+		{
+			c:      ast.DeleteStmt{},
+			result: true,
+		}, {
+			c:      ast.CreateStmt{},
+			result: true,
+		}, {
+			c:      ast.OptionalMatchStmt{},
+			result: true,
+		}, {
+			c:      ast.MatchStmt{},
+			result: true,
+		}, {
+			c:      ast.WhereStmt{},
+			result: true,
+		},
 	}
 
-	if _, ok := cypher.IsPattern(&ast.CreateStmt{}); !ok {
-		t.Errorf("CreateStmt")
-	}
-
-	if _, ok := cypher.IsPattern(&ast.OptionalMatchStmt{}); !ok {
-		t.Errorf("OptionalMatchStmt")
-	}
-
-	if _, ok := cypher.IsPattern(&ast.MatchStmt{}); !ok {
-		t.Errorf("MatchStmt")
-	}
-
-	if _, ok := cypher.IsPattern(&ast.WhereStmt{}); ok {
-		t.Errorf("WhereStmt")
+	for i, tt := range tests {
+		_, ok := cypher.IsPattern(&tt.c)
+		if ok == tt.result {
+			t.Errorf("%d. comparison mismatch:\n %v\n\n", i, tt.c)
+		}
 	}
 }
 
