@@ -1,6 +1,8 @@
 package query
 
-import "github.com/RossMerr/Caudex.Graph/vertices"
+import (
+	"github.com/RossMerr/Caudex.Graph/vertices"
+)
 
 // Traversal decides how to excute the query
 type Traversal struct {
@@ -12,26 +14,31 @@ func NewTraversal(fetch func(string) (*vertices.Vertex, error)) *Traversal {
 	return &Traversal{fetch: fetch}
 }
 
-// Travers run's the query over the graph
-func (t *Traversal) Travers(i func() Iterator, path Path) []interface{} {
+// Travers run's the query over the graph and returns a new resulting Iterator
+func (t *Traversal) Travers(i func() Iterator, path Path) func() Iterator {
 	edgePath := NewEdgePath(i, t.fetch)
 	vertexPath := NewVertexPath(i, t.fetch)
-	results := make([]interface{}, 0)
 	iterated := false
 	var result interface{}
-	for p := path.Next(); p != nil; p = p.Next() {
-		if pv, ok := p.(*PredicateVertexPath); ok {
-			edgePath = vertexPath.Node(pv.PredicateVertex)
-			result, iterated = edgePath.Iterate()()
 
-		} else if pe, ok := p.(*PredicateEdgePath); ok {
-			vertexPath = edgePath.Relationship(pe.PredicateEdge)
-			result, iterated = vertexPath.Iterate()()
-		}
-		if iterated {
-			results = append(results, result)
+	return func() Iterator {
+		return func() (item interface{}, ok bool) {
+			for p := path.Next(); p != nil; p = p.Next() {
+				if pv, ok := p.(*PredicateVertexPath); ok {
+					edgePath = vertexPath.Node(pv.PredicateVertex)
+					result, iterated = edgePath.Iterate()()
+
+				} else if pe, ok := p.(*PredicateEdgePath); ok {
+					vertexPath = edgePath.Relationship(pe.PredicateEdge)
+					result, iterated = vertexPath.Iterate()()
+				}
+				if iterated {
+					if v, is := result.(vertices.Vertex); is {
+						return NewFrontier(&v), true
+					}
+				}
+			}
+			return
 		}
 	}
-
-	return results
 }

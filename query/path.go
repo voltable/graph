@@ -28,6 +28,9 @@ type (
 		SetNext(path Path)
 	}
 
+	// PathParts is the separated parts of a walk in the graph
+	PathParts []Path
+
 	// PredicateVertexPath is the Vertex implementation part of the QueryPath sequence
 	PredicateVertexPath struct {
 		PredicateVertex

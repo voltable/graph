@@ -21,11 +21,11 @@ var (
 )
 
 type StorageEngine struct {
-	vertices    map[string]vertices.Vertex
-	keys        []string
-	Options     *graph.Options
-	queryEngine query.Engine
-	traversal   query.Traversal
+	vertices  map[string]vertices.Vertex
+	keys      []string
+	Options   *graph.Options
+	engine    query.Engine
+	traversal query.Traversal
 }
 
 var _ graph.Graph = (*StorageEngine)(nil)
@@ -41,9 +41,9 @@ func NewStorageEngine(o *graph.Options) (graph.Graph, error) {
 		return nil, err
 	}
 	se := StorageEngine{
-		Options:     o,
-		vertices:    make(map[string]vertices.Vertex),
-		queryEngine: queryEngine}
+		Options:  o,
+		vertices: make(map[string]vertices.Vertex),
+		engine:   queryEngine}
 
 	se.traversal = *query.NewTraversal(se.Find)
 	return &se, nil
@@ -92,7 +92,7 @@ func (se *StorageEngine) Update(c ...*vertices.Vertex) error {
 }
 
 func (se *StorageEngine) Query(str string) (*query.Query, error) {
-	path, err := se.queryEngine.Parse(str)
+	path, err := se.engine.Parse(str)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +102,7 @@ func (se *StorageEngine) Query(str string) (*query.Query, error) {
 
 	query := query.NewQuery(path, str, results)
 
-	err = se.queryEngine.Filter(query)
+	err = se.engine.Filter(query)
 
 	return query, err
 }

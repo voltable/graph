@@ -1,7 +1,6 @@
 package cypher
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/RossMerr/Caudex.Graph/query"
@@ -43,7 +42,8 @@ type Engine struct {
 	Parser            parser.Parser
 	ToPredicateVertex func(*ast.VertexPatn) query.PredicateVertex
 	ToPredicateEdge   func(patn *ast.EdgePatn) query.PredicateEdge
-	ToPath            func(stmt ast.Stmt) (query.Path, error)
+	ToPath            func(stmt ast.Stmt) (query.PathParts, error)
+	Traversal         *query.Traversal
 }
 
 var _ query.Engine = (*Engine)(nil)
@@ -59,20 +59,45 @@ func (qe Engine) Parse(q string) (query.Path, error) {
 		return nil, err
 	}
 
-	return path, nil
+	return nil, nil
 }
 
-// Filter is used to run any final part of the AST on the result set
-func (qe Engine) Filter(q *query.Query) error {
-	if root, ok := q.Path.(*Root); ok {
-		fmt.Printf("%v", root)
+func (qe Engine) Query(i func() query.Iterator, q string) (*query.Query, error) {
+	stmt, err := qe.Parser.Parse(strings.NewReader(q))
+	if err != nil {
+		return nil, err
 	}
 
-	return nil
+	// TODO should be broken down into query parts (MATCH WHERE WITH )
+	pathParts, err := qe.ToPath(stmt)
+
+	for _, part := range pathParts {
+		i = qe.Traversal.Travers(i, part)
+	}
+
+	results := qe.toVertices(i)
+
+	query := query.NewQuery(q, results)
+
+	return query, nil
+
+}
+
+func (qe Engine) toVertices(i func() query.Iterator) []interface{} {
+	next := i()
+	results := make([]interface{}, 0)
+	for item, ok := next(); ok; item, ok = next() {
+		if frontier, is := item.(query.Frontier); is {
+			results = append(results, *frontier.Peek())
+		}
+	}
+	return results
 }
 
 // ToQueryPath converts a cypher.Stmt to a QueryPath the queryPath is used to walk the graph
-func (qe Engine) ToQueryPath(stmt ast.Stmt) (query.Path, error) {
+func (qe Engine) ToQueryPath(stmt ast.Stmt) (*query.PathParts, error) {
+
+	//pp := query.PathParts
 	q, _ := NewPath(stmt)
 	var next func(query.Path)
 	next = q.SetNext
@@ -98,7 +123,7 @@ func (qe Engine) ToQueryPath(stmt ast.Stmt) (query.Path, error) {
 		}
 	}
 
-	return q, nil
+	return nil, nil
 }
 
 func IsPattern(item ast.Stmt) (ast.Patn, bool) {
