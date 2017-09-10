@@ -6,6 +6,7 @@ import (
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
+	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 func init() {
@@ -33,7 +34,7 @@ func NewEngine() *Engine {
 		ToPredicateEdge:   ast.ToPredicateEdge,
 	}
 
-	e.ToPath = e.ToQueryPath
+	e.ToPart = e.ToQueryPart
 	return e
 }
 
@@ -42,7 +43,7 @@ type Engine struct {
 	Parser            parser.Parser
 	ToPredicateVertex func(*ast.VertexPatn) query.PredicateVertex
 	ToPredicateEdge   func(patn *ast.EdgePatn) query.PredicateEdge
-	ToPath            func(stmt ast.Stmt) (query.PathParts, error)
+	ToPart            func(stmt ast.Stmt) ([]QueryPart, error)
 	Traversal         *query.Traversal
 }
 
@@ -54,7 +55,7 @@ func (qe Engine) Parse(q string) (query.Path, error) {
 	if err != nil {
 		return nil, err
 	}
-	path, err := qe.ToPath(stmt)
+	path, err := qe.ToPart(stmt)
 	if err != nil {
 		return nil, err
 	}
@@ -68,11 +69,11 @@ func (qe Engine) Query(i func() query.Iterator, q string) (*query.Query, error) 
 		return nil, err
 	}
 
-	// TODO should be broken down into query parts (MATCH WHERE WITH )
-	pathParts, err := qe.ToPath(stmt)
+	queryPart, err := qe.ToPart(stmt)
 
-	for _, part := range pathParts {
-		i = qe.Traversal.Travers(i, part)
+	for _, part := range queryPart {
+		i = qe.Traversal.Travers(i, part.Path)
+		i = qe.Filter(i, part.Where)
 	}
 
 	results := qe.toVertices(i)
@@ -81,6 +82,17 @@ func (qe Engine) Query(i func() query.Iterator, q string) (*query.Query, error) 
 
 	return query, nil
 
+}
+
+func (qe Engine) Filter(i func() query.Iterator, stmt ast.Stmt) func() query.Iterator {
+	next := i()
+	results := make([]interface{}, 0)
+	for item, ok := next(); ok; item, ok = next() {
+		if v, is := item.(*vertices.Vertex); is {
+			results = append(results, v)
+		}
+	}
+	return nil
 }
 
 func (qe Engine) toVertices(i func() query.Iterator) []interface{} {
@@ -94,11 +106,19 @@ func (qe Engine) toVertices(i func() query.Iterator) []interface{} {
 	return results
 }
 
-// ToQueryPath converts a cypher.Stmt to a QueryPath the queryPath is used to walk the graph
-func (qe Engine) ToQueryPath(stmt ast.Stmt) (*query.PathParts, error) {
+// QueryPart is one part of a explicitly separate query parts
+type QueryPart struct {
+	Path  query.Path
+	Where ast.Stmt
+}
 
-	//pp := query.PathParts
-	q, _ := NewPath(stmt)
+// ToQueryPath converts a cypher.Stmt to a QueryPath the queryPath is used to walk the graph
+func (qe Engine) ToQueryPart(stmt ast.Stmt) ([]QueryPart, error) {
+
+	arr := make([]QueryPart, 1)
+	q, _ := NewPath()
+	qp := QueryPart{Path: q}
+	arr = append(arr, qp)
 	var next func(query.Path)
 	next = q.SetNext
 	if pattern, ok := IsPattern(stmt); ok {
@@ -117,13 +137,17 @@ func (qe Engine) ToQueryPath(stmt ast.Stmt) (*query.PathParts, error) {
 				next(&pvp)
 				next = pvp.SetNext
 				pattern = e.Vertex
+				// don't like making the WhereStmt a pattern
+			} else if w, ok := pattern.(*ast.WhereStmt); ok && w != nil {
+				//todo this might not be right
+				qp.Where = w
+				break
 			} else {
 				break
 			}
 		}
 	}
-
-	return nil, nil
+	return arr, nil
 }
 
 func IsPattern(item ast.Stmt) (ast.Patn, bool) {

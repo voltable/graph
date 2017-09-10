@@ -7,16 +7,14 @@ import (
 
 // Root is the start of the path
 type Root struct {
-	stmt ast.Stmt
-
 	next query.Path
 }
 
 var _ query.Path = (*Root)(nil)
 
 // NewPath creates a Path object used to walk the graph
-func NewPath(stmt ast.Stmt) (query.Path, error) {
-	path := &Root{stmt: stmt}
+func NewPath() (query.Path, error) {
+	path := &Root{}
 	return path, nil
 }
 

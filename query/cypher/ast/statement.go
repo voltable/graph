@@ -35,6 +35,8 @@ type WhereStmt struct {
 	Predicate Expr
 }
 
+func (*WhereStmt) patnNode() {}
+
 // Ident used to hold anu object or nil
 type Ident struct {
 	Data interface{} // denoted object; or nil
