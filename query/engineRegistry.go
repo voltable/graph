@@ -15,7 +15,8 @@ var (
 // Engine is the interface that a engine must implement
 type Engine interface {
 	// Parse in a string which is your query you want to run, get back a vertexPath that is abstracted from any query language or AST
-	Parse(string) (Path, error)
+	//Parse(string) (Path, error)
+	Query(i func() Iterator, q string) (*Query, error)
 }
 
 type NewQueryFunc func() (Engine, error)

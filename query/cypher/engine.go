@@ -55,7 +55,7 @@ func (qe Engine) Parse(q string) (query.Path, error) {
 	if err != nil {
 		return nil, err
 	}
-	path, err := qe.ToPart(stmt)
+	_, err = qe.ToPart(stmt)
 	if err != nil {
 		return nil, err
 	}
@@ -85,12 +85,14 @@ func (qe Engine) Query(i func() query.Iterator, q string) (*query.Query, error) 
 }
 
 func (qe Engine) Filter(i func() query.IteratorFrontier, stmt ast.Stmt) func() query.Iterator {
-	next := i()
-	return func() (item interface{}, ok bool) {
-		for frontier, ok := next(); ok; frontier, ok = next() {
-			//	return *frontier.Peek(), true
+	return func() query.Iterator {
+		return func() (interface{}, bool) {
+			next := i()
+			for frontier, ok := next(); ok; frontier, ok = next() {
+				return *frontier.Peek(), ok
+			}
+			return nil, false
 		}
-		return
 	}
 }
 
@@ -106,15 +108,18 @@ func (qe Engine) toVertices(i func() query.Iterator) []interface{} {
 }
 
 func (qe Engine) toFontier(i func() query.Iterator) func() query.IteratorFrontier {
-	next := i()
 
-	return func() (*query.Frontier, bool) {
-		for item, ok := next(); ok; item, ok = next() {
-			if v, is := item.(vertices.Vertex); is {
-				return query.NewFrontier(&v), true
+	return func() query.IteratorFrontier {
+		return func() (*query.Frontier, bool) {
+			next := i()
+			for item, ok := next(); ok; item, ok = next() {
+				if v, is := item.(vertices.Vertex); is {
+					f := query.NewFrontier(&v)
+					return &f, true
+				}
 			}
+			return nil, false
 		}
-		return
 	}
 }
 

@@ -92,19 +92,7 @@ func (se *StorageEngine) Update(c ...*vertices.Vertex) error {
 }
 
 func (se *StorageEngine) Query(str string) (*query.Query, error) {
-	path, err := se.engine.Parse(str)
-	if err != nil {
-		return nil, err
-	}
-
-	// should do something clever to pick the right index not just iterate
-	results := se.traversal.Travers(se.forEach(), path)
-
-	query := query.NewQuery(path, str, results)
-
-	err = se.engine.Filter(query)
-
-	return query, err
+	return se.engine.Query(se.forEach(), str)
 }
 
 func (se *StorageEngine) forEach() func() query.Iterator {
