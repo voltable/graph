@@ -48,6 +48,15 @@ type (
 	// Iterator is an alias for function to iterate over data.
 	Iterator func() (item interface{}, ok bool)
 
+	// IteratorVertex is an alias for function to iterate over Vertex.
+	IteratorVertex func() (item *vertices.Vertex, ok bool)
+
+	// IteratorEdge is an alias for function to iterate over Vertex.
+	IteratorEdge func() (item *vertices.Edge, ok bool)
+
+	// IteratorFrontier is an alias for function to iterate over Frontier.
+	IteratorFrontier func() (item *Frontier, ok bool)
+
 	// PredicateVertex apply the predicate over the vertex
 	PredicateVertex func(v *vertices.Vertex) bool
 

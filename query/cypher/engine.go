@@ -72,27 +72,26 @@ func (qe Engine) Query(i func() query.Iterator, q string) (*query.Query, error) 
 	queryPart, err := qe.ToPart(stmt)
 
 	for _, part := range queryPart {
-		i = qe.Traversal.Travers(i, part.Path)
-		i = qe.Filter(i, part.Where)
+		f := qe.toFontier(i)
+		f = qe.Traversal.Travers(f, part.Path)
+		i = qe.Filter(f, part.Where)
 	}
 
 	results := qe.toVertices(i)
-
 	query := query.NewQuery(q, results)
 
 	return query, nil
 
 }
 
-func (qe Engine) Filter(i func() query.Iterator, stmt ast.Stmt) func() query.Iterator {
+func (qe Engine) Filter(i func() query.IteratorFrontier, stmt ast.Stmt) func() query.Iterator {
 	next := i()
-	results := make([]interface{}, 0)
-	for item, ok := next(); ok; item, ok = next() {
-		if v, is := item.(*vertices.Vertex); is {
-			results = append(results, v)
+	return func() (item interface{}, ok bool) {
+		for frontier, ok := next(); ok; frontier, ok = next() {
+			//	return *frontier.Peek(), true
 		}
+		return
 	}
-	return nil
 }
 
 func (qe Engine) toVertices(i func() query.Iterator) []interface{} {
@@ -104,6 +103,19 @@ func (qe Engine) toVertices(i func() query.Iterator) []interface{} {
 		}
 	}
 	return results
+}
+
+func (qe Engine) toFontier(i func() query.Iterator) func() query.IteratorFrontier {
+	next := i()
+
+	return func() (*query.Frontier, bool) {
+		for item, ok := next(); ok; item, ok = next() {
+			if v, is := item.(vertices.Vertex); is {
+				return query.NewFrontier(&v), true
+			}
+		}
+		return
+	}
 }
 
 // QueryPart is one part of a explicitly separate query parts

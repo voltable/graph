@@ -27,9 +27,9 @@ func Test_Traversal_Travers(t *testing.T) {
 	frontier = frontier.Append([]*vertices.Vertex{vertex}, 0)
 
 	state := false
-	it := func() (item interface{}, ok bool) {
+	it := func() (item *query.Frontier, ok bool) {
 		state = expressions.XORSwap(state)
-		return frontier, state
+		return &frontier, state
 	}
 
 	path, _ := NewPath()
@@ -53,9 +53,11 @@ func Test_Traversal_Travers(t *testing.T) {
 	vertexPath.SetNext(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(edgePatn)})
 	path.SetNext(vertexPath)
 
-	results := traversal.Travers(func() query.Iterator {
+	iteratorFrontier := traversal.Travers(func() query.IteratorFrontier {
 		return it
 	}, path)
+
+	results := traversal.ToVertices(iteratorFrontier)
 
 	if len(results) != 1 {
 		t.Errorf("Failed to match")

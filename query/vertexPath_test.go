@@ -21,12 +21,12 @@ func Test_MatchVertex(t *testing.T) {
 	frontier := query.Frontier{}
 	frontier = frontier.Append([]*vertices.Vertex{vertex}, 0)
 
-	it := func() (item interface{}, ok bool) {
+	it := func() (item *query.Frontier, ok bool) {
 		state = expressions.XORSwap(state)
-		return frontier, state
+		return &frontier, state
 	}
 
-	p := query.NewVertexPath(func() query.Iterator {
+	p := query.NewVertexPath(func() query.IteratorFrontier {
 		return it
 	}, nil)
 

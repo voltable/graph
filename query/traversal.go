@@ -15,14 +15,14 @@ func NewTraversal(fetch func(string) (*vertices.Vertex, error)) *Traversal {
 }
 
 // Travers run's the query over the graph and returns a new resulting Iterator
-func (t *Traversal) Travers(i func() Iterator, path Path) func() Iterator {
+func (t *Traversal) Travers(i func() IteratorFrontier, path Path) func() IteratorFrontier {
 	edgePath := NewEdgePath(i, t.fetch)
 	vertexPath := NewVertexPath(i, t.fetch)
 	iterated := false
 	var result interface{}
 
-	return func() Iterator {
-		return func() (item interface{}, ok bool) {
+	return func() IteratorFrontier {
+		return func() (item *Frontier, ok bool) {
 			for p := path.Next(); p != nil; p = p.Next() {
 				if pv, ok := p.(*PredicateVertexPath); ok {
 					edgePath = vertexPath.Node(pv.PredicateVertex)
@@ -34,11 +34,22 @@ func (t *Traversal) Travers(i func() Iterator, path Path) func() Iterator {
 				}
 				if iterated {
 					if v, is := result.(vertices.Vertex); is {
-						return NewFrontier(&v), true
+						f := NewFrontier(&v)
+						return &f, true
 					}
 				}
 			}
 			return
 		}
 	}
+}
+
+// ToVertices return the Vertices from the IteratorFrontier
+func (t *Traversal) ToVertices(i func() IteratorFrontier) []interface{} {
+	next := i()
+	results := make([]interface{}, 0)
+	for frontier, ok := next(); ok; frontier, ok = next() {
+		results = append(results, *frontier.Peek())
+	}
+	return results
 }

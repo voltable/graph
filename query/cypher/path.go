@@ -2,7 +2,6 @@ package cypher
 
 import (
 	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 )
 
 // Root is the start of the path

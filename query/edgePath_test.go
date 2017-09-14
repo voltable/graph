@@ -20,16 +20,16 @@ func Test_MatchEdge(t *testing.T) {
 	frontier := query.Frontier{}
 	frontier = frontier.Append([]*vertices.Vertex{vertex}, 0)
 
-	it := func() (item interface{}, ok bool) {
+	it := func() (item *query.Frontier, ok bool) {
 		state = expressions.XORSwap(state)
-		return frontier, state
+		return &frontier, state
 	}
 
 	fetch := func(string) (*vertices.Vertex, error) {
 		return vertex, nil
 	}
 
-	p := query.NewEdgePath(func() query.Iterator {
+	p := query.NewEdgePath(func() query.IteratorFrontier {
 		return it
 	}, fetch)
 

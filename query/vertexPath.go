@@ -1,8 +1,6 @@
 package query
 
 import (
-	"sort"
-
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
@@ -11,13 +9,13 @@ import (
 // It only acts as one part of a Path from a walk in the graph you want to traverse acting on the Vertex.
 // See EdgePath for walking over the Edge.
 type VertexPath struct {
-	Iterate  func() Iterator
+	Iterate  func() IteratorFrontier
 	explored map[string]bool
 	fetch    func(string) (*vertices.Vertex, error)
 }
 
 // NewVertexPath construts a new VertexPath
-func NewVertexPath(i func() Iterator, f func(string) (*vertices.Vertex, error)) *VertexPath {
+func NewVertexPath(i func() IteratorFrontier, f func(string) (*vertices.Vertex, error)) *VertexPath {
 	return &VertexPath{explored: make(map[string]bool), fetch: f, Iterate: i}
 }
 
@@ -32,18 +30,15 @@ func (t *VertexPath) Node(predicate PredicateVertex) *EdgePath {
 	return &EdgePath{
 		explored: t.explored,
 		fetch:    t.fetch,
-		Iterate: func() Iterator {
+		Iterate: func() IteratorFrontier {
 			next := t.Iterate()
-			return func() (item interface{}, ok bool) {
-				for item, ok = next(); ok; item, ok = next() {
-					if frontier, is := item.(Frontier); is {
-						sort.Sort(frontier)
-						vertices := frontier.peek()
-						vertex := vertices[len(vertices)-1]
-						t.explored[vertex.ID()] = true
-						if predicate(vertex) {
-							return frontier, true
-						}
+			return func() (frontier *Frontier, ok bool) {
+				for frontier, ok = next(); ok; frontier, ok = next() {
+					vertices := frontier.peek()
+					vertex := vertices[len(vertices)-1]
+					t.explored[vertex.ID()] = true
+					if predicate(vertex) {
+						return frontier, true
 					}
 				}
 				return
