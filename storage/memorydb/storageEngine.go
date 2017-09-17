@@ -4,7 +4,9 @@ import (
 	"errors"
 
 	"github.com/RossMerr/Caudex.Graph"
+	"github.com/RossMerr/Caudex.Graph/enumerables"
 	"github.com/RossMerr/Caudex.Graph/query"
+	"github.com/RossMerr/Caudex.Graph/storage"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
@@ -30,22 +32,25 @@ type StorageEngine struct {
 
 var _ graph.Graph = (*StorageEngine)(nil)
 
+var _ storage.Storage = (*StorageEngine)(nil)
+
 func (se *StorageEngine) Close() {
 
 }
 
 // NewStorageEngine creates anew in memory storage engine
 func NewStorageEngine(o *graph.Options) (graph.Graph, error) {
-	queryEngine, err := query.NewQueryEngine(o.QueryEngine)
+	se := StorageEngine{
+		Options:  o,
+		vertices: make(map[string]vertices.Vertex)}
+
+	queryEngine, err := query.NewQueryEngine(o.QueryEngine, &se)
 	if err != nil {
 		return nil, err
 	}
-	se := StorageEngine{
-		Options:  o,
-		vertices: make(map[string]vertices.Vertex),
-		engine:   queryEngine}
+	se.engine = queryEngine
 
-	se.traversal = *query.NewTraversal(se.Find)
+	se.traversal = *query.NewTraversal(&se)
 	return &se, nil
 }
 
@@ -92,11 +97,15 @@ func (se *StorageEngine) Update(c ...*vertices.Vertex) error {
 }
 
 func (se *StorageEngine) Query(str string) (*query.Query, error) {
-	return se.engine.Query(se.forEach(), str)
+	return se.engine.Parse(str)
 }
 
-func (se *StorageEngine) forEach() func() query.Iterator {
-	return func() query.Iterator {
+func (se *StorageEngine) Fetch() func(string) (*vertices.Vertex, error) {
+	return se.Find
+}
+
+func (se *StorageEngine) ForEach() func() enumerables.Iterator {
+	return func() enumerables.Iterator {
 		position := 0
 		length := len(se.keys)
 		return func() (item interface{}, ok bool) {

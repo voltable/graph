@@ -3,6 +3,7 @@ package query
 import (
 	"errors"
 
+	"github.com/RossMerr/Caudex.Graph/storage"
 	"github.com/Sirupsen/logrus"
 )
 
@@ -15,11 +16,10 @@ var (
 // Engine is the interface that a engine must implement
 type Engine interface {
 	// Parse in a string which is your query you want to run, get back a vertexPath that is abstracted from any query language or AST
-	//Parse(string) (Path, error)
-	Query(i func() Iterator, q string) (*Query, error)
+	Parse(q string) (*Query, error)
 }
 
-type NewQueryFunc func() (Engine, error)
+type NewQueryFunc func(i storage.Storage) (Engine, error)
 
 type EngineRegistration struct {
 	NewFunc NewQueryFunc
@@ -36,11 +36,11 @@ func RegisterEngine(name string, register EngineRegistration) {
 	engineRegistry[name] = register
 }
 
-func NewQueryEngine(name string) (Engine, error) {
+func NewQueryEngine(name string, i storage.Storage) (Engine, error) {
 	r, registered := engineRegistry[name]
 	if !registered {
 		return nil, errQueryNotRegistred
 	}
 
-	return r.NewFunc()
+	return r.NewFunc(i)
 }

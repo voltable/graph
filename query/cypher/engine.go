@@ -3,9 +3,11 @@ package cypher
 import (
 	"strings"
 
+	"github.com/RossMerr/Caudex.Graph/enumerables"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
+	"github.com/RossMerr/Caudex.Graph/storage"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
@@ -22,16 +24,18 @@ func RegisterEngine() {
 
 const queryType = "Cypher"
 
-func newEngine() (query.Engine, error) {
-	e := NewEngine()
+func newEngine(i storage.Storage) (query.Engine, error) {
+	e := NewEngine(i)
 	return e, nil
 }
 
-func NewEngine() *Engine {
+func NewEngine(i storage.Storage) *Engine {
 	e := &Engine{
 		Parser:            parser.NewParser(),
 		ToPredicateVertex: ast.ToPredicateVertex,
 		ToPredicateEdge:   ast.ToPredicateEdge,
+		Traversal:         query.NewTraversal(i),
+		Storage:           i,
 	}
 
 	e.ToPart = e.ToQueryPart
@@ -44,48 +48,40 @@ type Engine struct {
 	ToPredicateVertex func(*ast.VertexPatn) query.PredicateVertex
 	ToPredicateEdge   func(patn *ast.EdgePatn) query.PredicateEdge
 	ToPart            func(stmt ast.Stmt) ([]QueryPart, error)
-	Traversal         *query.Traversal
+	Traversal         CypherTraversal
+	Storage           storage.Storage
 }
 
 var _ query.Engine = (*Engine)(nil)
 
 // Parse in a cypher query as a string and get back Query that is abstracted from the cypher AST
-func (qe Engine) Parse(q string) (query.Path, error) {
-	stmt, err := qe.Parser.Parse(strings.NewReader(q))
-	if err != nil {
-		return nil, err
-	}
-	_, err = qe.ToPart(stmt)
-	if err != nil {
-		return nil, err
-	}
-
-	return nil, nil
-}
-
-func (qe Engine) Query(i func() query.Iterator, q string) (*query.Query, error) {
+func (qe Engine) Parse(q string) (*query.Query, error) {
 	stmt, err := qe.Parser.Parse(strings.NewReader(q))
 	if err != nil {
 		return nil, err
 	}
 
 	queryPart, err := qe.ToPart(stmt)
-
-	for _, part := range queryPart {
-		f := qe.toFontier(i)
-		f = qe.Traversal.Travers(f, part.Path)
-		i = qe.Filter(f, part.Where)
+	if err != nil {
+		return nil, err
 	}
 
-	results := qe.toVertices(i)
+	forEach := qe.Storage.ForEach()
+	for _, part := range queryPart {
+		f := qe.toFontier(forEach)
+		f = qe.Traversal.Travers(f, part.Path)
+		forEach = qe.Filter(f, part.Where)
+	}
+
+	results := qe.toVertices(forEach)
 	query := query.NewQuery(q, results)
 
 	return query, nil
 
 }
 
-func (qe Engine) Filter(i func() query.IteratorFrontier, stmt ast.Stmt) func() query.Iterator {
-	return func() query.Iterator {
+func (qe Engine) Filter(i func() query.IteratorFrontier, stmt ast.Stmt) func() enumerables.Iterator {
+	return func() enumerables.Iterator {
 		return func() (interface{}, bool) {
 			next := i()
 			for frontier, ok := next(); ok; frontier, ok = next() {
@@ -96,7 +92,7 @@ func (qe Engine) Filter(i func() query.IteratorFrontier, stmt ast.Stmt) func() q
 	}
 }
 
-func (qe Engine) toVertices(i func() query.Iterator) []interface{} {
+func (qe Engine) toVertices(i func() enumerables.Iterator) []interface{} {
 	next := i()
 	results := make([]interface{}, 0)
 	for item, ok := next(); ok; item, ok = next() {
@@ -107,7 +103,7 @@ func (qe Engine) toVertices(i func() query.Iterator) []interface{} {
 	return results
 }
 
-func (qe Engine) toFontier(i func() query.Iterator) func() query.IteratorFrontier {
+func (qe Engine) toFontier(i func() enumerables.Iterator) func() query.IteratorFrontier {
 
 	return func() query.IteratorFrontier {
 		return func() (*query.Frontier, bool) {
@@ -132,7 +128,7 @@ type QueryPart struct {
 // ToQueryPath converts a cypher.Stmt to a QueryPath the queryPath is used to walk the graph
 func (qe Engine) ToQueryPart(stmt ast.Stmt) ([]QueryPart, error) {
 
-	arr := make([]QueryPart, 1)
+	arr := make([]QueryPart, 0)
 	q, _ := NewPath()
 	qp := QueryPart{Path: q}
 	arr = append(arr, qp)

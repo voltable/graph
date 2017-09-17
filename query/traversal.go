@@ -1,6 +1,7 @@
 package query
 
 import (
+	"github.com/RossMerr/Caudex.Graph/storage"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
@@ -10,8 +11,8 @@ type Traversal struct {
 }
 
 // NewTraversal create a Traversal object used to run the query over the graph
-func NewTraversal(fetch func(string) (*vertices.Vertex, error)) *Traversal {
-	return &Traversal{fetch: fetch}
+func NewTraversal(i storage.Storage) *Traversal {
+	return &Traversal{fetch: i.Fetch()}
 }
 
 // Travers run's the query over the graph and returns a new resulting Iterator
