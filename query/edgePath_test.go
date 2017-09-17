@@ -20,22 +20,18 @@ func Test_MatchEdge(t *testing.T) {
 	frontier := query.Frontier{}
 	frontier = frontier.Append([]*vertices.Vertex{vertex}, 0)
 
-	it := func() (item *query.Frontier, ok bool) {
-		state = expressions.XORSwap(state)
-		return &frontier, state
-	}
-
 	fetch := func(string) (*vertices.Vertex, error) {
 		return vertex, nil
 	}
 
-	p := query.NewEdgePath(func() query.IteratorFrontier {
-		return it
+	p := query.NewEdgePath(func() (item *query.Frontier, ok bool) {
+		state = expressions.XORSwap(state)
+		return &frontier, state
 	}, fetch)
 
 	matches := p.Relationship(func(v *vertices.Edge) bool {
 		return true
 	})
 
-	matches.Iterate()()
+	matches.Iterate()
 }

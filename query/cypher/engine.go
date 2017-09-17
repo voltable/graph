@@ -80,42 +80,32 @@ func (qe Engine) Parse(q string) (*query.Query, error) {
 
 }
 
-func (qe Engine) Filter(i func() query.IteratorFrontier, stmt ast.Stmt) func() enumerables.Iterator {
-	return func() enumerables.Iterator {
-		return func() (interface{}, bool) {
-			next := i()
-			for frontier, ok := next(); ok; frontier, ok = next() {
-				return *frontier.Peek(), ok
-			}
-			return nil, false
+func (qe Engine) Filter(i query.IteratorFrontier, stmt ast.Stmt) enumerables.Iterator {
+	return func() (interface{}, bool) {
+		for frontier, ok := i(); ok; frontier, ok = i() {
+			return *frontier.Peek(), ok
 		}
+		return nil, false
 	}
 }
 
-func (qe Engine) toVertices(i func() enumerables.Iterator) []interface{} {
-	next := i()
+func (qe Engine) toVertices(i enumerables.Iterator) []interface{} {
 	results := make([]interface{}, 0)
-	for item, ok := next(); ok; item, ok = next() {
-		if frontier, is := item.(query.Frontier); is {
-			results = append(results, *frontier.Peek())
-		}
+	for item, ok := i(); ok; item, ok = i() {
+		results = append(results, item)
 	}
 	return results
 }
 
-func (qe Engine) toFontier(i func() enumerables.Iterator) func() query.IteratorFrontier {
-
-	return func() query.IteratorFrontier {
-		return func() (*query.Frontier, bool) {
-			next := i()
-			for item, ok := next(); ok; item, ok = next() {
-				if v, is := item.(vertices.Vertex); is {
-					f := query.NewFrontier(&v)
-					return &f, true
-				}
+func (qe Engine) toFontier(i enumerables.Iterator) query.IteratorFrontier {
+	return func() (*query.Frontier, bool) {
+		for item, ok := i(); ok; item, ok = i() {
+			if v, is := item.(*vertices.Vertex); is {
+				f := query.NewFrontier(v)
+				return &f, true
 			}
-			return nil, false
 		}
+		return nil, false
 	}
 }
 

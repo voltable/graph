@@ -6,6 +6,6 @@ import (
 )
 
 type Storage interface {
-	ForEach() func() enumerables.Iterator
+	ForEach() enumerables.Iterator
 	Fetch() func(string) (*vertices.Vertex, error)
 }

@@ -21,13 +21,9 @@ func Test_MatchVertex(t *testing.T) {
 	frontier := query.Frontier{}
 	frontier = frontier.Append([]*vertices.Vertex{vertex}, 0)
 
-	it := func() (item *query.Frontier, ok bool) {
+	p := query.NewVertexPath(func() (item *query.Frontier, ok bool) {
 		state = expressions.XORSwap(state)
 		return &frontier, state
-	}
-
-	p := query.NewVertexPath(func() query.IteratorFrontier {
-		return it
 	}, nil)
 
 	matches := p.Node(func(v *vertices.Vertex) bool {
@@ -37,7 +33,6 @@ func Test_MatchVertex(t *testing.T) {
 		return true
 	})
 
-	next := matches.Iterate()
+	matches.Iterate()
 
-	next()
 }

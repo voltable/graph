@@ -104,18 +104,16 @@ func (se *StorageEngine) Fetch() func(string) (*vertices.Vertex, error) {
 	return se.Find
 }
 
-func (se *StorageEngine) ForEach() func() enumerables.Iterator {
-	return func() enumerables.Iterator {
-		position := 0
-		length := len(se.keys)
-		return func() (item interface{}, ok bool) {
-			if position < length {
-				key := se.keys[position]
-				v := se.vertices[key]
-				position = position + 1
-				return query.NewFrontier(&v), true
-			}
-			return nil, false
+func (se *StorageEngine) ForEach() enumerables.Iterator {
+	position := 0
+	length := len(se.keys)
+	return func() (item interface{}, ok bool) {
+		if position < length {
+			key := se.keys[position]
+			v := se.vertices[key]
+			position = position + 1
+			return &v, true
 		}
+		return nil, false
 	}
 }

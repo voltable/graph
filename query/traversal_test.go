@@ -1,65 +1,80 @@
 package query_test
 
-// import (
-// 	"testing"
+import (
+	"testing"
 
-// 	"github.com/RossMerr/Caudex.Graph/expressions"
+	"github.com/RossMerr/Caudex.Graph/enumerables"
+	"github.com/RossMerr/Caudex.Graph/expressions"
+	"github.com/RossMerr/Caudex.Graph/storage"
 
-// 	"github.com/RossMerr/Caudex.Graph/query"
-// 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
-// 	"github.com/RossMerr/Caudex.Graph/vertices"
-// )
+	"github.com/RossMerr/Caudex.Graph/query"
+	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
+	"github.com/RossMerr/Caudex.Graph/vertices"
+)
 
-// func Test_Traversal_Travers(t *testing.T) {
+type FakeStorage struct {
+	vertex *vertices.Vertex
+}
 
-// 	vertex, _ := vertices.NewVertex()
-// 	vertex.SetLabel("foo")
+func (s FakeStorage) Fetch() func(string) (*vertices.Vertex, error) {
+	return func(string) (*vertices.Vertex, error) {
+		return s.vertex, nil
+	}
+}
 
-// 	vertexDirection, _ := vertices.NewVertex()
-// 	vertex.AddDirectedEdge(vertexDirection)
+func (s FakeStorage) ForEach() enumerables.Iterator {
+	return func() (item interface{}, ok bool) {
 
-// 	fetch := func(string) (*vertices.Vertex, error) {
-// 		return vertex, nil
-// 	}
-// 	traversal := query.NewTraversal(fetch)
+		return nil, false
+	}
+}
 
-// 	frontier := query.Frontier{}
-// 	frontier = frontier.Append([]*vertices.Vertex{vertex}, 0)
+func NewFakeStorage(v *vertices.Vertex) storage.Storage {
+	return &FakeStorage{vertex: v}
+}
+func Test_Traversal_Travers(t *testing.T) {
 
-// 	state := false
-// 	it := func() (item *query.Frontier, ok bool) {
-// 		state = expressions.XORSwap(state)
-// 		return &frontier, state
-// 	}
+	vertex, _ := vertices.NewVertex()
+	vertex.SetLabel("foo")
 
-// 	path, _ := NewPath()
+	vertexDirection, _ := vertices.NewVertex()
+	vertex.AddDirectedEdge(vertexDirection)
 
-// 	edgePatn := &ast.EdgePatn{Body: &ast.EdgeBodyStmt{LengthMinimum: 2, LengthMaximum: 5}}
-// 	vertexPatn := &ast.VertexPatn{Variable: "bar", Edge: edgePatn}
+	traversal := query.NewTraversal(NewFakeStorage(vertex))
 
-// 	b := true
-// 	toPredicateVertex := func(*ast.VertexPatn) query.PredicateVertex {
-// 		return func(v *vertices.Vertex) bool {
-// 			return b
-// 		}
-// 	}
+	frontier := query.Frontier{}
+	frontier = frontier.Append([]*vertices.Vertex{vertex}, 0)
 
-// 	toPredicateEdge := func(patn *ast.EdgePatn) query.PredicateEdge {
-// 		return func(e *vertices.Edge) bool {
-// 			return b
-// 		}
-// 	}
-// 	vertexPath := &query.PredicateVertexPath{PredicateVertex: toPredicateVertex(vertexPatn)}
-// 	vertexPath.SetNext(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(edgePatn)})
-// 	path.SetNext(vertexPath)
+	state := false
 
-// 	iteratorFrontier := traversal.Travers(func() query.IteratorFrontier {
-// 		return it
-// 	}, path)
+	path, _ := NewPath()
 
-// 	results := traversal.ToVertices(iteratorFrontier)
+	edgePatn := &ast.EdgePatn{Body: &ast.EdgeBodyStmt{LengthMinimum: 2, LengthMaximum: 5}}
+	vertexPatn := &ast.VertexPatn{Variable: "bar", Edge: edgePatn}
 
-// 	if len(results) != 1 {
-// 		//	t.Errorf("Failed to match")
-// 	}
-// }
+	toPredicateVertex := func(*ast.VertexPatn) query.PredicateVertex {
+		return func(v *vertices.Vertex) bool {
+			return true
+		}
+	}
+
+	toPredicateEdge := func(patn *ast.EdgePatn) query.PredicateEdge {
+		return func(e *vertices.Edge) bool {
+			return false
+		}
+	}
+	vertexPath := &query.PredicateVertexPath{PredicateVertex: toPredicateVertex(vertexPatn)}
+	vertexPath.SetNext(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(edgePatn)})
+	path.SetNext(vertexPath)
+
+	iteratorFrontier := traversal.Travers(func() (item *query.Frontier, ok bool) {
+		state = expressions.XORSwap(state)
+		return &frontier, state
+	}, path)
+
+	results := traversal.ToVertices(iteratorFrontier)
+
+	if len(results) != 1 {
+		t.Errorf("Failed to match")
+	}
+}

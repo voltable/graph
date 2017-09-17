@@ -11,13 +11,13 @@ import (
 // It only acts as one part of a Path from a walk in the graph you want to traverse acting on the edge.
 // See VertexPath for walking over the Vertices.
 type EdgePath struct {
-	Iterate  func() IteratorFrontier
+	Iterate  IteratorFrontier
 	explored map[string]bool
 	fetch    func(string) (*vertices.Vertex, error)
 }
 
 // NewEdgePath constructs a new EdgePath
-func NewEdgePath(i func() IteratorFrontier, f func(string) (*vertices.Vertex, error)) *EdgePath {
+func NewEdgePath(i IteratorFrontier, f func(string) (*vertices.Vertex, error)) *EdgePath {
 	return &EdgePath{Iterate: i, fetch: f, explored: make(map[string]bool)}
 }
 
@@ -32,26 +32,23 @@ func (t *EdgePath) Relationship(predicate PredicateEdge) *VertexPath {
 	return &VertexPath{
 		explored: t.explored,
 		fetch:    t.fetch,
-		Iterate: func() IteratorFrontier {
-			next := t.Iterate()
-			return func() (frontier *Frontier, ok bool) {
-				for frontier, ok = next(); ok; frontier, ok = next() {
-					vertices, cost, frontier := frontier.pop()
-					vertex := vertices[len(vertices)-1]
-					for _, e := range vertex.Edges() {
-						if _, ok := t.explored[e.ID()]; !ok {
-							if predicate(e) {
-								if v, err := t.fetch(e.ID()); err == nil {
-									frontier = frontier.Append(append(vertices, v), cost+e.Weight)
-									sort.Sort(frontier)
-									return &frontier, true
-								}
+		Iterate: func() (frontier *Frontier, ok bool) {
+			for frontier, ok = t.Iterate(); ok; frontier, ok = t.Iterate() {
+				vertices, cost, frontier := frontier.pop()
+				vertex := vertices[len(vertices)-1]
+				for _, e := range vertex.Edges() {
+					if _, ok := t.explored[e.ID()]; !ok {
+						if predicate(e) {
+							if v, err := t.fetch(e.ID()); err == nil {
+								frontier = frontier.Append(append(vertices, v), cost+e.Weight)
+								sort.Sort(frontier)
+								return &frontier, true
 							}
 						}
 					}
 				}
-				return
 			}
+			return
 		},
 	}
 }

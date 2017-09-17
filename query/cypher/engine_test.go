@@ -51,12 +51,10 @@ func (s FakeStorage) Fetch() func(string) (*vertices.Vertex, error) {
 	return nil
 }
 
-func (s FakeStorage) ForEach() func() enumerables.Iterator {
-	return func() enumerables.Iterator {
-		return func() (item interface{}, ok bool) {
+func (s FakeStorage) ForEach() enumerables.Iterator {
+	return func() (item interface{}, ok bool) {
 
-			return nil, false
-		}
+		return nil, false
 	}
 }
 

@@ -5,5 +5,5 @@ import (
 )
 
 type CypherTraversal interface {
-	Travers(i func() query.IteratorFrontier, path query.Path) func() query.IteratorFrontier
+	Travers(i query.IteratorFrontier, path query.Path) query.IteratorFrontier
 }

@@ -16,40 +16,36 @@ func NewTraversal(i storage.Storage) *Traversal {
 }
 
 // Travers run's the query over the graph and returns a new resulting Iterator
-func (t *Traversal) Travers(i func() IteratorFrontier, path Path) func() IteratorFrontier {
+func (t *Traversal) Travers(i IteratorFrontier, path Path) IteratorFrontier {
 	edgePath := NewEdgePath(i, t.fetch)
 	vertexPath := NewVertexPath(i, t.fetch)
 	iterated := false
 	var result interface{}
 
-	return func() IteratorFrontier {
-		return func() (item *Frontier, ok bool) {
-			for p := path.Next(); p != nil; p = p.Next() {
-				if pv, ok := p.(*PredicateVertexPath); ok {
-					edgePath = vertexPath.Node(pv.PredicateVertex)
-					result, iterated = edgePath.Iterate()()
+	return func() (item *Frontier, ok bool) {
+		for p := path.Next(); p != nil; p = p.Next() {
+			if pv, ok := p.(*PredicateVertexPath); ok {
+				edgePath = vertexPath.Node(pv.PredicateVertex)
+				result, iterated = edgePath.Iterate()
 
-				} else if pe, ok := p.(*PredicateEdgePath); ok {
-					vertexPath = edgePath.Relationship(pe.PredicateEdge)
-					result, iterated = vertexPath.Iterate()()
-				}
-				if iterated {
-					if v, is := result.(vertices.Vertex); is {
-						f := NewFrontier(&v)
-						return &f, true
-					}
+			} else if pe, ok := p.(*PredicateEdgePath); ok {
+				vertexPath = edgePath.Relationship(pe.PredicateEdge)
+				result, iterated = vertexPath.Iterate()
+			}
+			if iterated {
+				if v, is := result.(*Frontier); is {
+					return v, true
 				}
 			}
-			return
 		}
+		return
 	}
 }
 
 // ToVertices return the Vertices from the IteratorFrontier
-func (t *Traversal) ToVertices(i func() IteratorFrontier) []interface{} {
-	next := i()
+func (t *Traversal) ToVertices(i IteratorFrontier) []interface{} {
 	results := make([]interface{}, 0)
-	for frontier, ok := next(); ok; frontier, ok = next() {
+	for frontier, ok := i(); ok; frontier, ok = i() {
 		results = append(results, *frontier.Peek())
 	}
 	return results
