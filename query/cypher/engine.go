@@ -30,26 +30,20 @@ func newEngine(i storage.Storage) (query.Engine, error) {
 }
 
 func NewEngine(i storage.Storage) *Engine {
-	e := &Engine{
-		Parser:            parser.NewParser(),
-		ToPredicateVertex: ast.ToPredicateVertex,
-		ToPredicateEdge:   ast.ToPredicateEdge,
-		Traversal:         query.NewTraversal(i),
-		Storage:           i,
+	return &Engine{
+		Parser:    parser.NewParser(),
+		Traversal: query.NewTraversal(i),
+		Storage:   i,
+		Parts:     NewParts(),
 	}
-
-	e.ToPart = e.ToQueryPart
-	return e
 }
 
 // Engine is a implementation of the Query interface used to pass cypher queries
 type Engine struct {
-	Parser            parser.Parser
-	ToPredicateVertex func(*ast.VertexPatn) query.PredicateVertex
-	ToPredicateEdge   func(patn *ast.EdgePatn) query.PredicateEdge
-	ToPart            func(stmt ast.Stmt) ([]QueryPart, error)
-	Traversal         CypherTraversal
-	Storage           storage.Storage
+	Parser    parser.Parser
+	Traversal CypherTraversal
+	Storage   storage.Storage
+	Parts     Parts
 }
 
 var _ query.Engine = (*Engine)(nil)
@@ -61,7 +55,7 @@ func (qe Engine) Parse(q string) (*query.Query, error) {
 		return nil, err
 	}
 
-	queryPart, err := qe.ToPart(stmt)
+	queryPart, err := qe.Parts.ToQueryPart(stmt)
 	if err != nil {
 		return nil, err
 	}
@@ -107,50 +101,6 @@ func (qe Engine) toFontier(i enumerables.Iterator) query.IteratorFrontier {
 		}
 		return nil, false
 	}
-}
-
-// QueryPart is one part of a explicitly separate query parts
-type QueryPart struct {
-	Path  query.Path
-	Where ast.Stmt
-}
-
-// ToQueryPath converts a cypher.Stmt to a QueryPath the queryPath is used to walk the graph
-func (qe Engine) ToQueryPart(stmt ast.Stmt) ([]QueryPart, error) {
-
-	arr := make([]QueryPart, 0)
-	q, _ := NewPath()
-	qp := QueryPart{Path: q}
-	arr = append(arr, qp)
-	var next func(query.Path)
-	next = q.SetNext
-	if pattern, ok := IsPattern(stmt); ok {
-		for pattern != nil {
-			if v, ok := pattern.(*ast.VertexPatn); ok && v != nil {
-				pvp := query.PredicateVertexPath{PredicateVertex: qe.ToPredicateVertex(v)}
-				next(&pvp)
-				next = pvp.SetNext
-				pattern = v.Edge
-
-			} else if e, ok := pattern.(*ast.EdgePatn); ok && e != nil {
-				pvp := query.PredicateEdgePath{PredicateEdge: qe.ToPredicateEdge(e)}
-				if e.Body != nil {
-					pvp.SetLength(e.Body.LengthMinimum, e.Body.LengthMaximum)
-				}
-				next(&pvp)
-				next = pvp.SetNext
-				pattern = e.Vertex
-				// don't like making the WhereStmt a pattern
-			} else if w, ok := pattern.(*ast.WhereStmt); ok && w != nil {
-				//todo this might not be right
-				qp.Where = w
-				break
-			} else {
-				break
-			}
-		}
-	}
-	return arr, nil
 }
 
 func IsPattern(item ast.Stmt) (ast.Patn, bool) {
