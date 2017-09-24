@@ -1,7 +1,6 @@
 package cypher
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/RossMerr/Caudex.Graph/enumerables"
@@ -76,20 +75,15 @@ func (qe Engine) Parse(q string) (*query.Query, error) {
 }
 
 func (qe Engine) Filter(i query.IteratorFrontier, part *QueryPart) (enumerables.Iterator, error) {
-	// inter := part.Where
-	// if where, ok := inter.(ast.NonTerminalExpr); ok {
-	// 	match := false
-	// 	return func() (interface{}, bool) {
-	// 		for frontier, ok := i(); ok; frontier, ok = i() {
-	// 			v := frontier.Peek()
-	// 			if match = where.Interpret(v, nil); match {
-	// 				return v, ok
-	// 			}
-	// 		}
-	// 		return nil, false
-	// 	}, nil
-	// }
-	return nil, fmt.Errorf("")
+	return func() (interface{}, bool) {
+		for frontier, ok := i(); ok; frontier, ok = i() {
+			v := frontier.Peek()
+			//if match = where.Interpret(v,); match {
+			return v, ok
+			//}
+		}
+		return nil, false
+	}, nil
 }
 
 func (qe Engine) toVertices(i enumerables.Iterator) []interface{} {
