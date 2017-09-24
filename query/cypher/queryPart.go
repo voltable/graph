@@ -26,7 +26,6 @@ func NewParts() Parts {
 
 // ToQueryPath converts a cypher.Stmt to a QueryPath the queryPath is used to walk the graph
 func (qq cypherParts) ToQueryPart(stmt ast.Stmt) ([]*QueryPart, error) {
-
 	arr := make([]*QueryPart, 0)
 	q, _ := NewPath()
 	qp := QueryPart{Path: q}
@@ -60,4 +59,17 @@ func (qq cypherParts) ToQueryPart(stmt ast.Stmt) ([]*QueryPart, error) {
 		}
 	}
 	return arr, nil
+}
+
+func IsPattern(item ast.Stmt) (ast.Patn, bool) {
+	if b, ok := item.(*ast.DeleteStmt); ok {
+		return b.Pattern, true
+	} else if b, ok := item.(*ast.CreateStmt); ok {
+		return b.Pattern, true
+	} else if b, ok := item.(*ast.OptionalMatchStmt); ok {
+		return b.Pattern, true
+	} else if b, ok := item.(*ast.MatchStmt); ok {
+		return b.Pattern, true
+	}
+	return nil, false
 }

@@ -2,23 +2,22 @@ package query
 
 import (
 	"github.com/RossMerr/Caudex.Graph/storage"
-	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 // Traversal decides how to excute the query
 type Traversal struct {
-	fetch func(string) (*vertices.Vertex, error)
+	storage storage.Storage
 }
 
 // NewTraversal create a Traversal object used to run the query over the graph
 func NewTraversal(i storage.Storage) *Traversal {
-	return &Traversal{fetch: i.Fetch()}
+	return &Traversal{storage: i}
 }
 
 // Travers run's the query over the graph and returns a new resulting Iterator
 func (t *Traversal) Travers(i IteratorFrontier, path Path) IteratorFrontier {
-	edgePath := NewEdgePath(i, t.fetch)
-	vertexPath := NewVertexPath(i, t.fetch)
+	edgePath := NewEdgePath(i, t.storage.Fetch())
+	vertexPath := NewVertexPath(i, t.storage.Fetch())
 	iterated := false
 	var result interface{}
 

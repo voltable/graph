@@ -5,7 +5,6 @@ import (
 
 	"github.com/RossMerr/Caudex.Graph/enumerables"
 	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
 	"github.com/RossMerr/Caudex.Graph/storage"
 	"github.com/RossMerr/Caudex.Graph/vertices"
@@ -64,7 +63,7 @@ func (qe Engine) Parse(q string) (*query.Query, error) {
 	for _, part := range queryPart {
 		f := qe.toFontier(forEach)
 		f = qe.Traversal.Travers(f, part.Path)
-		forEach, _ = qe.Filter(f, part)
+		forEach, _ = qe.filter(f, part)
 	}
 
 	results := qe.toVertices(forEach)
@@ -74,16 +73,48 @@ func (qe Engine) Parse(q string) (*query.Query, error) {
 
 }
 
-func (qe Engine) Filter(i query.IteratorFrontier, part *QueryPart) (enumerables.Iterator, error) {
+func (qe Engine) filter(i query.IteratorFrontier, part *QueryPart) (enumerables.Iterator, error) {
 	return func() (interface{}, bool) {
 		for frontier, ok := i(); ok; frontier, ok = i() {
-			v := frontier.Peek()
-			//if match = where.Interpret(v,); match {
-			return v, ok
-			//}
+			//part.Path
+			//v := *frontier.Peek()
+			// if where, is := v.(ast.NonTerminalExpr); is {
+			// 	if where.Interpret(v) {
+			// 		return v, true
+			// 	}
+			// }
+			//			return v, ok
+
+			return qe.filterFrontier(i, part.Path, frontier)
 		}
 		return nil, false
 	}, nil
+}
+
+func (qe Engine) filterFrontier(i query.IteratorFrontier, path query.Path, f *query.Frontier) (*vertices.Vertex, bool) {
+
+	edgePath := query.NewEdgePath(i, qe.Storage.Fetch())
+	vertexPath := query.NewVertexPath(i, qe.Storage.Fetch())
+	iterated := false
+	var result interface{}
+	for p := path.Next(); p != nil; p = p.Next() {
+
+		if pv, ok := p.(*query.PredicateVertexPath); ok {
+
+			edgePath = vertexPath.Node(pv.PredicateVertex)
+			result, iterated = edgePath.Iterate()
+
+		} else if pe, ok := p.(*query.PredicateEdgePath); ok {
+			vertexPath = edgePath.Relationship(pe.PredicateEdge)
+			result, iterated = vertexPath.Iterate()
+		}
+		if iterated {
+			if _, is := result.(*query.Frontier); is {
+				return nil, true
+			}
+		}
+	}
+	return nil, false
 }
 
 func (qe Engine) toVertices(i enumerables.Iterator) []interface{} {
@@ -104,17 +135,4 @@ func (qe Engine) toFontier(i enumerables.Iterator) query.IteratorFrontier {
 		}
 		return nil, false
 	}
-}
-
-func IsPattern(item ast.Stmt) (ast.Patn, bool) {
-	if b, ok := item.(*ast.DeleteStmt); ok {
-		return b.Pattern, true
-	} else if b, ok := item.(*ast.CreateStmt); ok {
-		return b.Pattern, true
-	} else if b, ok := item.(*ast.OptionalMatchStmt); ok {
-		return b.Pattern, true
-	} else if b, ok := item.(*ast.MatchStmt); ok {
-		return b.Pattern, true
-	}
-	return nil, false
 }
