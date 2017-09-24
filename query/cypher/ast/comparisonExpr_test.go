@@ -14,26 +14,22 @@ func Test_ComparisonExprInterpret(t *testing.T) {
 	var tests = []struct {
 		c      *ast.ComparisonExpr
 		v      *vertices.Vertex
-		p      *ast.VertexPatn
 		result bool
 		err    string
 	}{
 		{
 			c:      &ast.ComparisonExpr{Comparison: expressions.EQ},
 			v:      &vertices.Vertex{},
-			p:      &ast.VertexPatn{},
 			result: true,
 		},
 		{
 			c:      ast.NewComparisonExpr(expressions.NEQ, ast.PropertyStmt{}, ast.Ident{}),
 			v:      &vertices.Vertex{},
-			p:      &ast.VertexPatn{Variable: "Person"},
-			result: true,
+			result: false,
 		},
 		{
 			c:      ast.NewComparisonExpr(expressions.IS_NULL, ast.PropertyStmt{Variable: "n"}, ast.Ident{}),
 			v:      &vertices.Vertex{},
-			p:      &ast.VertexPatn{Variable: "n"},
 			result: true,
 		},
 		{
@@ -43,7 +39,6 @@ func Test_ComparisonExprInterpret(t *testing.T) {
 				x.SetProperty("Person", "John Smith")
 				return x
 			}(),
-			p:      &ast.VertexPatn{Variable: "n"},
 			result: true,
 		},
 		{
@@ -53,13 +48,12 @@ func Test_ComparisonExprInterpret(t *testing.T) {
 				x.SetProperty("Age", math.MaxInt32-1)
 				return x
 			}(),
-			p:      &ast.VertexPatn{Variable: "n"},
 			result: true,
 		},
 	}
 
 	for i, tt := range tests {
-		result := tt.c.Interpret(tt.v, tt.p)
+		result := tt.c.Interpret(tt.v)
 		if result != tt.result {
 			t.Errorf("%d.  %q: comparison mismatch:\n  exp=%t\n  got=%t\n\n", i, tt.c, tt.result, result)
 		}

@@ -41,12 +41,3 @@ func (t *Traversal) Travers(i IteratorFrontier, path Path) IteratorFrontier {
 		return
 	}
 }
-
-// ToVertices return the Vertices from the IteratorFrontier
-func (t *Traversal) ToVertices(i IteratorFrontier) []interface{} {
-	results := make([]interface{}, 0)
-	for frontier, ok := i(); ok; frontier, ok = i() {
-		results = append(results, *frontier.Peek())
-	}
-	return results
-}

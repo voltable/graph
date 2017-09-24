@@ -20,8 +20,8 @@ func (b *NotExpr) GetValue() InterpretExpr {
 	return b.value
 }
 
-// Interpret runs the NotExpr over a Vertex and VertexPatn to check for a match
-func (b *NotExpr) Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bool {
+// Interpret runs the NotExpr over a Vertex to check for a match
+func (b *NotExpr) Interpret(vertex *vertices.Vertex) bool {
 	return false
 }
 

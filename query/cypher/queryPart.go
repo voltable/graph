@@ -12,7 +12,7 @@ type Parts interface {
 // QueryPart is one part of a explicitly separate query parts
 type QueryPart struct {
 	Path  query.Path
-	Where ast.Stmt
+	Where *ast.WhereStmt
 }
 
 var _ Parts = (*cypherParts)(nil)

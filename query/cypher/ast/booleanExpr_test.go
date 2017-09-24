@@ -51,7 +51,6 @@ func Test_BooleanExprInterpret(t *testing.T) {
 	var tests = []struct {
 		c      *ast.BooleanExpr
 		v      *vertices.Vertex
-		p      *ast.VertexPatn
 		result bool
 		err    string
 	}{
@@ -60,13 +59,11 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.GT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 10}),
 				ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 1000}),
 			),
-
 			v: func() *vertices.Vertex {
 				x, _ := vertices.NewVertex()
 				x.SetProperty("Age", 100)
 				return x
 			}(),
-			p:      &ast.VertexPatn{Variable: "n"},
 			result: true,
 		},
 		{
@@ -74,13 +71,11 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 10}),
 				ast.NewComparisonExpr(expressions.GT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 1000}),
 			),
-
 			v: func() *vertices.Vertex {
 				x, _ := vertices.NewVertex()
 				x.SetProperty("Age", 100)
 				return x
 			}(),
-			p:      &ast.VertexPatn{Variable: "n"},
 			result: false,
 		},
 		{
@@ -88,13 +83,11 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.GT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 10}),
 				ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 1000}),
 			),
-
 			v: func() *vertices.Vertex {
 				x, _ := vertices.NewVertex()
 				x.SetProperty("Age", 100)
 				return x
 			}(),
-			p:      &ast.VertexPatn{Variable: "n"},
 			result: true,
 		},
 		{
@@ -102,13 +95,11 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 10}),
 				ast.NewComparisonExpr(expressions.GT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 1000}),
 			),
-
 			v: func() *vertices.Vertex {
 				x, _ := vertices.NewVertex()
 				x.SetProperty("Age", 100)
 				return x
 			}(),
-			p:      &ast.VertexPatn{Variable: "n"},
 			result: false,
 		},
 		{
@@ -116,34 +107,29 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 10}),
 				ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 1000}),
 			),
-
 			v: func() *vertices.Vertex {
 				x, _ := vertices.NewVertex()
 				x.SetProperty("Age", 100)
 				return x
 			}(),
-			p:      &ast.VertexPatn{Variable: "n"},
 			result: true,
 		},
-
 		{
 			c: ast.NewBooleanExpr(expressions.XOR,
 				ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 10}),
 				ast.NewComparisonExpr(expressions.GT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 1000}),
 			),
-
 			v: func() *vertices.Vertex {
 				x, _ := vertices.NewVertex()
 				x.SetProperty("Age", 100)
 				return x
 			}(),
-			p:      &ast.VertexPatn{Variable: "n"},
 			result: false,
 		},
 	}
 
 	for i, tt := range tests {
-		result := tt.c.Interpret(tt.v, tt.p)
+		result := tt.c.Interpret(tt.v)
 		if result != tt.result {
 			t.Errorf("%d.  %q: comparison mismatch:\n  exp=%t\n  got=%t\n\n", i, tt.c, tt.result, result)
 		}

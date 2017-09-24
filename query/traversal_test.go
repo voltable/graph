@@ -72,9 +72,17 @@ func Test_Traversal_Travers(t *testing.T) {
 		return &frontier, state
 	}, path)
 
-	results := traversal.ToVertices(iteratorFrontier)
+	results := ToVertices(iteratorFrontier)
 
 	if len(results) != 1 {
 		t.Errorf("Failed to match")
 	}
+}
+
+func ToVertices(i query.IteratorFrontier) []interface{} {
+	results := make([]interface{}, 0)
+	for frontier, ok := i(); ok; frontier, ok = i() {
+		results = append(results, *frontier.Peek())
+	}
+	return results
 }

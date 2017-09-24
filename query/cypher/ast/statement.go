@@ -67,7 +67,7 @@ type NonTerminalExpr interface {
 	GetRight() InterpretExpr
 	SetLeft(x InterpretExpr)
 	SetRight(x InterpretExpr)
-	Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bool
+	Interpret(vertex *vertices.Vertex) bool
 }
 
 // TerminalExpr is a Terminal symbol which cannot be broken down further e.g. a Ident
@@ -77,13 +77,14 @@ type TerminalExpr interface {
 
 	GetValue() InterpretExpr
 	SetValue(x InterpretExpr)
-	Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bool
+	Interpret(vertex *vertices.Vertex) bool
 }
 
 // InterpretExpr is the base interface for the NonTerminalExpr and TerminalExpr
 type InterpretExpr interface {
 	exprNode()
 	interpretNode()
+	//	Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bool
 }
 
 func (Ident) interpretNode() {}

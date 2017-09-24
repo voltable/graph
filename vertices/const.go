@@ -7,11 +7,11 @@ const (
 	// Create operation
 	Create CRUD = iota
 	// Read operation
-	Read CRUD = iota
+	Read
 	// Update operation
-	Update CRUD = iota
+	Update
 	// Delete operation
-	Delete CRUD = iota
+	Delete
 )
 
 // Digraph represents the directed or undirected relationship on a Edge
@@ -22,7 +22,7 @@ const (
 	// Directed graphs have edges with direction. The edges indicate a one-way relationship, in that each edge can only be traversed in a single direction.
 	Directed Digraph = iota
 	// Undirected graphs have edges that do not have a direction. The edges indicate a two-way relationship, in that each edge can be traversed in both directions.
-	Undirected Digraph = iota
+	Undirected
 )
 
 // EmptyString a string that is empty

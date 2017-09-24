@@ -42,12 +42,9 @@ func (b *ComparisonExpr) SetRight(right InterpretExpr) {
 	b.right = right
 }
 
-func resolve(expr InterpretExpr, vertex *vertices.Vertex, pattern *VertexPatn) interface{} {
+func resolve(expr InterpretExpr, vertex *vertices.Vertex) interface{} {
 	if prop, ok := expr.(PropertyStmt); ok {
-		if prop.Variable == pattern.Variable {
-			return vertex.Property(prop.Value)
-		}
-		return false
+		return vertex.Property(prop.Value)
 	} else if prop, ok := expr.(Ident); ok {
 		return prop.Data
 	}
@@ -55,26 +52,25 @@ func resolve(expr InterpretExpr, vertex *vertices.Vertex, pattern *VertexPatn) i
 	return nil
 }
 
-// Interpret runs the ComparisonExpr over a Vertex and VertexPatn to check for a match
+// Interpret runs the ComparisonExpr over a Vertex to check for a match
 //
 // The ComparisonExpr comes from building the AST so it is part of the WHERE clause
 //     WHERE n.age < 30
-// The VertexPatn is part of the a MATCH statement within the query
-//     MATCH (n:Person)
+//
 // Finally the Vertex is the vertex you want to run the Evaluate over to check for a match
-func (b *ComparisonExpr) Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bool {
+func (b *ComparisonExpr) Interpret(vertex *vertices.Vertex) bool {
 
 	left := b.GetLeft()
 	right := b.GetRight()
 
-	if b.Comparison == expressions.EQ {
-		return resolve(left, vertex, pattern) == resolve(right, vertex, pattern)
-	} else if b.Comparison == expressions.NEQ {
-		return resolve(left, vertex, pattern) != resolve(right, vertex, pattern)
-	} else {
-		x := resolve(left, vertex, pattern)
-		y := resolve(right, vertex, pattern)
+	x := resolve(left, vertex)
+	y := resolve(right, vertex)
 
+	if b.Comparison == expressions.EQ {
+		return x == y
+	} else if b.Comparison == expressions.NEQ {
+		return x != y
+	} else {
 		return expressions.Compare(b.Comparison, x, y)
 	}
 }
