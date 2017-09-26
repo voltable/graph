@@ -35,7 +35,7 @@ func (t *VertexPath) Node(predicate PredicateVertex) *EdgePath {
 				vertices := frontier.peek()
 				vertex := vertices[len(vertices)-1]
 				t.explored[vertex.ID()] = true
-				if predicate(vertex) {
+				if predicate(vertex.Vertex) {
 					return frontier, true
 				}
 			}

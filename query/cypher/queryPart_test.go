@@ -21,8 +21,8 @@ func Test_ToQueryPath(t *testing.T) {
 	}
 
 	toPredicateEdge := func(patn *ast.EdgePatn) query.PredicateEdge {
-		return func(e *vertices.Edge) bool {
-			return b
+		return func(e *vertices.Edge) (string, bool) {
+			return "", b
 		}
 	}
 

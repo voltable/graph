@@ -18,7 +18,8 @@ func Test_MatchEdge(t *testing.T) {
 	vertex.AddDirectedEdge(vertexDirection)
 
 	frontier := query.Frontier{}
-	frontier = frontier.Append([]*vertices.Vertex{vertex}, 0)
+	fv := &query.FrontierVertex{Vertex: vertex}
+	frontier = frontier.Append([]*query.FrontierVertex{fv}, 0)
 
 	fetch := func(string) (*vertices.Vertex, error) {
 		return vertex, nil
@@ -29,8 +30,8 @@ func Test_MatchEdge(t *testing.T) {
 		return &frontier, state
 	}, fetch)
 
-	matches := p.Relationship(func(v *vertices.Edge) bool {
-		return true
+	matches := p.Relationship(func(v *vertices.Edge) (string, bool) {
+		return "", true
 	})
 
 	matches.Iterate()

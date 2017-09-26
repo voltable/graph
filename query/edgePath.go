@@ -6,6 +6,8 @@ import (
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
+var emptyString = ""
+
 // EdgePath is used to store data from the result of a Uniform Cost Search over edges.
 //
 // It only acts as one part of a Path from a walk in the graph you want to traverse acting on the edge.
@@ -34,13 +36,14 @@ func (t *EdgePath) Relationship(predicate PredicateEdge) *VertexPath {
 		fetch:    t.fetch,
 		Iterate: func() (frontier *Frontier, ok bool) {
 			for frontier, ok = t.Iterate(); ok; frontier, ok = t.Iterate() {
-				vertices, cost, frontier := frontier.pop()
+				vertices, cost, frontier := frontier.Pop()
 				vertex := vertices[len(vertices)-1]
 				for _, e := range vertex.Edges() {
 					if _, ok := t.explored[e.ID()]; !ok {
-						if predicate(e) {
+						if variable, p := predicate(e); p {
 							if v, err := t.fetch(e.ID()); err == nil {
-								frontier = frontier.Append(append(vertices, v), cost+e.Weight)
+								fv := &FrontierVertex{Vertex: v, Variable: variable}
+								frontier = frontier.Append(append(vertices, fv), cost+e.Weight)
 								sort.Sort(frontier)
 								return &frontier, true
 							}
@@ -55,8 +58,8 @@ func (t *EdgePath) Relationship(predicate PredicateEdge) *VertexPath {
 
 // AllEdges matches all Edge.
 func AllEdges() PredicateEdge {
-	return func(v *vertices.Edge) bool {
-		return true
+	return func(v *vertices.Edge) (string, bool) {
+		return emptyString, true
 	}
 }
 

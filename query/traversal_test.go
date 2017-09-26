@@ -43,7 +43,8 @@ func Test_Traversal_Travers(t *testing.T) {
 	traversal := query.NewTraversal(NewFakeStorage(vertex))
 
 	frontier := query.Frontier{}
-	frontier = frontier.Append([]*vertices.Vertex{vertex}, 0)
+	fv := &query.FrontierVertex{Vertex: vertex}
+	frontier = frontier.Append([]*query.FrontierVertex{fv}, 0)
 
 	state := false
 
@@ -59,8 +60,8 @@ func Test_Traversal_Travers(t *testing.T) {
 	}
 
 	toPredicateEdge := func(patn *ast.EdgePatn) query.PredicateEdge {
-		return func(e *vertices.Edge) bool {
-			return false
+		return func(e *vertices.Edge) (string, bool) {
+			return "", false
 		}
 	}
 	vertexPath := &query.PredicateVertexPath{PredicateVertex: toPredicateVertex(vertexPatn)}

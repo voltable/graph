@@ -32,17 +32,17 @@ func (*EdgePatn) patnNode() {}
 // ToPredicateEdge creates a PredicateEdge out of the EdgePatn
 func (patn *EdgePatn) ToPredicateEdge() query.PredicateEdge {
 	relationshipType := strings.ToLower(patn.Body.Type)
-	return func(v *vertices.Edge) bool {
+	return func(v *vertices.Edge) (string, bool) {
 		if relationshipType != v.RelationshipType() {
-			return false
+			return patn.Body.Variable, false
 		}
 
 		for key, value := range patn.Body.Properties {
 			if v.Property(key) != value {
-				return false
+				return patn.Body.Variable, false
 			}
 		}
 
-		return true
+		return patn.Body.Variable, true
 	}
 }

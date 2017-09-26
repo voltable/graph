@@ -1,6 +1,7 @@
 package cypher
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/RossMerr/Caudex.Graph/enumerables"
@@ -76,45 +77,17 @@ func (qe Engine) Parse(q string) (*query.Query, error) {
 func (qe Engine) filter(i query.IteratorFrontier, part *QueryPart) (enumerables.Iterator, error) {
 	return func() (interface{}, bool) {
 		for frontier, ok := i(); ok; frontier, ok = i() {
-			//part.Path
-			//v := *frontier.Peek()
-			// if where, is := v.(ast.NonTerminalExpr); is {
-			// 	if where.Interpret(v) {
-			// 		return v, true
-			// 	}
-			// }
-			//			return v, ok
+			// We only need the first array of vertices from the frontier as the rest aren't the the optimal path
+			// Need to get the variable on the vertex so I can run the AST over the array
+			vertices, _, _ := frontier.Pop()
+			for _, v := range vertices {
+				fmt.Printf(v.Variable)
+			}
 
-			return qe.filterFrontier(i, part.Path, frontier)
+			return nil, false
 		}
 		return nil, false
 	}, nil
-}
-
-func (qe Engine) filterFrontier(i query.IteratorFrontier, path query.Path, f *query.Frontier) (*vertices.Vertex, bool) {
-
-	edgePath := query.NewEdgePath(i, qe.Storage.Fetch())
-	vertexPath := query.NewVertexPath(i, qe.Storage.Fetch())
-	iterated := false
-	var result interface{}
-	for p := path.Next(); p != nil; p = p.Next() {
-
-		if pv, ok := p.(*query.PredicateVertexPath); ok {
-
-			edgePath = vertexPath.Node(pv.PredicateVertex)
-			result, iterated = edgePath.Iterate()
-
-		} else if pe, ok := p.(*query.PredicateEdgePath); ok {
-			vertexPath = edgePath.Relationship(pe.PredicateEdge)
-			result, iterated = vertexPath.Iterate()
-		}
-		if iterated {
-			if _, is := result.(*query.Frontier); is {
-				return nil, true
-			}
-		}
-	}
-	return nil, false
 }
 
 func (qe Engine) toVertices(i enumerables.Iterator) []interface{} {

@@ -19,7 +19,8 @@ func Test_MatchVertex(t *testing.T) {
 	vertex.AddDirectedEdge(vertexDirection)
 
 	frontier := query.Frontier{}
-	frontier = frontier.Append([]*vertices.Vertex{vertex}, 0)
+	fv := &query.FrontierVertex{Vertex: vertex}
+	frontier = frontier.Append([]*query.FrontierVertex{fv}, 0)
 
 	p := query.NewVertexPath(func() (item *query.Frontier, ok bool) {
 		state = expressions.XORSwap(state)
