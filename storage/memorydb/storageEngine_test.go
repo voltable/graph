@@ -1,31 +1,40 @@
 package memorydb_test
 
-// func Test_Query(t *testing.T) {
-// 	cypher.RegisterEngine()
-// 	options := graph.NewOptions()
-// 	g, err := memorydb.NewStorageEngine(options)
+import (
+	"testing"
 
-// 	if err != nil {
-// 		t.Errorf("Failed to create the storageEngine %v", err)
-// 	}
+	graph "github.com/RossMerr/Caudex.Graph"
+	"github.com/RossMerr/Caudex.Graph/query/cypher"
+	"github.com/RossMerr/Caudex.Graph/storage/memorydb"
+	"github.com/RossMerr/Caudex.Graph/vertices"
+)
 
-// 	v1, _ := vertices.NewVertex()
-// 	v1.SetLabel("person")
-// 	v1.SetProperty("name", "john smith")
-// 	g.Create(v1)
+func Test_Query(t *testing.T) {
+	cypher.RegisterEngine()
+	options := graph.NewOptions()
+	g, err := memorydb.NewStorageEngine(options)
 
-// 	v2, _ := vertices.NewVertex()
-// 	v2.SetLabel("place")
-// 	v2.SetProperty("name", "london")
-// 	g.Create(v2)
+	if err != nil {
+		t.Errorf("Failed to create the storageEngine %v", err)
+	}
 
-// 	q, err := g.Query("MATCH (n:Person) WHERE n.name = 'john smith'")
+	v1, _ := vertices.NewVertex()
+	v1.SetLabel("person")
+	v1.SetProperty("name", "john smith")
+	g.Create(v1)
 
-// 	if err != nil {
-// 		t.Errorf("Bad Query")
-// 	}
+	v2, _ := vertices.NewVertex()
+	v2.SetLabel("place")
+	v2.SetProperty("name", "london")
+	g.Create(v2)
 
-// 	if len(q.Results) != 1 {
-// 		t.Errorf("Failed to match expected 1 got %v", len(q.Results))
-// 	}
-// }
+	q, err := g.Query("MATCH (n:Person) WHERE n.name = 'john smith'")
+
+	if err != nil {
+		t.Errorf("Bad Query")
+	}
+
+	if len(q.Results) != 1 {
+		t.Errorf("Failed to match expected 1 got %v", len(q.Results))
+	}
+}

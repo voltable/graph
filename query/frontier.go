@@ -26,6 +26,7 @@ func (f Frontier) Pop() ([]*FrontierVertex, float32, Frontier) {
 	return f[0].Vertices, f[0].Cost, f[1:]
 }
 
+// TODO need todo somthing to remove deadends for explored frontierPath's
 // Append adds the vertices onto the frontier
 func (f Frontier) Append(vertices []*FrontierVertex, cost float32) Frontier {
 	f = append(f, &frontierPath{vertices, cost})

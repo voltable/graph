@@ -78,10 +78,11 @@ func (qe Engine) filter(i query.IteratorFrontier, part *QueryPart) (enumerables.
 	return func() (interface{}, bool) {
 		for frontier, ok := i(); ok; frontier, ok = i() {
 			// We only need the first array of vertices from the frontier as the rest aren't the the optimal path
-			// Need to get the variable on the vertex so I can run the AST over the array
 			vertices, _, _ := frontier.Pop()
 			for _, v := range vertices {
+				// TODO need to get each vertex that makes up the AST now
 				fmt.Printf(v.Variable)
+				return v.Vertex, true
 			}
 
 			return nil, false
