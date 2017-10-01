@@ -15,6 +15,17 @@ type QueryPart struct {
 	Where *ast.WhereStmt
 }
 
+// Predicate gets the Predicate from the query where statment
+func (qp *QueryPart) Predicate() ast.Expr {
+	if qp.Where != nil {
+		if qp.Where.Predicate != nil {
+			return qp.Where.Predicate
+		}
+	}
+
+	return nil
+}
+
 var _ Parts = (*cypherParts)(nil)
 
 type cypherParts struct {

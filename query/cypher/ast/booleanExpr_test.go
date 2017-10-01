@@ -51,6 +51,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 	var tests = []struct {
 		c      *ast.BooleanExpr
 		v      *vertices.Vertex
+		p      string
 		result bool
 		err    string
 	}{
@@ -64,6 +65,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				x.SetProperty("Age", 100)
 				return x
 			}(),
+			p:      "n",
 			result: true,
 		},
 		{
@@ -76,6 +78,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				x.SetProperty("Age", 100)
 				return x
 			}(),
+			p:      "n",
 			result: false,
 		},
 		{
@@ -88,6 +91,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				x.SetProperty("Age", 100)
 				return x
 			}(),
+			p:      "n",
 			result: true,
 		},
 		{
@@ -100,6 +104,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				x.SetProperty("Age", 100)
 				return x
 			}(),
+			p:      "n",
 			result: false,
 		},
 		{
@@ -112,6 +117,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				x.SetProperty("Age", 100)
 				return x
 			}(),
+			p:      "n",
 			result: true,
 		},
 		{
@@ -124,12 +130,13 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				x.SetProperty("Age", 100)
 				return x
 			}(),
+			p:      "n",
 			result: false,
 		},
 	}
 
 	for i, tt := range tests {
-		result := tt.c.Interpret(tt.v)
+		result := tt.c.Interpret(tt.p, tt.v)
 		if result != tt.result {
 			t.Errorf("%d.  %q: comparison mismatch:\n  exp=%t\n  got=%t\n\n", i, tt.c, tt.result, result)
 		}

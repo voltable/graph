@@ -20,6 +20,6 @@ func (p *Ident) SetValue(x interface{}) {
 	p.Data = x
 }
 
-func (p *Ident) Interpret(vertex *vertices.Vertex) interface{} {
+func (p *Ident) Interpret(variable string, vertex *vertices.Vertex) interface{} {
 	return p.Data
 }

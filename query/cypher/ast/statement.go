@@ -43,45 +43,6 @@ type OptionalMatchStmt struct {
 	Next    Stmt
 }
 
-// NonTerminalExpr is a NonTerminal symbol which can still be broken down e.g. a BooleanExpr
-type NonTerminalExpr interface {
-	exprNode()
-	interpretNode()
-
-	GetLeft() InterpretExpr
-	GetRight() InterpretExpr
-	SetLeft(x InterpretExpr)
-	SetRight(x InterpretExpr)
-	//	Interpret(vertex *vertices.Vertex) interface{}
-}
-
-// SingleNonTerminalExpr is a NonTerminal symbol which only can be broken down once e.g. a NotExpr
-type SingleNonTerminalExpr interface {
-	exprNode()
-	interpretNode()
-
-	GetValue() InterpretExpr
-	SetValue(x InterpretExpr)
-	//	Interpret(vertex *vertices.Vertex) interface{}
-}
-
-// TerminalExpr is a Terminal symbol which cannot be broken down further e.g. a Ident
-type TerminalExpr interface {
-	exprNode()
-	interpretNode()
-
-	GetValue() interface{}
-	SetValue(x interface{})
-	//Interpret(vertex *vertices.Vertex) interface{}
-}
-
-// InterpretExpr is the base interface for the NonTerminalExpr and TerminalExpr
-type InterpretExpr interface {
-	exprNode()
-	interpretNode()
-	Interpret(vertex *vertices.Vertex) interface{}
-}
-
 // CreateStmt used to create nodes and relationships.
 type CreateStmt struct {
 	Pattern Patn
@@ -92,6 +53,42 @@ type CreateStmt struct {
 type DeleteStmt struct {
 	Pattern Patn
 	Next    Stmt
+}
+
+// NonTerminalExpr is a NonTerminal symbol which can still be broken down e.g. a BooleanExpr
+type NonTerminalExpr interface {
+	exprNode()
+	interpretNode()
+
+	GetLeft() InterpretExpr
+	GetRight() InterpretExpr
+	SetLeft(x InterpretExpr)
+	SetRight(x InterpretExpr)
+}
+
+// SingleNonTerminalExpr is a NonTerminal symbol which only can be broken down once e.g. a NotExpr
+type SingleNonTerminalExpr interface {
+	exprNode()
+	interpretNode()
+
+	GetValue() InterpretExpr
+	SetValue(x InterpretExpr)
+}
+
+// TerminalExpr is a Terminal symbol which cannot be broken down further e.g. a Ident
+type TerminalExpr interface {
+	exprNode()
+	interpretNode()
+
+	GetValue() interface{}
+	SetValue(x interface{})
+}
+
+// InterpretExpr is the base interface for the NonTerminalExpr and TerminalExpr
+type InterpretExpr interface {
+	exprNode()
+	interpretNode()
+	Interpret(variable string, vertex *vertices.Vertex) interface{}
 }
 
 type PatternStmt interface {

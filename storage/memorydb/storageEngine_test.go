@@ -28,7 +28,7 @@ func Test_Query(t *testing.T) {
 	v2.SetProperty("name", "london")
 	g.Create(v2)
 
-	q, err := g.Query("MATCH (n:Person) WHERE n.name = 'john smith'")
+	q, err := g.Query("MATCH (n:person) WHERE n.name = 'john smith'")
 
 	if err != nil {
 		t.Errorf("Bad Query")

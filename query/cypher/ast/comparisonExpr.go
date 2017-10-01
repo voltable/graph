@@ -48,7 +48,7 @@ func (b *ComparisonExpr) SetRight(right InterpretExpr) {
 //     WHERE n.age < 30
 //
 // Finally the Vertex is the vertex you want to run the Evaluate over to check for a match
-func (b *ComparisonExpr) Interpret(vertex *vertices.Vertex) interface{} {
+func (b *ComparisonExpr) Interpret(variable string, vertex *vertices.Vertex) interface{} {
 
 	left := b.GetLeft()
 	right := b.GetRight()
@@ -57,7 +57,7 @@ func (b *ComparisonExpr) Interpret(vertex *vertices.Vertex) interface{} {
 	if left == nil {
 		x = false
 	} else {
-		x = left.Interpret(vertex)
+		x = left.Interpret(variable, vertex)
 
 	}
 
@@ -65,7 +65,7 @@ func (b *ComparisonExpr) Interpret(vertex *vertices.Vertex) interface{} {
 	if right == nil {
 		y = false
 	} else {
-		y = right.Interpret(vertex)
+		y = right.Interpret(variable, vertex)
 	}
 
 	if b.Comparison == expressions.EQ {

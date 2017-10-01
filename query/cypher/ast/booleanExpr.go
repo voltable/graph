@@ -43,13 +43,20 @@ func (b *BooleanExpr) SetRight(right InterpretExpr) {
 }
 
 // Interpret runs the BooleanExpr over a Vertex to check for a match
-func (b *BooleanExpr) Interpret(vertex *vertices.Vertex) interface{} {
-
+func (b *BooleanExpr) Interpret(variable string, vertex *vertices.Vertex) interface{} {
 	left := b.GetLeft()
 	right := b.GetRight()
 
-	x := left.Interpret(vertex).(bool)
-	y := right.Interpret(vertex).(bool)
+	x := false
+	if left != nil {
+		x = left.Interpret(variable, vertex).(bool)
+	}
+
+	y := false
+	if right != nil {
+		y = right.Interpret(variable, vertex).(bool)
+	}
+
 	if b.Boolean == expressions.AND {
 		return x && y
 	}
