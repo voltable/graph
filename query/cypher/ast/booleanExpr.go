@@ -43,22 +43,21 @@ func (b *BooleanExpr) SetRight(right InterpretExpr) {
 }
 
 // Interpret runs the BooleanExpr over a Vertex to check for a match
-func (b *BooleanExpr) Interpret(vertex *vertices.Vertex) bool {
+func (b *BooleanExpr) Interpret(vertex *vertices.Vertex) interface{} {
 
 	left := b.GetLeft()
 	right := b.GetRight()
-	if l, ok := left.(NonTerminalExpr); ok {
-		if r, ok := right.(NonTerminalExpr); ok {
-			if b.Boolean == expressions.AND {
-				return l.Interpret(vertex) && r.Interpret(vertex)
-			}
-			if b.Boolean == expressions.OR {
-				return l.Interpret(vertex) || r.Interpret(vertex)
-			}
-			if b.Boolean == expressions.XOR {
-				return expressions.XORExclusive(l.Interpret(vertex), r.Interpret(vertex))
-			}
-		}
+
+	x := left.Interpret(vertex).(bool)
+	y := right.Interpret(vertex).(bool)
+	if b.Boolean == expressions.AND {
+		return x && y
+	}
+	if b.Boolean == expressions.OR {
+		return x || y
+	}
+	if b.Boolean == expressions.XOR {
+		return expressions.XORExclusive(x, y)
 	}
 
 	return false

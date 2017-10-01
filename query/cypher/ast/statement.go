@@ -22,13 +22,7 @@ type BinaryExpr struct {
 	Right Expr // right operand
 }
 
-// PropertyStmt represents a node property.
-type PropertyStmt struct {
-	Variable string
-	Value    string
-}
-
-func (PropertyStmt) interpretNode() {}
+func (BinaryExpr) exprNode() {}
 
 // WhereStmt used to adds constraints to the patterns in a MATCH or OPTIONAL MATCH clause or filters the results of a WITH clause.
 type WhereStmt struct {
@@ -36,15 +30,6 @@ type WhereStmt struct {
 }
 
 func (*WhereStmt) patnNode() {}
-
-// Ident used to hold anu object or nil
-type Ident struct {
-	Data interface{} // denoted object; or nil
-}
-
-func (BinaryExpr) exprNode()   {}
-func (PropertyStmt) exprNode() {}
-func (Ident) exprNode()        {}
 
 // MatchStmt used to search for the pattern described in it.
 type MatchStmt struct {
@@ -67,7 +52,17 @@ type NonTerminalExpr interface {
 	GetRight() InterpretExpr
 	SetLeft(x InterpretExpr)
 	SetRight(x InterpretExpr)
-	Interpret(vertex *vertices.Vertex) bool
+	//	Interpret(vertex *vertices.Vertex) interface{}
+}
+
+// SingleNonTerminalExpr is a NonTerminal symbol which only can be broken down once e.g. a NotExpr
+type SingleNonTerminalExpr interface {
+	exprNode()
+	interpretNode()
+
+	GetValue() InterpretExpr
+	SetValue(x InterpretExpr)
+	//	Interpret(vertex *vertices.Vertex) interface{}
 }
 
 // TerminalExpr is a Terminal symbol which cannot be broken down further e.g. a Ident
@@ -75,19 +70,17 @@ type TerminalExpr interface {
 	exprNode()
 	interpretNode()
 
-	GetValue() InterpretExpr
-	SetValue(x InterpretExpr)
-	Interpret(vertex *vertices.Vertex) bool
+	GetValue() interface{}
+	SetValue(x interface{})
+	//Interpret(vertex *vertices.Vertex) interface{}
 }
 
 // InterpretExpr is the base interface for the NonTerminalExpr and TerminalExpr
 type InterpretExpr interface {
 	exprNode()
 	interpretNode()
-	//	Interpret(vertex *vertices.Vertex, pattern *VertexPatn) bool
+	Interpret(vertex *vertices.Vertex) interface{}
 }
-
-func (Ident) interpretNode() {}
 
 // CreateStmt used to create nodes and relationships.
 type CreateStmt struct {

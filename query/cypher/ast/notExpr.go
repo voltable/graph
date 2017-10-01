@@ -7,7 +7,7 @@ type NotExpr struct {
 	value InterpretExpr // left operand
 }
 
-var _ TerminalExpr = (*NotExpr)(nil)
+var _ SingleNonTerminalExpr = (*NotExpr)(nil)
 
 func (NotExpr) exprNode()      {}
 func (NotExpr) interpretNode() {}
@@ -21,7 +21,7 @@ func (b *NotExpr) GetValue() InterpretExpr {
 }
 
 // Interpret runs the NotExpr over a Vertex to check for a match
-func (b *NotExpr) Interpret(vertex *vertices.Vertex) bool {
+func (b *NotExpr) Interpret(vertex *vertices.Vertex) interface{} {
 	return false
 }
 

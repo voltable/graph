@@ -23,17 +23,17 @@ func Test_ComparisonExprInterpret(t *testing.T) {
 			result: true,
 		},
 		{
-			c:      ast.NewComparisonExpr(expressions.NEQ, ast.PropertyStmt{}, ast.Ident{}),
+			c:      ast.NewComparisonExpr(expressions.NEQ, &ast.PropertyStmt{}, &ast.Ident{}),
 			v:      &vertices.Vertex{},
 			result: false,
 		},
 		{
-			c:      ast.NewComparisonExpr(expressions.IS_NULL, ast.PropertyStmt{Variable: "n"}, ast.Ident{}),
+			c:      ast.NewComparisonExpr(expressions.IS_NULL, &ast.PropertyStmt{Variable: "n"}, &ast.Ident{}),
 			v:      &vertices.Vertex{},
 			result: true,
 		},
 		{
-			c: ast.NewComparisonExpr(expressions.IS_NOT_NULL, ast.PropertyStmt{Variable: "n", Value: "Person"}, ast.Ident{}),
+			c: ast.NewComparisonExpr(expressions.IS_NOT_NULL, &ast.PropertyStmt{Variable: "n", Value: "Person"}, &ast.Ident{}),
 			v: func() *vertices.Vertex {
 				x, _ := vertices.NewVertex()
 				x.SetProperty("Person", "John Smith")
@@ -42,7 +42,7 @@ func Test_ComparisonExprInterpret(t *testing.T) {
 			result: true,
 		},
 		{
-			c: ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: math.MaxInt32}),
+			c: ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: math.MaxInt32}),
 			v: func() *vertices.Vertex {
 				x, _ := vertices.NewVertex()
 				x.SetProperty("Age", math.MaxInt32-1)
@@ -55,7 +55,7 @@ func Test_ComparisonExprInterpret(t *testing.T) {
 	for i, tt := range tests {
 		result := tt.c.Interpret(tt.v)
 		if result != tt.result {
-			t.Errorf("%d.  %q: comparison mismatch:\n  exp=%t\n  got=%t\n\n", i, tt.c, tt.result, result)
+			t.Errorf("%d. %q: comparison mismatch:\n  exp=%t\n  got=%t\n\n", i, tt.c, tt.result, result)
 		}
 	}
 }

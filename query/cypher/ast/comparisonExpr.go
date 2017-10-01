@@ -42,29 +42,31 @@ func (b *ComparisonExpr) SetRight(right InterpretExpr) {
 	b.right = right
 }
 
-func resolve(expr InterpretExpr, vertex *vertices.Vertex) interface{} {
-	if prop, ok := expr.(PropertyStmt); ok {
-		return vertex.Property(prop.Value)
-	} else if prop, ok := expr.(Ident); ok {
-		return prop.Data
-	}
-
-	return nil
-}
-
 // Interpret runs the ComparisonExpr over a Vertex to check for a match
 //
 // The ComparisonExpr comes from building the AST so it is part of the WHERE clause
 //     WHERE n.age < 30
 //
 // Finally the Vertex is the vertex you want to run the Evaluate over to check for a match
-func (b *ComparisonExpr) Interpret(vertex *vertices.Vertex) bool {
+func (b *ComparisonExpr) Interpret(vertex *vertices.Vertex) interface{} {
 
 	left := b.GetLeft()
 	right := b.GetRight()
 
-	x := resolve(left, vertex)
-	y := resolve(right, vertex)
+	var x interface{}
+	if left == nil {
+		x = false
+	} else {
+		x = left.Interpret(vertex)
+
+	}
+
+	var y interface{}
+	if right == nil {
+		y = false
+	} else {
+		y = right.Interpret(vertex)
+	}
 
 	if b.Comparison == expressions.EQ {
 		return x == y

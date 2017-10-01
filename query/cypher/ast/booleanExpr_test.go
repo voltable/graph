@@ -56,8 +56,8 @@ func Test_BooleanExprInterpret(t *testing.T) {
 	}{
 		{
 			c: ast.NewBooleanExpr(expressions.AND,
-				ast.NewComparisonExpr(expressions.GT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 10}),
-				ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 1000}),
+				ast.NewComparisonExpr(expressions.GT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 10}),
+				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
 			v: func() *vertices.Vertex {
 				x, _ := vertices.NewVertex()
@@ -68,8 +68,8 @@ func Test_BooleanExprInterpret(t *testing.T) {
 		},
 		{
 			c: ast.NewBooleanExpr(expressions.AND,
-				ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 10}),
-				ast.NewComparisonExpr(expressions.GT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 1000}),
+				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 10}),
+				ast.NewComparisonExpr(expressions.GT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
 			v: func() *vertices.Vertex {
 				x, _ := vertices.NewVertex()
@@ -80,8 +80,8 @@ func Test_BooleanExprInterpret(t *testing.T) {
 		},
 		{
 			c: ast.NewBooleanExpr(expressions.OR,
-				ast.NewComparisonExpr(expressions.GT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 10}),
-				ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 1000}),
+				ast.NewComparisonExpr(expressions.GT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 10}),
+				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
 			v: func() *vertices.Vertex {
 				x, _ := vertices.NewVertex()
@@ -92,8 +92,8 @@ func Test_BooleanExprInterpret(t *testing.T) {
 		},
 		{
 			c: ast.NewBooleanExpr(expressions.OR,
-				ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 10}),
-				ast.NewComparisonExpr(expressions.GT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 1000}),
+				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 10}),
+				ast.NewComparisonExpr(expressions.GT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
 			v: func() *vertices.Vertex {
 				x, _ := vertices.NewVertex()
@@ -104,8 +104,8 @@ func Test_BooleanExprInterpret(t *testing.T) {
 		},
 		{
 			c: ast.NewBooleanExpr(expressions.XOR,
-				ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 10}),
-				ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 1000}),
+				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 10}),
+				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
 			v: func() *vertices.Vertex {
 				x, _ := vertices.NewVertex()
@@ -116,8 +116,8 @@ func Test_BooleanExprInterpret(t *testing.T) {
 		},
 		{
 			c: ast.NewBooleanExpr(expressions.XOR,
-				ast.NewComparisonExpr(expressions.LT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 10}),
-				ast.NewComparisonExpr(expressions.GT, ast.PropertyStmt{Variable: "n", Value: "Age"}, ast.Ident{Data: 1000}),
+				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 10}),
+				ast.NewComparisonExpr(expressions.GT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
 			v: func() *vertices.Vertex {
 				x, _ := vertices.NewVertex()

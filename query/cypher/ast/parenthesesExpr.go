@@ -1,5 +1,7 @@
 package ast
 
+import "github.com/RossMerr/Caudex.Graph/vertices"
+
 type ParenthesesExpr struct {
 	Parentheses
 }
@@ -9,6 +11,10 @@ var _ InterpretExpr = (*ParenthesesExpr)(nil)
 
 func (ParenthesesExpr) exprNode()      {}
 func (ParenthesesExpr) interpretNode() {}
+
+func (p *ParenthesesExpr) Interpret(vertex *vertices.Vertex) interface{} {
+	return nil
+}
 
 func ParenthesesPrecedence(item ParenthesesExpr) int {
 	if item.Parentheses == LPAREN {

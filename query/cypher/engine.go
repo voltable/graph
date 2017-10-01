@@ -76,11 +76,14 @@ func (qe Engine) Parse(q string) (*query.Query, error) {
 
 func (qe Engine) filter(i query.IteratorFrontier, part *QueryPart) (enumerables.Iterator, error) {
 	return func() (interface{}, bool) {
+		//	inter, _ := part.Where.Predicate.(ast.InterpretExpr)
 		for frontier, ok := i(); ok; frontier, ok = i() {
 			// We only need the first array of vertices from the frontier as the rest aren't the the optimal path
 			vertices, _, _ := frontier.Pop()
 			for _, v := range vertices {
 				// TODO need to get each vertex that makes up the AST now
+				// need todo a variable check on the vertex and statments of the AST
+				//inter.Interpret(v.Vertex)
 				fmt.Printf(v.Variable)
 				return v.Vertex, true
 			}
@@ -90,6 +93,18 @@ func (qe Engine) filter(i query.IteratorFrontier, part *QueryPart) (enumerables.
 		return nil, false
 	}, nil
 }
+
+// func (qe Engine) checkAST(expr ast.Expr, v vertices.Vertex) bool {
+// 	if _, ok := expr.(ast.InterpretExpr); ok {
+// 		if terminal, ok := expr.(ast.TerminalExpr); ok {
+// 			//	terminal.GetValue
+// 		} else if nonTerminal, ok := expr.(ast.NonTerminalExpr); ok {
+// 			//	return checkAST(nonTerminal.GetLeft(), v)
+// 		}
+
+// 	}
+// 	return false
+// }
 
 func (qe Engine) toVertices(i enumerables.Iterator) []interface{} {
 	results := make([]interface{}, 0)
