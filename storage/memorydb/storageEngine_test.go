@@ -55,10 +55,6 @@ func Test_Query(t *testing.T) {
 			t.Errorf("%d. Bad Query \n%v", i, tt.query)
 		}
 
-		if len(q.Results) != len(tt.matching) {
-			t.Errorf("%d. expected %d got %d", i, len(tt.matching), len(q.Results))
-		}
-
 		for ii, r := range q.Results {
 			match := false
 			for _, m := range tt.matching {
