@@ -22,6 +22,21 @@ func Test_Query(t *testing.T) {
 		{
 			matching: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
+				return arr
+			}(),
+			nonMatching: func() []*vertices.Vertex {
+				arr := make([]*vertices.Vertex, 0, 0)
+				v2, _ := vertices.NewVertex()
+				v2.SetLabel("person")
+				v2.SetProperty("name", "foo bar")
+				arr = append(arr, v2)
+				return arr
+			}(),
+			query: "MATCH (n:person) WHERE n.name = 'john smith'",
+		},
+		{
+			matching: func() []*vertices.Vertex {
+				arr := make([]*vertices.Vertex, 0, 0)
 				v1, _ := vertices.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "john smith")
@@ -38,6 +53,111 @@ func Test_Query(t *testing.T) {
 			}(),
 			query: "MATCH (n:person) WHERE n.name = 'john smith'",
 		},
+		{
+			matching: func() []*vertices.Vertex {
+				arr := make([]*vertices.Vertex, 0, 0)
+				v1, _ := vertices.NewVertex()
+				v1.SetLabel("person")
+				v1.SetProperty("name", "john smith")
+				arr = append(arr, v1)
+
+				v2, _ := vertices.NewVertex()
+				v2.SetLabel("person")
+				v2.SetProperty("name", "john smith")
+				arr = append(arr, v2)
+				return arr
+			}(),
+			nonMatching: func() []*vertices.Vertex {
+				arr := make([]*vertices.Vertex, 0, 0)
+				v2, _ := vertices.NewVertex()
+				v2.SetLabel("person")
+				v2.SetProperty("name", "foo bar")
+				arr = append(arr, v2)
+				return arr
+			}(),
+			query: "MATCH (n:person) WHERE n.name = 'john smith'",
+		},
+		{
+			matching: func() []*vertices.Vertex {
+				arr := make([]*vertices.Vertex, 0, 0)
+				v1, _ := vertices.NewVertex()
+				v1.SetLabel("person")
+				v1.SetProperty("name", "john smith")
+				arr = append(arr, v1)
+
+				v2, _ := vertices.NewVertex()
+				v2.SetLabel("person")
+				v2.SetProperty("location", "london")
+				arr = append(arr, v2)
+				return arr
+			}(),
+			nonMatching: func() []*vertices.Vertex {
+				arr := make([]*vertices.Vertex, 0, 0)
+				v2, _ := vertices.NewVertex()
+				v2.SetLabel("person")
+				v2.SetProperty("name", "foo bar")
+				arr = append(arr, v2)
+				return arr
+			}(),
+			query: "MATCH (n:person) WHERE n.name = 'john smith' OR n.location = 'london'",
+		},
+		{
+			matching: func() []*vertices.Vertex {
+				arr := make([]*vertices.Vertex, 0, 0)
+				v1, _ := vertices.NewVertex()
+				v1.SetLabel("person")
+				v1.SetProperty("name", "john smith")
+				arr = append(arr, v1)
+
+				return arr
+			}(),
+			nonMatching: func() []*vertices.Vertex {
+				arr := make([]*vertices.Vertex, 0, 0)
+
+				v1, _ := vertices.NewVertex()
+				v1.SetLabel("person")
+				v1.SetProperty("name", "foo bar")
+				arr = append(arr, v1)
+
+				v2, _ := vertices.NewVertex()
+				v2.SetLabel("location")
+				v2.SetProperty("address", "london")
+				arr = append(arr, v2)
+				return arr
+			}(),
+			query: "MATCH (n:person) WHERE n.name = 'john smith' OR n.location = 'london'",
+		},
+		{
+			matching: func() []*vertices.Vertex {
+				arr := make([]*vertices.Vertex, 0, 0)
+				v1, _ := vertices.NewVertex()
+				v1.SetLabel("person")
+				v1.SetProperty("name", "john smith")
+				arr = append(arr, v1)
+
+				v2, _ := vertices.NewVertex()
+				v2.SetLabel("person")
+				v2.SetProperty("age", 18)
+				arr = append(arr, v2)
+
+				return arr
+			}(),
+			nonMatching: func() []*vertices.Vertex {
+				arr := make([]*vertices.Vertex, 0, 0)
+
+				v1, _ := vertices.NewVertex()
+				v1.SetLabel("person")
+				v1.SetProperty("name", "foo bar")
+				arr = append(arr, v1)
+
+				v2, _ := vertices.NewVertex()
+				v2.SetLabel("location")
+				v2.SetProperty("address", "london")
+				arr = append(arr, v2)
+				return arr
+			}(),
+			query: "MATCH (n:person) WHERE n.name = 'john smith' OR n.age = 18",
+		},
 	}
 
 	for i, tt := range tests {
@@ -53,6 +173,10 @@ func Test_Query(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("%d. Bad Query \n%v", i, tt.query)
+		}
+
+		if len(q.Results) != len(tt.matching) {
+			t.Errorf("%d. expected %d got %d", i, len(tt.matching), len(q.Results))
 		}
 
 		for ii, r := range q.Results {
