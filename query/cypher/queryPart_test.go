@@ -3,6 +3,7 @@ package cypher_test
 import (
 	"testing"
 
+	"github.com/RossMerr/Caudex.Graph/expressions"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
@@ -12,8 +13,10 @@ import (
 func Test_ToQueryPath(t *testing.T) {
 	edgePatn := &ast.EdgePatn{Body: &ast.EdgeBodyStmt{LengthMinimum: 2, LengthMaximum: 5}}
 	vertexPatn := &ast.VertexPatn{Variable: "bar", Edge: edgePatn}
-	var b bool
+	wherePatn := &ast.WhereStmt{Predicate: ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"})}
+	match := &ast.MatchStmt{Pattern: vertexPatn, Next: wherePatn}
 
+	var b bool
 	toPredicateVertex := func(*ast.VertexPatn) query.PredicateVertex {
 		return func(v *vertices.Vertex) bool {
 			return b
@@ -31,8 +34,14 @@ func Test_ToQueryPath(t *testing.T) {
 	vertexPath.SetNext(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(edgePatn)})
 	want.SetNext(vertexPath)
 
-	parts, _ := cypher.NewParts().ToQueryPart(&ast.MatchStmt{Pattern: vertexPatn})
-	got := parts[0].Path
+	parts, _ := cypher.NewParts().ToQueryPart(match)
+	partOne := parts[0]
+
+	if partOne.Where == nil {
+		t.Errorf("Where statment not matched")
+	}
+
+	got := partOne.Path
 	v, _ := got.Next().(query.VertexNext)
 	if v == nil {
 		t.Errorf("VertexNext")

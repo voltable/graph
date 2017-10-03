@@ -62,19 +62,3 @@ func AllEdges() PredicateEdge {
 		return emptyString, true
 	}
 }
-
-// ToSlice returns the final matching Vertexs of the query to a slice
-// func (t *EdgePath) ToSlice() []*vertices.Vertex {
-
-// 	slice := []*vertices.Vertex{}
-// 	next := t.Iterate()
-// 	for item, ok := next(); ok; item, ok = next() {
-// 		if frontier, is := item.(Frontier); is {
-// 			vertices, _, _ := frontier.pop()
-// 			vertex := vertices[len(vertices)-1]
-// 			slice = append(slice, vertex)
-
-// 		}
-// 	}
-// 	return slice
-// }

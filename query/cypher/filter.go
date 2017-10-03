@@ -25,8 +25,8 @@ func NewFilter() *Filter {
 func (qe Filter) Filter(i query.IteratorFrontier, predicate ast.Expr) enumerables.Iterator {
 	return func() (interface{}, bool) {
 		for frontier, ok := i(); ok; frontier, ok = i() {
-			// We only need the first array of vertices from the frontier as the rest aren't the the optimal path
 			if frontier.Len() > 0 {
+				// We only need the first array of vertices from the frontier as the rest aren't the the optimal path
 				vertices, _, _ := frontier.Pop()
 				for _, v := range vertices {
 					if predicate != nil {
@@ -47,7 +47,8 @@ func (qe Filter) Filter(i query.IteratorFrontier, predicate ast.Expr) enumerable
 // ExpressionEvaluator checks the vertex pass the where part of the AST
 func (qe Filter) ExpressionEvaluator(expr ast.Expr, variable string, v *vertices.Vertex) bool {
 	if inter, ok := expr.(ast.InterpretExpr); ok {
-		if result, ok := inter.Interpret(variable, v).(bool); ok {
+		result := inter.Interpret(variable, v)
+		if result, ok := result.(bool); ok {
 			return result
 		}
 	}

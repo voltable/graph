@@ -17,12 +17,14 @@ func Test_Filter(t *testing.T) {
 	var tests = []struct {
 		iterator  query.IteratorFrontier
 		predicate ast.Expr
+		count     int
 	}{
 		{
 			iterator: func() (*query.Frontier, bool) {
 				return nil, false
 			},
 			predicate: nil,
+			count:     0,
 		},
 		{
 			iterator: func() (*query.Frontier, bool) {
@@ -30,6 +32,7 @@ func Test_Filter(t *testing.T) {
 				return &f, true
 			},
 			predicate: ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}),
+			count:     0,
 		},
 		{
 			iterator: func() (*query.Frontier, bool) {
@@ -40,6 +43,7 @@ func Test_Filter(t *testing.T) {
 				return &f, state
 			},
 			predicate: ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}),
+			count:     1,
 		},
 		{
 			iterator: func() (*query.Frontier, bool) {
@@ -50,18 +54,22 @@ func Test_Filter(t *testing.T) {
 				return &f, state
 			},
 			predicate: nil,
+			count:     1,
 		},
 	}
 
 	for i, tt := range tests {
 		result := filter.Filter(tt.iterator, tt.predicate)
-
+		count := 0
 		for v, ok := result(); ok; v, ok = result() {
+			count++
 			if v == nil {
 				t.Errorf("%d %+v", i, v)
 			}
 		}
-
+		if count != tt.count {
+			t.Errorf("%d. expected %d got %d", i, tt.count, count)
+		}
 	}
 }
 

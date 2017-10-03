@@ -11,48 +11,10 @@ type Expr interface {
 	exprNode()
 }
 
-// BlockExpr represents a block that contains a sequence of expressions where variables can be defined.
-type BlockExpr struct {
-	Expressions []Expr // Gets the expressions in this block.
-}
-
-// A BinaryExpr node represents a binary expression.
-type BinaryExpr struct {
-	Left  Expr // left operand
-	Right Expr // right operand
-}
-
-func (BinaryExpr) exprNode() {}
-
-// WhereStmt used to adds constraints to the patterns in a MATCH or OPTIONAL MATCH clause or filters the results of a WITH clause.
-type WhereStmt struct {
-	Predicate Expr
-}
-
-func (*WhereStmt) patnNode() {}
-
-// MatchStmt used to search for the pattern described in it.
-type MatchStmt struct {
-	Pattern Patn
-	Next    Stmt
-}
-
-// OptionalMatchStmt used to search for the pattern described in it, can match on nil
-type OptionalMatchStmt struct {
-	Pattern Patn
-	Next    Stmt
-}
-
-// CreateStmt used to create nodes and relationships.
-type CreateStmt struct {
-	Pattern Patn
-	Next    Stmt
-}
-
-// DeleteStmt used to delete graph elements — nodes, relationships or paths.
-type DeleteStmt struct {
-	Pattern Patn
-	Next    Stmt
+// Clauses in the Cypher query language.
+type Clauses interface {
+	GetPattern() Patn
+	GetNext() Stmt
 }
 
 // NonTerminalExpr is a NonTerminal symbol which can still be broken down e.g. a BooleanExpr
@@ -94,11 +56,6 @@ type InterpretExpr interface {
 type PatternStmt interface {
 	patternNode()
 }
-
-func (DeleteStmt) patternNode()        {}
-func (CreateStmt) patternNode()        {}
-func (OptionalMatchStmt) patternNode() {}
-func (MatchStmt) patternNode()         {}
 
 // Precedence sorts Expr by their precedence
 func Precedence(item Expr) int {

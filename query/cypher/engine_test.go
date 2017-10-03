@@ -18,7 +18,7 @@ type FakeParser struct {
 	err error
 }
 
-func (p *FakeParser) Parse(r io.Reader) (ast.Stmt, error) {
+func (p *FakeParser) Parse(r io.Reader) (ast.Clauses, error) {
 	return nil, p.err
 }
 
@@ -51,7 +51,7 @@ func NewFakeStorage() storage.Storage {
 type FakeParts struct {
 }
 
-func (s FakeParts) ToQueryPart(stmt ast.Stmt) ([]*cypher.QueryPart, error) {
+func (s FakeParts) ToQueryPart(stmt ast.Clauses) ([]*cypher.QueryPart, error) {
 	return nil, nil
 }
 

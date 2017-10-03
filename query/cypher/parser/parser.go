@@ -30,7 +30,7 @@ type CypherParser struct {
 }
 
 type Parser interface {
-	Parse(r io.Reader) (ast.Stmt, error)
+	Parse(r io.Reader) (ast.Clauses, error)
 }
 
 var _ Parser = (*CypherParser)(nil)
@@ -458,7 +458,7 @@ func (p *CypherParser) where() (ast.Stmt, error) {
 	return nil, nil
 }
 
-func (p *CypherParser) match() (ast.Stmt, error) {
+func (p *CypherParser) match() (ast.Clauses, error) {
 	state := &ast.MatchStmt{}
 	pattern, next, err := p.pattern()
 	if err == nil {
@@ -469,7 +469,7 @@ func (p *CypherParser) match() (ast.Stmt, error) {
 	return nil, err
 }
 
-func (p *CypherParser) optionalMatch() (ast.Stmt, error) {
+func (p *CypherParser) optionalMatch() (ast.Clauses, error) {
 	state := &ast.OptionalMatchStmt{}
 	pattern, next, err := p.pattern()
 	if err == nil {
@@ -520,7 +520,7 @@ func (p *CypherParser) pattern() (ast.Patn, ast.Stmt, error) {
 	return pattern, next, nil
 }
 
-func (p *CypherParser) create() (ast.Stmt, error) {
+func (p *CypherParser) create() (ast.Clauses, error) {
 	state := &ast.CreateStmt{}
 	pattern, next, err := p.pattern()
 	if err == nil {
@@ -531,7 +531,7 @@ func (p *CypherParser) create() (ast.Stmt, error) {
 	return nil, err
 }
 
-func (p *CypherParser) delete() (ast.Stmt, error) {
+func (p *CypherParser) delete() (ast.Clauses, error) {
 	state := &ast.DeleteStmt{}
 	pattern, next, err := p.pattern()
 	if err == nil {
@@ -542,7 +542,7 @@ func (p *CypherParser) delete() (ast.Stmt, error) {
 	return nil, err
 }
 
-func (p *CypherParser) clause() (ast.Stmt, error) {
+func (p *CypherParser) clause() (ast.Clauses, error) {
 	tok, lit := p.scanIgnoreWhitespace()
 
 	if !tok.IsClause() {
@@ -610,7 +610,7 @@ func (p *CypherParser) subClause() (lexer.Token, bool) {
 }
 
 // Parse parses a cypher Clauses statement.
-func (p *CypherParser) Parse(r io.Reader) (ast.Stmt, error) {
+func (p *CypherParser) Parse(r io.Reader) (ast.Clauses, error) {
 	p.s = scanner.NewScanner(r)
 	return p.clause()
 }

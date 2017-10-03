@@ -24,8 +24,8 @@ func Test_Query(t *testing.T) {
 	g.Create(v1)
 
 	v2, _ := vertices.NewVertex()
-	v2.SetLabel("place")
-	v2.SetProperty("name", "london")
+	v2.SetLabel("person")
+	v2.SetProperty("name", "foo bar")
 	g.Create(v2)
 
 	q, err := g.Query("MATCH (n:person) WHERE n.name = 'john smith'")

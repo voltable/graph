@@ -6,7 +6,7 @@ import (
 )
 
 type Parts interface {
-	ToQueryPart(stmt ast.Stmt) ([]*QueryPart, error)
+	ToQueryPart(stmt ast.Clauses) ([]*QueryPart, error)
 }
 
 // QueryPart is one part of a explicitly separate query parts
@@ -36,7 +36,7 @@ func NewParts() Parts {
 }
 
 // ToQueryPath converts a cypher.Stmt to a QueryPath the queryPath is used to walk the graph
-func (qq cypherParts) ToQueryPart(stmt ast.Stmt) ([]*QueryPart, error) {
+func (qq cypherParts) ToQueryPart(stmt ast.Clauses) ([]*QueryPart, error) {
 	arr := make([]*QueryPart, 0)
 	q, _ := NewPath()
 	qp := QueryPart{Path: q}
@@ -50,7 +50,6 @@ func (qq cypherParts) ToQueryPart(stmt ast.Stmt) ([]*QueryPart, error) {
 				next(&pvp)
 				next = pvp.SetNext
 				pattern = v.Edge
-
 			} else if e, ok := pattern.(*ast.EdgePatn); ok && e != nil {
 				pvp := query.PredicateEdgePath{PredicateEdge: e.ToPredicateEdge()}
 				if e.Body != nil {
@@ -59,16 +58,17 @@ func (qq cypherParts) ToQueryPart(stmt ast.Stmt) ([]*QueryPart, error) {
 				next(&pvp)
 				next = pvp.SetNext
 				pattern = e.Vertex
-				// don't like making the WhereStmt a pattern
-			} else if w, ok := pattern.(*ast.WhereStmt); ok && w != nil {
-				//todo this might not be right
-				qp.Where = w
-				break
 			} else {
 				break
 			}
 		}
+
 	}
+
+	if where, ok := stmt.GetNext().(*ast.WhereStmt); ok {
+		qp.Where = where
+	}
+
 	return arr, nil
 }
 
