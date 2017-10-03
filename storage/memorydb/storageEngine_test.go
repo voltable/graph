@@ -1,6 +1,7 @@
 package memorydb_test
 
 import (
+	"reflect"
 	"testing"
 
 	graph "github.com/RossMerr/Caudex.Graph"
@@ -16,16 +17,22 @@ func Test_Query(t *testing.T) {
 	var err error
 
 	var tests = []struct {
-		setup   func()
+		match   []*vertices.Vertex
+		setup   func(...*vertices.Vertex)
 		query   string
 		results int
 	}{
 		{
-			setup: func() {
+			match: func() []*vertices.Vertex {
+				arr := make([]*vertices.Vertex, 0, 0)
 				v1, _ := vertices.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "john smith")
-				g.Create(v1)
+				arr = append(arr, v1)
+				return arr
+			}(),
+			setup: func(c ...*vertices.Vertex) {
+				g.Create(c...)
 
 				v2, _ := vertices.NewVertex()
 				v2.SetLabel("person")
@@ -39,7 +46,7 @@ func Test_Query(t *testing.T) {
 
 	for i, tt := range tests {
 		g, err = memorydb.NewStorageEngine(options)
-		tt.setup()
+		tt.setup(tt.match...)
 		if err != nil {
 			t.Errorf("Failed to create the storageEngine %v", err)
 		}
@@ -56,6 +63,20 @@ func Test_Query(t *testing.T) {
 		reults := len(q.Results)
 		if reults != tt.results {
 			t.Errorf("%d. expected %d got %d", i, tt.results, reults)
+		}
+
+		for ii, r := range q.Results {
+			match := false
+			for _, m := range tt.match {
+				if reflect.DeepEqual(r.(*vertices.Vertex), m) {
+					match = true
+					break
+				}
+			}
+
+			if !match {
+				t.Errorf("%d. result %d not matched \n%+v ", i, ii, r)
+			}
 		}
 	}
 
