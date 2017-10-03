@@ -21,14 +21,10 @@ func Test_MatchEdge(t *testing.T) {
 	fv := &query.FrontierVertex{Vertex: vertex}
 	frontier = frontier.Append([]*query.FrontierVertex{fv}, 0)
 
-	fetch := func(string) (*vertices.Vertex, error) {
-		return vertex, nil
-	}
-
 	p := query.NewEdgePath(func() (item *query.Frontier, ok bool) {
 		state = expressions.XORSwap(state)
 		return &frontier, state
-	}, fetch)
+	}, NewFakeStorage(vertex))
 
 	matches := p.Relationship(func(v *vertices.Edge) (string, bool) {
 		return "", true

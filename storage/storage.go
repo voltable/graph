@@ -7,5 +7,5 @@ import (
 
 type Storage interface {
 	ForEach() enumerables.Iterator
-	Fetch() func(string) (*vertices.Vertex, error)
+	Fetch(string) (*vertices.Vertex, error)
 }

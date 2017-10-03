@@ -3,6 +3,7 @@ package query
 import (
 	"sort"
 
+	"github.com/RossMerr/Caudex.Graph/storage"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
@@ -15,12 +16,12 @@ var emptyString = ""
 type EdgePath struct {
 	Iterate  IteratorFrontier
 	explored map[string]bool
-	fetch    func(string) (*vertices.Vertex, error)
+	storage  storage.Storage
 }
 
 // NewEdgePath constructs a new EdgePath
-func NewEdgePath(i IteratorFrontier, f func(string) (*vertices.Vertex, error)) *EdgePath {
-	return &EdgePath{Iterate: i, fetch: f, explored: make(map[string]bool)}
+func NewEdgePath(i IteratorFrontier, s storage.Storage) *EdgePath {
+	return &EdgePath{Iterate: i, storage: s}
 }
 
 // Relationship returns all edges matching the predicate
@@ -33,7 +34,7 @@ func (t *EdgePath) Relationship(predicate PredicateEdge) *VertexPath {
 
 	return &VertexPath{
 		explored: t.explored,
-		fetch:    t.fetch,
+		storage:  t.storage,
 		Iterate: func() (frontier *Frontier, ok bool) {
 			for frontier, ok = t.Iterate(); ok; frontier, ok = t.Iterate() {
 				vertices, cost, frontier := frontier.Pop()
@@ -41,7 +42,7 @@ func (t *EdgePath) Relationship(predicate PredicateEdge) *VertexPath {
 				for _, e := range vertex.Edges() {
 					if _, ok := t.explored[e.ID()]; !ok {
 						if variable, p := predicate(e); p {
-							if v, err := t.fetch(e.ID()); err == nil {
+							if v, err := t.storage.Fetch(e.ID()); err == nil {
 								fv := &FrontierVertex{Vertex: v, Variable: variable}
 								frontier = frontier.Append(append(vertices, fv), cost+e.Weight)
 								sort.Sort(frontier)

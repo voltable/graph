@@ -18,14 +18,12 @@ func Test_MatchVertex(t *testing.T) {
 	vertexDirection, _ := vertices.NewVertex()
 	vertex.AddDirectedEdge(vertexDirection)
 
-	frontier := query.Frontier{}
-	fv := &query.FrontierVertex{Vertex: vertex}
-	frontier = frontier.Append([]*query.FrontierVertex{fv}, 0)
-
-	p := query.NewVertexPath(func() (item *query.Frontier, ok bool) {
+	iterator := func() (item interface{}, ok bool) {
 		state = expressions.XORSwap(state)
-		return &frontier, state
-	}, nil)
+		return vertex, state
+	}
+
+	p := query.NewVertexPath(iterator, nil)
 
 	matches := p.Node(func(v *vertices.Vertex) bool {
 		if v.Label() != "foo" {

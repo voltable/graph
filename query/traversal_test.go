@@ -16,10 +16,8 @@ type FakeStorage struct {
 	vertex *vertices.Vertex
 }
 
-func (s FakeStorage) Fetch() func(string) (*vertices.Vertex, error) {
-	return func(string) (*vertices.Vertex, error) {
-		return s.vertex, nil
-	}
+func (s FakeStorage) Fetch(string) (*vertices.Vertex, error) {
+	return s.vertex, nil
 }
 
 func (s FakeStorage) ForEach() enumerables.Iterator {
@@ -40,13 +38,11 @@ func Test_Traversal_Travers(t *testing.T) {
 	vertexDirection, _ := vertices.NewVertex()
 	vertex.AddDirectedEdge(vertexDirection)
 
-	traversal := query.NewTraversal(NewFakeStorage(vertex))
-
-	frontier := query.Frontier{}
-	fv := &query.FrontierVertex{Vertex: vertex}
-	frontier = frontier.Append([]*query.FrontierVertex{fv}, 0)
-
 	state := false
+	iterator := func() (item interface{}, ok bool) {
+		state = expressions.XORSwap(state)
+		return vertex, state
+	}
 
 	path, _ := NewPath()
 
@@ -68,10 +64,8 @@ func Test_Traversal_Travers(t *testing.T) {
 	vertexPath.SetNext(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(edgePatn)})
 	path.SetNext(vertexPath)
 
-	iteratorFrontier := traversal.Travers(func() (item *query.Frontier, ok bool) {
-		state = expressions.XORSwap(state)
-		return &frontier, state
-	}, path)
+	traversal := query.NewTraversal(NewFakeStorage(vertex))
+	iteratorFrontier := traversal.Travers(iterator, path)
 
 	results := ToVertices(iteratorFrontier)
 

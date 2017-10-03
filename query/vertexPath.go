@@ -1,6 +1,8 @@
 package query
 
 import (
+	"github.com/RossMerr/Caudex.Graph/enumerables"
+	"github.com/RossMerr/Caudex.Graph/storage"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
@@ -11,12 +13,12 @@ import (
 type VertexPath struct {
 	Iterate  IteratorFrontier
 	explored map[string]bool
-	fetch    func(string) (*vertices.Vertex, error)
+	storage  storage.Storage
 }
 
 // NewVertexPath construts a new VertexPath
-func NewVertexPath(i IteratorFrontier, f func(string) (*vertices.Vertex, error)) *VertexPath {
-	return &VertexPath{explored: make(map[string]bool), fetch: f, Iterate: i}
+func NewVertexPath(i enumerables.Iterator, s storage.Storage) *VertexPath {
+	return &VertexPath{explored: make(map[string]bool), storage: s, Iterate: toFontier(i)}
 }
 
 // Node returns all Verteces matching the predicate
@@ -29,7 +31,7 @@ func (t *VertexPath) Node(predicate PredicateVertex) *EdgePath {
 
 	return &EdgePath{
 		explored: t.explored,
-		fetch:    t.fetch,
+		storage:  t.storage,
 		Iterate: func() (frontier *Frontier, ok bool) {
 			for frontier, ok = t.Iterate(); ok; frontier, ok = t.Iterate() {
 				vertices := frontier.peek()
@@ -48,5 +50,17 @@ func (t *VertexPath) Node(predicate PredicateVertex) *EdgePath {
 func AllVertices() PredicateVertex {
 	return func(v *vertices.Vertex) bool {
 		return true
+	}
+}
+
+func toFontier(i enumerables.Iterator) IteratorFrontier {
+	return func() (*Frontier, bool) {
+		for item, ok := i(); ok; item, ok = i() {
+			if v, is := item.(*vertices.Vertex); is {
+				f := NewFrontier(v)
+				return &f, true
+			}
+		}
+		return nil, false
 	}
 }

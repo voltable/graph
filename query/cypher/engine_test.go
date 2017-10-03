@@ -33,8 +33,8 @@ type FakeTraversal struct {
 type FakeStorage struct {
 }
 
-func (s FakeStorage) Fetch() func(string) (*vertices.Vertex, error) {
-	return nil
+func (s FakeStorage) Fetch(string) (*vertices.Vertex, error) {
+	return nil, nil
 }
 
 func (s FakeStorage) ForEach() enumerables.Iterator {

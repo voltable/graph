@@ -7,7 +7,6 @@ import (
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
 	"github.com/RossMerr/Caudex.Graph/storage"
-	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 func init() {
@@ -63,8 +62,7 @@ func (qe Engine) Parse(q string) (*query.Query, error) {
 
 	forEach := qe.Storage.ForEach()
 	for _, part := range queryPart {
-		f := qe.toFontier(forEach)
-		f = qe.Traversal.Travers(f, part.Path)
+		f := qe.Traversal.Travers(forEach, part.Path)
 		forEach = qe.Filter.Filter(f, part.Predicate())
 	}
 
@@ -81,16 +79,4 @@ func (qe Engine) toVertices(i enumerables.Iterator) []interface{} {
 		results = append(results, item)
 	}
 	return results
-}
-
-func (qe Engine) toFontier(i enumerables.Iterator) query.IteratorFrontier {
-	return func() (*query.Frontier, bool) {
-		for item, ok := i(); ok; item, ok = i() {
-			if v, is := item.(*vertices.Vertex); is {
-				f := query.NewFrontier(v)
-				return &f, true
-			}
-		}
-		return nil, false
-	}
 }

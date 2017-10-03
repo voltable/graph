@@ -100,8 +100,8 @@ func (se *StorageEngine) Query(str string) (*query.Query, error) {
 	return se.engine.Parse(str)
 }
 
-func (se *StorageEngine) Fetch() func(string) (*vertices.Vertex, error) {
-	return se.Find
+func (se *StorageEngine) Fetch(id string) (*vertices.Vertex, error) {
+	return se.Find(id)
 }
 
 func (se *StorageEngine) ForEach() enumerables.Iterator {
