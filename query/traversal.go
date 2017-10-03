@@ -26,11 +26,12 @@ func (t *Traversal) Travers(i enumerables.Iterator, path Path) IteratorFrontier 
 
 	return func() (item *Frontier, ok bool) {
 		for p := path.Next(); p != nil; p = p.Next() {
-			if vertexPath == nil {
-				vertexPath = NewVertexPath(i, t.storage)
-			}
 
 			if pv, ok := p.(*PredicateVertexPath); ok {
+				if vertexPath == nil {
+					vertexPath = NewVertexPath(i, t.storage, pv.Variable)
+				}
+
 				edgePath = vertexPath.Node(pv.PredicateVertex)
 				result, iterated = edgePath.Iterate()
 
@@ -38,6 +39,7 @@ func (t *Traversal) Travers(i enumerables.Iterator, path Path) IteratorFrontier 
 				vertexPath = edgePath.Relationship(pe.PredicateEdge)
 				result, iterated = vertexPath.Iterate()
 			}
+
 			if iterated {
 				if v, is := result.(*Frontier); is {
 					return v, true

@@ -13,6 +13,8 @@ type Patn interface {
 }
 
 type EdgePatn struct {
+	Variable string
+
 	Relationship Digraph
 	Body         *EdgeBodyStmt
 

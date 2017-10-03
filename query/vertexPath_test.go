@@ -23,7 +23,7 @@ func Test_MatchVertex(t *testing.T) {
 		return vertex, state
 	}
 
-	p := query.NewVertexPath(iterator, nil)
+	p := query.NewVertexPath(iterator, nil, "")
 
 	matches := p.Node(func(v *vertices.Vertex) bool {
 		if v.Label() != "foo" {

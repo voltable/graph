@@ -35,6 +35,8 @@ type (
 	PredicateVertexPath struct {
 		PredicateVertex
 		next Path
+
+		Variable string
 	}
 
 	// PredicateEdgePath is the Edge implementation part of the QueryPath sequence
@@ -42,7 +44,8 @@ type (
 		PredicateEdge
 		next Path
 
-		length VariableLength
+		Variable string
+		length   VariableLength
 	}
 
 	// IteratorFrontier is an alias for function to iterate over Frontier.

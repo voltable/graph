@@ -17,8 +17,8 @@ type VertexPath struct {
 }
 
 // NewVertexPath construts a new VertexPath
-func NewVertexPath(i enumerables.Iterator, s storage.Storage) *VertexPath {
-	return &VertexPath{explored: make(map[string]bool), storage: s, Iterate: toFontier(i)}
+func NewVertexPath(i enumerables.Iterator, s storage.Storage, variable string) *VertexPath {
+	return &VertexPath{explored: make(map[string]bool), storage: s, Iterate: toFontier(i, variable)}
 }
 
 // Node returns all Verteces matching the predicate
@@ -53,11 +53,11 @@ func AllVertices() PredicateVertex {
 	}
 }
 
-func toFontier(i enumerables.Iterator) IteratorFrontier {
+func toFontier(i enumerables.Iterator, variable string) IteratorFrontier {
 	return func() (*Frontier, bool) {
 		for item, ok := i(); ok; item, ok = i() {
 			if v, is := item.(*vertices.Vertex); is {
-				f := NewFrontier(v)
+				f := NewFrontier(v, variable)
 				return &f, true
 			}
 		}

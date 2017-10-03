@@ -39,7 +39,7 @@ func Test_Filter(t *testing.T) {
 				state = expressions.XORSwap(state)
 				v, _ := vertices.NewVertex()
 				v.SetProperty("name", "foo")
-				f := query.NewFrontierVariable(v, "n")
+				f := query.NewFrontier(v, "n")
 				return &f, state
 			},
 			predicate: ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}),
@@ -50,7 +50,7 @@ func Test_Filter(t *testing.T) {
 				state = expressions.XORSwap(state)
 				v, _ := vertices.NewVertex()
 				v.SetProperty("name", "foo")
-				f := query.NewFrontierVariable(v, "n")
+				f := query.NewFrontier(v, "n")
 				return &f, state
 			},
 			predicate: nil,

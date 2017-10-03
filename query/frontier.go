@@ -34,15 +34,7 @@ func (f Frontier) Append(vertices []*FrontierVertex, cost float32) Frontier {
 }
 
 // NewFrontier create the Frontier using the inistal Vertex as the root of the graph
-func NewFrontier(v *vertices.Vertex) Frontier {
-	fv := &FrontierVertex{Vertex: v}
-	f := Frontier{}
-	f = f.Append([]*FrontierVertex{fv}, 0)
-	return f
-}
-
-// NewFrontierVariable create the Frontier using the inistal Vertex as the root of the graph
-func NewFrontierVariable(v *vertices.Vertex, variable string) Frontier {
+func NewFrontier(v *vertices.Vertex, variable string) Frontier {
 	fv := &FrontierVertex{Vertex: v, Variable: variable}
 	f := Frontier{}
 	f = f.Append([]*FrontierVertex{fv}, 0)
