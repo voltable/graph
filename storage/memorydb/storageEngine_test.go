@@ -17,13 +17,13 @@ func Test_Query(t *testing.T) {
 	var err error
 
 	var tests = []struct {
-		match   []*vertices.Vertex
-		setup   func(...*vertices.Vertex)
-		query   string
-		results int
+		matching    []*vertices.Vertex
+		nonMatching []*vertices.Vertex
+		query       string
+		results     int
 	}{
 		{
-			match: func() []*vertices.Vertex {
+			matching: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
 				v1, _ := vertices.NewVertex()
 				v1.SetLabel("person")
@@ -31,14 +31,14 @@ func Test_Query(t *testing.T) {
 				arr = append(arr, v1)
 				return arr
 			}(),
-			setup: func(c ...*vertices.Vertex) {
-				g.Create(c...)
-
+			nonMatching: func() []*vertices.Vertex {
+				arr := make([]*vertices.Vertex, 0, 0)
 				v2, _ := vertices.NewVertex()
 				v2.SetLabel("person")
 				v2.SetProperty("name", "foo bar")
-				g.Create(v2)
-			},
+				arr = append(arr, v2)
+				return arr
+			}(),
 			query:   "MATCH (n:person) WHERE n.name = 'john smith'",
 			results: 1,
 		},
@@ -46,7 +46,9 @@ func Test_Query(t *testing.T) {
 
 	for i, tt := range tests {
 		g, err = memorydb.NewStorageEngine(options)
-		tt.setup(tt.match...)
+		g.Create(tt.matching...)
+		g.Create(tt.nonMatching...)
+
 		if err != nil {
 			t.Errorf("Failed to create the storageEngine %v", err)
 		}
@@ -67,7 +69,7 @@ func Test_Query(t *testing.T) {
 
 		for ii, r := range q.Results {
 			match := false
-			for _, m := range tt.match {
+			for _, m := range tt.matching {
 				if reflect.DeepEqual(r.(*vertices.Vertex), m) {
 					match = true
 					break
