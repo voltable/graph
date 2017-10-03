@@ -13,12 +13,13 @@ func Test_ToPredicateVertex(t *testing.T) {
 	properties["name"] = "test"
 
 	vp := &ast.VertexPatn{Variable: "n", Label: "Person", Properties: properties}
-	predicate := vp.ToPredicateVertex()
+
+	predicateVertexPath := vp.ToPredicateVertexPath()
 
 	v, _ := vertices.NewVertex()
 	v.SetLabel("Person")
 	v.SetProperty("name", "test")
-	result := predicate(v)
+	result := predicateVertexPath.PredicateVertex(v)
 
 	if result != true {
 		t.Errorf("predicate failed")
@@ -29,11 +30,11 @@ func Test_ToPredicateVertexLabelFail(t *testing.T) {
 	properties := make(map[string]interface{})
 
 	vp := ast.VertexPatn{Variable: "n", Label: "World", Properties: properties}
-	predicate := vp.ToPredicateVertex()
+	predicateVertexPath := vp.ToPredicateVertexPath()
 
 	v, _ := vertices.NewVertex()
 	v.SetLabel("Person")
-	result := predicate(v)
+	result := predicateVertexPath.PredicateVertex(v)
 
 	if result == true {
 		t.Errorf("predicate failed")
@@ -41,17 +42,18 @@ func Test_ToPredicateVertexLabelFail(t *testing.T) {
 }
 
 func Test_ToPredicateVertexPropertiesFail(t *testing.T) {
+
 	properties := make(map[string]interface{})
 	properties["name"] = "test"
 
 	vp := ast.VertexPatn{Variable: "n", Label: "Person", Properties: properties}
-	predicate := vp.ToPredicateVertex()
+	predicateVertexPath := vp.ToPredicateVertexPath()
 
 	v, _ := vertices.NewVertex()
 	v.SetLabel("Person")
 	v.SetProperty("name", "hello")
 
-	result := predicate(v)
+	result := predicateVertexPath.PredicateVertex(v)
 
 	if result == true {
 		t.Errorf("predicate failed")
@@ -59,16 +61,17 @@ func Test_ToPredicateVertexPropertiesFail(t *testing.T) {
 }
 
 func Test_ToPredicateVertexPropertiesFailEmpty(t *testing.T) {
+
 	properties := make(map[string]interface{})
 	properties["name"] = "test"
 
 	vp := ast.VertexPatn{Variable: "n", Label: "Person", Properties: properties}
-	predicate := vp.ToPredicateVertex()
+	predicateVertexPath := vp.ToPredicateVertexPath()
 
 	v, _ := vertices.NewVertex()
 	v.SetLabel("Person")
 
-	result := predicate(v)
+	result := predicateVertexPath.PredicateVertex(v)
 
 	if result == true {
 		t.Errorf("predicate failed")

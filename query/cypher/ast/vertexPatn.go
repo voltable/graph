@@ -17,10 +17,10 @@ type VertexPatn struct {
 
 func (*VertexPatn) patnNode() {}
 
-// ToPredicateVertex creates a PredicateVertex out of the VertexPatn
-func (patn *VertexPatn) ToPredicateVertex() query.PredicateVertex {
+// ToPredicateVertexPath creates a PredicateVertexPath out of the VertexPatn
+func (patn *VertexPatn) ToPredicateVertexPath() query.PredicateVertexPath {
 	label := strings.ToLower(patn.Label)
-	return func(v *vertices.Vertex) bool {
+	pvp := query.PredicateVertexPath{PredicateVertex: func(v *vertices.Vertex) bool {
 		if label != v.Label() {
 			return false
 		}
@@ -32,5 +32,7 @@ func (patn *VertexPatn) ToPredicateVertex() query.PredicateVertex {
 		}
 
 		return true
-	}
+	}, Variable: patn.Variable}
+
+	return pvp
 }

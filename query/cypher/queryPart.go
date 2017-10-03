@@ -46,15 +46,12 @@ func (qq cypherParts) ToQueryPart(stmt ast.Clauses) ([]*QueryPart, error) {
 	if pattern, ok := IsPattern(stmt); ok {
 		for pattern != nil {
 			if v, ok := pattern.(*ast.VertexPatn); ok && v != nil {
-				pvp := query.PredicateVertexPath{PredicateVertex: v.ToPredicateVertex(), Variable: v.Variable}
+				pvp := v.ToPredicateVertexPath()
 				next(&pvp)
 				next = pvp.SetNext
 				pattern = v.Edge
 			} else if e, ok := pattern.(*ast.EdgePatn); ok && e != nil {
-				pvp := query.PredicateEdgePath{PredicateEdge: e.ToPredicateEdge(), Variable: e.Variable}
-				if e.Body != nil {
-					pvp.SetLength(e.Body.LengthMinimum, e.Body.LengthMaximum)
-				}
+				pvp := e.ToPredicateEdgePath()
 				next(&pvp)
 				next = pvp.SetNext
 				pattern = e.Vertex
@@ -62,7 +59,6 @@ func (qq cypherParts) ToQueryPart(stmt ast.Clauses) ([]*QueryPart, error) {
 				break
 			}
 		}
-
 	}
 
 	if where, ok := stmt.GetNext().(*ast.WhereStmt); ok {

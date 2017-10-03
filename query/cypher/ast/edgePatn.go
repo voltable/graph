@@ -31,10 +31,10 @@ type EdgeBodyStmt struct {
 
 func (*EdgePatn) patnNode() {}
 
-// ToPredicateEdge creates a PredicateEdge out of the EdgePatn
-func (patn *EdgePatn) ToPredicateEdge() query.PredicateEdge {
+// ToPredicateEdgePath creates a PredicateEdgePath out of the EdgePatn
+func (patn *EdgePatn) ToPredicateEdgePath() query.PredicateEdgePath {
 	relationshipType := strings.ToLower(patn.Body.Type)
-	return func(v *vertices.Edge) (string, bool) {
+	pvp := query.PredicateEdgePath{PredicateEdge: func(v *vertices.Edge) (string, bool) {
 		if relationshipType != v.RelationshipType() {
 			return patn.Body.Variable, false
 		}
@@ -46,5 +46,11 @@ func (patn *EdgePatn) ToPredicateEdge() query.PredicateEdge {
 		}
 
 		return patn.Body.Variable, true
+	}, Variable: patn.Variable}
+
+	if patn.Body != nil {
+		pvp.SetLength(patn.Body.LengthMinimum, patn.Body.LengthMaximum)
 	}
+
+	return pvp
 }
