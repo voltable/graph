@@ -162,13 +162,12 @@ func Test_Query(t *testing.T) {
 
 	for i, tt := range tests {
 		g, err := memorydb.NewStorageEngine(options)
-		g.Create(tt.matching...)
-		g.Create(tt.nonMatching...)
-
 		if err != nil {
 			t.Errorf("Failed to create the storageEngine %v", err)
 		}
 
+		g.Create(tt.matching...)
+		g.Create(tt.nonMatching...)
 		q, err := g.Query(tt.query)
 
 		if err != nil {
