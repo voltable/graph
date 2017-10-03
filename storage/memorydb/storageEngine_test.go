@@ -20,7 +20,6 @@ func Test_Query(t *testing.T) {
 		matching    []*vertices.Vertex
 		nonMatching []*vertices.Vertex
 		query       string
-		results     int
 	}{
 		{
 			matching: func() []*vertices.Vertex {
@@ -39,8 +38,7 @@ func Test_Query(t *testing.T) {
 				arr = append(arr, v2)
 				return arr
 			}(),
-			query:   "MATCH (n:person) WHERE n.name = 'john smith'",
-			results: 1,
+			query: "MATCH (n:person) WHERE n.name = 'john smith'",
 		},
 	}
 
@@ -62,9 +60,9 @@ func Test_Query(t *testing.T) {
 		if len(q.Results) != 1 {
 			t.Errorf("Failed to match expected 1 got %v", len(q.Results))
 		}
-		reults := len(q.Results)
-		if reults != tt.results {
-			t.Errorf("%d. expected %d got %d", i, tt.results, reults)
+
+		if len(q.Results) != len(tt.matching) {
+			t.Errorf("%d. expected %d got %d", i, len(tt.matching), len(q.Results))
 		}
 
 		for ii, r := range q.Results {
