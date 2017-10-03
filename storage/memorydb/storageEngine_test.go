@@ -13,8 +13,6 @@ import (
 func Test_Query(t *testing.T) {
 	cypher.RegisterEngine()
 	options := graph.NewOptions()
-	var g graph.Graph
-	var err error
 
 	var tests = []struct {
 		matching    []*vertices.Vertex
@@ -43,7 +41,7 @@ func Test_Query(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		g, err = memorydb.NewStorageEngine(options)
+		g, err := memorydb.NewStorageEngine(options)
 		g.Create(tt.matching...)
 		g.Create(tt.nonMatching...)
 
@@ -55,10 +53,6 @@ func Test_Query(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("%d. Bad Query \n%v", i, tt.query)
-		}
-
-		if len(q.Results) != 1 {
-			t.Errorf("Failed to match expected 1 got %v", len(q.Results))
 		}
 
 		if len(q.Results) != len(tt.matching) {
