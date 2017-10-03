@@ -12,29 +12,51 @@ import (
 func Test_Query(t *testing.T) {
 	cypher.RegisterEngine()
 	options := graph.NewOptions()
-	g, err := memorydb.NewStorageEngine(options)
+	var g graph.Graph
+	var err error
 
-	if err != nil {
-		t.Errorf("Failed to create the storageEngine %v", err)
+	var tests = []struct {
+		setup   func()
+		query   string
+		results int
+	}{
+		{
+			setup: func() {
+				v1, _ := vertices.NewVertex()
+				v1.SetLabel("person")
+				v1.SetProperty("name", "john smith")
+				g.Create(v1)
+
+				v2, _ := vertices.NewVertex()
+				v2.SetLabel("person")
+				v2.SetProperty("name", "foo bar")
+				g.Create(v2)
+			},
+			query:   "MATCH (n:person) WHERE n.name = 'john smith'",
+			results: 1,
+		},
 	}
 
-	v1, _ := vertices.NewVertex()
-	v1.SetLabel("person")
-	v1.SetProperty("name", "john smith")
-	g.Create(v1)
+	for i, tt := range tests {
+		g, err = memorydb.NewStorageEngine(options)
+		tt.setup()
+		if err != nil {
+			t.Errorf("Failed to create the storageEngine %v", err)
+		}
 
-	v2, _ := vertices.NewVertex()
-	v2.SetLabel("person")
-	v2.SetProperty("name", "foo bar")
-	g.Create(v2)
+		q, err := g.Query(tt.query)
 
-	q, err := g.Query("MATCH (n:person) WHERE n.name = 'john smith'")
+		if err != nil {
+			t.Errorf("%d. Bad Query \n%v", i, tt.query)
+		}
 
-	if err != nil {
-		t.Errorf("Bad Query")
+		if len(q.Results) != 1 {
+			t.Errorf("Failed to match expected 1 got %v", len(q.Results))
+		}
+		reults := len(q.Results)
+		if reults != tt.results {
+			t.Errorf("%d. expected %d got %d", i, tt.results, reults)
+		}
 	}
 
-	if len(q.Results) != 1 {
-		t.Errorf("Failed to match expected 1 got %v", len(q.Results))
-	}
 }
