@@ -23,22 +23,36 @@ func NewFilter() *Filter {
 
 // Filter a IteratorFrontier so that all results pass the Where Expression in the AST
 func (qe Filter) Filter(i query.IteratorFrontier, predicate ast.Expr) enumerables.Iterator {
+	length := 0
+	position := 0
+	frontier, ok := i()
+	var vertices []*query.FrontierVertex
+
 	return func() (interface{}, bool) {
-		for frontier, ok := i(); ok; frontier, ok = i() {
-			if frontier.Len() > 0 {
-				// We only need the first array of vertices from the frontier as the rest aren't the the optimal path
-				vertices, _, _ := frontier.Pop()
-				for _, v := range vertices {
-					if predicate != nil {
-						if qe.ExpressionEvaluator(predicate, v.Variable, v.Vertex) {
-							return v.Vertex, true
-						}
-					} else {
-						return v.Vertex, true
-					}
+		for ok {
+
+			// We only need the first array of vertices from the frontier as the rest aren't the the optimal path
+			if position == 0 {
+				if frontier.Len() > 0 {
+					vertices = frontier.Vertices()
+					length = len(vertices)
 				}
 			}
-			return nil, false
+
+			if position < length {
+				v := vertices[position]
+				position++
+				if predicate != nil {
+					if qe.ExpressionEvaluator(predicate, v.Variable, v.Vertex) {
+						return v.Vertex, true
+					}
+				} else {
+					return v.Vertex, true
+				}
+			}
+
+			frontier, ok = i()
+			position = 0
 		}
 		return nil, false
 	}

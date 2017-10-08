@@ -28,8 +28,9 @@ func Test_Filter(t *testing.T) {
 		},
 		{
 			iterator: func() (*query.Frontier, bool) {
+				state = expressions.XORSwap(state)
 				f := query.Frontier{}
-				return &f, true
+				return &f, state
 			},
 			predicate: ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}),
 			count:     0,
@@ -55,6 +56,22 @@ func Test_Filter(t *testing.T) {
 			},
 			predicate: nil,
 			count:     1,
+		},
+
+		{
+			iterator: func() (*query.Frontier, bool) {
+				state = expressions.XORSwap(state)
+				frontier := query.Frontier{}
+				x, _ := vertices.NewVertex()
+				v, _ := vertices.NewVertex()
+				arr := []*query.FrontierVertex{}
+				arr = append(arr, &query.FrontierVertex{Vertex: x, Variable: ""})
+				arr = append(arr, &query.FrontierVertex{Vertex: v, Variable: ""})
+				frontier = frontier.Append(arr, 0)
+				return &frontier, state
+			},
+			predicate: nil,
+			count:     2,
 		},
 	}
 

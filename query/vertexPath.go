@@ -57,7 +57,7 @@ func toFontier(i enumerables.Iterator, variable string) IteratorFrontier {
 	return func() (*Frontier, bool) {
 		for item, ok := i(); ok; item, ok = i() {
 			if v, is := item.(*vertices.Vertex); is {
-				f := NewFrontier(v, variable)
+			f := NewFrontier(v, variable)
 				return &f, true
 			}
 		}
