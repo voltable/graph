@@ -15,16 +15,16 @@ func Test_Query(t *testing.T) {
 	options := graph.NewOptions()
 
 	var tests = []struct {
-		matching    []*vertices.Vertex
-		nonMatching []*vertices.Vertex
-		query       string
+		expecting    []*vertices.Vertex
+		uninterested []*vertices.Vertex
+		query        string
 	}{
 		{
-			matching: func() []*vertices.Vertex {
+			expecting: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
 				return arr
 			}(),
-			nonMatching: func() []*vertices.Vertex {
+			uninterested: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
 				v2, _ := vertices.NewVertex()
 				v2.SetLabel("person")
@@ -35,7 +35,7 @@ func Test_Query(t *testing.T) {
 			query: "MATCH (n:person) WHERE n.name = 'john smith'",
 		},
 		{
-			matching: func() []*vertices.Vertex {
+			expecting: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
 				v1, _ := vertices.NewVertex()
 				v1.SetLabel("person")
@@ -43,7 +43,7 @@ func Test_Query(t *testing.T) {
 				arr = append(arr, v1)
 				return arr
 			}(),
-			nonMatching: func() []*vertices.Vertex {
+			uninterested: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
 				v2, _ := vertices.NewVertex()
 				v2.SetLabel("person")
@@ -54,7 +54,7 @@ func Test_Query(t *testing.T) {
 			query: "MATCH (n:person) WHERE n.name = 'john smith'",
 		},
 		{
-			matching: func() []*vertices.Vertex {
+			expecting: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
 				v1, _ := vertices.NewVertex()
 				v1.SetLabel("person")
@@ -67,7 +67,7 @@ func Test_Query(t *testing.T) {
 				arr = append(arr, v2)
 				return arr
 			}(),
-			nonMatching: func() []*vertices.Vertex {
+			uninterested: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
 				v2, _ := vertices.NewVertex()
 				v2.SetLabel("person")
@@ -78,7 +78,7 @@ func Test_Query(t *testing.T) {
 			query: "MATCH (n:person) WHERE n.name = 'john smith'",
 		},
 		{
-			matching: func() []*vertices.Vertex {
+			expecting: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
 				v1, _ := vertices.NewVertex()
 				v1.SetLabel("person")
@@ -91,7 +91,7 @@ func Test_Query(t *testing.T) {
 				arr = append(arr, v2)
 				return arr
 			}(),
-			nonMatching: func() []*vertices.Vertex {
+			uninterested: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
 				v2, _ := vertices.NewVertex()
 				v2.SetLabel("person")
@@ -102,7 +102,7 @@ func Test_Query(t *testing.T) {
 			query: "MATCH (n:person) WHERE n.name = 'john smith' OR n.location = 'london'",
 		},
 		{
-			matching: func() []*vertices.Vertex {
+			expecting: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
 				v1, _ := vertices.NewVertex()
 				v1.SetLabel("person")
@@ -111,7 +111,7 @@ func Test_Query(t *testing.T) {
 
 				return arr
 			}(),
-			nonMatching: func() []*vertices.Vertex {
+			uninterested: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
 
 				v1, _ := vertices.NewVertex()
@@ -128,7 +128,7 @@ func Test_Query(t *testing.T) {
 			query: "MATCH (n:person) WHERE n.name = 'john smith' OR n.location = 'london'",
 		},
 		{
-			matching: func() []*vertices.Vertex {
+			expecting: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
 				v1, _ := vertices.NewVertex()
 				v1.SetLabel("person")
@@ -142,7 +142,7 @@ func Test_Query(t *testing.T) {
 
 				return arr
 			}(),
-			nonMatching: func() []*vertices.Vertex {
+			uninterested: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
 
 				v1, _ := vertices.NewVertex()
@@ -158,6 +158,36 @@ func Test_Query(t *testing.T) {
 			}(),
 			query: "MATCH (n:person) WHERE n.name = 'john smith' OR n.age = 18",
 		},
+		// {
+		// 	expecting: func() []*vertices.Vertex {
+		// 		arr := make([]*vertices.Vertex, 0, 0)
+		// 		v1, _ := vertices.NewVertex()
+		// 		v1.SetLabel("person")
+		// 		v1.SetProperty("name", "john smith")
+		// 		arr = append(arr, v1)
+
+		// 		v2, _ := vertices.NewVertex()
+		// 		v2.SetLabel("person")
+		// 		v2.SetProperty("name", "max power")
+		// 		arr = append(arr, v2)
+
+		// 		edge, _ := v1.AddDirectedEdge(v2)
+		// 		edge.SetRelationshipType("knowns")
+
+		// 		return arr
+		// 	}(),
+		// 	uninterested: func() []*vertices.Vertex {
+		// 		arr := make([]*vertices.Vertex, 0, 0)
+
+		// 		v1, _ := vertices.NewVertex()
+		// 		v1.SetLabel("person")
+		// 		v1.SetProperty("name", "foo bar")
+		// 		arr = append(arr, v1)
+
+		// 		return arr
+		// 	}(),
+		// 	query: "MATCH (n:person)-[:knows]->(m:person) WHERE n.name = 'john smith' OR m.person = 'max power'",
+		// },
 	}
 
 	for i, tt := range tests {
@@ -166,21 +196,21 @@ func Test_Query(t *testing.T) {
 			t.Errorf("Failed to create the storageEngine %v", err)
 		}
 
-		g.Create(tt.matching...)
-		g.Create(tt.nonMatching...)
+		g.Create(tt.expecting...)
+		g.Create(tt.uninterested...)
 		q, err := g.Query(tt.query)
 
 		if err != nil {
 			t.Errorf("%d. Bad Query \n%v", i, tt.query)
 		}
 
-		if len(q.Results) != len(tt.matching) {
-			t.Errorf("%d. expected %d got %d", i, len(tt.matching), len(q.Results))
+		if len(q.Results) != len(tt.expecting) {
+			t.Errorf("%d. expected %d got %d", i, len(tt.expecting), len(q.Results))
 		}
 
 		for ii, r := range q.Results {
 			match := false
-			for _, m := range tt.matching {
+			for _, m := range tt.expecting {
 				if reflect.DeepEqual(r.(*vertices.Vertex), m) {
 					match = true
 					break
