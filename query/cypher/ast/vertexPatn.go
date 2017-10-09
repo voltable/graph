@@ -20,18 +20,18 @@ func (*VertexPatn) patnNode() {}
 // ToPredicateVertexPath creates a PredicateVertexPath out of the VertexPatn
 func (patn *VertexPatn) ToPredicateVertexPath() query.PredicateVertexPath {
 	label := strings.ToLower(patn.Label)
-	pvp := query.PredicateVertexPath{PredicateVertex: func(v *vertices.Vertex) bool {
+	pvp := query.PredicateVertexPath{PredicateVertex: func(v *vertices.Vertex) (string, bool) {
 		if label != v.Label() {
-			return false
+			return patn.Variable, false
 		}
 
 		for key, value := range patn.Properties {
 			if v.Property(key) != value {
-				return false
+				return patn.Variable, false
 			}
 		}
 
-		return true
+		return patn.Variable, true
 	}, Variable: patn.Variable}
 
 	return pvp

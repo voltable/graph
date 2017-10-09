@@ -375,8 +375,8 @@ func BuildPath(arr []bool) query.Path {
 
 func ToPredicateVertex(b bool) func(*ast.VertexPatn) query.PredicateVertex {
 	toPredicateVertex := func(*ast.VertexPatn) query.PredicateVertex {
-		return func(v *vertices.Vertex) bool {
-			return b
+		return func(v *vertices.Vertex) (string, bool) {
+			return "", b
 		}
 	}
 

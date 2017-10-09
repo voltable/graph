@@ -19,7 +19,7 @@ func Test_ToPredicateVertex(t *testing.T) {
 	v, _ := vertices.NewVertex()
 	v.SetLabel("Person")
 	v.SetProperty("name", "test")
-	result := predicateVertexPath.PredicateVertex(v)
+	_, result := predicateVertexPath.PredicateVertex(v)
 
 	if result != true {
 		t.Errorf("predicate failed")
@@ -34,7 +34,7 @@ func Test_ToPredicateVertexLabelFail(t *testing.T) {
 
 	v, _ := vertices.NewVertex()
 	v.SetLabel("Person")
-	result := predicateVertexPath.PredicateVertex(v)
+	_, result := predicateVertexPath.PredicateVertex(v)
 
 	if result == true {
 		t.Errorf("predicate failed")
@@ -53,7 +53,7 @@ func Test_ToPredicateVertexPropertiesFail(t *testing.T) {
 	v.SetLabel("Person")
 	v.SetProperty("name", "hello")
 
-	result := predicateVertexPath.PredicateVertex(v)
+	_, result := predicateVertexPath.PredicateVertex(v)
 
 	if result == true {
 		t.Errorf("predicate failed")
@@ -71,7 +71,7 @@ func Test_ToPredicateVertexPropertiesFailEmpty(t *testing.T) {
 	v, _ := vertices.NewVertex()
 	v.SetLabel("Person")
 
-	result := predicateVertexPath.PredicateVertex(v)
+	_, result := predicateVertexPath.PredicateVertex(v)
 
 	if result == true {
 		t.Errorf("predicate failed")

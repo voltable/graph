@@ -37,7 +37,8 @@ func (t *VertexPath) Node(predicate PredicateVertex) *EdgePath {
 				vertices := frontier.peek()
 				vertex := vertices[len(vertices)-1]
 				t.explored[vertex.ID()] = true
-				if predicate(vertex.Vertex) {
+				if variable, p := predicate(vertex.Vertex); p {
+					vertex.Variable = variable
 					return frontier, true
 				}
 			}
@@ -48,8 +49,8 @@ func (t *VertexPath) Node(predicate PredicateVertex) *EdgePath {
 
 // AllVertices matches all Vertexes.
 func AllVertices() PredicateVertex {
-	return func(v *vertices.Vertex) bool {
-		return true
+	return func(v *vertices.Vertex) (string, bool) {
+		return "", true
 	}
 }
 
@@ -57,7 +58,7 @@ func toFontier(i enumerables.Iterator, variable string) IteratorFrontier {
 	return func() (*Frontier, bool) {
 		for item, ok := i(); ok; item, ok = i() {
 			if v, is := item.(*vertices.Vertex); is {
-			f := NewFrontier(v, variable)
+				f := NewFrontier(v, variable)
 				return &f, true
 			}
 		}

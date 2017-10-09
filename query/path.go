@@ -52,7 +52,7 @@ type (
 	IteratorFrontier func() (item *Frontier, ok bool)
 
 	// PredicateVertex apply the predicate over the vertex
-	PredicateVertex func(v *vertices.Vertex) bool
+	PredicateVertex func(v *vertices.Vertex) (string, bool)
 
 	// PredicateEdge apply the predicate over the edge
 	PredicateEdge func(e *vertices.Edge) (string, bool)

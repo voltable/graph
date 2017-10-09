@@ -18,8 +18,8 @@ func Test_ToQueryPath(t *testing.T) {
 
 	var b bool
 	toPredicateVertex := func(*ast.VertexPatn) query.PredicateVertex {
-		return func(v *vertices.Vertex) bool {
-			return b
+		return func(v *vertices.Vertex) (string, bool) {
+			return "", b
 		}
 	}
 

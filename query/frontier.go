@@ -26,7 +26,8 @@ func (f Frontier) Pop() ([]*FrontierVertex, float32, Frontier) {
 	return f[0].Vertices, f[0].Cost, f[1:]
 }
 
-func (f Frontier) Vertices() []*FrontierVertex {
+// OptimalPath returns what should be the optimal path
+func (f Frontier) OptimalPath() []*FrontierVertex {
 	return f[0].Vertices
 }
 
