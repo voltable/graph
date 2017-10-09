@@ -7,23 +7,24 @@ import (
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
+	"github.com/RossMerr/Caudex.Graph/query/cypher/ir"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 func Test_ToQueryPath(t *testing.T) {
-	edgePatn := &ast.EdgePatn{Body: &ast.EdgeBodyStmt{LengthMinimum: 2, LengthMaximum: 5}}
-	vertexPatn := &ast.VertexPatn{Variable: "bar", Edge: edgePatn}
+	edgePatn := &ir.EdgePatn{Body: &ir.EdgeBodyStmt{LengthMinimum: 2, LengthMaximum: 5}}
+	vertexPatn := &ir.VertexPatn{Variable: "bar", Edge: edgePatn}
 	wherePatn := &ast.WhereStmt{Predicate: ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"})}
 	match := &ast.MatchStmt{Pattern: vertexPatn, Next: wherePatn}
 
 	var b bool
-	toPredicateVertex := func(*ast.VertexPatn) query.PredicateVertex {
+	toPredicateVertex := func(*ir.VertexPatn) query.PredicateVertex {
 		return func(v *vertices.Vertex) (string, bool) {
 			return "", b
 		}
 	}
 
-	toPredicateEdge := func(patn *ast.EdgePatn) query.PredicateEdge {
+	toPredicateEdge := func(patn *ir.EdgePatn) query.PredicateEdge {
 		return func(e *vertices.Edge) (string, bool) {
 			return "", b
 		}

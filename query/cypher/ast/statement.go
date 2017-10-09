@@ -1,6 +1,9 @@
 package ast
 
-import "github.com/RossMerr/Caudex.Graph/vertices"
+import (
+	"github.com/RossMerr/Caudex.Graph/query/cypher/ir"
+	"github.com/RossMerr/Caudex.Graph/vertices"
+)
 
 // Stmt all statments implement the Stmt interface.
 type Stmt interface {
@@ -13,7 +16,7 @@ type Expr interface {
 
 // Clauses in the Cypher query language.
 type Clauses interface {
-	GetPattern() Patn
+	GetPattern() ir.Patn
 	GetNext() Stmt
 }
 

@@ -3,6 +3,7 @@ package cypher
 import (
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
+	"github.com/RossMerr/Caudex.Graph/query/cypher/ir"
 )
 
 type Parts interface {
@@ -45,12 +46,12 @@ func (qq cypherParts) ToQueryPart(stmt ast.Clauses) ([]*QueryPart, error) {
 	next = q.SetNext
 	if pattern, ok := IsPattern(stmt); ok {
 		for pattern != nil {
-			if v, ok := pattern.(*ast.VertexPatn); ok && v != nil {
+			if v, ok := pattern.(*ir.VertexPatn); ok && v != nil {
 				pvp := v.ToPredicateVertexPath()
 				next(&pvp)
 				next = pvp.SetNext
 				pattern = v.Edge
-			} else if e, ok := pattern.(*ast.EdgePatn); ok && e != nil {
+			} else if e, ok := pattern.(*ir.EdgePatn); ok && e != nil {
 				pvp := e.ToPredicateEdgePath()
 				next(&pvp)
 				next = pvp.SetNext
@@ -68,7 +69,7 @@ func (qq cypherParts) ToQueryPart(stmt ast.Clauses) ([]*QueryPart, error) {
 	return arr, nil
 }
 
-func IsPattern(item ast.Stmt) (ast.Patn, bool) {
+func IsPattern(item ast.Stmt) (ir.Patn, bool) {
 	if b, ok := item.(*ast.DeleteStmt); ok {
 		return b.Pattern, true
 	} else if b, ok := item.(*ast.CreateStmt); ok {

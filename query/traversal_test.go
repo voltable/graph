@@ -6,10 +6,10 @@ import (
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph/enumerables"
+	"github.com/RossMerr/Caudex.Graph/query/cypher/ir"
 	"github.com/RossMerr/Caudex.Graph/storage"
 
 	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
@@ -373,8 +373,8 @@ func BuildPath(arr []bool) query.Path {
 	return path
 }
 
-func ToPredicateVertex(b bool) func(*ast.VertexPatn) query.PredicateVertex {
-	toPredicateVertex := func(*ast.VertexPatn) query.PredicateVertex {
+func ToPredicateVertex(b bool) func(*ir.VertexPatn) query.PredicateVertex {
+	toPredicateVertex := func(*ir.VertexPatn) query.PredicateVertex {
 		return func(v *vertices.Vertex) (string, bool) {
 			return "", b
 		}
@@ -383,8 +383,8 @@ func ToPredicateVertex(b bool) func(*ast.VertexPatn) query.PredicateVertex {
 	return toPredicateVertex
 }
 
-func ToPredicateEdge(b bool) func(patn *ast.EdgePatn) query.PredicateEdge {
-	toPredicateEdge := func(patn *ast.EdgePatn) query.PredicateEdge {
+func ToPredicateEdge(b bool) func(patn *ir.EdgePatn) query.PredicateEdge {
+	toPredicateEdge := func(patn *ir.EdgePatn) query.PredicateEdge {
 		return func(e *vertices.Edge) (string, bool) {
 			return "", b
 		}
