@@ -139,6 +139,46 @@ func Test_ExpressionEvaluator(t *testing.T) {
 			}(),
 			result: true,
 		},
+		{
+			expr:     ast.NewBooleanExpr(expressions.OR, ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}), ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "m", Value: "name"}, &ast.Ident{Data: "bar"})),
+			variable: "n",
+			v: func() *vertices.Vertex {
+				x, _ := vertices.NewVertex()
+				x.SetProperty("name", "foo")
+				return x
+			}(),
+			result: true,
+		},
+		{
+			expr:     ast.NewBooleanExpr(expressions.OR, ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}), ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "m", Value: "name"}, &ast.Ident{Data: "bar"})),
+			variable: "m",
+			v: func() *vertices.Vertex {
+				x, _ := vertices.NewVertex()
+				x.SetProperty("name", "foo")
+				return x
+			}(),
+			result: false,
+		},
+		{
+			expr:     ast.NewBooleanExpr(expressions.OR, ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}), ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "m", Value: "name"}, &ast.Ident{Data: "bar"})),
+			variable: "m",
+			v: func() *vertices.Vertex {
+				x, _ := vertices.NewVertex()
+				x.SetProperty("name", "bar")
+				return x
+			}(),
+			result: true,
+		},
+		{
+			expr:     ast.NewBooleanExpr(expressions.OR, ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}), ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "m", Value: "person"}, &ast.Ident{Data: "john smith"})),
+			variable: "m",
+			v: func() *vertices.Vertex {
+				x, _ := vertices.NewVertex()
+				x.SetProperty("person", "john smith")
+				return x
+			}(),
+			result: true,
+		},
 	}
 	for i, tt := range tests {
 		result := filter.ExpressionEvaluator(tt.expr, tt.variable, tt.v)

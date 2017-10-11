@@ -16,9 +16,11 @@ type FrontierVertex struct {
 // Frontier priority queue containing vertices to be explored and the cost for a Uniform Cost Search
 type Frontier []*frontierPath
 
-func (f Frontier) Len() int                { return len(f) }
-func (f Frontier) Swap(i, j int)           { f[i], f[j] = f[j], f[i] }
-func (f Frontier) Less(i, j int) bool      { return f[i].Cost < f[j].Cost }
+// Sort interface
+func (f Frontier) Len() int           { return len(f) }
+func (f Frontier) Swap(i, j int)      { f[i], f[j] = f[j], f[i] }
+func (f Frontier) Less(i, j int) bool { return f[i].Cost < f[j].Cost }
+
 func (f Frontier) peek() []*FrontierVertex { return f[0].Vertices }
 func (f Frontier) Peek() *FrontierVertex   { return f[0].Vertices[0] }
 

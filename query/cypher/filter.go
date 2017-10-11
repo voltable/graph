@@ -30,8 +30,6 @@ func (qe Filter) Filter(i query.IteratorFrontier, predicate ast.Expr) enumerable
 
 	return func() (interface{}, bool) {
 		for ok {
-
-			// We only need the first array of vertices from the frontier as the rest aren't the the optimal path
 			if position == 0 {
 				if frontier.Len() > 0 {
 					vertices = frontier.OptimalPath()
