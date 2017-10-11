@@ -218,6 +218,32 @@ func Test_Query(t *testing.T) {
 			}(),
 			query: "MATCH (n:person)-[:knows]->(m:person) WHERE n.name = 'john smith' OR m.name = 'max power'",
 		},
+		{
+			expecting: func() []*vertices.Vertex {
+				arr := make([]*vertices.Vertex, 0, 0)
+				v1, _ := vertices.NewVertex()
+				v1.SetLabel("person")
+				v1.SetProperty("name", "john smith")
+				arr = append(arr, v1)
+
+				return arr
+			}(),
+			uninterested: func() []*vertices.Vertex {
+				arr := make([]*vertices.Vertex, 0, 0)
+
+				v1, _ := vertices.NewVertex()
+				v1.SetLabel("person")
+				v1.SetProperty("name", "foo bar")
+				arr = append(arr, v1)
+
+				v2, _ := vertices.NewVertex()
+				v2.SetLabel("location")
+				v2.SetProperty("address", "london")
+				arr = append(arr, v2)
+				return arr
+			}(),
+			query: "MATCH (n:person{name:'john smith'})",
+		},
 	}
 
 	for i, tt := range tests {

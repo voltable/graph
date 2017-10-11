@@ -35,6 +35,10 @@ func TestParser_Pattern(t *testing.T) {
 			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "you", Label: "Person", Properties: map[string]interface{}{"name": "You"}}},
 		},
 		{
+			s:    `MATCH (you:Person {name:"foo bar"})`,
+			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "you", Label: "Person", Properties: map[string]interface{}{"name": "foo bar"}}},
+		},
+		{
 			s:    `MATCH (you:Person {name:"You",age: 21})`,
 			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "you", Label: "Person", Properties: map[string]interface{}{"name": "You", "age": 21}}},
 		},
@@ -106,7 +110,6 @@ func TestParser_Pattern(t *testing.T) {
 			t.Errorf("%d. %q: error mismatch:\n  exp=%s\n  got=%s\n\n", i, tt.s, tt.err, err)
 		} else if tt.err == "" && !reflect.DeepEqual(tt.stmt, stmt) {
 			t.Errorf("%d. %q\n\nstmt mismatch:\n\nexp=%#v\n\ngot=%#v\n\n", i, tt.s, tt.stmt, stmt)
-			//t.Errorf("%d. %q\n\nstmt mismatch:\n\nexp=%#v\n\ngot=%#v\n\n", i, tt.s, tt.stmt.Edge.Body, stmt.Edge.Body)
 		}
 	}
 }

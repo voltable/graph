@@ -75,23 +75,28 @@ func (p *CypherParser) KeyValue() (map[string]interface{}, error) {
 			return nil, fmt.Errorf("found %q, expected %q", lit, lexer.COLON)
 		}
 
-		tok, lit = p.scanIgnoreWhitespace()
-		if tok != lexer.IDENT && tok == lexer.QUOTATION {
-			// We found a double quoted string
-			tok, lit = p.scanIgnoreWhitespace()
+		// tok, lit = p.scanIgnoreWhitespace()
+		// if tok != lexer.IDENT && tok == lexer.QUOTATION {
+		// 	// We found a double quoted string
+		// 	tok, lit = p.scanIgnoreWhitespace()
+		// 	properties[prop] = lit
+		// 	tok, lit = p.scanIgnoreWhitespace()
+		// 	if tok != lexer.IDENT && tok != lexer.QUOTATION {
+		// 		return nil, fmt.Errorf("found %q, expected %q", lit, lexer.QUOTATION)
+		// 	}
+		// } else if tok != lexer.IDENT && tok == lexer.SINGLEQUOTATION {
+		// 	// We found a single quoted string
+		// 	tok, lit = p.scanIgnoreWhitespace()
+		// 	properties[prop] = lit
+		// 	tok, lit = p.scanIgnoreWhitespace()
+		// 	if tok != lexer.IDENT && tok != lexer.SINGLEQUOTATION {
+		// 		return nil, fmt.Errorf("found %q, expected %q", lit, lexer.SINGLEQUOTATION)
+		// 	}
+		// }
+
+		var err error
+		if tok, lit, err = p.scanForQuotation(); err == nil {
 			properties[prop] = lit
-			tok, lit = p.scanIgnoreWhitespace()
-			if tok != lexer.IDENT && tok != lexer.QUOTATION {
-				return nil, fmt.Errorf("found %q, expected %q", lit, lexer.QUOTATION)
-			}
-		} else if tok != lexer.IDENT && tok == lexer.SINGLEQUOTATION {
-			// We found a single quoted string
-			tok, lit = p.scanIgnoreWhitespace()
-			properties[prop] = lit
-			tok, lit = p.scanIgnoreWhitespace()
-			if tok != lexer.IDENT && tok != lexer.SINGLEQUOTATION {
-				return nil, fmt.Errorf("found %q, expected %q", lit, lexer.SINGLEQUOTATION)
-			}
 		} else {
 			if i, err := strconv.Atoi(lit); err == nil {
 				properties[prop] = i
@@ -360,13 +365,13 @@ func (p *CypherParser) propertyOrValue() (ast.InterpretExpr, error) {
 	return nil, nil
 }
 
-func (p *CypherParser) stringValue() (ast.InterpretExpr, error) {
+func (p *CypherParser) stringValue() ast.InterpretExpr {
 	tok, lit, err := p.scanForQuotation()
-	if tok == lexer.IDENT {
-		return &ast.Ident{Data: lit}, nil
+	if err == nil && tok == lexer.IDENT {
+		return &ast.Ident{Data: lit}
 	}
 	p.unscan()
-	return nil, err
+	return nil
 }
 
 func (p *CypherParser) comparisonExpr() (*ast.ComparisonExpr, error) {
@@ -418,7 +423,7 @@ func (p *CypherParser) Predicate() (ast.Expr, error) {
 			exprStack = exprStack.Push(property)
 		} else if err != nil {
 			return nil, err
-		} else if property, err := p.stringValue(); err == nil && property != nil {
+		} else if property := p.stringValue(); property != nil {
 			exprStack = exprStack.Push(property)
 		} else if err != nil {
 			return nil, err
@@ -650,7 +655,7 @@ func (p *CypherParser) scanIgnoreWhitespace() (tok lexer.Token, lit string) {
 
 // scanForQuotation scans the next matching quotations lexer.
 func (p *CypherParser) scanForQuotation() (tok lexer.Token, lit string, err error) {
-	tok, lit = p.scan()
+	tok, lit = p.scanIgnoreWhitespace()
 	if tok == lexer.QUOTATION || tok == lexer.SINGLEQUOTATION {
 		lit = emptyString
 		for {
@@ -665,7 +670,9 @@ func (p *CypherParser) scanForQuotation() (tok lexer.Token, lit string, err erro
 				break
 			}
 		}
+		return
 	}
+	err = fmt.Errorf("No matching quotaation found %q", lit)
 	return
 }
 
