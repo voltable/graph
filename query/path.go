@@ -7,19 +7,12 @@ import (
 )
 
 type (
-	// VariableLength a range for pattern matching
-	VariableLength struct {
-		Minimum uint
-		Maximum uint
-	}
-
 	// VertexNext is the Vertex part of the QueryPath sequence
 	VertexNext interface {
 	}
 
 	// EdgeNext is the Edge part of the QueryPath sequence
 	EdgeNext interface {
-		Length() *VariableLength
 	}
 
 	// Path is a walk in the graph in a alternating sequence of vertices and edges
@@ -45,7 +38,6 @@ type (
 		next Path
 
 		Variable string
-		length   VariableLength
 	}
 
 	// IteratorFrontier is an alias for function to iterate over Frontier.
@@ -55,7 +47,7 @@ type (
 	PredicateVertex func(v *vertices.Vertex) (string, bool)
 
 	// PredicateEdge apply the predicate over the edge
-	PredicateEdge func(e *vertices.Edge) (string, bool)
+	PredicateEdge func(e *vertices.Edge, depth int) (string, bool)
 
 	// PredicateExpression apply the predicate over the Expr
 	PredicateExpression func(e *Path) bool
@@ -112,15 +104,4 @@ func (p *PredicateEdgePath) SetNext(path Path) {
 	if v, ok := path.(*PredicateVertexPath); ok {
 		p.next = v
 	}
-}
-
-// Length returns the range of the lengths for pattern matching
-func (p *PredicateEdgePath) Length() *VariableLength {
-	return &p.length
-}
-
-// SetLength sets the lengths for the pattern matching
-func (p *PredicateEdgePath) SetLength(minimum uint, maximum uint) {
-	length := VariableLength{Maximum: maximum, Minimum: minimum}
-	p.length = length
 }

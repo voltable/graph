@@ -25,7 +25,7 @@ func Test_ToQueryPath(t *testing.T) {
 	}
 
 	toPredicateEdge := func(patn *ir.EdgePatn) query.PredicateEdge {
-		return func(e *vertices.Edge) (string, bool) {
+		return func(e *vertices.Edge, depth int) (string, bool) {
 			return "", b
 		}
 	}
@@ -62,14 +62,6 @@ func Test_ToQueryPath(t *testing.T) {
 	pe, _ := e.(*query.PredicateEdgePath)
 	if pe == nil {
 		t.Errorf("PredicateEdgePath")
-	}
-
-	if pe.Length().Minimum != 2 {
-		t.Errorf("Minimum")
-	}
-
-	if pe.Length().Maximum != 5 {
-		t.Errorf("Maximum")
 	}
 
 	last, _ := pe.Next().(query.VertexNext)

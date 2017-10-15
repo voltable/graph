@@ -385,7 +385,7 @@ func ToPredicateVertex(b bool) func(*ir.VertexPatn) query.PredicateVertex {
 
 func ToPredicateEdge(b bool) func(patn *ir.EdgePatn) query.PredicateEdge {
 	toPredicateEdge := func(patn *ir.EdgePatn) query.PredicateEdge {
-		return func(e *vertices.Edge) (string, bool) {
+		return func(e *vertices.Edge, depth int) (string, bool) {
 			return "", b
 		}
 	}
