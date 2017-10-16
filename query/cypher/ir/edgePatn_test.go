@@ -24,8 +24,36 @@ func Test_ToPredicateEdge(t *testing.T) {
 	}
 }
 
+func Test_ToPredicateEdgeLengthMinimumFail(t *testing.T) {
+	eb := &ir.EdgeBodyStmt{LengthMinimum: 2}
+	vp := ir.EdgePatn{Body: eb}
+	predicateEdgePath := vp.ToPredicateEdgePath()
+
+	v, _ := vertices.NewEdge()
+	v.SetRelationshipType("Person")
+	_, result := predicateEdgePath.PredicateEdge(v, 1)
+
+	if result != false {
+		t.Errorf("predicate failed")
+	}
+}
+
+func Test_ToPredicateEdgeLengthMaximumFail(t *testing.T) {
+	eb := &ir.EdgeBodyStmt{LengthMaximum: 0}
+	vp := ir.EdgePatn{Body: eb}
+	predicateEdgePath := vp.ToPredicateEdgePath()
+
+	v, _ := vertices.NewEdge()
+	v.SetRelationshipType("Person")
+	_, result := predicateEdgePath.PredicateEdge(v, 1)
+
+	if result != false {
+		t.Errorf("predicate failed")
+	}
+}
+
 func Test_ToPredicateEdgeTypeFail(t *testing.T) {
-	eb := &ir.EdgeBodyStmt{}
+	eb := &ir.EdgeBodyStmt{Type: "NotAPerson"}
 	vp := ir.EdgePatn{Body: eb}
 	predicateEdgePath := vp.ToPredicateEdgePath()
 
@@ -33,7 +61,7 @@ func Test_ToPredicateEdgeTypeFail(t *testing.T) {
 	v.SetRelationshipType("Person")
 	_, result := predicateEdgePath.PredicateEdge(v, 0)
 
-	if result == true {
+	if result != false {
 		t.Errorf("predicate failed")
 	}
 }
@@ -50,7 +78,7 @@ func Test_ToPredicateEdgePropertiesFail(t *testing.T) {
 
 	_, result := predicateEdgePath.PredicateEdge(v, 0)
 
-	if result == true {
+	if result != false {
 		t.Errorf("predicate failed")
 	}
 }
@@ -66,7 +94,7 @@ func Test_ToPredicateEdgePropertiesFailEmpty(t *testing.T) {
 
 	_, result := predicateEdgePath.PredicateEdge(v, 0)
 
-	if result == true {
+	if result != false {
 		t.Errorf("predicate failed")
 	}
 }

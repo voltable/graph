@@ -9,4 +9,6 @@ const (
 	Undirected Digraph = iota
 	Inbound
 	Outbound
+
+	emptyString = ""
 )

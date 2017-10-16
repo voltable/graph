@@ -44,8 +44,10 @@ func (patn *EdgePatn) ToPredicateEdgePath() query.PredicateEdgePath {
 			return patn.Body.Variable, false
 		}
 
-		if relationshipType != v.RelationshipType() {
-			return patn.Body.Variable, false
+		if relationshipType != emptyString {
+			if relationshipType != v.RelationshipType() {
+				return patn.Body.Variable, false
+			}
 		}
 
 		for key, value := range patn.Body.Properties {

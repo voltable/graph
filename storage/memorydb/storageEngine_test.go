@@ -284,36 +284,37 @@ func Test_Query(t *testing.T) {
 			}(),
 			query: "MATCH (n:person{name:'john smith'})",
 		},
-		// {
-		// 	expecting: func() []*vertices.Vertex {
-		// 		arr := make([]*vertices.Vertex, 0, 0)
-		// 		v1, _ := vertices.NewVertex()
-		// 		v1.SetLabel("person")
-		// 		v1.SetProperty("name", "john smith")
-		// 		arr = append(arr, v1)
+		// 10
+		{
+			expecting: func() []*vertices.Vertex {
+				arr := make([]*vertices.Vertex, 0, 0)
+				v1, _ := vertices.NewVertex()
+				v1.SetLabel("person")
+				v1.SetProperty("name", "john smith")
+				arr = append(arr, v1)
 
-		// 		v2, _ := vertices.NewVertex()
-		// 		v2.SetLabel("person")
-		// 		v2.SetProperty("name", "max power")
-		// 		arr = append(arr, v2)
+				v2, _ := vertices.NewVertex()
+				v2.SetLabel("person")
+				v2.SetProperty("name", "max power")
+				arr = append(arr, v2)
 
-		// 		edge, _ := v1.AddDirectedEdge(v2)
-		// 		edge.SetRelationshipType("knows")
+				edge, _ := v1.AddDirectedEdge(v2)
+				edge.SetRelationshipType("knows")
 
-		// 		return arr
-		// 	}(),
-		// 	uninterested: func() []*vertices.Vertex {
-		// 		arr := make([]*vertices.Vertex, 0, 0)
+				return arr
+			}(),
+			uninterested: func() []*vertices.Vertex {
+				arr := make([]*vertices.Vertex, 0, 0)
 
-		// 		v1, _ := vertices.NewVertex()
-		// 		v1.SetLabel("person")
-		// 		v1.SetProperty("name", "foo bar")
-		// 		arr = append(arr, v1)
+				v1, _ := vertices.NewVertex()
+				v1.SetLabel("person")
+				v1.SetProperty("name", "foo bar")
+				arr = append(arr, v1)
 
-		// 		return arr
-		// 	}(),
-		// 	query: "MATCH (n:person)-[*]->(m:person) ",
-		// },
+				return arr
+			}(),
+			query: "MATCH (n:person)-[*]->(m:person) ",
+		},
 	}
 
 	for i, tt := range tests {
