@@ -19,6 +19,7 @@ func Test_Query(t *testing.T) {
 		uninterested []*vertices.Vertex
 		query        string
 	}{
+		// 0
 		{
 			expecting: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
@@ -34,6 +35,7 @@ func Test_Query(t *testing.T) {
 			}(),
 			query: "MATCH (n:person) WHERE n.name = 'john smith'",
 		},
+		// 1
 		{
 			expecting: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
@@ -53,6 +55,7 @@ func Test_Query(t *testing.T) {
 			}(),
 			query: "MATCH (n:person) WHERE n.name = 'john smith'",
 		},
+		// 2
 		{
 			expecting: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
@@ -77,6 +80,7 @@ func Test_Query(t *testing.T) {
 			}(),
 			query: "MATCH (n:person) WHERE n.name = 'john smith'",
 		},
+		// 3
 		{
 			expecting: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
@@ -101,6 +105,7 @@ func Test_Query(t *testing.T) {
 			}(),
 			query: "MATCH (n:person) WHERE n.name = 'john smith' OR n.location = 'london'",
 		},
+		// 4
 		{
 			expecting: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
@@ -127,6 +132,7 @@ func Test_Query(t *testing.T) {
 			}(),
 			query: "MATCH (n:person) WHERE n.name = 'john smith' OR n.location = 'london'",
 		},
+		// 5
 		{
 			expecting: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
@@ -158,6 +164,7 @@ func Test_Query(t *testing.T) {
 			}(),
 			query: "MATCH (n:person) WHERE n.name = 'john smith' OR n.age = 18",
 		},
+		// 6
 		{
 			expecting: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
@@ -188,6 +195,7 @@ func Test_Query(t *testing.T) {
 			}(),
 			query: "MATCH (n:person)-[:knows]->(m:person) ",
 		},
+		// 7
 		{
 			expecting: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
@@ -218,6 +226,7 @@ func Test_Query(t *testing.T) {
 			}(),
 			query: "MATCH (n:person)-[:notknows]->(m:person) ",
 		},
+		// 8
 		{
 			expecting: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
@@ -248,6 +257,7 @@ func Test_Query(t *testing.T) {
 			}(),
 			query: "MATCH (n:person)-[:knows]->(m:person) WHERE n.name = 'john smith' OR m.name = 'max power'",
 		},
+		// 9
 		{
 			expecting: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)

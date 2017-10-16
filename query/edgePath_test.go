@@ -65,7 +65,7 @@ func Test_MatchEdge(t *testing.T) {
 		return &frontier, state
 	}, NewEdgeFakeStorage(vertex))
 
-	matches := p.Relationship(func(v *vertices.Edge, depth int) (string, bool) {
+	matches := p.Relationship(func(v *vertices.Edge, depth uint) (string, bool) {
 		return "", true
 	})
 

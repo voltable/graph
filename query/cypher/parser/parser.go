@@ -75,25 +75,6 @@ func (p *CypherParser) KeyValue() (map[string]interface{}, error) {
 			return nil, fmt.Errorf("found %q, expected %q", lit, lexer.COLON)
 		}
 
-		// tok, lit = p.scanIgnoreWhitespace()
-		// if tok != lexer.IDENT && tok == lexer.QUOTATION {
-		// 	// We found a double quoted string
-		// 	tok, lit = p.scanIgnoreWhitespace()
-		// 	properties[prop] = lit
-		// 	tok, lit = p.scanIgnoreWhitespace()
-		// 	if tok != lexer.IDENT && tok != lexer.QUOTATION {
-		// 		return nil, fmt.Errorf("found %q, expected %q", lit, lexer.QUOTATION)
-		// 	}
-		// } else if tok != lexer.IDENT && tok == lexer.SINGLEQUOTATION {
-		// 	// We found a single quoted string
-		// 	tok, lit = p.scanIgnoreWhitespace()
-		// 	properties[prop] = lit
-		// 	tok, lit = p.scanIgnoreWhitespace()
-		// 	if tok != lexer.IDENT && tok != lexer.SINGLEQUOTATION {
-		// 		return nil, fmt.Errorf("found %q, expected %q", lit, lexer.SINGLEQUOTATION)
-		// 	}
-		// }
-
 		var err error
 		if tok, lit, err = p.scanForQuotation(); err == nil {
 			properties[prop] = lit

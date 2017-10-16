@@ -34,16 +34,15 @@ func (*EdgePatn) patnNode() {}
 // ToPredicateEdgePath creates a PredicateEdgePath out of the EdgePatn
 func (patn *EdgePatn) ToPredicateEdgePath() query.PredicateEdgePath {
 	relationshipType := strings.ToLower(patn.Body.Type)
-	pvp := query.PredicateEdgePath{PredicateEdge: func(v *vertices.Edge, depth int) (string, bool) {
+	pvp := query.PredicateEdgePath{PredicateEdge: func(v *vertices.Edge, depth uint) (string, bool) {
 
-		// TODO fix
-		// if depth < int(patn.Body.LengthMinimum) {
-		// 	return patn.Body.Variable, false
-		// }
+		if depth < patn.Body.LengthMinimum {
+			return patn.Body.Variable, false
+		}
 
-		// if depth > int(patn.Body.LengthMaximum) {
-		// 	return patn.Body.Variable, false
-		// }
+		if depth > patn.Body.LengthMaximum {
+			return patn.Body.Variable, false
+		}
 
 		if relationshipType != v.RelationshipType() {
 			return patn.Body.Variable, false
