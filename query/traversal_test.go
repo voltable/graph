@@ -331,7 +331,7 @@ func Test_Traversal_Travers(t *testing.T) {
 	for i, tt := range tests {
 		arr, find := tt.v()
 		traversal := query.NewTraversal(NewFakeStorage(arr, find))
-		iteratorFrontier := traversal.Travers(BuildIterator(arr), BuildPath(tt.b))
+		iteratorFrontier, _ := traversal.Travers(BuildIterator(arr), BuildPath(tt.b))
 
 		results := ToVertices(iteratorFrontier)
 		fmt.Printf("%d", len(results))
@@ -375,8 +375,13 @@ func BuildPath(arr []bool) query.Path {
 
 func ToPredicateVertex(b bool) func(*ir.VertexPatn) query.PredicateVertex {
 	toPredicateVertex := func(*ir.VertexPatn) query.PredicateVertex {
-		return func(v *vertices.Vertex) (string, bool) {
-			return "", b
+		return func(v *vertices.Vertex) (string, query.Traverse) {
+			if b {
+				return "", query.Matched
+			} else {
+				return "", query.Failed
+
+			}
 		}
 	}
 
@@ -385,8 +390,13 @@ func ToPredicateVertex(b bool) func(*ir.VertexPatn) query.PredicateVertex {
 
 func ToPredicateEdge(b bool) func(patn *ir.EdgePatn) query.PredicateEdge {
 	toPredicateEdge := func(patn *ir.EdgePatn) query.PredicateEdge {
-		return func(e *vertices.Edge, depth uint) (string, bool) {
-			return "", b
+		return func(e *vertices.Edge, depth uint) (string, query.Traverse) {
+			if b {
+				return "", query.Matched
+			} else {
+				return "", query.Failed
+
+			}
 		}
 	}
 	return toPredicateEdge
@@ -394,7 +404,7 @@ func ToPredicateEdge(b bool) func(patn *ir.EdgePatn) query.PredicateEdge {
 
 func ToVertices(i query.IteratorFrontier) []interface{} {
 	results := make([]interface{}, 0)
-	for frontier, ok := i(); ok; frontier, ok = i() {
+	for frontier, ok := i(); ok != query.Failed; frontier, ok = i() {
 		if frontier.Len() > 0 {
 			vertices, _, _ := frontier.Pop()
 			for _, v := range vertices {

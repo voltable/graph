@@ -41,13 +41,13 @@ type (
 	}
 
 	// IteratorFrontier is an alias for function to iterate over Frontier.
-	IteratorFrontier func() (item *Frontier, ok bool)
+	IteratorFrontier func() (item *Frontier, ok Traverse)
 
 	// PredicateVertex apply the predicate over the vertex
-	PredicateVertex func(v *vertices.Vertex) (string, bool)
+	PredicateVertex func(v *vertices.Vertex) (string, Traverse)
 
 	// PredicateEdge apply the predicate over the edge
-	PredicateEdge func(e *vertices.Edge, depth uint) (string, bool)
+	PredicateEdge func(e *vertices.Edge, depth uint) (string, Traverse)
 
 	// PredicateExpression apply the predicate over the Expr
 	PredicateExpression func(e *Path) bool

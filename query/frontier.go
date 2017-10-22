@@ -40,6 +40,15 @@ func (f Frontier) Append(vertices []*FrontierVertex, cost float32) Frontier {
 	return f
 }
 
+func (f Frontier) AppendTo(vertices []*FrontierVertex, v *vertices.Vertex, variable string, cost float32) Frontier {
+
+	fv := &FrontierVertex{Vertex: v, Variable: variable}
+	//	frontier = frontier.Append(append(vertices, fv), cost+e.Weight)
+
+	f = append(f, &frontierPath{append(vertices, fv), cost})
+	return f
+}
+
 // NewFrontier create the Frontier using the inistal Vertex as the root of the graph
 func NewFrontier(v *vertices.Vertex, variable string) Frontier {
 	fv := &FrontierVertex{Vertex: v, Variable: variable}

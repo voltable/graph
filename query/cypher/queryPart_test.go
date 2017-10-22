@@ -19,14 +19,24 @@ func Test_ToQueryPath(t *testing.T) {
 
 	var b bool
 	toPredicateVertex := func(*ir.VertexPatn) query.PredicateVertex {
-		return func(v *vertices.Vertex) (string, bool) {
-			return "", b
+		return func(v *vertices.Vertex) (string, query.Traverse) {
+			if b {
+				return "", query.Matched
+			} else {
+				return "", query.Failed
+
+			}
 		}
 	}
 
 	toPredicateEdge := func(patn *ir.EdgePatn) query.PredicateEdge {
-		return func(e *vertices.Edge, depth uint) (string, bool) {
-			return "", b
+		return func(e *vertices.Edge, depth uint) (string, query.Traverse) {
+			if b {
+				return "", query.Matched
+			} else {
+				return "", query.Failed
+
+			}
 		}
 	}
 

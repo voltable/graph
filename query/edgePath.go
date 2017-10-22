@@ -35,32 +35,61 @@ func (t *EdgePath) Relationship(predicate PredicateEdge) *VertexPath {
 	return &VertexPath{
 		explored: t.explored,
 		storage:  t.storage,
-		Iterate: func() (frontier *Frontier, ok bool) {
-			for frontier, ok = t.Iterate(); ok; frontier, ok = t.Iterate() {
+
+		Iterate: func() (frontier *Frontier, ok Traverse) {
+
+			for frontier, ok = t.Iterate(); ok != Failed; frontier, ok = t.Iterate() {
 				vertices, cost, frontier := frontier.Pop()
 				depth := len(vertices)
 				vertex := vertices[depth-1]
 				for _, e := range vertex.Edges() {
 					if _, ok := t.explored[e.ID()]; !ok {
-						if variable, p := predicate(e, uint(depth)); p {
+						if variable, p := predicate(e, uint(depth)); p == Visiting {
 							if v, err := t.storage.Fetch(e.ID()); err == nil {
 								fv := &FrontierVertex{Vertex: v, Variable: variable}
 								frontier = frontier.Append(append(vertices, fv), cost+e.Weight)
-								sort.Sort(frontier)
-								return &frontier, true
 							}
+						} else if p == Matched {
+							if v, err := t.storage.Fetch(e.ID()); err == nil {
+								f := Frontier{}
+								fv := &FrontierVertex{Vertex: v, Variable: variable}
+								f = f.Append(append(vertices, fv), cost+e.Weight)
+								return &f, Matched
+							}
+
 						}
 					}
 				}
+				sort.Sort(frontier)
+				return &frontier, Visiting
 			}
 			return
+
+			// for frontier, ok = t.Iterate(); ok == Visiting; frontier, ok = t.Iterate() {
+			// 	vertices, cost, frontier := frontier.Pop()
+			// 	depth := len(vertices)
+			// 	vertex := vertices[depth-1]
+			// 	for _, e := range vertex.Edges() {
+			// 		if _, ok := t.explored[e.ID()]; !ok {
+			// 			if variable, p := predicate(e, uint(depth)); p == Visiting || p == Matched {
+			// 				if v, err := t.storage.Fetch(e.ID()); err == nil {
+			// 					fv := &FrontierVertex{Vertex: v, Variable: variable}
+			// 					frontier = frontier.Append(append(vertices, fv), cost+e.Weight)
+			// 					sort.Sort(frontier)
+			// 					return &frontier, Visiting
+			// 				}
+			// 			}
+			// 		}
+			// 	}
+			// }
+			// return
 		},
 	}
 }
 
 // AllEdges matches all Edge.
 func AllEdges() PredicateEdge {
-	return func(v *vertices.Edge, depth uint) (string, bool) {
-		return emptyString, true
+	return func(v *vertices.Edge, depth uint) (string, Traverse) {
+		return emptyString, Matched
 	}
 }

@@ -29,7 +29,7 @@ func (qe Filter) Filter(i query.IteratorFrontier, predicate ast.Expr) enumerable
 	var vertices []*query.FrontierVertex
 
 	return func() (interface{}, bool) {
-		for ok {
+		for ok != query.Failed {
 			if position == 0 {
 				if frontier.Len() > 0 {
 					vertices = frontier.OptimalPath()

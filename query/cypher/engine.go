@@ -62,7 +62,10 @@ func (qe Engine) Parse(q string) (*query.Query, error) {
 
 	forEach := qe.Storage.ForEach()
 	for _, part := range queryPart {
-		f := qe.Traversal.Travers(forEach, part.Path)
+		f, err := qe.Traversal.Travers(forEach, part.Path)
+		if err != nil {
+			return nil, err
+		}
 		forEach = qe.Filter.Filter(f, part.Predicate())
 	}
 

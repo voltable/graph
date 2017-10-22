@@ -3,6 +3,8 @@ package ir_test
 import (
 	"testing"
 
+	"github.com/RossMerr/Caudex.Graph/query"
+
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ir"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
@@ -21,7 +23,7 @@ func Test_ToPredicateVertex(t *testing.T) {
 	v.SetProperty("name", "test")
 	_, result := predicateVertexPath.PredicateVertex(v)
 
-	if result != true {
+	if result != query.Visiting {
 		t.Errorf("predicate failed")
 	}
 }
@@ -36,7 +38,7 @@ func Test_ToPredicateVertexLabelFail(t *testing.T) {
 	v.SetLabel("Person")
 	_, result := predicateVertexPath.PredicateVertex(v)
 
-	if result == true {
+	if result == query.Visiting {
 		t.Errorf("predicate failed")
 	}
 }
@@ -55,7 +57,7 @@ func Test_ToPredicateVertexPropertiesFail(t *testing.T) {
 
 	_, result := predicateVertexPath.PredicateVertex(v)
 
-	if result == true {
+	if result == query.Visiting {
 		t.Errorf("predicate failed")
 	}
 }
@@ -73,7 +75,7 @@ func Test_ToPredicateVertexPropertiesFailEmpty(t *testing.T) {
 
 	_, result := predicateVertexPath.PredicateVertex(v)
 
-	if result == true {
+	if result == query.Visiting {
 		t.Errorf("predicate failed")
 	}
 }

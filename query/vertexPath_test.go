@@ -25,11 +25,11 @@ func Test_MatchVertex(t *testing.T) {
 
 	p := query.NewVertexPath(iterator, nil, "")
 
-	matches := p.Node(func(v *vertices.Vertex) (string, bool) {
+	matches := p.Node(func(v *vertices.Vertex) (string, query.Traverse) {
 		if v.Label() != "foo" {
 			t.Fatalf("Expected foo but was %s", v.Label())
 		}
-		return "", true
+		return "", query.Visiting
 	})
 
 	matches.Iterate()

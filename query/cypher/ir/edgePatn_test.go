@@ -3,6 +3,8 @@ package ir_test
 import (
 	"testing"
 
+	"github.com/RossMerr/Caudex.Graph/query"
+
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ir"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
@@ -19,7 +21,7 @@ func Test_ToPredicateEdge(t *testing.T) {
 	v.SetProperty("name", "test")
 	_, result := predicateEdgePath.PredicateEdge(v, 0)
 
-	if result != true {
+	if result != query.Visiting {
 		t.Errorf("predicate failed")
 	}
 }
@@ -33,7 +35,7 @@ func Test_ToPredicateEdgeLengthMinimumFail(t *testing.T) {
 	v.SetRelationshipType("Person")
 	_, result := predicateEdgePath.PredicateEdge(v, 1)
 
-	if result != false {
+	if result != query.Visiting {
 		t.Errorf("predicate failed")
 	}
 }
@@ -47,7 +49,7 @@ func Test_ToPredicateEdgeLengthMaximumFail(t *testing.T) {
 	v.SetRelationshipType("Person")
 	_, result := predicateEdgePath.PredicateEdge(v, 1)
 
-	if result != false {
+	if result != query.Failed {
 		t.Errorf("predicate failed")
 	}
 }
@@ -61,7 +63,7 @@ func Test_ToPredicateEdgeTypeFail(t *testing.T) {
 	v.SetRelationshipType("Person")
 	_, result := predicateEdgePath.PredicateEdge(v, 0)
 
-	if result != false {
+	if result != query.Failed {
 		t.Errorf("predicate failed")
 	}
 }
@@ -78,7 +80,7 @@ func Test_ToPredicateEdgePropertiesFail(t *testing.T) {
 
 	_, result := predicateEdgePath.PredicateEdge(v, 0)
 
-	if result != false {
+	if result != query.Failed {
 		t.Errorf("predicate failed")
 	}
 }
@@ -94,7 +96,7 @@ func Test_ToPredicateEdgePropertiesFailEmpty(t *testing.T) {
 
 	_, result := predicateEdgePath.PredicateEdge(v, 0)
 
-	if result != false {
+	if result != query.Failed {
 		t.Errorf("predicate failed")
 	}
 }

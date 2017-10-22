@@ -1,8 +1,14 @@
 package query
 
 import (
+	"errors"
+
 	"github.com/RossMerr/Caudex.Graph/enumerables"
 	"github.com/RossMerr/Caudex.Graph/storage"
+)
+
+var (
+	errPathNotDefine = errors.New("Record Not found")
 )
 
 // Traversal decides how to excute the query
@@ -16,9 +22,13 @@ func NewTraversal(i storage.Storage) *Traversal {
 }
 
 // Travers run's the query over the graph and returns a new resulting Iterator
-func (t *Traversal) Travers(iterator enumerables.Iterator, path Path) (iteratorFrontier IteratorFrontier) {
+func (t *Traversal) Travers(iterator enumerables.Iterator, path Path) (iteratorFrontier IteratorFrontier, err error) {
 	var edgePath *EdgePath
 	var vertexPath *VertexPath
+
+	if path == nil {
+		return nil, errPathNotDefine
+	}
 
 	for p := path.Next(); p != nil; p = p.Next() {
 		if pv, ok := p.(*PredicateVertexPath); ok {

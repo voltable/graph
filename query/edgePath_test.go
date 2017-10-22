@@ -60,13 +60,17 @@ func Test_MatchEdge(t *testing.T) {
 	fv := &query.FrontierVertex{Vertex: vertex}
 	frontier = frontier.Append([]*query.FrontierVertex{fv}, 0)
 
-	p := query.NewEdgePath(func() (item *query.Frontier, ok bool) {
+	p := query.NewEdgePath(func() (item *query.Frontier, ok query.Traverse) {
 		state = expressions.XORSwap(state)
-		return &frontier, state
+		if state {
+			return &frontier, query.Visiting
+		}
+		return &frontier, query.Failed
+
 	}, NewEdgeFakeStorage(vertex))
 
-	matches := p.Relationship(func(v *vertices.Edge, depth uint) (string, bool) {
-		return "", true
+	matches := p.Relationship(func(v *vertices.Edge, depth uint) (string, query.Traverse) {
+		return "", query.Matched
 	})
 
 	matches.Iterate()

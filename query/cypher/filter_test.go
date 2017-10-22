@@ -20,55 +20,67 @@ func Test_Filter(t *testing.T) {
 		count     int
 	}{
 		{
-			iterator: func() (*query.Frontier, bool) {
-				return nil, false
+			iterator: func() (*query.Frontier, query.Traverse) {
+				return nil, query.Failed
 			},
 			predicate: nil,
 			count:     0,
 		},
 		{
-			iterator: func() (*query.Frontier, bool) {
+			iterator: func() (*query.Frontier, query.Traverse) {
 				state = expressions.XORSwap(state)
 				f := query.Frontier{}
-				return &f, state
+				if state {
+					return &f, query.Visiting
+				}
+				return &f, query.Failed
 			},
 			predicate: ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}),
 			count:     0,
 		},
 		{
-			iterator: func() (*query.Frontier, bool) {
+			iterator: func() (*query.Frontier, query.Traverse) {
 				state = expressions.XORSwap(state)
 				v, _ := vertices.NewVertex()
 				v.SetProperty("name", "foo")
 				f := query.NewFrontier(v, "n")
-				return &f, state
+				if state {
+					return &f, query.Visiting
+				}
+				return &f, query.Failed
 			},
 			predicate: ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}),
 			count:     1,
 		},
 		{
-			iterator: func() (*query.Frontier, bool) {
+			iterator: func() (*query.Frontier, query.Traverse) {
 				state = expressions.XORSwap(state)
 				v, _ := vertices.NewVertex()
 				v.SetProperty("name", "foo")
 				f := query.NewFrontier(v, "n")
-				return &f, state
+				if state {
+					return &f, query.Visiting
+				}
+				return &f, query.Failed
 			},
 			predicate: nil,
 			count:     1,
 		},
 
 		{
-			iterator: func() (*query.Frontier, bool) {
+			iterator: func() (*query.Frontier, query.Traverse) {
 				state = expressions.XORSwap(state)
-				frontier := query.Frontier{}
+				f := query.Frontier{}
 				x, _ := vertices.NewVertex()
 				v, _ := vertices.NewVertex()
 				arr := []*query.FrontierVertex{}
 				arr = append(arr, &query.FrontierVertex{Vertex: x, Variable: ""})
 				arr = append(arr, &query.FrontierVertex{Vertex: v, Variable: ""})
-				frontier = frontier.Append(arr, 0)
-				return &frontier, state
+				f = f.Append(arr, 0)
+				if state {
+					return &f, query.Visiting
+				}
+				return &f, query.Failed
 			},
 			predicate: nil,
 			count:     2,

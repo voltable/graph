@@ -6,5 +6,5 @@ import (
 )
 
 type CypherTraversal interface {
-	Travers(i enumerables.Iterator, path query.Path) query.IteratorFrontier
+	Travers(i enumerables.Iterator, path query.Path) (query.IteratorFrontier, error)
 }

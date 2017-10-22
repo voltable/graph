@@ -32,14 +32,16 @@ func (t *VertexPath) Node(predicate PredicateVertex) *EdgePath {
 	return &EdgePath{
 		explored: t.explored,
 		storage:  t.storage,
-		Iterate: func() (frontier *Frontier, ok bool) {
-			for frontier, ok = t.Iterate(); ok; frontier, ok = t.Iterate() {
-				vertices := frontier.peek()
-				vertex := vertices[len(vertices)-1]
-				t.explored[vertex.ID()] = true
-				if variable, p := predicate(vertex.Vertex); p {
-					vertex.Variable = variable
-					return frontier, true
+		Iterate: func() (frontier *Frontier, ok Traverse) {
+			for frontier, ok = t.Iterate(); ok != Failed; frontier, ok = t.Iterate() {
+				if frontier.Len() > 0 {
+					vertices := frontier.peek()
+					vertex := vertices[len(vertices)-1]
+					t.explored[vertex.ID()] = true
+					if variable, p := predicate(vertex.Vertex); p != Failed {
+						vertex.Variable = variable
+						return frontier, p
+					}
 				}
 			}
 			return
@@ -49,19 +51,19 @@ func (t *VertexPath) Node(predicate PredicateVertex) *EdgePath {
 
 // AllVertices matches all Vertexes.
 func AllVertices() PredicateVertex {
-	return func(v *vertices.Vertex) (string, bool) {
-		return "", true
+	return func(v *vertices.Vertex) (string, Traverse) {
+		return "", Visiting
 	}
 }
 
 func toFontier(i enumerables.Iterator, variable string) IteratorFrontier {
-	return func() (*Frontier, bool) {
+	return func() (*Frontier, Traverse) {
 		for item, ok := i(); ok; item, ok = i() {
 			if v, is := item.(*vertices.Vertex); is {
 				f := NewFrontier(v, variable)
-				return &f, true
+				return &f, Visiting
 			}
 		}
-		return nil, false
+		return nil, Failed
 	}
 }
