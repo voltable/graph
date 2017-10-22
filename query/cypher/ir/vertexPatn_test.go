@@ -23,7 +23,7 @@ func Test_ToPredicateVertex(t *testing.T) {
 	v.SetProperty("name", "test")
 	_, result := predicateVertexPath.PredicateVertex(v)
 
-	if result != query.Visiting {
+	if result != query.Matched {
 		t.Errorf("predicate failed")
 	}
 }

@@ -59,6 +59,7 @@ func Test_Traversal_Travers(t *testing.T) {
 		v        func() ([]*vertices.Vertex, []*vertices.Vertex)
 		expected int
 	}{
+		// 0
 		{
 			b: func() []bool {
 				arr := make([]bool, 0, 0)
@@ -83,6 +84,7 @@ func Test_Traversal_Travers(t *testing.T) {
 			},
 			expected: 1,
 		},
+		// 1
 		{
 			b: func() []bool {
 				arr := make([]bool, 0, 0)
@@ -108,6 +110,7 @@ func Test_Traversal_Travers(t *testing.T) {
 			},
 			expected: 2,
 		},
+		// 2
 		{
 			b: func() []bool {
 				arr := make([]bool, 0, 0)

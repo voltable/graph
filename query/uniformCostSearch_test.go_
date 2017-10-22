@@ -32,8 +32,12 @@ func Test_UniformCostSearch(t *testing.T) {
 	g := AustraliaGraph()
 
 	toPredicateVertex := func(*ir.VertexPatn) query.PredicateVertex {
-		return func(v *vertices.Vertex) (string, bool) {
-			return "", v != per
+		return func(v *vertices.Vertex) (string, query.Traverse) {
+			if v.ID() != per.ID() {
+				return "", query.Visiting
+			} else {
+				return "", query.Matched
+			}
 		}
 	}
 

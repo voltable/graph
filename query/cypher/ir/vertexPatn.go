@@ -31,8 +31,17 @@ func (patn *VertexPatn) ToPredicateVertexPath() query.PredicateVertexPath {
 			}
 		}
 
+		if patn.isEndOfPattern() {
+			return patn.Variable, query.Matched
+		}
+
 		return patn.Variable, query.Visiting
+
 	}, Variable: patn.Variable}
 
 	return pvp
+}
+
+func (patn *VertexPatn) isEndOfPattern() bool {
+	return patn.Edge == nil
 }

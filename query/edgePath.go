@@ -35,28 +35,21 @@ func (t *EdgePath) Relationship(predicate PredicateEdge) *VertexPath {
 	return &VertexPath{
 		explored: t.explored,
 		storage:  t.storage,
-
 		Iterate: func() (frontier *Frontier, ok Traverse) {
-
 			for frontier, ok = t.Iterate(); ok != Failed; frontier, ok = t.Iterate() {
+				// if ok == Matched {
+				// 	return
+				// }
 				vertices, cost, frontier := frontier.Pop()
 				depth := len(vertices)
 				vertex := vertices[depth-1]
 				for _, e := range vertex.Edges() {
 					if _, ok := t.explored[e.ID()]; !ok {
-						if variable, p := predicate(e, uint(depth)); p == Visiting {
+						if variable, p := predicate(e, uint(depth)); p != Failed {
 							if v, err := t.storage.Fetch(e.ID()); err == nil {
 								fv := &FrontierVertex{Vertex: v, Variable: variable}
 								frontier = frontier.Append(append(vertices, fv), cost+e.Weight)
 							}
-						} else if p == Matched {
-							if v, err := t.storage.Fetch(e.ID()); err == nil {
-								f := Frontier{}
-								fv := &FrontierVertex{Vertex: v, Variable: variable}
-								f = f.Append(append(vertices, fv), cost+e.Weight)
-								return &f, Matched
-							}
-
 						}
 					}
 				}

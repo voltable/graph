@@ -21,7 +21,7 @@ func Test_ToPredicateEdge(t *testing.T) {
 	v.SetProperty("name", "test")
 	_, result := predicateEdgePath.PredicateEdge(v, 0)
 
-	if result != query.Visiting {
+	if result != query.Matched {
 		t.Errorf("predicate failed")
 	}
 }
