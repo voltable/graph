@@ -5,6 +5,7 @@ import "github.com/RossMerr/Caudex.Graph/vertices"
 type frontierPath struct {
 	Vertices []*FrontierVertex
 	Cost     float32
+	Traverse Traverse
 }
 
 // FrontierVertex containers a vertex and it's Variable
@@ -15,8 +16,7 @@ type FrontierVertex struct {
 
 // Frontier priority queue containing vertices to be explored and the cost for a Uniform Cost Search
 type Frontier struct {
-	Values   []*frontierPath
-	Traverse Traverse
+	Values []*frontierPath
 }
 
 // Sort interface
@@ -40,8 +40,8 @@ func (f Frontier) OptimalPath() []*FrontierVertex {
 }
 
 // Append adds the vertices onto the frontier
-func (f *Frontier) Append(vertices []*FrontierVertex, cost float32) {
-	f.Values = append(f.Values, &frontierPath{vertices, cost})
+func (f *Frontier) Append(vertices []*FrontierVertex, cost float32, t Traverse) {
+	f.Values = append(f.Values, &frontierPath{vertices, cost, t})
 
 }
 
@@ -49,6 +49,6 @@ func (f *Frontier) Append(vertices []*FrontierVertex, cost float32) {
 func NewFrontier(v *vertices.Vertex, variable string) Frontier {
 	fv := &FrontierVertex{Vertex: v, Variable: variable}
 	f := Frontier{}
-	f.Append([]*FrontierVertex{fv}, 0)
+	f.Append([]*FrontierVertex{fv}, 0, Visiting)
 	return f
 }

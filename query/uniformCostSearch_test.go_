@@ -1,13 +1,13 @@
 package query_test
 
 import (
+	"container/list"
 	"errors"
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph/enumerables"
 	"github.com/RossMerr/Caudex.Graph/expressions"
 	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/query/cypher"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ir"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
@@ -51,31 +51,16 @@ func Test_UniformCostSearch(t *testing.T) {
 		}
 	}
 
-	path := &cypher.Root{}
-	vertexVertex1 := &query.PredicateVertexPath{PredicateVertex: toPredicateVertex(nil)}
-	vertexEdge1 := &query.PredicateEdgePath{PredicateEdge: toPredicateEdge(nil)}
-
-	vertexVertex2 := &query.PredicateVertexPath{PredicateVertex: toPredicateVertex(nil)}
-	vertexEdge2 := &query.PredicateEdgePath{PredicateEdge: toPredicateEdge(nil)}
-
-	vertexVertex3 := &query.PredicateVertexPath{PredicateVertex: toPredicateVertex(nil)}
-	vertexEdge3 := &query.PredicateEdgePath{PredicateEdge: toPredicateEdge(nil)}
-
-	vertexVertex4 := &query.PredicateVertexPath{PredicateVertex: toPredicateVertex(nil)}
-	vertexEdge4 := &query.PredicateEdgePath{PredicateEdge: toPredicateEdge(nil)}
-
-	vertexVertex5 := &query.PredicateVertexPath{PredicateVertex: toPredicateVertex(nil)}
-
-	vertexVertex1.SetNext(vertexEdge1)
-	vertexEdge1.SetNext(vertexVertex2)
-	vertexVertex2.SetNext(vertexEdge2)
-	vertexEdge2.SetNext(vertexVertex3)
-	vertexVertex3.SetNext(vertexEdge3)
-	vertexEdge3.SetNext(vertexVertex4)
-	vertexVertex4.SetNext(vertexEdge4)
-	vertexEdge4.SetNext(vertexVertex5)
-
-	path.SetNext(vertexVertex1)
+	path := list.New()
+	path.PushBack(&query.PredicateVertexPath{PredicateVertex: toPredicateVertex(nil)})
+	path.PushBack(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(nil)})
+	path.PushBack(&query.PredicateVertexPath{PredicateVertex: toPredicateVertex(nil)})
+	path.PushBack(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(nil)})
+	path.PushBack(&query.PredicateVertexPath{PredicateVertex: toPredicateVertex(nil)})
+	path.PushBack(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(nil)})
+	path.PushBack(&query.PredicateVertexPath{PredicateVertex: toPredicateVertex(nil)})
+	path.PushBack(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(nil)})
+	path.PushBack(&query.PredicateVertexPath{PredicateVertex: toPredicateVertex(nil)})
 
 	traversal := query.NewTraversal(g)
 	it, err := traversal.Travers(g.ForEachTest(), path)

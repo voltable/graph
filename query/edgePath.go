@@ -48,7 +48,7 @@ func (t *EdgePath) Relationship(predicate PredicateEdge) *VertexPath {
 						if variable, p := predicate(e, uint(depth)); p != Failed {
 							if v, err := t.storage.Fetch(e.ID()); err == nil {
 								fv := &FrontierVertex{Vertex: v, Variable: variable}
-								frontier.Append(append(vertices, fv), cost+e.Weight)
+								frontier.Append(append(vertices, fv), cost+e.Weight, p)
 							}
 						}
 					}

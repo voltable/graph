@@ -58,7 +58,7 @@ func Test_MatchEdge(t *testing.T) {
 
 	frontier := query.Frontier{}
 	fv := &query.FrontierVertex{Vertex: vertex}
-	frontier.Append([]*query.FrontierVertex{fv}, 0)
+	frontier.Append([]*query.FrontierVertex{fv}, 0, query.Visiting)
 
 	p := query.NewEdgePath(func() (item *query.Frontier, ok query.Traverse) {
 		state = expressions.XORSwap(state)
