@@ -1,6 +1,7 @@
 package query_test
 
 import (
+	"container/list"
 	"errors"
 	"fmt"
 	"testing"
@@ -357,19 +358,14 @@ func BuildIterator(arr []*vertices.Vertex) func() (item interface{}, ok bool) {
 	}
 }
 
-func BuildPath(arr []bool) query.Path {
-	path, _ := NewPath()
-	last := path
+func BuildPath(arr []bool) *list.List {
+	path := list.New()
 	for i, a := range arr {
 		if i%2 == 0 {
-			vertexPath := &query.PredicateVertexPath{PredicateVertex: ToPredicateVertex(a)(nil)}
-			last.SetNext(vertexPath)
-			last = vertexPath
+			path.PushBack(&query.PredicateVertexPath{PredicateVertex: ToPredicateVertex(a)(nil)})
 		}
 		if i%2 == 1 {
-			edgePath := &query.PredicateEdgePath{PredicateEdge: ToPredicateEdge(a)(nil)}
-			last.SetNext(edgePath)
-			last = edgePath
+			path.PushBack(&query.PredicateEdgePath{PredicateEdge: ToPredicateEdge(a)(nil)})
 		}
 	}
 

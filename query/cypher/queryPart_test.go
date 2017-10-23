@@ -1,6 +1,7 @@
 package cypher_test
 
 import (
+	"container/list"
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph/expressions"
@@ -40,10 +41,9 @@ func Test_ToQueryPath(t *testing.T) {
 		}
 	}
 
-	want := &cypher.Root{}
-	vertexPath := &query.PredicateVertexPath{PredicateVertex: toPredicateVertex(vertexPatn)}
-	vertexPath.SetNext(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(edgePatn)})
-	want.SetNext(vertexPath)
+	want := list.New()
+	want.PushBack(&query.PredicateVertexPath{PredicateVertex: toPredicateVertex(vertexPatn)})
+	want.PushBack(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(edgePatn)})
 
 	parts, _ := cypher.NewParts().ToQueryPart(match)
 	partOne := parts[0]
@@ -53,30 +53,16 @@ func Test_ToQueryPath(t *testing.T) {
 	}
 
 	got := partOne.Path
-	v, _ := got.Next().(query.VertexNext)
+	e := got.Front()
+	v, _ := e.Value.(query.VertexNext)
 	if v == nil {
 		t.Errorf("VertexNext")
 	}
 
-	pv, _ := v.(*query.PredicateVertexPath)
-
-	if pv == nil {
-		t.Errorf("PredicateVertexPath")
-	}
-
-	e, _ := pv.Next().(query.EdgeNext)
-	if e == nil {
+	e = e.Next()
+	en, _ := e.Value.(query.EdgeNext)
+	if en == nil {
 		t.Errorf("EdgeNext")
-	}
-
-	pe, _ := e.(*query.PredicateEdgePath)
-	if pe == nil {
-		t.Errorf("PredicateEdgePath")
-	}
-
-	last, _ := pe.Next().(query.VertexNext)
-	if last != nil {
-		t.Errorf("VertexNext")
 	}
 }
 

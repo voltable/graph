@@ -1,6 +1,7 @@
 package query
 
 import (
+	"container/list"
 	"errors"
 
 	"github.com/RossMerr/Caudex.Graph/enumerables"
@@ -22,7 +23,7 @@ func NewTraversal(i storage.Storage) *Traversal {
 }
 
 // Travers run's the query over the graph and returns a new resulting Iterator
-func (t *Traversal) Travers(iterator enumerables.Iterator, path Path) (iteratorFrontier IteratorFrontier, err error) {
+func (t *Traversal) Travers(iterator enumerables.Iterator, path *list.List) (iteratorFrontier IteratorFrontier, err error) {
 	var edgePath *EdgePath
 	var vertexPath *VertexPath
 
@@ -30,8 +31,8 @@ func (t *Traversal) Travers(iterator enumerables.Iterator, path Path) (iteratorF
 		return nil, errPathNotDefine
 	}
 
-	for p := path.Next(); p != nil; p = p.Next() {
-		if pv, ok := p.(*PredicateVertexPath); ok {
+	for e := path.Front(); e != nil; e = e.Next() {
+		if pv, ok := e.Value.(*PredicateVertexPath); ok {
 			if vertexPath == nil {
 				vertexPath = NewVertexPath(iterator, t.storage, pv.Variable)
 			}
@@ -39,7 +40,7 @@ func (t *Traversal) Travers(iterator enumerables.Iterator, path Path) (iteratorF
 			edgePath = vertexPath.Node(pv.PredicateVertex)
 			iteratorFrontier = edgePath.Iterate
 
-		} else if pe, ok := p.(*PredicateEdgePath); ok {
+		} else if pe, ok := e.Value.(*PredicateEdgePath); ok {
 			vertexPath = edgePath.Relationship(pe.PredicateEdge)
 			iteratorFrontier = vertexPath.Iterate
 		}

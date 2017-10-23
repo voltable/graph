@@ -34,6 +34,7 @@ func (t *VertexPath) Node(predicate PredicateVertex) *EdgePath {
 		storage:  t.storage,
 		Iterate: func() (frontier *Frontier, ok Traverse) {
 			for frontier, ok = t.Iterate(); ok != Failed; frontier, ok = t.Iterate() {
+				
 				if frontier.Len() > 0 {
 					vertices := frontier.peek()
 					vertex := vertices[len(vertices)-1]
