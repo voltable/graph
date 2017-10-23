@@ -14,45 +14,41 @@ type FrontierVertex struct {
 }
 
 // Frontier priority queue containing vertices to be explored and the cost for a Uniform Cost Search
-type Frontier []*frontierPath
+type Frontier struct {
+	Values   []*frontierPath
+	Traverse Traverse
+}
 
 // Sort interface
-func (f Frontier) Len() int           { return len(f) }
-func (f Frontier) Swap(i, j int)      { f[i], f[j] = f[j], f[i] }
-func (f Frontier) Less(i, j int) bool { return f[i].Cost < f[j].Cost }
+func (f Frontier) Len() int           { return len(f.Values) }
+func (f Frontier) Swap(i, j int)      { f.Values[i], f.Values[j] = f.Values[j], f.Values[i] }
+func (f Frontier) Less(i, j int) bool { return f.Values[i].Cost < f.Values[j].Cost }
 
-func (f Frontier) peek() []*FrontierVertex { return f[0].Vertices }
-func (f Frontier) Peek() *FrontierVertex   { return f[0].Vertices[0] }
+func (f Frontier) peek() []*FrontierVertex { return f.Values[0].Vertices }
+func (f Frontier) Peek() *FrontierVertex   { return f.Values[0].Vertices[0] }
 
-func (f Frontier) Pop() ([]*FrontierVertex, float32, Frontier) {
-	return f[0].Vertices, f[0].Cost, f[1:]
+func (f *Frontier) Pop() (vertices []*FrontierVertex, cost float32) {
+	vertices = f.Values[0].Vertices
+	cost = f.Values[0].Cost
+	f.Values = f.Values[1:]
+	return
 }
 
 // OptimalPath returns what should be the optimal path
 func (f Frontier) OptimalPath() []*FrontierVertex {
-	return f[0].Vertices
+	return f.Values[0].Vertices
 }
 
-// TODO need todo somthing to remove deadends for explored frontierPath's
 // Append adds the vertices onto the frontier
-func (f Frontier) Append(vertices []*FrontierVertex, cost float32) Frontier {
-	f = append(f, &frontierPath{vertices, cost})
-	return f
-}
+func (f *Frontier) Append(vertices []*FrontierVertex, cost float32) {
+	f.Values = append(f.Values, &frontierPath{vertices, cost})
 
-func (f Frontier) AppendTo(vertices []*FrontierVertex, v *vertices.Vertex, variable string, cost float32) Frontier {
-
-	fv := &FrontierVertex{Vertex: v, Variable: variable}
-	//	frontier = frontier.Append(append(vertices, fv), cost+e.Weight)
-
-	f = append(f, &frontierPath{append(vertices, fv), cost})
-	return f
 }
 
 // NewFrontier create the Frontier using the inistal Vertex as the root of the graph
 func NewFrontier(v *vertices.Vertex, variable string) Frontier {
 	fv := &FrontierVertex{Vertex: v, Variable: variable}
 	f := Frontier{}
-	f = f.Append([]*FrontierVertex{fv}, 0)
+	f.Append([]*FrontierVertex{fv}, 0)
 	return f
 }

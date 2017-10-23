@@ -76,7 +76,7 @@ func Test_Filter(t *testing.T) {
 				arr := []*query.FrontierVertex{}
 				arr = append(arr, &query.FrontierVertex{Vertex: x, Variable: ""})
 				arr = append(arr, &query.FrontierVertex{Vertex: v, Variable: ""})
-				f = f.Append(arr, 0)
+				f.Append(arr, 0)
 				if state {
 					return &f, query.Visiting
 				}

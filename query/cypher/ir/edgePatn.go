@@ -56,16 +56,8 @@ func (patn *EdgePatn) ToPredicateEdgePath() *query.PredicateEdgePath {
 			}
 		}
 
-		if patn.isEndOfPattern() {
-			return patn.Body.Variable, query.Matched
-		}
-
-		return patn.Body.Variable, query.Visiting
+		return patn.Body.Variable, query.Matched
 	}, Variable: patn.Variable}
 
 	return &pvp
-}
-
-func (patn *EdgePatn) isEndOfPattern() bool {
-	return patn.Vertex == nil
 }

@@ -405,7 +405,7 @@ func ToVertices(i query.IteratorFrontier) []interface{} {
 	results := make([]interface{}, 0)
 	for frontier, ok := i(); ok != query.Failed; frontier, ok = i() {
 		if frontier.Len() > 0 {
-			vertices, _, _ := frontier.Pop()
+			vertices, _ := frontier.Pop()
 			for _, v := range vertices {
 				results = append(results, v)
 			}
