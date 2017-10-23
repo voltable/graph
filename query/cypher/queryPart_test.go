@@ -54,13 +54,13 @@ func Test_ToQueryPath(t *testing.T) {
 
 	got := partOne.Path
 	e := got.Front()
-	v, _ := e.Value.(query.VertexNext)
+	v, _ := e.Value.(*query.PredicateVertexPath)
 	if v == nil {
 		t.Errorf("VertexNext")
 	}
 
 	e = e.Next()
-	en, _ := e.Value.(query.EdgeNext)
+	en, _ := e.Value.(*query.PredicateEdgePath)
 	if en == nil {
 		t.Errorf("EdgeNext")
 	}

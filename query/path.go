@@ -7,14 +7,6 @@ import (
 )
 
 type (
-	// VertexNext is the Vertex part of the QueryPath sequence
-	VertexNext interface {
-	}
-
-	// EdgeNext is the Edge part of the QueryPath sequence
-	EdgeNext interface {
-	}
-
 	// PredicateVertexPath is the Vertex implementation part of the QueryPath sequence
 	PredicateVertexPath struct {
 		PredicateVertex
