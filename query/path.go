@@ -3,10 +3,18 @@ package query
 import (
 	"errors"
 
+	"github.com/RossMerr/Caudex.Graph/storage"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 type (
+	// Path is used to store data from the result of a Uniform Cost Search as part of the walk in the graph.
+	Path struct {
+		Iterate  IteratorFrontier
+		explored map[string]bool
+		storage  storage.Storage
+	}
+
 	// PredicateVertexPath is the Vertex implementation part of the QueryPath sequence
 	PredicateVertexPath struct {
 		PredicateVertex

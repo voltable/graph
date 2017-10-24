@@ -9,30 +9,20 @@ import (
 
 var emptyString = ""
 
-// EdgePath is used to store data from the result of a Uniform Cost Search over edges.
-//
-// It only acts as one part of a Path from a walk in the graph you want to traverse acting on the edge.
-// See VertexPath for walking over the Vertices.
-type EdgePath struct {
-	Iterate  IteratorFrontier
-	explored map[string]bool
-	storage  storage.Storage
-}
-
-// NewEdgePath constructs a new EdgePath
-func NewEdgePath(i IteratorFrontier, s storage.Storage) *EdgePath {
-	return &EdgePath{Iterate: i, storage: s}
+// NewEdgePath constructs a new edge Path
+func NewEdgePath(i IteratorFrontier, s storage.Storage) *Path {
+	return &Path{Iterate: i, storage: s}
 }
 
 // Relationship returns all edges matching the predicate
 //
-// The query is lazy only running on calling Iterate() from the VertexPath
-func (t *EdgePath) Relationship(predicate PredicateEdge) *VertexPath {
+// The query is lazy only running on calling Iterate()
+func (t *Path) Relationship(predicate PredicateEdge) *Path {
 	if predicate == nil {
 		predicate = AllEdges()
 	}
 
-	return &VertexPath{
+	return &Path{
 		explored: t.explored,
 		storage:  t.storage,
 		Iterate: func() (frontier *Frontier, ok Traverse) {

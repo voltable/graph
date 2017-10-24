@@ -24,8 +24,8 @@ func NewTraversal(i storage.Storage) *Traversal {
 
 // Travers run's the query over the graph and returns a new resulting Iterator
 func (t *Traversal) Travers(iterator enumerables.Iterator, path *list.List) (iteratorFrontier IteratorFrontier, err error) {
-	var edgePath *EdgePath
-	var vertexPath *VertexPath
+	var edgePath *Path
+	var vertexPath *Path
 
 	if path == nil {
 		return nil, errPathNotDefine
