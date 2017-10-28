@@ -8,7 +8,7 @@ type frontierPath struct {
 	Traverse Traverse
 }
 
-// FrontierVertex containers a vertex and it's Variable
+// FrontierVertex containers a vertex and it's Variable used by a query
 type FrontierVertex struct {
 	*vertices.Vertex
 	Variable string
@@ -24,9 +24,7 @@ func (f Frontier) Len() int           { return len(f.Values) }
 func (f Frontier) Swap(i, j int)      { f.Values[i], f.Values[j] = f.Values[j], f.Values[i] }
 func (f Frontier) Less(i, j int) bool { return f.Values[i].Cost < f.Values[j].Cost }
 
-func (f Frontier) peek() []*FrontierVertex { return f.Values[0].Vertices }
-func (f Frontier) Peek() *FrontierVertex   { return f.Values[0].Vertices[0] }
-
+// Pop removes the FrontierVertex array and cost from the Frontier
 func (f *Frontier) Pop() (vertices []*FrontierVertex, cost float32) {
 	vertices = f.Values[0].Vertices
 	cost = f.Values[0].Cost
@@ -35,6 +33,8 @@ func (f *Frontier) Pop() (vertices []*FrontierVertex, cost float32) {
 }
 
 // OptimalPath returns what should be the optimal path
+//
+// Must have run a sort on the Frontier before calling the OptimalPath
 func (f Frontier) OptimalPath() []*FrontierVertex {
 	return f.Values[0].Vertices
 }

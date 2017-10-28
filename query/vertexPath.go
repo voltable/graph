@@ -24,9 +24,8 @@ func (t *Path) Node(predicate PredicateVertex) *Path {
 		storage:  t.storage,
 		Iterate: func() (frontier *Frontier, ok Traverse) {
 			for frontier, ok = t.Iterate(); ok != Failed; frontier, ok = t.Iterate() {
-
 				if frontier.Len() > 0 {
-					vertices := frontier.peek()
+					vertices := frontier.OptimalPath()
 					vertex := vertices[len(vertices)-1]
 					t.explored[vertex.ID()] = true
 					if variable, p := predicate(vertex.Vertex); p != Failed {

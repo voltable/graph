@@ -6,8 +6,10 @@ type Traverse int
 const (
 	// Visiting is still traversing the graph
 	Visiting Traverse = iota
-	// Failed  did not find a match in the traversal
-	Failed
-	// Matched in the traversal
+	// Matching the edge's but not yet the vertex
+	Matching
+	// Matched the vertex
 	Matched
+	// Failed did not find a match in the traversal
+	Failed
 )
