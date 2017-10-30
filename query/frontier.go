@@ -35,8 +35,8 @@ func (f *Frontier) Pop() (vertices []*FrontierVertex, cost float32) {
 // OptimalPath returns what should be the optimal path
 //
 // Must have run a sort on the Frontier before calling the OptimalPath
-func (f Frontier) OptimalPath() []*FrontierVertex {
-	return f.Values[0].Vertices
+func (f Frontier) OptimalPath() ([]*FrontierVertex, Traverse) {
+	return f.Values[0].Vertices, f.Values[0].Traverse
 }
 
 // Append adds the vertices onto the frontier

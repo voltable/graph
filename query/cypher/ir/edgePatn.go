@@ -56,7 +56,7 @@ func (patn *EdgePatn) ToPredicateEdgePath() *query.PredicateEdgePath {
 			}
 		}
 
-		return patn.Body.Variable, query.Matched
+		return patn.Body.Variable, query.Matching
 	}, Variable: patn.Variable}
 
 	return &pvp

@@ -4,9 +4,9 @@ package query
 type Traverse int
 
 const (
-	// Visiting is still traversing the graph
+	// Visiting is traversing the graph and not matching any part of the edge or vertex
 	Visiting Traverse = iota
-	// Matching the edge's but not yet the vertex
+	// Matching the edge's but not yet the vertex so mighe be traversing the edge and vertex
 	Matching
 	// Matched the vertex
 	Matched
