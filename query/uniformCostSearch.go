@@ -1,7 +1,6 @@
 package query
 
 import (
-	"fmt"
 	"sort"
 	"sync"
 
@@ -14,10 +13,6 @@ type Plan struct {
 	storage         storage.Storage
 	predicateVertex PredicateVertex
 	predicateEdge   PredicateEdge
-
-	isResultsOpen bool
-	mux           sync.Mutex
-	Results       chan *Frontier
 }
 
 func NewPlan(storage storage.Storage, predicateVertex PredicateVertex, predicateEdge PredicateEdge) *Plan {
@@ -25,19 +20,8 @@ func NewPlan(storage storage.Storage, predicateVertex PredicateVertex, predicate
 		storage:         storage,
 		predicateVertex: predicateVertex,
 		predicateEdge:   predicateEdge,
-		isResultsOpen:   true,
-		Results:         make(chan *Frontier),
 	}
 	return plan
-}
-
-func (p *Plan) CloseResults() {
-	p.mux.Lock()
-	if p.isResultsOpen {
-		close(p.Results)
-		p.isResultsOpen = false
-	}
-	p.mux.Unlock()
 }
 
 func (t *Plan) UniformCostSearch(frontier *Frontier) bool {
@@ -75,49 +59,49 @@ func (t *Plan) UniformCostSearch(frontier *Frontier) bool {
 func SearchPlan(storage storage.Storage, iterator enumerables.Iterator, vertexPath *PredicateVertexPath, edgePath *PredicateEdgePath) (iteratorFrontier IteratorFrontier, err error) {
 	path := NewVertexPath(iterator, storage, vertexPath.Variable)
 	plan := NewPlan(storage, vertexPath.PredicateVertex, edgePath.PredicateEdge)
+	wg := &sync.WaitGroup{}
 
-	start := forEach(path.Iterate)
-	out := worker(plan, start)
+	start, results := forEach(path.Iterate, wg)
+	worker(plan, start, results, wg)
 
-	go func() {
-		in := out
-		out = worker(plan, in)
-	}()
-
-	for f := range plan.Results {
-		fmt.Printf("results %+v\n", f)
-	}
-
-	return nil, nil
+	return func() (*Frontier, Traverse) {
+		f, ok := <-results
+		if ok {
+			return f, Matched
+		}
+		return nil, Failed
+	}, nil
 }
 
-func forEach(i IteratorFrontier) chan *Frontier {
+func worker(plan *Plan, out chan *Frontier, results chan *Frontier, wg *sync.WaitGroup) {
+	go func() {
+		for f := range out {
+			if plan.UniformCostSearch(f) {
+				results <- f
+			} else if f.Len() > 0 {
+				wg.Add(1)
+				go func() {
+					out <- f
+				}()
+			}
+			wg.Done()
+		}
+	}()
+}
+
+func forEach(i IteratorFrontier, wg *sync.WaitGroup) (chan *Frontier, chan *Frontier) {
 	out := make(chan *Frontier)
+	results := make(chan *Frontier)
 	go func() {
 		for frontier, ok := i(); ok != Failed; frontier, ok = i() {
+			wg.Add(1)
 			out <- frontier
 		}
-		close(out)
+		go func() {
+			wg.Wait()
+			close(out)
+			close(results)
+		}()
 	}()
-	return out
-}
-
-func worker(plan *Plan, in <-chan *Frontier) <-chan *Frontier {
-	out := make(chan *Frontier)
-	go func() {
-		canClose := true
-		for f := range in {
-			if plan.UniformCostSearch(f) {
-				plan.Results <- f
-			} else if f.Len() > 0 {
-				canClose = false
-				out <- f
-			}
-		}
-		if canClose {
-			plan.CloseResults()
-		}
-		close(out)
-	}()
-	return out
+	return out, results
 }
