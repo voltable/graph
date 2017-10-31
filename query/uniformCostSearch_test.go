@@ -46,11 +46,12 @@ func Test_UniformCostSearch(t *testing.T) {
 
 	toPredicateVertex := func(*ir.VertexPatn) query.PredicateVertex {
 		return func(v *vertices.Vertex) (string, query.Traverse) {
-			if v.ID() != per.ID() {
-				return "", query.Visiting
-			} else {
-				return "", query.Matched
-			}
+			return "", query.Matched
+			// if v.ID() != per.ID() {
+			// 	return "", query.Visiting
+			// } else {
+			// 	return "", query.Matched
+			// }
 		}
 	}
 
