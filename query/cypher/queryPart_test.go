@@ -1,7 +1,6 @@
 package cypher_test
 
 import (
-	"container/list"
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph/expressions"
@@ -41,9 +40,10 @@ func Test_ToQueryPath(t *testing.T) {
 		}
 	}
 
-	want := list.New()
-	want.PushBack(&query.PredicateVertexPath{PredicateVertex: toPredicateVertex(vertexPatn)})
-	want.PushBack(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(edgePatn)})
+	want := make([]interface{}, 0)
+
+	want = append(want, &query.PredicateVertexPath{PredicateVertex: toPredicateVertex(vertexPatn)})
+	want = append(want, &query.PredicateEdgePath{PredicateEdge: toPredicateEdge(edgePatn)})
 
 	parts, _ := cypher.NewParts().ToQueryPart(match)
 	partOne := parts[0]
@@ -52,15 +52,15 @@ func Test_ToQueryPath(t *testing.T) {
 		t.Errorf("Where statment not matched")
 	}
 
-	got := partOne.Path
-	e := got.Front()
-	v, _ := e.Value.(*query.PredicateVertexPath)
+	got := partOne.Predicates
+	e := got[0]
+	v, _ := e.(*query.PredicateVertexPath)
 	if v == nil {
 		t.Errorf("VertexNext")
 	}
 
-	e = e.Next()
-	en, _ := e.Value.(*query.PredicateEdgePath)
+	e = got[1]
+	en, _ := e.(*query.PredicateEdgePath)
 	if en == nil {
 		t.Errorf("EdgeNext")
 	}

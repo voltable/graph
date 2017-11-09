@@ -46,14 +46,14 @@ func AllVertices() PredicateVertex {
 	}
 }
 
-func toFontier(i enumerables.Iterator, variable string) IteratorFrontier {
-	return func() (*Frontier, Traverse) {
-		for item, ok := i(); ok; item, ok = i() {
-			if v, is := item.(*vertices.Vertex); is {
-				f := NewFrontier(v, variable)
-				return &f, Visiting
-			}
-		}
-		return nil, Failed
-	}
-}
+// func toFontier(i enumerables.Iterator, variable string) IteratorFrontier {
+// 	return func() (*Frontier, Traverse) {
+// 		for item, ok := i(); ok; item, ok = i() {
+// 			if v, is := item.(*vertices.Vertex); is {
+// 				f := NewFrontier(v, variable)
+// 				return &f, Visiting
+// 			}
+// 		}
+// 		return nil, Failed
+// 	}
+// }

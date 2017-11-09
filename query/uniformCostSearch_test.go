@@ -115,21 +115,19 @@ func Test_UniformCostSearch(t *testing.T) {
 		}
 	}
 
-	//path := list.New()
-	//path.PushBack(&query.PredicateVertexPath{PredicateVertex: toPredicateVertex(nil)})
-	// path.PushBack(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(nil)})
-	// path.PushBack(&query.PredicateVertexPath{PredicateVertex: toPredicateVertex(nil)})
-	// path.PushBack(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(nil)})
-	// path.PushBack(&query.PredicateVertexPath{PredicateVertex: toPredicateVertex(nil)})
-	// path.PushBack(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(nil)})
-	// path.PushBack(&query.PredicateVertexPath{PredicateVertex: toPredicateVertex(nil)})
-	// path.PushBack(&query.PredicateEdgePath{PredicateEdge: toPredicateEdge(nil)})
-	// path.PushBack(&query.PredicateVertexPath{PredicateVertex: toPredicateVertex(nil)})
-
 	vPath := &query.PredicateVertexPath{PredicateVertex: toPredicateVertex(nil)}
 	ePath := &query.PredicateEdgePath{PredicateEdge: toPredicateEdge(nil)}
 
-	it, err := query.SearchPlan(g, g.ForEachTest(), vPath, ePath)
+	path := make([]interface{}, 0)
+	path = append(path, vPath)
+	path = append(path, ePath)
+	path = append(path, vPath)
+	path = append(path, ePath)
+	path = append(path, vPath)
+	path = append(path, ePath)
+
+	plan := query.NewPlan(g)
+	it, err := plan.SearchPlan(g.ForEachTest(), path)
 	if err != nil {
 		t.Fatalf("Travers failed %+v", err)
 	}

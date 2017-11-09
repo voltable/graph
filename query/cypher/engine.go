@@ -30,7 +30,7 @@ func newEngine(i storage.Storage) (query.Engine, error) {
 func NewEngine(i storage.Storage) *Engine {
 	return &Engine{
 		Parser:    parser.NewParser(),
-		Traversal: query.NewTraversal(i),
+		Traversal: query.NewPlan(i),
 		Storage:   i,
 		Parts:     NewParts(),
 		Filter:    NewFilter(),
@@ -62,7 +62,7 @@ func (qe Engine) Parse(q string) (*query.Query, error) {
 
 	forEach := qe.Storage.ForEach()
 	for _, part := range queryPart {
-		f, err := qe.Traversal.Travers(forEach, part.Path)
+		f, err := qe.Traversal.SearchPlan(forEach, part.Predicates)
 		if err != nil {
 			return nil, err
 		}

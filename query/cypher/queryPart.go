@@ -1,8 +1,6 @@
 package cypher
 
 import (
-	"container/list"
-
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ir"
 )
@@ -13,8 +11,8 @@ type Parts interface {
 
 // QueryPart is one part of a explicitly separate query parts
 type QueryPart struct {
-	Where *ast.WhereStmt
-	Path  *list.List
+	Where      *ast.WhereStmt
+	Predicates []interface{}
 }
 
 // Predicate gets the Predicate from the query where statment
@@ -40,15 +38,15 @@ func NewParts() Parts {
 // ToQueryPath converts a cypher.Stmt to a QueryPath the queryPath is used to walk the graph
 func (qq cypherParts) ToQueryPart(stmt ast.Clauses) ([]*QueryPart, error) {
 	arr := make([]*QueryPart, 0)
-	qp := QueryPart{Path: list.New()}
+	qp := QueryPart{Predicates: make([]interface{}, 0)}
 	arr = append(arr, &qp)
 	if pattern, ok := IsPattern(stmt); ok {
 		for pattern != nil {
 			if v, ok := pattern.(*ir.VertexPatn); ok && v != nil {
-				qp.Path.PushBack(v.ToPredicateVertexPath())
+				qp.Predicates = append(qp.Predicates, v.ToPredicateVertexPath())
 				pattern = v.Edge
 			} else if e, ok := pattern.(*ir.EdgePatn); ok && e != nil {
-				qp.Path.PushBack(e.ToPredicateEdgePath())
+				qp.Predicates = append(qp.Predicates, e.ToPredicateEdgePath())
 				pattern = e.Vertex
 			} else {
 				break
