@@ -95,7 +95,14 @@ func (t *Plan) SearchPlan(iterator enumerables.Iterator, predicates []interface{
 	t.predicates = predicates
 	t.Depth = len(predicates)
 
-	results := t.forEach(iterator, t.variableVertex())
+	results := make(chan *Frontier)
+
+	t.forEach(iterator, t.variableVertex(), results)
+
+	go func() {
+		t.wg.Wait()
+		close(results)
+	}()
 
 	return func() (*Frontier, Traverse) {
 		f, opened := <-results
@@ -117,14 +124,7 @@ func (t *Plan) worker(f *Frontier, results chan *Frontier) {
 	}
 }
 
-func (t *Plan) forEach(i enumerables.Iterator, variable string) chan *Frontier {
-	results := make(chan *Frontier)
-
-	go func() {
-		t.wg.Wait()
-		close(results)
-	}()
-
+func (t *Plan) forEach(i enumerables.Iterator, variable string, results chan *Frontier) {
 	for item, ok := i(); ok; item, ok = i() {
 		if v, is := item.(*vertices.Vertex); is {
 			f := NewFrontier(v, variable)
@@ -132,6 +132,4 @@ func (t *Plan) forEach(i enumerables.Iterator, variable string) chan *Frontier {
 			go t.worker(&f, results)
 		}
 	}
-
-	return results
 }
