@@ -1,7 +1,6 @@
 package query
 
 import (
-	"fmt"
 	"sort"
 	"sync"
 
@@ -57,18 +56,12 @@ var count int = 0
 
 func (t *Plan) UniformCostSearch(frontier *Frontier) bool {
 	if frontier.Len() > 0 {
-		count++
 		vertices, cost := frontier.Pop()
 
 		depth := len(vertices)
 		vertex := vertices[depth-1]
 		predicateDepth := depth + (depth - 1)
 
-		fmt.Printf("count %+v\n", count)
-
-		fmt.Printf("depth %+v\n", depth)
-
-		fmt.Printf("vertex %+v\n", vertex.ID())
 		if _, ok := frontier.Explored[vertex.Vertex.ID()]; !ok {
 			if pv := t.predicateVertex(predicateDepth - 1); pv != nil {
 				if variable, p := pv(vertex.Vertex); p == Matched {
@@ -76,7 +69,6 @@ func (t *Plan) UniformCostSearch(frontier *Frontier) bool {
 					frontier.Append(vertices, cost, p)
 					sort.Sort(frontier)
 					frontier.Explored[vertex.ID()] = true
-					fmt.Printf("result: %+v\n", predicateDepth == t.Depth)
 					return predicateDepth == t.Depth
 				}
 			}
@@ -96,7 +88,6 @@ func (t *Plan) UniformCostSearch(frontier *Frontier) bool {
 		}
 		sort.Sort(frontier)
 	}
-	fmt.Printf("result: false\n")
 	return false
 }
 
@@ -104,8 +95,7 @@ func (t *Plan) SearchPlan(iterator enumerables.Iterator, predicates []interface{
 	t.predicates = predicates
 	t.Depth = len(predicates)
 
-	start, results := t.forEach(toFontier(iterator, t.variableVertex()))
-	t.worker(start, results)
+	results := t.forEach(iterator, t.variableVertex())
 
 	return func() (*Frontier, Traverse) {
 		f, opened := <-results
@@ -116,50 +106,32 @@ func (t *Plan) SearchPlan(iterator enumerables.Iterator, predicates []interface{
 	}, nil
 }
 
-func (t *Plan) worker(out chan *Frontier, results chan *Frontier) {
-	go func() {
-		for f := range out {
-			if t.UniformCostSearch(f) {
-				results <- f
-				t.wg.Done()
-			} else if f.Len() > 0 {
-				go func() {
-					out <- f
-				}()
-			} else {
-				t.wg.Done()
-			}
-		}
-
-	}()
-}
-
-func (t *Plan) forEach(i IteratorFrontier) (chan *Frontier, chan *Frontier) {
-	out := make(chan *Frontier)
-	results := make(chan *Frontier)
-	go func() {
-		defer close(out)
-		defer close(results)
-
-		for frontier, ok := i(); ok != Failed; frontier, ok = i() {
-			t.wg.Add(1)
-			out <- frontier
-		}
-
-		t.wg.Wait()
-
-	}()
-	return out, results
-}
-
-func toFontier(i enumerables.Iterator, variable string) IteratorFrontier {
-	return func() (*Frontier, Traverse) {
-		for item, ok := i(); ok; item, ok = i() {
-			if v, is := item.(*vertices.Vertex); is {
-				f := NewFrontier(v, variable)
-				return &f, Visiting
-			}
-		}
-		return nil, Failed
+func (t *Plan) worker(f *Frontier, results chan *Frontier) {
+	if t.UniformCostSearch(f) {
+		results <- f
+		t.wg.Done()
+	} else if f.Len() > 0 {
+		go t.worker(f, results)
+	} else {
+		t.wg.Done()
 	}
+}
+
+func (t *Plan) forEach(i enumerables.Iterator, variable string) chan *Frontier {
+	results := make(chan *Frontier)
+
+	go func() {
+		t.wg.Wait()
+		close(results)
+	}()
+
+	for item, ok := i(); ok; item, ok = i() {
+		if v, is := item.(*vertices.Vertex); is {
+			f := NewFrontier(v, variable)
+			t.wg.Add(1)
+			go t.worker(&f, results)
+		}
+	}
+
+	return results
 }

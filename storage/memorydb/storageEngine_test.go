@@ -1,7 +1,6 @@
 package memorydb_test
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -36,7 +35,7 @@ func Test_Query(t *testing.T) {
 		// 	}(),
 		// 	query: "MATCH (n:person) WHERE n.name = 'john smith'",
 		// },
-		// 1
+		// // 1
 		// {
 		// 	expecting: func() []*vertices.Vertex {
 		// 		arr := make([]*vertices.Vertex, 0, 0)
@@ -170,13 +169,11 @@ func Test_Query(t *testing.T) {
 			expecting: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
 				v1, _ := vertices.NewVertex()
-				fmt.Printf("v1 %+v\n", v1.ID())
 				v1.SetLabel("person")
 				v1.SetProperty("name", "john smith")
 				arr = append(arr, v1)
 
 				v2, _ := vertices.NewVertex()
-				fmt.Printf("v2 %+v\n", v2.ID())
 
 				v2.SetLabel("person")
 				v2.SetProperty("name", "max power")
@@ -191,7 +188,6 @@ func Test_Query(t *testing.T) {
 				arr := make([]*vertices.Vertex, 0, 0)
 
 				v1, _ := vertices.NewVertex()
-				fmt.Printf("v3 %+v\n", v1.ID())
 				v1.SetLabel("person")
 				v1.SetProperty("name", "foo bar")
 				arr = append(arr, v1)
