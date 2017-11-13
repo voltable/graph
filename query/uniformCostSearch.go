@@ -118,7 +118,7 @@ func (t *Plan) worker(f *Frontier, results chan *Frontier) {
 		results <- f
 		t.wg.Done()
 	} else if f.Len() > 0 {
-		go t.worker(f, results)
+		t.worker(f, results)
 	} else {
 		t.wg.Done()
 	}
