@@ -31,12 +31,14 @@ func (qe Filter) Filter(i query.IteratorFrontier, predicate ast.Expr) enumerable
 	return func() (interface{}, bool) {
 		for ok != query.Failed {
 			if position == 0 {
+				if frontier == nil {
+					return nil, false
+				}
 				if frontier.Len() > 0 {
 					vertices, _ = frontier.OptimalPath()
 					length = len(vertices)
 				}
 			}
-
 			if position < length {
 				v := vertices[position]
 				position++

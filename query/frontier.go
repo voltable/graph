@@ -16,7 +16,8 @@ type FrontierVertex struct {
 
 // Frontier priority queue containing vertices to be explored and the cost for a Uniform Cost Search
 type Frontier struct {
-	Values []*frontierPath
+	Values   []*frontierPath
+	Explored map[string]bool
 }
 
 // Sort interface
@@ -41,14 +42,18 @@ func (f Frontier) OptimalPath() ([]*FrontierVertex, Traverse) {
 
 // Append adds the vertices onto the frontier
 func (f *Frontier) Append(vertices []*FrontierVertex, cost float32, t Traverse) {
-	f.Values = append(f.Values, &frontierPath{vertices, cost, t})
+	fp := &frontierPath{vertices, cost, t}
+	f.Values = append(f.Values, fp)
 
 }
 
 // NewFrontier create the Frontier using the inistal Vertex as the root of the graph
 func NewFrontier(v *vertices.Vertex, variable string) Frontier {
-	fv := &FrontierVertex{Vertex: v, Variable: variable}
-	f := Frontier{}
+	fv := &FrontierVertex{
+		Vertex:   v,
+		Variable: variable,
+	}
+	f := Frontier{Explored: make(map[string]bool)}
 	f.Append([]*FrontierVertex{fv}, 0, Visiting)
 	return f
 }

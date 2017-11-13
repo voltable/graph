@@ -11,17 +11,16 @@ import (
 )
 
 type Plan struct {
-	explored   map[string]bool
 	storage    storage.Storage
 	wg         *sync.WaitGroup
 	predicates []interface{}
+	Depth      int
 }
 
 func NewPlan(storage storage.Storage) *Plan {
 	plan := &Plan{
-		explored: make(map[string]bool),
-		storage:  storage,
-		wg:       &sync.WaitGroup{},
+		storage: storage,
+		wg:      &sync.WaitGroup{},
 	}
 	return plan
 }
@@ -54,26 +53,38 @@ func (t *Plan) predicateEdge(i int) PredicateEdge {
 	return nil
 }
 
+var count int = 0
+
 func (t *Plan) UniformCostSearch(frontier *Frontier) bool {
 	if frontier.Len() > 0 {
+		count++
 		vertices, cost := frontier.Pop()
 
 		depth := len(vertices)
 		vertex := vertices[depth-1]
-		t.explored[vertex.ID()] = true
+		predicateDepth := depth + (depth - 1)
 
-		if pv := t.predicateVertex(depth - 1); pv != nil {
-			if variable, p := pv(vertex.Vertex); p == Matched {
-				vertex.Variable = variable
-				frontier.Append(vertices, cost, p)
-				sort.Sort(frontier)
-				return true
+		fmt.Printf("count %+v\n", count)
+
+		fmt.Printf("depth %+v\n", depth)
+
+		fmt.Printf("vertex %+v\n", vertex.ID())
+		if _, ok := frontier.Explored[vertex.Vertex.ID()]; !ok {
+			if pv := t.predicateVertex(predicateDepth - 1); pv != nil {
+				if variable, p := pv(vertex.Vertex); p == Matched {
+					vertex.Variable = variable
+					frontier.Append(vertices, cost, p)
+					sort.Sort(frontier)
+					frontier.Explored[vertex.ID()] = true
+					fmt.Printf("result: %+v\n", predicateDepth == t.Depth)
+					return predicateDepth == t.Depth
+				}
 			}
 		}
 
-		for _, e := range vertex.Edges() {
-			if _, ok := t.explored[e.ID()]; !ok {
-				if pe := t.predicateEdge(depth); pe != nil {
+		if pe := t.predicateEdge(predicateDepth); pe != nil {
+			for _, e := range vertex.Edges() {
+				if _, ok := frontier.Explored[e.ID()]; !ok {
 					if variable, p := pe(e, uint(depth)); p == Visiting || p == Matching {
 						if v, err := t.storage.Fetch(e.ID()); err == nil {
 							fv := &FrontierVertex{Vertex: v, Variable: variable}
@@ -83,29 +94,22 @@ func (t *Plan) UniformCostSearch(frontier *Frontier) bool {
 				}
 			}
 		}
-
 		sort.Sort(frontier)
-
 	}
-
+	fmt.Printf("result: false\n")
 	return false
 }
 
-var count = 0
-
 func (t *Plan) SearchPlan(iterator enumerables.Iterator, predicates []interface{}) (iteratorFrontier IteratorFrontier, err error) {
 	t.predicates = predicates
+	t.Depth = len(predicates)
 
 	start, results := t.forEach(toFontier(iterator, t.variableVertex()))
 	t.worker(start, results)
 
 	return func() (*Frontier, Traverse) {
-		if count >= 1 {
-			fmt.Printf("%+v", results)
-		}
-		count++
-		f, ok := <-results
-		if ok {
+		f, opened := <-results
+		if opened {
 			return f, Matched
 		}
 		return nil, Failed
@@ -117,14 +121,16 @@ func (t *Plan) worker(out chan *Frontier, results chan *Frontier) {
 		for f := range out {
 			if t.UniformCostSearch(f) {
 				results <- f
+				t.wg.Done()
 			} else if f.Len() > 0 {
-				t.wg.Add(1)
 				go func() {
 					out <- f
 				}()
+			} else {
+				t.wg.Done()
 			}
-			t.wg.Done()
 		}
+
 	}()
 }
 
@@ -132,15 +138,16 @@ func (t *Plan) forEach(i IteratorFrontier) (chan *Frontier, chan *Frontier) {
 	out := make(chan *Frontier)
 	results := make(chan *Frontier)
 	go func() {
+		defer close(out)
+		defer close(results)
+
 		for frontier, ok := i(); ok != Failed; frontier, ok = i() {
 			t.wg.Add(1)
 			out <- frontier
 		}
-		go func() {
-			t.wg.Wait()
-			close(out)
-			close(results)
-		}()
+
+		t.wg.Wait()
+
 	}()
 	return out, results
 }
