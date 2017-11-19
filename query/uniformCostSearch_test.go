@@ -29,6 +29,7 @@ var (
 	per, _ = vertices.NewVertex()
 )
 
+// https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/20160715114833/Dijkstras-Algorithm-routing11.png
 func init() {
 	drw.SetLabel("drw")
 	cns.SetLabel("cns")
@@ -125,6 +126,20 @@ func Test_UniformCostSearch(t *testing.T) {
 	path = append(path, ePath)
 	path = append(path, vPath)
 	path = append(path, ePath)
+	path = append(path, vPath)
+	path = append(path, ePath)
+	path = append(path, vPath)
+	// path = append(path, ePath)
+	// path = append(path, vPath)
+	// path = append(path, ePath)
+	// path = append(path, vPath)
+	// path = append(path, ePath)
+	// path = append(path, vPath)
+	// path = append(path, ePath)
+	// path = append(path, vPath)
+	// path = append(path, ePath)
+	// path = append(path, vPath)
+	// path = append(path, ePath)
 
 	plan := query.NewPlan(g)
 	it, err := plan.SearchPlan(g.ForEachTest(), path)

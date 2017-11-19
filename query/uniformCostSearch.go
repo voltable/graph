@@ -52,8 +52,6 @@ func (t *Plan) predicateEdge(i int) PredicateEdge {
 	return nil
 }
 
-var count int = 0
-
 func (t *Plan) UniformCostSearch(frontier *Frontier) bool {
 	if frontier.Len() > 0 {
 		vertices, cost := frontier.Pop()
@@ -63,12 +61,12 @@ func (t *Plan) UniformCostSearch(frontier *Frontier) bool {
 		predicateDepth := depth + (depth - 1)
 
 		if _, ok := frontier.Explored[vertex.Vertex.ID()]; !ok {
+			frontier.Explored[vertex.ID()] = true
 			if pv := t.predicateVertex(predicateDepth - 1); pv != nil {
 				if variable, p := pv(vertex.Vertex); p == Matched {
 					vertex.Variable = variable
 					frontier.Append(vertices, cost, p)
 					sort.Sort(frontier)
-					frontier.Explored[vertex.ID()] = true
 					return predicateDepth == t.Depth
 				}
 			}
