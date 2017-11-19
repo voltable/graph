@@ -40,7 +40,7 @@ func NewEngine(i storage.Storage) *Engine {
 // Engine is a implementation of the Query interface used to pass cypher queries
 type Engine struct {
 	Parser    parser.Parser
-	Traversal CypherTraversal
+	Traversal query.Traversal
 	Filter    CypherFilter
 	Storage   storage.Storage
 	Parts     Parts

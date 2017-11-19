@@ -23,11 +23,10 @@ var (
 )
 
 type StorageEngine struct {
-	vertices  map[string]vertices.Vertex
-	keys      []string
-	Options   *graph.Options
-	engine    query.Engine
-	traversal query.Traversal
+	vertices map[string]vertices.Vertex
+	keys     []string
+	Options  *graph.Options
+	engine   query.Engine
 }
 
 var _ graph.Graph = (*StorageEngine)(nil)
@@ -50,7 +49,6 @@ func NewStorageEngine(o *graph.Options) (graph.Graph, error) {
 	}
 	se.engine = queryEngine
 
-	se.traversal = *query.NewTraversal(&se)
 	return &se, nil
 }
 

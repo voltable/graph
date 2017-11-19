@@ -9,6 +9,10 @@ import (
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
+type Traversal interface {
+	SearchPlan(iterator enumerables.Iterator, predicates []interface{}) (iteratorFrontier IteratorFrontier, err error)
+}
+
 type Plan struct {
 	storage    storage.Storage
 	wg         *sync.WaitGroup
