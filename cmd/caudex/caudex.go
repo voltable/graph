@@ -1,28 +1,39 @@
 package main
 
 import (
-	"github.com/RossMerr/Caudex.Graph"
+	"compress/gzip"
+	"io"
+	"log"
+	"net/http"
+	"strings"
 )
 
+type gzipResponseWriter struct {
+	io.Writer
+	http.ResponseWriter
+}
+
+func (w gzipResponseWriter) Write(b []byte) (int, error) {
+	return w.Writer.Write(b)
+}
+
+func Gzip(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
+			handler.ServeHTTP(w, r)
+		}
+		w.Header().Set("Content-Encoding", "gzip")
+		gz := gzip.NewWriter(w)
+		defer gz.Close()
+		gzw := gzipResponseWriter{Writer: gz, ResponseWriter: w}
+		handler.ServeHTTP(gzw, r)
+	})
+}
+
 func main() {
-	var g graph.Graph
-	var err error
-	if g, err = graph.NewGraph("bolt", &graph.Options{Name: "test"}); err != nil {
-		panic(err)
-	}
-	//	q, err := g.Query("")
+	fs := http.FileServer(http.Dir("../../browser"))
+	http.Handle("/", Gzip(fs))
 
-	// slice := q.Node(func(v *vertices.Vertex) bool {
-	// 	return v.Label() == "foo"
-	// }).Relationship(func(e *vertices.Edge) bool {
-	// 	return true
-	// }).Node(func(v *vertices.Vertex) bool {
-	// 	return v.Label() == "foo"
-	// }).ToSlice()
-
-	// for _, v := range slice {
-	// 	fmt.Println(v)
-	// }
-
-	g.Close()
+	log.Println("Listening...")
+	http.ListenAndServe(":3000", nil)
 }

@@ -1,9 +1,13 @@
 {
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
-    "version": "0.1.0",
-    "command": "gocov",
-    "isShellCommand": true,
-    "args": ["test net/http | gocov-html > http.html"],
-    "showOutput": "always"
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "pack",
+            "type": "shell",
+            "command": "${workspaceFolder}browser/node_modules/.bin/webpack src/index.js dist/bundle.js",
+            "problemMatcher": []
+        }
+    ]
 }

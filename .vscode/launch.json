@@ -2,6 +2,19 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Web Server",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "remotePath": "",
+            "port": 2345,
+            "host": "127.0.0.1",
+            "program": "${workspaceRoot}/cmd/caudex",
+            "env": {},
+            "args": [],
+            "showLog": true
+        },
+        {
             "name": "Root Test",
             "type": "go",
             "request": "launch",
