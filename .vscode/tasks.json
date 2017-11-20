@@ -4,9 +4,13 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "pack",
-            "type": "shell",
-            "command": "${workspaceFolder}browser/node_modules/.bin/webpack src/index.js dist/bundle.js",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "label": "build",
+            "type": "npm",
+            "script": "build",
             "problemMatcher": []
         }
     ]
