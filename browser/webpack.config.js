@@ -4,28 +4,32 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 module.exports = {
   entry: {
-    index: './src/index.js',
+    index: './src/index.jsx',
   },
   devtool: 'inline-source-map',
   plugins: [
-    new CleanWebpackPlugin(['dist']),
+    new CleanWebpackPlugin(['www']),
     new HtmlWebpackPlugin({
       title: 'Caudex Browser'
     })
   ],
   output: {
     filename: '[name].bundle.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'www')
   },
   module: {
-    rules: [
+    loaders: [
       {
-        test: /\.css$/,
-        use: [
-          'style-loader',
-          'css-loader'
-        ]
+        test: /.jsx?$/,
+        loader: 'babel-loader',
+        exclude: /node_modules/,
+        query: {
+          presets: ['es2015', 'react']
+        }
       }
     ]
+  },
+  resolve: {
+    extensions: ['.js', '.jsx']
   }
 };

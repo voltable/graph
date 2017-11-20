@@ -31,7 +31,7 @@ func Gzip(handler http.Handler) http.Handler {
 }
 
 func main() {
-	fs := http.FileServer(http.Dir("../../browser"))
+	fs := http.FileServer(http.Dir("../../browser/www"))
 	http.Handle("/", Gzip(fs))
 
 	log.Println("Listening...")
