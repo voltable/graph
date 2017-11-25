@@ -1,9 +1,9 @@
 package query_test
 
 import (
+	"container/list"
 	"errors"
 	"reflect"
-	"strconv"
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph/enumerables"
@@ -29,6 +29,7 @@ var (
 	per, _ = vertices.NewVertex()
 )
 
+// https://neo4j.com/blog/graph-search-algorithm-basics/
 // https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/20160715114833/Dijkstras-Algorithm-routing11.png
 func init() {
 	drw.SetLabel("drw")
@@ -79,44 +80,13 @@ func init() {
 	per.AddEdgeWeight(drw, float32(48))
 }
 
-func ToIterator(i query.IteratorFrontier) []*vertices.Vertex {
-	results := make([]*vertices.Vertex, 0)
-
-	for frontier, ok := i(); ok != query.Failed; frontier, ok = i() {
-		if frontier.Len() > 0 {
-			vertices, _ := frontier.OptimalPath()
-			for _, v := range vertices {
-				results = append(results, v.Vertex)
-			}
-		}
-	}
-	return results
-}
-
 func Test_UniformCostSearch(t *testing.T) {
 	g := AustraliaGraph()
 
-	toPredicateVertex := func(*ir.VertexPatn) query.PredicateVertex {
-		return func(v *vertices.Vertex) (string, query.Traverse) {
-			if v.ID() != per.ID() {
-				return "", query.Failed
-			} else {
-				return "", query.Matched
-			}
-		}
-	}
-
-	toPredicateEdge := func(patn *ir.EdgePatn) query.PredicateEdge {
-		return func(e *vertices.Edge, depth uint) (string, query.Traverse) {
-			if e.ID() != per.ID() {
-				return "", query.Visiting
-			} else {
-				return "", query.Matching
-			}
-		}
-	}
-
+	toPredicateVertex := toPredicateVertex(t)
 	vPath := &query.PredicateVertexPath{PredicateVertex: toPredicateVertex(nil)}
+
+	toPredicateEdge := toPredicateEdge(t)
 	ePath := &query.PredicateEdgePath{PredicateEdge: toPredicateEdge(nil)}
 
 	path := make([]interface{}, 0)
@@ -139,7 +109,7 @@ func Test_UniformCostSearch(t *testing.T) {
 
 	count := len(result)
 	if count != 5 {
-		t.Fatalf("Expected count to be %s but was %s", "5", strconv.Itoa(count))
+		t.Fatalf("Expected result count to be %+v but was %+v", 5, count)
 	}
 
 	if !reflect.DeepEqual(result[0], syd) {
@@ -164,11 +134,8 @@ func Test_UniformCostSearch(t *testing.T) {
 }
 
 func AustraliaGraph() *StorageEngine {
-
 	g := &StorageEngine{vertices: make(map[string]vertices.Vertex)}
-
 	g.Create(drw, cns, asp, bne, syd, cbr, mel, adl, per)
-
 	return g
 }
 
@@ -235,4 +202,51 @@ func (se *StorageEngine) ForEachTest() enumerables.Iterator {
 		state = expressions.XORSwap(state)
 		return syd, state
 	}
+}
+
+func ToIterator(i query.IteratorFrontier) []*vertices.Vertex {
+	results := make([]*vertices.Vertex, 0)
+
+	for frontier, ok := i(); ok != query.Failed; frontier, ok = i() {
+		if frontier.Len() > 0 {
+			vertices := frontier.OptimalPath()
+			for _, v := range vertices {
+				results = append(results, v.(*query.FrontierVertex).Vertex)
+			}
+		}
+	}
+	return results
+}
+
+func toPredicateVertex(t *testing.T) func(*ir.VertexPatn) query.PredicateVertex {
+	return func(*ir.VertexPatn) query.PredicateVertex {
+		return func(v *vertices.Vertex) (string, query.Traverse) {
+			if v.ID() == per.ID() {
+				return "", query.Matched
+			} else {
+				return "", query.Failed
+			}
+		}
+	}
+}
+
+func toPredicateEdge(t *testing.T) func(patn *ir.EdgePatn) query.PredicateEdge {
+	return func(patn *ir.EdgePatn) query.PredicateEdge {
+		return func(e *vertices.Edge, depth uint) (string, query.Traverse) {
+			if e.ID() != per.ID() {
+				return "", query.Visiting
+			} else {
+				return "", query.Matching
+			}
+		}
+	}
+}
+
+func index(l *list.List, i int) interface{} {
+	e := l.Front()
+	for index := 1; index < i; index++ {
+		e = e.Next()
+	}
+
+	return e.Value
 }

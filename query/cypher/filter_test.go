@@ -70,13 +70,13 @@ func Test_Filter(t *testing.T) {
 		{
 			iterator: func() (*query.Frontier, query.Traverse) {
 				state = expressions.XORSwap(state)
-				f := query.Frontier{}
 				x, _ := vertices.NewVertex()
 				v, _ := vertices.NewVertex()
-				arr := []*query.FrontierVertex{}
-				arr = append(arr, &query.FrontierVertex{Vertex: x, Variable: ""})
-				arr = append(arr, &query.FrontierVertex{Vertex: v, Variable: ""})
-				f.Append(arr, 0, query.Visiting)
+				f := query.NewFrontier(x, "")
+				fq := f.Values[0]
+				fv := &query.FrontierVertex{Vertex: v, Variable: ""}
+				fq.Parts = append(fq.Parts, fv)
+
 				if state {
 					return &f, query.Visiting
 				}

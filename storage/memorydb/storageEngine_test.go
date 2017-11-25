@@ -227,38 +227,7 @@ func Test_Query(t *testing.T) {
 			}(),
 			query: "MATCH (n:person)-[:notknows]->(m:person) ",
 		},
-		// // 8
-		// {
-		// 	expecting: func() []*vertices.Vertex {
-		// 		arr := make([]*vertices.Vertex, 0, 0)
-		// 		v1, _ := vertices.NewVertex()
-		// 		v1.SetLabel("person")
-		// 		v1.SetProperty("name", "john smith")
-		// 		arr = append(arr, v1)
-
-		// 		v2, _ := vertices.NewVertex()
-		// 		v2.SetLabel("person")
-		// 		v2.SetProperty("name", "max power")
-		// 		arr = append(arr, v2)
-
-		// 		edge, _ := v1.AddDirectedEdge(v2)
-		// 		edge.SetRelationshipType("knows")
-
-		// 		return arr
-		// 	}(),
-		// 	uninterested: func() []*vertices.Vertex {
-		// 		arr := make([]*vertices.Vertex, 0, 0)
-
-		// 		v1, _ := vertices.NewVertex()
-		// 		v1.SetLabel("person")
-		// 		v1.SetProperty("name", "foo bar")
-		// 		arr = append(arr, v1)
-
-		// 		return arr
-		// 	}(),
-		// 	query: "MATCH (n:person)-[:knows]->(m:person) WHERE n.name = 'john smith' OR m.name = 'max power'",
-		// },
-		// 9
+		// 8
 		{
 			expecting: func() []*vertices.Vertex {
 				arr := make([]*vertices.Vertex, 0, 0)
@@ -286,7 +255,6 @@ func Test_Query(t *testing.T) {
 			query: "MATCH (n:person{name:'john smith'})",
 		},
 	}
-
 	for i, tt := range tests {
 		g, err := memorydb.NewStorageEngine(options)
 		if err != nil {
@@ -403,7 +371,6 @@ func Test_QueryRelationships(t *testing.T) {
 	// 	expecting: func(in []*vertices.Vertex) []*vertices.Vertex {
 	// 		arr := make([]*vertices.Vertex, 0, 0)
 	// 		arr = append(arr, in[0])
-	// 		arr = append(arr, in[1])
 	// 		arr = append(arr, in[2])
 	// 		return arr
 	// 	},
@@ -421,7 +388,7 @@ func Test_QueryRelationships(t *testing.T) {
 	// 		arr = append(arr, v2)
 
 	// 		edge2, _ := v1.AddDirectedEdge(v2)
-	// 		edge2.SetRelationshipType("knows")
+	// 		edge2.SetRelationshipType("notknows")
 
 	// 		v3, _ := vertices.NewVertex()
 	// 		v3.SetLabel("person")
@@ -434,6 +401,37 @@ func Test_QueryRelationships(t *testing.T) {
 	// 		return arr
 	// 	}(),
 	// 	query: "MATCH (n:person)-[*2]->(m:person) ",
+	// },
+	// // 3
+	// {
+	// 	expecting: func() []*vertices.Vertex {
+	// 		arr := make([]*vertices.Vertex, 0, 0)
+	// 		v1, _ := vertices.NewVertex()
+	// 		v1.SetLabel("person")
+	// 		v1.SetProperty("name", "john smith")
+	// 		arr = append(arr, v1)
+
+	// 		v2, _ := vertices.NewVertex()
+	// 		v2.SetLabel("person")
+	// 		v2.SetProperty("name", "max power")
+	// 		arr = append(arr, v2)
+
+	// 		edge, _ := v1.AddDirectedEdge(v2)
+	// 		edge.SetRelationshipType("knows")
+
+	// 		return arr
+	// 	}(),
+	// 	uninterested: func() []*vertices.Vertex {
+	// 		arr := make([]*vertices.Vertex, 0, 0)
+
+	// 		v1, _ := vertices.NewVertex()
+	// 		v1.SetLabel("person")
+	// 		v1.SetProperty("name", "foo bar")
+	// 		arr = append(arr, v1)
+
+	// 		return arr
+	// 	}(),
+	// 	query: "MATCH (n:person)-[:knows]->(m:person) WHERE n.name = 'john smith' OR m.name = 'max power'",
 	// },
 	}
 

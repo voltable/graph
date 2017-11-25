@@ -58,10 +58,10 @@ func (t *Plan) predicateEdge(i int) PredicateEdge {
 
 func (t *Plan) UniformCostSearch(frontier *Frontier) bool {
 	if frontier.Len() > 0 {
-		vertices, cost := frontier.Pop()
+		queue := frontier.Pop()
 
-		depth := len(vertices)
-		vertex := vertices[depth-1]
+		depth := len(queue.Parts)
+		vertex := queue.Parts[depth-1].(*FrontierVertex)
 		predicateDepth := depth + (depth - 1)
 
 		if _, ok := frontier.Explored[vertex.Vertex.ID()]; !ok {
@@ -69,7 +69,7 @@ func (t *Plan) UniformCostSearch(frontier *Frontier) bool {
 			if pv := t.predicateVertex(predicateDepth - 1); pv != nil {
 				if variable, p := pv(vertex.Vertex); p == Matched {
 					vertex.Variable = variable
-					frontier.Append(vertices, cost, p)
+					frontier.AppendQueue(queue)
 					sort.Sort(frontier)
 					return predicateDepth == t.Depth
 				}
@@ -81,8 +81,7 @@ func (t *Plan) UniformCostSearch(frontier *Frontier) bool {
 				if _, ok := frontier.Explored[e.ID()]; !ok {
 					if variable, p := pe(e, uint(depth)); p == Visiting || p == Matching {
 						if v, err := t.storage.Fetch(e.ID()); err == nil {
-							fv := &FrontierVertex{Vertex: v, Variable: variable}
-							frontier.Append(append(vertices, fv), cost+e.Weight, p)
+							frontier.AppendVertex(queue, v, variable, e.Weight)
 						}
 					}
 				}

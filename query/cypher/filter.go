@@ -26,7 +26,7 @@ func (qe Filter) Filter(i query.IteratorFrontier, predicate ast.Expr) enumerable
 	length := 0
 	position := 0
 	frontier, ok := i()
-	var vertices []*query.FrontierVertex
+	var vertices []interface{}
 
 	return func() (interface{}, bool) {
 		for ok != query.Failed {
@@ -35,12 +35,12 @@ func (qe Filter) Filter(i query.IteratorFrontier, predicate ast.Expr) enumerable
 					return nil, false
 				}
 				if frontier.Len() > 0 {
-					vertices, _ = frontier.OptimalPath()
+					vertices = frontier.OptimalPath()
 					length = len(vertices)
 				}
 			}
 			if position < length {
-				v := vertices[position]
+				v := vertices[position].(*query.FrontierVertex)
 				position++
 				if predicate != nil {
 					if qe.ExpressionEvaluator(predicate, v.Variable, v.Vertex) {

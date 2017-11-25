@@ -2,10 +2,9 @@ package query
 
 import "github.com/RossMerr/Caudex.Graph/vertices"
 
-type frontierPath struct {
-	Vertices []*FrontierVertex
-	Cost     float32
-	Traverse Traverse
+type FrontierQueue struct {
+	Parts []interface{}
+	Cost  float32
 }
 
 // FrontierVertex containers a vertex and it's Variable used by a query
@@ -16,7 +15,7 @@ type FrontierVertex struct {
 
 // Frontier priority queue containing vertices to be explored and the cost for a Uniform Cost Search
 type Frontier struct {
-	Values   []*frontierPath
+	Values   []*FrontierQueue
 	Explored map[string]bool
 }
 
@@ -26,9 +25,8 @@ func (f Frontier) Swap(i, j int)      { f.Values[i], f.Values[j] = f.Values[j], 
 func (f Frontier) Less(i, j int) bool { return f.Values[i].Cost < f.Values[j].Cost }
 
 // Pop removes the FrontierVertex array and cost from the Frontier
-func (f *Frontier) Pop() (vertices []*FrontierVertex, cost float32) {
-	vertices = f.Values[0].Vertices
-	cost = f.Values[0].Cost
+func (f *Frontier) Pop() (queue *FrontierQueue) {
+	queue = f.Values[0]
 	f.Values = f.Values[1:]
 	return
 }
@@ -36,24 +34,29 @@ func (f *Frontier) Pop() (vertices []*FrontierVertex, cost float32) {
 // OptimalPath returns what should be the optimal path
 //
 // Must have run a sort on the Frontier before calling the OptimalPath
-func (f Frontier) OptimalPath() ([]*FrontierVertex, Traverse) {
-	return f.Values[0].Vertices, f.Values[0].Traverse
+func (f Frontier) OptimalPath() []interface{} {
+	return f.Values[0].Parts
 }
 
 // Append adds the vertices onto the frontier
-func (f *Frontier) Append(vertices []*FrontierVertex, cost float32, t Traverse) {
-	fp := &frontierPath{vertices, cost, t}
+func (f *Frontier) append(vertices []interface{}, cost float32) {
+	fp := &FrontierQueue{vertices, cost}
 	f.Values = append(f.Values, fp)
+}
 
+func (f *Frontier) AppendQueue(queue *FrontierQueue) {
+	f.append(queue.Parts, queue.Cost)
+}
+
+func (f *Frontier) AppendVertex(queue *FrontierQueue, v *vertices.Vertex, variable string, weight float32) {
+	fv := &FrontierVertex{Vertex: v, Variable: variable}
+	f.append(append(queue.Parts, fv), queue.Cost+weight)
 }
 
 // NewFrontier create the Frontier using the inistal Vertex as the root of the graph
 func NewFrontier(v *vertices.Vertex, variable string) Frontier {
-	fv := &FrontierVertex{
-		Vertex:   v,
-		Variable: variable,
-	}
+	fv := &FrontierVertex{Vertex: v, Variable: variable}
 	f := Frontier{Explored: make(map[string]bool)}
-	f.Append([]*FrontierVertex{fv}, 0, Visiting)
+	f.append([]interface{}{fv}, 0)
 	return f
 }
