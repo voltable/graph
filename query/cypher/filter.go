@@ -52,8 +52,13 @@ func (qe Filter) Filter(i query.IteratorFrontier, predicate ast.Expr) enumerable
 						return v.Vertex, true
 					}
 				} else if e, ok := i.(*query.FrontierEdge); ok {
-					// todo need to run predicate over edge
-					return e.Edge, true
+					if predicate != nil {
+						if qe.ExpressionEvaluator(predicate, e.Variable, e.Edge) {
+							return e.Edge, true
+						}
+					} else {
+						return e.Edge, true
+					}
 				}
 			}
 
@@ -65,9 +70,9 @@ func (qe Filter) Filter(i query.IteratorFrontier, predicate ast.Expr) enumerable
 }
 
 // ExpressionEvaluator checks the vertex pass the where part of the AST
-func (qe Filter) ExpressionEvaluator(expr ast.Expr, variable string, v *vertices.Vertex) bool {
+func (qe Filter) ExpressionEvaluator(expr ast.Expr, variable string, prop vertices.Properties) bool {
 	if inter, ok := expr.(ast.InterpretExpr); ok {
-		result := inter.Interpret(variable, v)
+		result := inter.Interpret(variable, prop)
 		if result, ok := result.(bool); ok {
 			return result
 		}
