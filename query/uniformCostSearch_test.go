@@ -210,8 +210,10 @@ func ToIterator(i query.IteratorFrontier) []*vertices.Vertex {
 	for frontier, ok := i(); ok != query.Failed; frontier, ok = i() {
 		if frontier.Len() > 0 {
 			vertices := frontier.OptimalPath()
-			for _, v := range vertices {
-				results = append(results, v.(*query.FrontierVertex).Vertex)
+			for _, i := range vertices {
+				if v, ok := i.(*query.FrontierVertex); ok {
+					results = append(results, v.Vertex)
+				}
 			}
 		}
 	}

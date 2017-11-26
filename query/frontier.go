@@ -13,6 +13,12 @@ type FrontierVertex struct {
 	Variable string
 }
 
+// FrontierEdge containers a edge and it's Variable used by a query
+type FrontierEdge struct {
+	*vertices.Edge
+	Variable string
+}
+
 // Frontier priority queue containing vertices to be explored and the cost for a Uniform Cost Search
 type Frontier struct {
 	Values   []*FrontierQueue
@@ -24,7 +30,7 @@ func (f Frontier) Len() int           { return len(f.Values) }
 func (f Frontier) Swap(i, j int)      { f.Values[i], f.Values[j] = f.Values[j], f.Values[i] }
 func (f Frontier) Less(i, j int) bool { return f.Values[i].Cost < f.Values[j].Cost }
 
-// Pop removes the FrontierVertex array and cost from the Frontier
+// Pop removes the FrontierQueue array
 func (f *Frontier) Pop() (queue *FrontierQueue) {
 	queue = f.Values[0]
 	f.Values = f.Values[1:]
@@ -48,9 +54,17 @@ func (f *Frontier) AppendQueue(queue *FrontierQueue) {
 	f.append(queue.Parts, queue.Cost)
 }
 
-func (f *Frontier) AppendVertex(queue *FrontierQueue, v *vertices.Vertex, variable string, weight float32) {
+func (f *Frontier) AppendVertex(queue *FrontierQueue, v *vertices.Vertex, variable string) {
 	fv := &FrontierVertex{Vertex: v, Variable: variable}
-	f.append(append(queue.Parts, fv), queue.Cost+weight)
+	f.append(append(queue.Parts, fv), queue.Cost)
+}
+
+func (f *Frontier) AppendEdgeAndVertex(queue *FrontierQueue, e *vertices.Edge, v *vertices.Vertex, variable string, weight float32) {
+	fe := &FrontierEdge{Edge: e, Variable: variable}
+	fv := &FrontierVertex{Vertex: v, Variable: variable}
+	parts := append(queue.Parts, fe)
+	parts = append(parts, fv)
+	f.append(parts, queue.Cost+weight)
 }
 
 // NewFrontier create the Frontier using the inistal Vertex as the root of the graph

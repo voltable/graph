@@ -12,83 +12,133 @@ import (
 )
 
 func Test_Filter(t *testing.T) {
-	state := false
 	filter := cypher.NewFilter()
 	var tests = []struct {
-		iterator  query.IteratorFrontier
 		predicate ast.Expr
-		count     int
+		expected  int
+		iterate   int
+		setup     func(int) query.IteratorFrontier
 	}{
+		// 0
 		{
-			iterator: func() (*query.Frontier, query.Traverse) {
-				return nil, query.Failed
+			setup: func(iterate int) query.IteratorFrontier {
+				return func() (*query.Frontier, query.Traverse) {
+					return nil, query.Failed
+				}
 			},
 			predicate: nil,
-			count:     0,
+			iterate:   1,
+			expected:  0,
 		},
+		// 1
 		{
-			iterator: func() (*query.Frontier, query.Traverse) {
-				state = expressions.XORSwap(state)
-				f := query.Frontier{}
-				if state {
-					return &f, query.Visiting
+			setup: func(iterate int) query.IteratorFrontier {
+				count := 0
+				return func() (*query.Frontier, query.Traverse) {
+					f := query.Frontier{}
+					if count < iterate {
+						count++
+						return &f, query.Visiting
+					}
+					return &f, query.Failed
 				}
-				return &f, query.Failed
 			},
+			iterate:   1,
 			predicate: ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}),
-			count:     0,
+			expected:  0,
 		},
+		// 2
 		{
-			iterator: func() (*query.Frontier, query.Traverse) {
-				state = expressions.XORSwap(state)
-				v, _ := vertices.NewVertex()
-				v.SetProperty("name", "foo")
-				f := query.NewFrontier(v, "n")
-				if state {
-					return &f, query.Visiting
+			setup: func(iterate int) query.IteratorFrontier {
+				count := 0
+				return func() (*query.Frontier, query.Traverse) {
+					v, _ := vertices.NewVertex()
+					v.SetProperty("name", "foo")
+					f := query.NewFrontier(v, "n")
+					if count < iterate {
+						count++
+						return &f, query.Visiting
+					}
+					return &f, query.Failed
 				}
-				return &f, query.Failed
 			},
+			iterate:   1,
 			predicate: ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}),
-			count:     1,
+			expected:  1,
 		},
+		// 3
 		{
-			iterator: func() (*query.Frontier, query.Traverse) {
-				state = expressions.XORSwap(state)
-				v, _ := vertices.NewVertex()
-				v.SetProperty("name", "foo")
-				f := query.NewFrontier(v, "n")
-				if state {
-					return &f, query.Visiting
+			setup: func(iterate int) query.IteratorFrontier {
+				count := 0
+				return func() (*query.Frontier, query.Traverse) {
+					v, _ := vertices.NewVertex()
+					v.SetProperty("name", "foo")
+					f := query.NewFrontier(v, "n")
+					if count < iterate {
+						count++
+						return &f, query.Visiting
+					}
+					return &f, query.Failed
 				}
-				return &f, query.Failed
 			},
+			iterate:   1,
 			predicate: nil,
-			count:     1,
+			expected:  1,
 		},
-
+		// 4
 		{
-			iterator: func() (*query.Frontier, query.Traverse) {
-				state = expressions.XORSwap(state)
-				x, _ := vertices.NewVertex()
-				v, _ := vertices.NewVertex()
-				f := query.NewFrontier(x, "")
-				fq := f.Values[0]
-				fv := &query.FrontierVertex{Vertex: v, Variable: ""}
-				fq.Parts = append(fq.Parts, fv)
+			setup: func(iterate int) query.IteratorFrontier {
+				count := 0
+				return func() (*query.Frontier, query.Traverse) {
+					x, _ := vertices.NewVertex()
+					v, _ := vertices.NewVertex()
+					f := query.NewFrontier(x, "")
+					fq := f.Values[0]
+					fv := &query.FrontierVertex{Vertex: v, Variable: ""}
+					fq.Parts = append(fq.Parts, fv)
 
-				if state {
-					return &f, query.Visiting
+					if count < iterate {
+						count++
+						return &f, query.Visiting
+					}
+					return &f, query.Failed
 				}
-				return &f, query.Failed
 			},
+			iterate:   1,
 			predicate: nil,
-			count:     2,
+			expected:  2,
+		},
+		// 5
+		{
+			predicate: nil,
+			expected:  3,
+			iterate:   1,
+			setup: func(iterate int) query.IteratorFrontier {
+				count := 0
+				return func() (*query.Frontier, query.Traverse) {
+					x, _ := vertices.NewVertex()
+					v, _ := vertices.NewVertex()
+					e, _ := x.AddDirectedEdge(v)
+					f := query.NewFrontier(x, "")
+					fq := f.Values[0]
+					fv := &query.FrontierVertex{Vertex: v, Variable: ""}
+					fe := &query.FrontierEdge{Edge: e, Variable: ""}
+
+					fq.Parts = append(fq.Parts, fe)
+					fq.Parts = append(fq.Parts, fv)
+
+					if count < iterate {
+						count++
+						return &f, query.Visiting
+					}
+					return &f, query.Failed
+				}
+			},
 		},
 	}
 
 	for i, tt := range tests {
-		result := filter.Filter(tt.iterator, tt.predicate)
+		result := filter.Filter(tt.setup(tt.iterate), tt.predicate)
 		count := 0
 		for v, ok := result(); ok; v, ok = result() {
 			count++
@@ -96,8 +146,8 @@ func Test_Filter(t *testing.T) {
 				t.Errorf("%d %+v", i, v)
 			}
 		}
-		if count != tt.count {
-			t.Errorf("%d. expected %d got %d", i, tt.count, count)
+		if count != tt.expected {
+			t.Errorf("%d. expected %d got %d", i, tt.expected, count)
 		}
 	}
 }

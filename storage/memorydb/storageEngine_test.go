@@ -15,14 +15,14 @@ func Test_Query(t *testing.T) {
 	options := graph.NewOptions()
 
 	var tests = []struct {
-		expecting    []*vertices.Vertex
+		expecting    []interface{}
 		uninterested []*vertices.Vertex
 		query        string
 	}{
 		// 0
 		{
-			expecting: func() []*vertices.Vertex {
-				arr := make([]*vertices.Vertex, 0, 0)
+			expecting: func() []interface{} {
+				arr := make([]interface{}, 0, 0)
 				return arr
 			}(),
 			uninterested: func() []*vertices.Vertex {
@@ -37,8 +37,8 @@ func Test_Query(t *testing.T) {
 		},
 		// 1
 		{
-			expecting: func() []*vertices.Vertex {
-				arr := make([]*vertices.Vertex, 0, 0)
+			expecting: func() []interface{} {
+				arr := make([]interface{}, 0, 0)
 				v1, _ := vertices.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "john smith")
@@ -57,8 +57,8 @@ func Test_Query(t *testing.T) {
 		},
 		// 2
 		{
-			expecting: func() []*vertices.Vertex {
-				arr := make([]*vertices.Vertex, 0, 0)
+			expecting: func() []interface{} {
+				arr := make([]interface{}, 0, 0)
 				v1, _ := vertices.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "john smith")
@@ -82,8 +82,8 @@ func Test_Query(t *testing.T) {
 		},
 		// 3
 		{
-			expecting: func() []*vertices.Vertex {
-				arr := make([]*vertices.Vertex, 0, 0)
+			expecting: func() []interface{} {
+				arr := make([]interface{}, 0, 0)
 				v1, _ := vertices.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "john smith")
@@ -107,8 +107,8 @@ func Test_Query(t *testing.T) {
 		},
 		// 4
 		{
-			expecting: func() []*vertices.Vertex {
-				arr := make([]*vertices.Vertex, 0, 0)
+			expecting: func() []interface{} {
+				arr := make([]interface{}, 0, 0)
 				v1, _ := vertices.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "john smith")
@@ -134,8 +134,8 @@ func Test_Query(t *testing.T) {
 		},
 		// 5
 		{
-			expecting: func() []*vertices.Vertex {
-				arr := make([]*vertices.Vertex, 0, 0)
+			expecting: func() []interface{} {
+				arr := make([]interface{}, 0, 0)
 				v1, _ := vertices.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "john smith")
@@ -166,8 +166,8 @@ func Test_Query(t *testing.T) {
 		},
 		// 6
 		{
-			expecting: func() []*vertices.Vertex {
-				arr := make([]*vertices.Vertex, 0, 0)
+			expecting: func() []interface{} {
+				arr := make([]interface{}, 0, 0)
 				v1, _ := vertices.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "john smith")
@@ -181,6 +181,7 @@ func Test_Query(t *testing.T) {
 
 				edge, _ := v1.AddDirectedEdge(v2)
 				edge.SetRelationshipType("knows")
+				arr = append(arr, edge)
 
 				return arr
 			}(),
@@ -198,8 +199,8 @@ func Test_Query(t *testing.T) {
 		},
 		// 7
 		{
-			expecting: func() []*vertices.Vertex {
-				arr := make([]*vertices.Vertex, 0, 0)
+			expecting: func() []interface{} {
+				arr := make([]interface{}, 0, 0)
 				return arr
 			}(),
 			uninterested: func() []*vertices.Vertex {
@@ -229,8 +230,8 @@ func Test_Query(t *testing.T) {
 		},
 		// 8
 		{
-			expecting: func() []*vertices.Vertex {
-				arr := make([]*vertices.Vertex, 0, 0)
+			expecting: func() []interface{} {
+				arr := make([]interface{}, 0, 0)
 				v1, _ := vertices.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "john smith")
@@ -261,7 +262,11 @@ func Test_Query(t *testing.T) {
 			t.Errorf("Failed to create the storageEngine %v", err)
 		}
 
-		g.Create(tt.expecting...)
+		for _, i := range tt.expecting {
+			if v, ok := i.(*vertices.Vertex); ok {
+				g.Create(v)
+			}
+		}
 		g.Create(tt.uninterested...)
 		q, err := g.Query(tt.query)
 
@@ -276,7 +281,7 @@ func Test_Query(t *testing.T) {
 		for ii, r := range q.Results {
 			match := false
 			for _, m := range tt.expecting {
-				if reflect.DeepEqual(r.(*vertices.Vertex), m) {
+				if reflect.DeepEqual(r, m) {
 					match = true
 					break
 				}
