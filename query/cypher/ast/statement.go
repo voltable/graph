@@ -53,7 +53,7 @@ type TerminalExpr interface {
 type InterpretExpr interface {
 	exprNode()
 	interpretNode()
-	Interpret(variable string, vertex *vertices.Vertex) interface{}
+	Interpret(variable string, prop vertices.Properties) interface{}
 }
 
 type PatternStmt interface {

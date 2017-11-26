@@ -24,9 +24,9 @@ func (p *PropertyStmt) SetValue(x interface{}) {
 	}
 }
 
-func (p *PropertyStmt) Interpret(variable string, vertex *vertices.Vertex) interface{} {
+func (p *PropertyStmt) Interpret(variable string, prop vertices.Properties) interface{} {
 	if p.Variable == variable {
-		return vertex.Property(p.Value)
+		return prop.Property(p.Value)
 	}
 	return false
 }

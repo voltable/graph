@@ -21,7 +21,7 @@ func (b *NotExpr) GetValue() InterpretExpr {
 }
 
 // Interpret runs the NotExpr over a Vertex to check for a match
-func (b *NotExpr) Interpret(variable string, vertex *vertices.Vertex) interface{} {
+func (b *NotExpr) Interpret(variable string, prop vertices.Properties) interface{} {
 	return false
 }
 

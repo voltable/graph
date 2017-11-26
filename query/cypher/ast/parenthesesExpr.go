@@ -12,7 +12,7 @@ var _ InterpretExpr = (*ParenthesesExpr)(nil)
 func (ParenthesesExpr) exprNode()      {}
 func (ParenthesesExpr) interpretNode() {}
 
-func (p *ParenthesesExpr) Interpret(variable string, vertex *vertices.Vertex) interface{} {
+func (p *ParenthesesExpr) Interpret(variable string, prop vertices.Properties) interface{} {
 	return nil
 }
 
