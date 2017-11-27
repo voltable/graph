@@ -14,9 +14,13 @@ type (
 		properties       map[string]interface{}
 	}
 
+	// Edges a array of edges
 	Edges []*Edge
 )
 
+var _ Properties = (*Edge)(nil)
+
+// NewEdge build a new edge with a id
 func NewEdge() (*Edge, error) {
 	var id string
 	var err error
@@ -29,6 +33,7 @@ func NewEdge() (*Edge, error) {
 	return &v, nil
 }
 
+// ID returns the generate UUID
 func (e *Edge) ID() string {
 	return e.id
 }

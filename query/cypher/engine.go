@@ -7,6 +7,7 @@ import (
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
 	"github.com/RossMerr/Caudex.Graph/storage"
+	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 func init() {
@@ -60,26 +61,60 @@ func (qe Engine) Parse(q string) (*query.Query, error) {
 		return nil, err
 	}
 
-	forEach := qe.Storage.ForEach()
+	f := qe.toFrontier(qe.Storage.ForEach(), variableVertex(queryPart))
 	for _, part := range queryPart {
-		f, err := qe.Traversal.SearchPlan(forEach, part.Predicates)
+		f, err = qe.Traversal.SearchPlan(f, part.Predicates)
 		if err != nil {
 			return nil, err
 		}
-		forEach = qe.Filter.Filter(f, part.Predicate())
+		f = qe.Filter.Filter(f, part.Predicate())
 	}
 
-	results := qe.toVertices(forEach)
+	results := qe.toVertices(f)
 	query := query.NewQuery(q, results)
 
 	return query, nil
 
 }
 
-func (qe Engine) toVertices(i enumerables.Iterator) []interface{} {
+func variableVertex(queryPart []*QueryPart) string {
+	if len(queryPart) > 0 {
+		if len(queryPart[0].Predicates) > 0 {
+			e := queryPart[0].Predicates[0]
+			if pv, ok := e.(*query.PredicateVertexPath); ok {
+				return pv.Variable
+			}
+		}
+	}
+	return ""
+}
+
+func (qe Engine) toVertices(i query.IteratorFrontier) []interface{} {
 	results := make([]interface{}, 0)
 	for item, ok := i(); ok; item, ok = i() {
-		results = append(results, item)
+		for _, i := range item.OptimalPath() {
+			if v, ok := i.(*query.FrontierVertex); ok {
+				results = append(results, v.Vertex)
+			}
+			if v, ok := i.(*query.FrontierEdge); ok {
+				results = append(results, v.Edge)
+			}
+		}
+
 	}
 	return results
+}
+
+func (qe Engine) toFrontier(i enumerables.Iterator, variable string) query.IteratorFrontier {
+	return func() (*query.Frontier, bool) {
+		item, ok := i()
+		if ok {
+			if v, is := item.(*vertices.Vertex); is {
+				f := query.NewFrontier(v, variable)
+				return &f, true
+			}
+		}
+
+		return nil, false
+	}
 }

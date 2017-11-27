@@ -21,6 +21,8 @@ var (
 	errIdNotSet      = errors.New("Use NewVertex to create a new Vertex")
 )
 
+var _ Properties = (*Vertex)(nil)
+
 // NewVertex creates the default vertex
 func NewVertex() (*Vertex, error) {
 	return NewVertexWithLabel("")
@@ -61,7 +63,7 @@ func (v *Vertex) PropertiesCount() int {
 	return len(v.properties)
 }
 
-// ID vertex id
+// ID returns the generate UUID
 func (v *Vertex) ID() string {
 	return v.id
 }

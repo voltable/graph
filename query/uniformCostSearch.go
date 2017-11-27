@@ -4,13 +4,11 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/RossMerr/Caudex.Graph/enumerables"
 	"github.com/RossMerr/Caudex.Graph/storage"
-	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 type Traversal interface {
-	SearchPlan(iterator enumerables.Iterator, predicates []interface{}) (iteratorFrontier IteratorFrontier, err error)
+	SearchPlan(iterator IteratorFrontier, predicates []interface{}) (iteratorFrontier IteratorFrontier, err error)
 }
 
 type Plan struct {
@@ -26,14 +24,6 @@ func NewPlan(storage storage.Storage) *Plan {
 		wg:      &sync.WaitGroup{},
 	}
 	return plan
-}
-
-func (t *Plan) variableVertex() string {
-	e := t.predicates[0]
-	if pv, ok := e.(*PredicateVertexPath); ok {
-		return pv.Variable
-	}
-	return ""
 }
 
 func (t *Plan) predicateVertex(i int) PredicateVertex {
@@ -88,25 +78,25 @@ func (t *Plan) UniformCostSearch(frontier *Frontier) bool {
 	return false
 }
 
-func (t *Plan) SearchPlan(iterator enumerables.Iterator, predicates []interface{}) (iteratorFrontier IteratorFrontier, err error) {
+func (t *Plan) SearchPlan(iterator IteratorFrontier, predicates []interface{}) (iteratorFrontier IteratorFrontier, err error) {
 	t.predicates = predicates
 	t.Depth = len(predicates)
 
 	results := make(chan *Frontier)
 
-	t.forEach(iterator, t.variableVertex(), results)
+	t.forEach(iterator, results)
 
 	go func() {
 		t.wg.Wait()
 		close(results)
 	}()
 
-	return func() (*Frontier, Traverse) {
+	return func() (*Frontier, bool) {
 		f, opened := <-results
 		if opened {
-			return f, Matched
+			return f, true
 		}
-		return nil, Failed
+		return nil, false
 	}, nil
 }
 
@@ -121,12 +111,9 @@ func (t *Plan) worker(f *Frontier, results chan *Frontier) {
 	}
 }
 
-func (t *Plan) forEach(i enumerables.Iterator, variable string, results chan *Frontier) {
+func (t *Plan) forEach(i IteratorFrontier, results chan *Frontier) {
 	for item, ok := i(); ok; item, ok = i() {
-		if v, is := item.(*vertices.Vertex); is {
-			f := NewFrontier(v, variable)
-			t.wg.Add(1)
-			go t.worker(&f, results)
-		}
+		t.wg.Add(1)
+		go t.worker(item, results)
 	}
 }

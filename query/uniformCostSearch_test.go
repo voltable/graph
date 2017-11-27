@@ -196,18 +196,19 @@ func (se *StorageEngine) ForEach() enumerables.Iterator {
 	}
 }
 
-func (se *StorageEngine) ForEachTest() enumerables.Iterator {
+func (se *StorageEngine) ForEachTest() query.IteratorFrontier {
 	state := false
-	return func() (item interface{}, ok bool) {
+	return func() (item *query.Frontier, ok bool) {
 		state = expressions.XORSwap(state)
-		return syd, state
+		f := query.NewFrontier(syd, "")
+		return &f, state
 	}
 }
 
 func ToIterator(i query.IteratorFrontier) []*vertices.Vertex {
 	results := make([]*vertices.Vertex, 0)
 
-	for frontier, ok := i(); ok != query.Failed; frontier, ok = i() {
+	for frontier, ok := i(); ok; frontier, ok = i() {
 		if frontier.Len() > 0 {
 			vertices := frontier.OptimalPath()
 			for _, i := range vertices {

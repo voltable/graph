@@ -1,7 +1,6 @@
 package cypher
 
 import (
-	"github.com/RossMerr/Caudex.Graph/enumerables"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/vertices"
@@ -9,7 +8,7 @@ import (
 
 // CypherFilter the interface of the filter struct
 type CypherFilter interface {
-	Filter(query.IteratorFrontier, ast.Expr) enumerables.Iterator
+	Filter(query.IteratorFrontier, ast.Expr) query.IteratorFrontier
 }
 
 // Filter is use to filter the traveral results over the where expression in the AST
@@ -22,50 +21,46 @@ func NewFilter() *Filter {
 }
 
 // Filter a IteratorFrontier so that all results pass the Where Expression in the AST
-func (qe Filter) Filter(i query.IteratorFrontier, predicate ast.Expr) enumerables.Iterator {
-	length := 0
-	position := 0
-	frontier, ok := i()
-	var queue []interface{}
+func (qe Filter) Filter(i query.IteratorFrontier, predicate ast.Expr) query.IteratorFrontier {
+	check := true
+	return func() (*query.Frontier, bool) {
+		frontier, ok := i()
+		for ok {
+			check = true
+			if frontier.Len() > 0 {
+				optimalPath := frontier.OptimalPath()
+				frontier.Clear()
+				if len(optimalPath) == 0 {
+					check = false
+				}
+				if predicate != nil {
+					for _, i := range optimalPath {
 
-	return func() (interface{}, bool) {
-		for ok != query.Failed {
-			if position == 0 {
-				if frontier == nil {
-					return nil, false
+						if v, ok := i.(*query.FrontierVertex); ok {
+							if !qe.ExpressionEvaluator(predicate, v.Variable, v.Vertex) {
+								check = false
+								break
+							}
+						} else if e, ok := i.(*query.FrontierEdge); ok {
+							if !qe.ExpressionEvaluator(predicate, e.Variable, e.Edge) {
+								check = false
+								break
+							}
+						}
+					}
 				}
-				if frontier.Len() > 0 {
-					queue = frontier.OptimalPath()
-					length = len(queue)
-				}
+			} else {
+				check = false
 			}
-			if position < length {
-				i := queue[position]
-				position++
-				if v, ok := i.(*query.FrontierVertex); ok {
 
-					if predicate != nil {
-						if qe.ExpressionEvaluator(predicate, v.Variable, v.Vertex) {
-							return v.Vertex, true
-						}
-					} else {
-						return v.Vertex, true
-					}
-				} else if e, ok := i.(*query.FrontierEdge); ok {
-					if predicate != nil {
-						if qe.ExpressionEvaluator(predicate, e.Variable, e.Edge) {
-							return e.Edge, true
-						}
-					} else {
-						return e.Edge, true
-					}
-				}
+			if check {
+				return frontier, ok
 			}
 
 			frontier, ok = i()
-			position = 0
 		}
-		return nil, false
+
+		return frontier, ok
 	}
 }
 

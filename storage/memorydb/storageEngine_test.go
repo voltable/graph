@@ -300,144 +300,146 @@ func Test_QueryRelationships(t *testing.T) {
 	options := graph.NewOptions()
 
 	var tests = []struct {
-		setup     []*vertices.Vertex
-		expecting func([]*vertices.Vertex) []*vertices.Vertex
+		setup     []interface{}
+		expecting func([]interface{}) []interface{}
 		query     string
 	}{
-	// // 0
-	// {
-	// 	expecting: func(in []*vertices.Vertex) []*vertices.Vertex {
-	// 		arr := make([]*vertices.Vertex, 0, 0)
+		// 0
+		{
+			expecting: func(in []interface{}) []interface{} {
+				arr := make([]interface{}, 0, 0)
 
-	// 		arr = append(arr, in[0])
-	// 		arr = append(arr, in[1])
+				arr = append(arr, in[0])
+				arr = append(arr, in[1])
+				arr = append(arr, in[2])
 
-	// 		return arr
-	// 	},
-	// 	setup: func() []*vertices.Vertex {
-	// 		arr := make([]*vertices.Vertex, 0, 0)
-	// 		v1, _ := vertices.NewVertex()
-	// 		v1.SetLabel("person")
-	// 		v1.SetProperty("name", "john smith")
-	// 		arr = append(arr, v1)
+				return arr
+			},
+			setup: func() []interface{} {
+				arr := make([]interface{}, 0, 0)
+				v1, _ := vertices.NewVertex()
+				v1.SetLabel("person")
+				v1.SetProperty("name", "john smith")
+				arr = append(arr, v1)
 
-	// 		v2, _ := vertices.NewVertex()
-	// 		v2.SetLabel("person")
-	// 		v2.SetProperty("name", "max power")
-	// 		arr = append(arr, v2)
+				v2, _ := vertices.NewVertex()
+				v2.SetLabel("person")
+				v2.SetProperty("name", "max power")
+				arr = append(arr, v2)
 
-	// 		edge, _ := v1.AddDirectedEdge(v2)
-	// 		edge.SetRelationshipType("knows")
+				edge, _ := v1.AddDirectedEdge(v2)
+				edge.SetRelationshipType("knows")
+				arr = append(arr, edge)
 
-	// 		v3, _ := vertices.NewVertex()
-	// 		v3.SetLabel("person")
-	// 		v3.SetProperty("name", "foo bar")
-	// 		arr = append(arr, v3)
+				v3, _ := vertices.NewVertex()
+				v3.SetLabel("person")
+				v3.SetProperty("name", "foo bar")
+				arr = append(arr, v3)
 
-	// 		return arr
-	// 	}(),
-	// 	query: "MATCH (n:person)-[*]->(m:person) ",
-	// },
-	// // 1
-	// {
-	// 	expecting: func(in []*vertices.Vertex) []*vertices.Vertex {
-	// 		arr := make([]*vertices.Vertex, 0, 0)
-	// 		arr = append(arr, in[0])
-	// 		arr = append(arr, in[1])
-	// 		return arr
-	// 	},
-	// 	setup: func() []*vertices.Vertex {
-	// 		arr := make([]*vertices.Vertex, 0, 0)
+				return arr
+			}(),
+			query: "MATCH (n:person)-[*]->(m:person) ",
+		},
+		// // 1
+		// {
+		// 	expecting: func(in []*vertices.Vertex) []*vertices.Vertex {
+		// 		arr := make([]*vertices.Vertex, 0, 0)
+		// 		arr = append(arr, in[0])
+		// 		arr = append(arr, in[1])
+		// 		return arr
+		// 	},
+		// 	setup: func() []*vertices.Vertex {
+		// 		arr := make([]*vertices.Vertex, 0, 0)
 
-	// 		v1, _ := vertices.NewVertex()
-	// 		v1.SetLabel("person")
-	// 		v1.SetProperty("name", "john smith")
-	// 		arr = append(arr, v1)
+		// 		v1, _ := vertices.NewVertex()
+		// 		v1.SetLabel("person")
+		// 		v1.SetProperty("name", "john smith")
+		// 		arr = append(arr, v1)
 
-	// 		v2, _ := vertices.NewVertex()
-	// 		v2.SetLabel("person")
-	// 		v2.SetProperty("name", "max power")
-	// 		arr = append(arr, v2)
+		// 		v2, _ := vertices.NewVertex()
+		// 		v2.SetLabel("person")
+		// 		v2.SetProperty("name", "max power")
+		// 		arr = append(arr, v2)
 
-	// 		edge, _ := v1.AddDirectedEdge(v2)
-	// 		edge.SetRelationshipType("knows")
+		// 		edge, _ := v1.AddDirectedEdge(v2)
+		// 		edge.SetRelationshipType("knows")
 
-	// 		v3, _ := vertices.NewVertex()
-	// 		v3.SetLabel("person")
-	// 		v3.SetProperty("name", "foo bar")
-	// 		arr = append(arr, v3)
+		// 		v3, _ := vertices.NewVertex()
+		// 		v3.SetLabel("person")
+		// 		v3.SetProperty("name", "foo bar")
+		// 		arr = append(arr, v3)
 
-	// 		return arr
-	// 	}(),
-	// 	query: "MATCH (n:person)-[*1]->(m:person) ",
-	// },
-	// // 2
-	// {
-	// 	expecting: func(in []*vertices.Vertex) []*vertices.Vertex {
-	// 		arr := make([]*vertices.Vertex, 0, 0)
-	// 		arr = append(arr, in[0])
-	// 		arr = append(arr, in[2])
-	// 		return arr
-	// 	},
-	// 	setup: func() []*vertices.Vertex {
-	// 		arr := make([]*vertices.Vertex, 0, 0)
+		// 		return arr
+		// 	}(),
+		// 	query: "MATCH (n:person)-[*1]->(m:person) ",
+		// },
+		// // 2
+		// {
+		// 	expecting: func(in []*vertices.Vertex) []*vertices.Vertex {
+		// 		arr := make([]*vertices.Vertex, 0, 0)
+		// 		arr = append(arr, in[0])
+		// 		arr = append(arr, in[2])
+		// 		return arr
+		// 	},
+		// 	setup: func() []*vertices.Vertex {
+		// 		arr := make([]*vertices.Vertex, 0, 0)
 
-	// 		v1, _ := vertices.NewVertex()
-	// 		v1.SetLabel("person")
-	// 		v1.SetProperty("name", "john smith")
-	// 		arr = append(arr, v1)
+		// 		v1, _ := vertices.NewVertex()
+		// 		v1.SetLabel("person")
+		// 		v1.SetProperty("name", "john smith")
+		// 		arr = append(arr, v1)
 
-	// 		v2, _ := vertices.NewVertex()
-	// 		v2.SetLabel("person")
-	// 		v2.SetProperty("name", "max power")
-	// 		arr = append(arr, v2)
+		// 		v2, _ := vertices.NewVertex()
+		// 		v2.SetLabel("person")
+		// 		v2.SetProperty("name", "max power")
+		// 		arr = append(arr, v2)
 
-	// 		edge2, _ := v1.AddDirectedEdge(v2)
-	// 		edge2.SetRelationshipType("notknows")
+		// 		edge2, _ := v1.AddDirectedEdge(v2)
+		// 		edge2.SetRelationshipType("notknows")
 
-	// 		v3, _ := vertices.NewVertex()
-	// 		v3.SetLabel("person")
-	// 		v3.SetProperty("name", "foo bar")
-	// 		arr = append(arr, v3)
+		// 		v3, _ := vertices.NewVertex()
+		// 		v3.SetLabel("person")
+		// 		v3.SetProperty("name", "foo bar")
+		// 		arr = append(arr, v3)
 
-	// 		edge3, _ := v2.AddDirectedEdge(v3)
-	// 		edge3.SetRelationshipType("knows")
+		// 		edge3, _ := v2.AddDirectedEdge(v3)
+		// 		edge3.SetRelationshipType("knows")
 
-	// 		return arr
-	// 	}(),
-	// 	query: "MATCH (n:person)-[*2]->(m:person) ",
-	// },
-	// // 3
-	// {
-	// 	expecting: func() []*vertices.Vertex {
-	// 		arr := make([]*vertices.Vertex, 0, 0)
-	// 		v1, _ := vertices.NewVertex()
-	// 		v1.SetLabel("person")
-	// 		v1.SetProperty("name", "john smith")
-	// 		arr = append(arr, v1)
+		// 		return arr
+		// 	}(),
+		// 	query: "MATCH (n:person)-[*2]->(m:person) ",
+		// },
+		// // 3
+		// {
+		// 	expecting: func() []*vertices.Vertex {
+		// 		arr := make([]*vertices.Vertex, 0, 0)
+		// 		v1, _ := vertices.NewVertex()
+		// 		v1.SetLabel("person")
+		// 		v1.SetProperty("name", "john smith")
+		// 		arr = append(arr, v1)
 
-	// 		v2, _ := vertices.NewVertex()
-	// 		v2.SetLabel("person")
-	// 		v2.SetProperty("name", "max power")
-	// 		arr = append(arr, v2)
+		// 		v2, _ := vertices.NewVertex()
+		// 		v2.SetLabel("person")
+		// 		v2.SetProperty("name", "max power")
+		// 		arr = append(arr, v2)
 
-	// 		edge, _ := v1.AddDirectedEdge(v2)
-	// 		edge.SetRelationshipType("knows")
+		// 		edge, _ := v1.AddDirectedEdge(v2)
+		// 		edge.SetRelationshipType("knows")
 
-	// 		return arr
-	// 	}(),
-	// 	uninterested: func() []*vertices.Vertex {
-	// 		arr := make([]*vertices.Vertex, 0, 0)
+		// 		return arr
+		// 	}(),
+		// 	uninterested: func() []*vertices.Vertex {
+		// 		arr := make([]*vertices.Vertex, 0, 0)
 
-	// 		v1, _ := vertices.NewVertex()
-	// 		v1.SetLabel("person")
-	// 		v1.SetProperty("name", "foo bar")
-	// 		arr = append(arr, v1)
+		// 		v1, _ := vertices.NewVertex()
+		// 		v1.SetLabel("person")
+		// 		v1.SetProperty("name", "foo bar")
+		// 		arr = append(arr, v1)
 
-	// 		return arr
-	// 	}(),
-	// 	query: "MATCH (n:person)-[:knows]->(m:person) WHERE n.name = 'john smith' OR m.name = 'max power'",
-	// },
+		// 		return arr
+		// 	}(),
+		// 	query: "MATCH (n:person)-[:knows]->(m:person) WHERE n.name = 'john smith' OR m.name = 'max power'",
+		// },
 	}
 
 	for i, tt := range tests {
@@ -446,7 +448,12 @@ func Test_QueryRelationships(t *testing.T) {
 			t.Errorf("Failed to create the storageEngine %v", err)
 		}
 
-		g.Create(tt.setup...)
+		for _, i := range tt.setup {
+			if v, ok := i.(*vertices.Vertex); ok {
+				g.Create(v)
+			}
+		}
+
 		q, err := g.Query(tt.query)
 
 		if err != nil {
@@ -461,7 +468,7 @@ func Test_QueryRelationships(t *testing.T) {
 		for ii, r := range q.Results {
 			match := false
 			for _, m := range expecting {
-				if reflect.DeepEqual(r.(*vertices.Vertex), m) {
+				if reflect.DeepEqual(r, m) {
 					match = true
 					break
 				}

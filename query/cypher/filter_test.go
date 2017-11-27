@@ -22,8 +22,8 @@ func Test_Filter(t *testing.T) {
 		// 0
 		{
 			setup: func(iterate int) query.IteratorFrontier {
-				return func() (*query.Frontier, query.Traverse) {
-					return nil, query.Failed
+				return func() (*query.Frontier, bool) {
+					return nil, false
 				}
 			},
 			predicate: nil,
@@ -34,13 +34,13 @@ func Test_Filter(t *testing.T) {
 		{
 			setup: func(iterate int) query.IteratorFrontier {
 				count := 0
-				return func() (*query.Frontier, query.Traverse) {
+				return func() (*query.Frontier, bool) {
 					f := query.Frontier{}
 					if count < iterate {
 						count++
-						return &f, query.Visiting
+						return &f, true
 					}
-					return &f, query.Failed
+					return &f, false
 				}
 			},
 			iterate:   1,
@@ -51,15 +51,15 @@ func Test_Filter(t *testing.T) {
 		{
 			setup: func(iterate int) query.IteratorFrontier {
 				count := 0
-				return func() (*query.Frontier, query.Traverse) {
+				return func() (*query.Frontier, bool) {
 					v, _ := vertices.NewVertex()
 					v.SetProperty("name", "foo")
 					f := query.NewFrontier(v, "n")
 					if count < iterate {
 						count++
-						return &f, query.Visiting
+						return &f, true
 					}
-					return &f, query.Failed
+					return &f, false
 				}
 			},
 			iterate:   1,
@@ -70,15 +70,15 @@ func Test_Filter(t *testing.T) {
 		{
 			setup: func(iterate int) query.IteratorFrontier {
 				count := 0
-				return func() (*query.Frontier, query.Traverse) {
+				return func() (*query.Frontier, bool) {
 					v, _ := vertices.NewVertex()
 					v.SetProperty("name", "foo")
 					f := query.NewFrontier(v, "n")
 					if count < iterate {
 						count++
-						return &f, query.Visiting
+						return &f, true
 					}
-					return &f, query.Failed
+					return &f, false
 				}
 			},
 			iterate:   1,
@@ -89,7 +89,7 @@ func Test_Filter(t *testing.T) {
 		{
 			setup: func(iterate int) query.IteratorFrontier {
 				count := 0
-				return func() (*query.Frontier, query.Traverse) {
+				return func() (*query.Frontier, bool) {
 					x, _ := vertices.NewVertex()
 					v, _ := vertices.NewVertex()
 					f := query.NewFrontier(x, "")
@@ -99,9 +99,9 @@ func Test_Filter(t *testing.T) {
 
 					if count < iterate {
 						count++
-						return &f, query.Visiting
+						return &f, true
 					}
-					return &f, query.Failed
+					return &f, false
 				}
 			},
 			iterate:   1,
@@ -115,7 +115,7 @@ func Test_Filter(t *testing.T) {
 			iterate:   1,
 			setup: func(iterate int) query.IteratorFrontier {
 				count := 0
-				return func() (*query.Frontier, query.Traverse) {
+				return func() (*query.Frontier, bool) {
 					x, _ := vertices.NewVertex()
 					v, _ := vertices.NewVertex()
 					e, _ := x.AddDirectedEdge(v)
@@ -129,9 +129,9 @@ func Test_Filter(t *testing.T) {
 
 					if count < iterate {
 						count++
-						return &f, query.Visiting
+						return &f, true
 					}
-					return &f, query.Failed
+					return &f, false
 				}
 			},
 		},
@@ -141,7 +141,8 @@ func Test_Filter(t *testing.T) {
 		result := filter.Filter(tt.setup(tt.iterate), tt.predicate)
 		count := 0
 		for v, ok := result(); ok; v, ok = result() {
-			count++
+			count += len(v.OptimalPath())
+
 			if v == nil {
 				t.Errorf("%d %+v", i, v)
 			}

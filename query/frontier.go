@@ -44,6 +44,12 @@ func (f Frontier) OptimalPath() []interface{} {
 	return f.Values[0].Parts
 }
 
+// Clear removes the non optimal paths
+func (f *Frontier) Clear() {
+	f.Values = f.Values[:1]
+	return
+}
+
 // Append adds the vertices onto the frontier
 func (f *Frontier) append(vertices []interface{}, cost float32) {
 	fp := &FrontierQueue{vertices, cost}
