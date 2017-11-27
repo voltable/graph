@@ -4,6 +4,8 @@ import (
 	"sort"
 	"sync"
 
+	"github.com/RossMerr/Caudex.Graph/vertices"
+
 	"github.com/RossMerr/Caudex.Graph/storage"
 )
 
@@ -50,12 +52,12 @@ func (t *Plan) UniformCostSearch(frontier *Frontier) bool {
 	if frontier.Len() > 0 {
 		queue := frontier.Pop()
 		depth := len(queue.Parts)
-		vertex := queue.Parts[depth-1].(*FrontierVertex)
-		if _, ok := frontier.Explored[vertex.Vertex.ID()]; !ok {
+		vertex := queue.Parts[depth-1].Object.(*vertices.Vertex)
+		if _, ok := frontier.Explored[vertex.ID()]; !ok {
 			frontier.Explored[vertex.ID()] = true
 			if pv := t.predicateVertex(depth - 1); pv != nil {
-				if variable, p := pv(vertex.Vertex); p == Matched {
-					vertex.Variable = variable
+				if variable, p := pv(vertex); p == Matched {
+					queue.Parts[depth-1].Variable = variable
 					frontier.AppendQueue(queue)
 					sort.Sort(frontier)
 					return depth == t.Depth

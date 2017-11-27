@@ -94,7 +94,7 @@ func Test_Filter(t *testing.T) {
 					v, _ := vertices.NewVertex()
 					f := query.NewFrontier(x, "")
 					fq := f.Values[0]
-					fv := &query.FrontierVertex{Vertex: v, Variable: ""}
+					fv := query.FrontierProperties{Object: v, Variable: ""}
 					fq.Parts = append(fq.Parts, fv)
 
 					if count < iterate {
@@ -121,8 +121,8 @@ func Test_Filter(t *testing.T) {
 					e, _ := x.AddDirectedEdge(v)
 					f := query.NewFrontier(x, "")
 					fq := f.Values[0]
-					fv := &query.FrontierVertex{Vertex: v, Variable: ""}
-					fe := &query.FrontierEdge{Edge: e, Variable: ""}
+					fv := query.FrontierProperties{Object: v, Variable: ""}
+					fe := query.FrontierProperties{Object: e, Variable: ""}
 
 					fq.Parts = append(fq.Parts, fe)
 					fq.Parts = append(fq.Parts, fv)

@@ -35,17 +35,9 @@ func (qe Filter) Filter(i query.IteratorFrontier, predicate ast.Expr) query.Iter
 				}
 				if predicate != nil {
 					for _, i := range optimalPath {
-
-						if v, ok := i.(*query.FrontierVertex); ok {
-							if !qe.ExpressionEvaluator(predicate, v.Variable, v.Vertex) {
-								check = false
-								break
-							}
-						} else if e, ok := i.(*query.FrontierEdge); ok {
-							if !qe.ExpressionEvaluator(predicate, e.Variable, e.Edge) {
-								check = false
-								break
-							}
+						if !qe.ExpressionEvaluator(predicate, i.Variable, i.Object) {
+							check = false
+							break
 						}
 					}
 				}
