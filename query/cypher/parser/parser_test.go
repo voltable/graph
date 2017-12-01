@@ -215,3 +215,42 @@ func TestParser_Where(t *testing.T) {
 		}
 	}
 }
+
+func TestParser_Return(t *testing.T) {
+
+	var tests = []struct {
+		s    string
+		stmt ast.Stmt
+		err  string
+	}{
+		{
+			s:    `MATCH (n) RETURN n`,
+			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "n"}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt("n"))},
+		},
+		{
+			s:    `MATCH (n) RETURN n { .number }`,
+			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "n"}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt("n", &ast.MapProperty{Key: "number"}))},
+		},
+		{
+			s:    `MATCH (n) RETURN n { nrOfMovies }`,
+			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "n"}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt("n", &ast.MapVariable{Key: "nrOfMovies"}))},
+		},
+		{
+			s:    `MATCH (n) RETURN n { .number, .name }`,
+			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "n"}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt("n", &ast.MapProperty{Key: "number"}, &ast.MapProperty{Key: "name"}))},
+		},
+		{
+			s:    `MATCH (n) RETURN n { .number, nrOfMovies }`,
+			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "n"}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt("n", &ast.MapProperty{Key: "number"}, &ast.MapVariable{Key: "nrOfMovies"}))},
+		},
+	}
+
+	for i, tt := range tests {
+		stmt, err := parser.NewParser().Parse(strings.NewReader(tt.s))
+		if !reflect.DeepEqual(tt.err, errstring(err)) {
+			t.Errorf("%d. %q: error mismatch:\n  exp=%s\n  got=%s\n\n", i, tt.s, tt.err, err)
+		} else if tt.err == "" && !reflect.DeepEqual(tt.stmt, stmt) {
+			t.Errorf("%d. %q\n\nstmt mismatch:\n\nexp=%#v\n\ngot=%#v\n\n", i, tt.s, tt.stmt, stmt)
+		}
+	}
+}

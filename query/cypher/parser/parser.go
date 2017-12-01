@@ -504,7 +504,116 @@ func (p *CypherParser) pattern() (ir.Patn, ast.Stmt, error) {
 		return nil, nil, err
 	}
 
+	if returns, err := p.returns(); err == nil && returns != nil {
+		next = returns
+	} else if err != nil {
+		return nil, nil, err
+	}
+
 	return pattern, next, nil
+}
+
+func (p *CypherParser) returns() (ast.Stmt, error) {
+	tok, _ := p.scanIgnoreWhitespace()
+	if tok == lexer.RETURN {
+		state := &ast.ReturnStmt{}
+
+		if maps, err := p.MapVariables(); err == nil {
+			state.Maps = maps
+		} else {
+			return nil, err
+		}
+
+		return state, nil
+	}
+
+	p.unscan()
+	return nil, nil
+}
+
+func (p *CypherParser) MapElements() ([]ast.MapElementStmt, error) {
+
+	elements := make([]ast.MapElementStmt, 0)
+
+	for {
+		tok, lit := p.scanIgnoreWhitespace()
+
+		if tok == lexer.RCURLY {
+			p.unscan()
+			break
+		}
+
+		if tok == lexer.DOT {
+			tok, lit := p.scanIgnoreWhitespace()
+
+			if tok == lexer.IDENT {
+				property := &ast.MapProperty{Key: lit}
+				elements = append(elements, property)
+			} else if tok == lexer.MUL {
+				elements = append(elements, &ast.MapAll{})
+			} else {
+				return nil, fmt.Errorf("found %q, expected part of a map", lit)
+			}
+		} else if tok == lexer.IDENT {
+			key := lit
+
+			tok, _ := p.scanIgnoreWhitespace()
+
+			if tok == lexer.COLON {
+				return nil, fmt.Errorf("found %q, MapLiteral not yet supported", lit)
+				// todo MapLiteral
+				// literal := &ast.MapLiteral{Key: key}
+				// mapPro.Elements = append(mapPro.Elements, literal)
+			} else {
+				p.unscan()
+				variable := &ast.MapVariable{Key: key}
+				elements = append(elements, variable)
+			}
+		} else if tok != lexer.COMMA {
+			p.unscan()
+			break
+		}
+	}
+
+	return elements, nil
+}
+func (p *CypherParser) MapVariables() ([]*ast.MapProjectionStmt, error) {
+	maps := make([]*ast.MapProjectionStmt, 0)
+
+	for {
+		tok, lit := p.scanIgnoreWhitespace()
+
+		if tok == lexer.IDENT {
+
+			mapPro := ast.NewMapProjectionStmt(lit)
+			maps = append(maps, mapPro)
+
+			tok, _ := p.scanIgnoreWhitespace()
+
+			if tok == lexer.LCURLY {
+
+				if elements, err := p.MapElements(); err == nil && elements != nil {
+					mapPro.Elements = elements
+				}
+
+				tok, _ := p.scanIgnoreWhitespace()
+
+				if tok != lexer.RCURLY {
+					return nil, fmt.Errorf("found %q, expected }", lit)
+				}
+			}
+
+			tok, _ = p.scanIgnoreWhitespace()
+
+			if tok != lexer.COMMA {
+				p.unscan()
+				break
+			}
+		}
+
+	}
+
+	return maps, nil
 }
 
 func (p *CypherParser) create() (ast.Clauses, error) {
