@@ -7,7 +7,7 @@ import (
 // MatchStmt used to search for the pattern described in it.
 type MatchStmt struct {
 	Pattern ir.Patn
-	Next    Stmt
+	Next    Clauses
 }
 
 func (MatchStmt) patternNode() {}
@@ -16,6 +16,6 @@ func (m *MatchStmt) GetPattern() ir.Patn {
 	return m.Pattern
 }
 
-func (m *MatchStmt) GetNext() Stmt {
+func (m *MatchStmt) GetNext() Clauses {
 	return m.Next
 }

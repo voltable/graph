@@ -11,6 +11,7 @@ type Parts interface {
 
 // QueryPart is one part of a explicitly separate query parts
 type QueryPart struct {
+	Return     *ast.ReturnStmt
 	Where      *ast.WhereStmt
 	Predicates []interface{}
 }
@@ -20,6 +21,18 @@ func (qp *QueryPart) Predicate() ast.Expr {
 	if qp.Where != nil {
 		if qp.Where.Predicate != nil {
 			return qp.Where.Predicate
+		}
+	}
+
+	return nil
+}
+
+// Maps gets the []*MapProjectionStmt from the query return statment
+func (qp *QueryPart) Maps() []*ast.MapProjectionStmt {
+
+	if qp.Return != nil {
+		if qp.Return.Maps != nil {
+			return qp.Return.Maps
 		}
 	}
 
@@ -56,6 +69,12 @@ func (qq cypherParts) ToQueryPart(stmt ast.Clauses) ([]*QueryPart, error) {
 
 	if where, ok := stmt.GetNext().(*ast.WhereStmt); ok {
 		qp.Where = where
+		stmt = stmt.GetNext()
+	}
+
+	if returns, ok := stmt.GetNext().(*ast.ReturnStmt); ok {
+		qp.Return = returns
+		stmt = stmt.GetNext()
 	}
 
 	return arr, nil

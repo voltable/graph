@@ -40,11 +40,12 @@ func NewEngine(i storage.Storage) *Engine {
 
 // Engine is a implementation of the Query interface used to pass cypher queries
 type Engine struct {
-	Parser    parser.Parser
-	Traversal query.Traversal
-	Filter    CypherFilter
-	Storage   storage.Storage
-	Parts     Parts
+	Parser     parser.Parser
+	Traversal  query.Traversal
+	Filter     CypherFilter
+	Storage    storage.Storage
+	Parts      Parts
+	Projection Projection
 }
 
 var _ query.Engine = (*Engine)(nil)
@@ -61,16 +62,17 @@ func (qe Engine) Parse(q string) (*query.Query, error) {
 		return nil, err
 	}
 
-	f := qe.toFrontier(qe.Storage.ForEach(), variableVertex(queryPart))
+	results := make([]interface{}, 0)
 	for _, part := range queryPart {
-		f, err = qe.Traversal.SearchPlan(f, part.Predicates)
+		frontier := qe.toFrontier(qe.Storage.ForEach(), variableVertex(queryPart))
+		f, err := qe.Traversal.SearchPlan(frontier, part.Predicates)
 		if err != nil {
 			return nil, err
 		}
 		f = qe.Filter.Filter(f, part.Predicate())
+		results = append(results, qe.Projection.Transform(f, part.Maps())...)
 	}
 
-	results := qe.toVertices(f)
 	query := query.NewQuery(q, results)
 
 	return query, nil

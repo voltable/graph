@@ -5,14 +5,18 @@ import (
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 )
 
-type projection struct {
+type Projection struct {
 }
 
-func (p *projection) Transform(i query.IteratorFrontier, predicate ast.Expr) []interface{} {
+func (p *Projection) Transform(i query.IteratorFrontier, maps []*ast.MapProjectionStmt) []interface{} {
 	results := make([]interface{}, 0)
 	for item, ok := i(); ok; item, ok = i() {
-		for _, i := range item.OptimalPath() {
-			results = append(results, i.Object)
+		for _, part := range item.OptimalPath() {
+			for _, m := range maps {
+				if part.Variable == m.Variable || m.Variable == "*" {
+					results = append(results, part.Object)
+				}
+			}
 		}
 
 	}

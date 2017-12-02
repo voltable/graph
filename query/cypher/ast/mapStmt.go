@@ -18,7 +18,8 @@ type MapElementStmt interface {
 
 // MapProperty selector - Projects the property name as the key, and the value from the map_variable as the value for the projection.
 type MapProperty struct {
-	Key string
+	Key   string
+	Alias string
 }
 
 func (*MapProperty) mapElement() {}

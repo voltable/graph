@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ir"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
@@ -16,8 +15,7 @@ type Expr interface {
 
 // Clauses in the Cypher query language.
 type Clauses interface {
-	GetPattern() ir.Patn
-	GetNext() Stmt
+	GetNext() Clauses
 }
 
 // NonTerminalExpr is a NonTerminal symbol which can still be broken down e.g. a BooleanExpr

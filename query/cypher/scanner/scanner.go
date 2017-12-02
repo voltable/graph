@@ -73,6 +73,8 @@ func (s *Scanner) scanCharacter(ch rune) (tok lexer.Token, lit string) {
 	switch ch {
 	case eof:
 		return lexer.EOF, ""
+	case '`':
+		return lexer.GRAVE, string(ch)
 	case '(':
 		return lexer.LPAREN, string(ch)
 	case ')':

@@ -27,6 +27,7 @@ const (
 	REMOVE
 	CALL
 	YIELD
+	AS
 	clausesEnd
 
 	DETACH_DELETE
@@ -79,18 +80,22 @@ const (
 	// Regular expression matching
 	EQREGEX // =~
 
-	LPAREN          // (
-	RPAREN          // )
-	COMMA           // ,
-	COLON           // :
-	DOT             // .
-	PIPE            // |
-	LSQUARE         // [
-	RSQUARE         // ]
-	LCURLY          // {
-	RCURLY          // }
+	LPAREN  // (
+	RPAREN  // )
+	COMMA   // ,
+	COLON   // :
+	DOT     // .
+	PIPE    // |
+	LSQUARE // [
+	RSQUARE // ]
+	LCURLY  // {
+	RCURLY  // }
+
+	quotationBeg
 	QUOTATION       // "
 	SINGLEQUOTATION // '
+	GRAVE           // `
+	quotationEnd
 )
 
 var tokens = [...]string{
@@ -117,18 +122,22 @@ var tokens = [...]string{
 	CALL:   "CALL",
 	YIELD:  "YIELD",
 
-	LPAREN:          "(",
-	RPAREN:          ")",
-	COMMA:           ",",
-	COLON:           ":",
-	DOT:             ".",
-	PIPE:            "|",
-	LSQUARE:         "[",
-	RSQUARE:         "]",
-	LCURLY:          "{",
-	RCURLY:          "}",
+	AS: "AS",
+
+	LPAREN:  "(",
+	RPAREN:  ")",
+	COMMA:   ",",
+	COLON:   ":",
+	DOT:     ".",
+	PIPE:    "|",
+	LSQUARE: "[",
+	RSQUARE: "]",
+	LCURLY:  "{",
+	RCURLY:  "}",
+
 	QUOTATION:       "\"",
 	SINGLEQUOTATION: "'",
+	GRAVE:           "`",
 
 	AND: "AND",
 	OR:  "OR",
@@ -140,6 +149,8 @@ var clauses map[string]Token
 var subClauses map[string]Token
 var comparison map[string]Token
 var boolean map[string]Token
+
+var quotations map[string]Token
 
 func init() {
 	clauses = make(map[string]Token)
@@ -161,6 +172,11 @@ func init() {
 	for tok := booleanBeg + 1; tok < booleanEnd; tok++ {
 		boolean[strings.ToLower(tokens[tok])] = tok
 	}
+
+	quotations = make(map[string]Token)
+	for tok := quotationBeg + 1; tok < quotationEnd; tok++ {
+		quotations[strings.ToLower(tokens[tok])] = tok
+	}
 }
 
 // String returns the string representation of the token.
@@ -171,17 +187,20 @@ func (tok Token) String() string {
 	return ""
 }
 
-// isClause returns true for clauses tokens.
+// IsClause returns true for clauses tokens.
 func (tok Token) IsClause() bool { return tok > clausesBag && tok < clausesEnd }
 
-// iisSubClausesClause returns true for clauses tokens.
+// IsSubClausesClause returns true for clauses tokens.
 func (tok Token) IsSubClause() bool { return tok > subClausesBag && tok < subClausesEnd }
 
-// isOperator returns true for operator tokens.
+// IsOperator returns true for operator tokens.
 func (tok Token) IsOperator() bool { return tok > operatorBeg && tok < operatorEnd }
 
-// isComparison returns true for comparison tokens.
+// IsComparison returns true for comparison tokens.
 func (tok Token) IsComparison() bool { return tok > comparisonBeg && tok < comparisonEnd }
+
+// IsQuotation returns true for comparison tokens.
+func (tok Token) IsQuotation() bool { return tok > quotationBeg && tok < quotationEnd }
 
 func Clause(ident string) Token {
 	if tok, ok := clauses[strings.ToLower(ident)]; ok {
@@ -206,6 +225,13 @@ func Boolean(ident string) Token {
 
 func Comparison(ident string) Token {
 	if tok, ok := comparison[strings.ToLower(ident)]; ok {
+		return tok
+	}
+	return IDENT
+}
+
+func Quotation(ident string) Token {
+	if tok, ok := quotations[strings.ToLower(ident)]; ok {
 		return tok
 	}
 	return IDENT

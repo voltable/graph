@@ -427,7 +427,7 @@ func (p *CypherParser) Predicate() (ast.Expr, error) {
 	return root, err
 }
 
-func (p *CypherParser) where() (ast.Stmt, error) {
+func (p *CypherParser) where() (*ast.WhereStmt, error) {
 	tok, _ := p.scanIgnoreWhitespace()
 	if tok == lexer.WHERE {
 		state := &ast.WhereStmt{}
@@ -445,31 +445,49 @@ func (p *CypherParser) where() (ast.Stmt, error) {
 	return nil, nil
 }
 
-func (p *CypherParser) match() (ast.Clauses, error) {
+func (p *CypherParser) match() (ast.Clauses, ast.Clauses, error) {
 	state := &ast.MatchStmt{}
-	pattern, next, err := p.pattern()
+	pattern, err := p.pattern()
 	if err == nil {
 		state.Pattern = pattern
-		state.Next = next
-		return state, nil
+
+		where, err := p.where()
+		if err == nil && where != nil {
+			state.Next = where
+		} else if err != nil {
+			return nil, nil, err
+		}
+
+		returns, err := p.returns()
+		if err != nil {
+			return nil, nil, err
+		}
+
+		if where != nil {
+			where.Next = returns
+		} else {
+			state.Next = returns
+
+		}
+
+		return state, returns, nil
 	}
-	return nil, err
+	return nil, nil, err
 }
 
 func (p *CypherParser) optionalMatch() (ast.Clauses, error) {
 	state := &ast.OptionalMatchStmt{}
-	pattern, next, err := p.pattern()
+	pattern, err := p.pattern()
 	if err == nil {
 		state.Pattern = pattern
-		state.Next = next
+		//state.Next = next
 		return state, nil
 	}
 	return nil, err
 }
 
-func (p *CypherParser) pattern() (ir.Patn, ast.Stmt, error) {
+func (p *CypherParser) pattern() (ir.Patn, error) {
 	var pattern ir.Patn
-	var next ast.Stmt
 	var lastVertex *ir.VertexPatn
 	var lastEdge *ir.EdgePatn
 
@@ -485,35 +503,23 @@ func (p *CypherParser) pattern() (ir.Patn, ast.Stmt, error) {
 				lastEdge.Vertex = node
 			}
 		} else if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		if relationship, err := p.relationship(); err == nil && relationship != nil {
 			lastEdge = relationship
 			lastVertex.Edge = relationship
 		} else if err != nil {
-			return nil, nil, err
+			return nil, err
 		} else {
 			break
 		}
 	}
 
-	if where, err := p.where(); err == nil && where != nil {
-		next = where
-	} else if err != nil {
-		return nil, nil, err
-	}
-
-	if returns, err := p.returns(); err == nil && returns != nil {
-		next = returns
-	} else if err != nil {
-		return nil, nil, err
-	}
-
-	return pattern, next, nil
+	return pattern, nil
 }
 
-func (p *CypherParser) returns() (ast.Stmt, error) {
+func (p *CypherParser) returns() (*ast.ReturnStmt, error) {
 	tok, _ := p.scanIgnoreWhitespace()
 	if tok == lexer.RETURN {
 		state := &ast.ReturnStmt{}
@@ -531,69 +537,115 @@ func (p *CypherParser) returns() (ast.Stmt, error) {
 	return nil, nil
 }
 
+func (p *CypherParser) MapAlias() (string, error) {
+	tok, _ := p.scanIgnoreWhitespace()
+	if tok == lexer.AS {
+		tok, lit := p.scanIgnoreWhitespace()
+		if tok == lexer.IDENT {
+			return lit, nil
+		}
+		return "", fmt.Errorf("found %q, expected column alias", lit)
+	}
+
+	p.unscan()
+	return "", nil
+}
+
+func (p *CypherParser) MapElement() (ast.MapElementStmt, error) {
+	tok, lit := p.scanIgnoreWhitespace()
+
+	if tok == lexer.DOT {
+		tok, lit := p.scanIgnoreWhitespace()
+
+		if tok == lexer.IDENT {
+			alias, err := p.MapAlias()
+			if err != nil {
+				return nil, err
+			}
+
+			return &ast.MapProperty{Key: lit, Alias: alias}, nil
+		} else if tok == lexer.MUL {
+			return &ast.MapAll{}, nil
+		} else {
+			return nil, fmt.Errorf("found %q, expected part of a map", lit)
+		}
+	} else if tok == lexer.IDENT {
+		key := lit
+
+		tok, _ := p.scanIgnoreWhitespace()
+
+		if tok == lexer.COLON {
+			return nil, fmt.Errorf("found %q, MapLiteral not yet supported", lit)
+			// todo MapLiteral
+			// literal := &ast.MapLiteral{Key: key}
+			// mapPro.Elements = append(mapPro.Elements, literal)
+		} else {
+			p.unscan()
+			return &ast.MapVariable{Key: key}, nil
+		}
+	}
+	p.unscan()
+	return nil, nil
+}
+
 func (p *CypherParser) MapElements() ([]ast.MapElementStmt, error) {
 
 	elements := make([]ast.MapElementStmt, 0)
 
 	for {
-		tok, lit := p.scanIgnoreWhitespace()
-
-		if tok == lexer.RCURLY {
-			p.unscan()
-			break
+		if e, err := p.MapElement(); e != nil && err == nil {
+			elements = append(elements, e)
 		}
 
-		if tok == lexer.DOT {
-			tok, lit := p.scanIgnoreWhitespace()
+		tok, lit := p.scanIgnoreWhitespace()
 
-			if tok == lexer.IDENT {
-				property := &ast.MapProperty{Key: lit}
-				elements = append(elements, property)
-			} else if tok == lexer.MUL {
-				elements = append(elements, &ast.MapAll{})
-			} else {
-				return nil, fmt.Errorf("found %q, expected part of a map", lit)
-			}
-		} else if tok == lexer.IDENT {
-			key := lit
-
-			tok, _ := p.scanIgnoreWhitespace()
-
-			if tok == lexer.COLON {
-				return nil, fmt.Errorf("found %q, MapLiteral not yet supported", lit)
-				// todo MapLiteral
-				// literal := &ast.MapLiteral{Key: key}
-				// mapPro.Elements = append(mapPro.Elements, literal)
-			} else {
-				p.unscan()
-				variable := &ast.MapVariable{Key: key}
-				elements = append(elements, variable)
-			}
-		} else if tok != lexer.COMMA {
+		if tok == lexer.COMMA {
+			continue
+		} else if tok == lexer.RCURLY {
 			p.unscan()
 			break
+		} else {
+			return nil, fmt.Errorf("found %q, expected } or ,", lit)
 		}
 	}
 
 	return elements, nil
 }
 func (p *CypherParser) MapVariables() ([]*ast.MapProjectionStmt, error) {
-	maps := make([]*ast.MapProjectionStmt, 0)
-
+	maps := make(map[string]*ast.MapProjectionStmt)
+	var err error
 	for {
 		tok, lit := p.scanIgnoreWhitespace()
 
+		if tok == lexer.GRAVE {
+			p.unscan()
+			if tok, lit, err = p.scanForQuotation(); err != nil {
+				return nil, err
+			}
+			if tok.IsQuotation() {
+				tok = lexer.IDENT
+			}
+
+		}
+
+		if tok == lexer.MUL {
+			if _, ok := maps[lit]; !ok {
+				maps["*"] = ast.NewMapProjectionStmt("*", &ast.MapAll{})
+			}
+		}
+
 		if tok == lexer.IDENT {
 
-			mapPro := ast.NewMapProjectionStmt(lit)
-			maps = append(maps, mapPro)
+			if _, ok := maps[lit]; !ok {
+				maps[lit] = ast.NewMapProjectionStmt(lit)
+			}
 
 			tok, _ := p.scanIgnoreWhitespace()
 
 			if tok == lexer.LCURLY {
 
 				if elements, err := p.MapElements(); err == nil && elements != nil {
-					mapPro.Elements = elements
+					maps[lit].Elements = append(maps[lit].Elements, elements...)
 				}
 
 				tok, _ := p.scanIgnoreWhitespace()
@@ -601,27 +653,38 @@ func (p *CypherParser) MapVariables() ([]*ast.MapProjectionStmt, error) {
 				if tok != lexer.RCURLY {
 					return nil, fmt.Errorf("found %q, expected }", lit)
 				}
-			}
-
-			tok, _ = p.scanIgnoreWhitespace()
-
-			if tok != lexer.COMMA {
+			} else if tok == lexer.DOT {
 				p.unscan()
-				break
+				if element, err := p.MapElement(); err == nil && element != nil {
+					maps[lit].Elements = append(maps[lit].Elements, element)
+				}
 			}
+
+		}
+
+		tok, _ = p.scanIgnoreWhitespace()
+
+		if tok != lexer.COMMA {
+			p.unscan()
+			break
 		}
 
 	}
 
-	return maps, nil
+	arr := make([]*ast.MapProjectionStmt, 0)
+	for _, m := range maps {
+		arr = append(arr, m)
+	}
+
+	return arr, nil
 }
 
 func (p *CypherParser) create() (ast.Clauses, error) {
 	state := &ast.CreateStmt{}
-	pattern, next, err := p.pattern()
+	pattern, err := p.pattern()
 	if err == nil {
 		state.Pattern = pattern
-		state.Next = next
+		//	state.Next = next
 		return state, nil
 	}
 	return nil, err
@@ -629,10 +692,10 @@ func (p *CypherParser) create() (ast.Clauses, error) {
 
 func (p *CypherParser) delete() (ast.Clauses, error) {
 	state := &ast.DeleteStmt{}
-	pattern, next, err := p.pattern()
+	pattern, err := p.pattern()
 	if err == nil {
 		state.Pattern = pattern
-		state.Next = next
+		//	state.Next = next
 		return state, nil
 	}
 	return nil, err
@@ -663,7 +726,8 @@ func (p *CypherParser) clause() (ast.Clauses, error) {
 
 	switch tok {
 	case lexer.MATCH:
-		return p.match()
+		root, _, err := p.match()
+		return root, err
 	case lexer.OPTIONAL_MATCH:
 		return p.optionalMatch()
 	case lexer.CREATE:
@@ -746,11 +810,11 @@ func (p *CypherParser) scanIgnoreWhitespace() (tok lexer.Token, lit string) {
 // scanForQuotation scans the next matching quotations lexer.
 func (p *CypherParser) scanForQuotation() (tok lexer.Token, lit string, err error) {
 	tok, lit = p.scanIgnoreWhitespace()
-	if tok == lexer.QUOTATION || tok == lexer.SINGLEQUOTATION {
+	if tok == lexer.QUOTATION || tok == lexer.SINGLEQUOTATION || tok == lexer.GRAVE {
 		lit = emptyString
 		for {
 			tok2, s := p.scan()
-			if tok2 != lexer.QUOTATION && tok2 != lexer.SINGLEQUOTATION {
+			if tok2 != tok {
 				lit += s
 			} else if tok2 == lexer.EOF {
 				err = fmt.Errorf("No matching quotaation found %q", lit)
