@@ -197,12 +197,18 @@ func TestParser_Where(t *testing.T) {
 		err  string
 	}{
 		{
-			s:    `MATCH () WHERE n.number >= 1 AND n.number <= 10`,
-			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{}, Next: &ast.WhereStmt{Predicate: ast.NewBooleanExpr(expressions.AND, ast.NewComparisonExpr(expressions.GTE, &ast.PropertyStmt{Variable: "n", Value: "number"}, &ast.Ident{Data: 1}), ast.NewComparisonExpr(expressions.LTE, &ast.PropertyStmt{Variable: "n", Value: "number"}, &ast.Ident{Data: 10}))}},
+			s: `MATCH () WHERE n.number >= 1 AND n.number <= 10 RETURN *`,
+			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{}, Next: &ast.WhereStmt{
+				Predicate: ast.NewBooleanExpr(expressions.AND, ast.NewComparisonExpr(expressions.GTE, &ast.PropertyStmt{Variable: "n", Value: "number"},
+					&ast.Ident{Data: 1}),
+					ast.NewComparisonExpr(expressions.LTE, &ast.PropertyStmt{Variable: "n", Value: "number"},
+						&ast.Ident{Data: 10})), Next: ast.NewReturnStmt(ast.NewMapProjectionStmt("*", &ast.MapAll{}))}},
 		},
 		{
-			s:    `MATCH () WHERE n.name = "john smith"`,
-			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{}, Next: &ast.WhereStmt{Predicate: ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "john smith"})}},
+			s: `MATCH () WHERE n.name = "john smith" RETURN *`,
+			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{}, Next: &ast.WhereStmt{
+				Predicate: ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"},
+					&ast.Ident{Data: "john smith"}), Next: ast.NewReturnStmt(ast.NewMapProjectionStmt("*", &ast.MapAll{}))}},
 		},
 	}
 
