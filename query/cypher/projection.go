@@ -13,9 +13,7 @@ func (p *Projection) Transform(i query.IteratorFrontier, maps []*ast.MapProjecti
 	for item, ok := i(); ok; item, ok = i() {
 		for _, part := range item.OptimalPath() {
 			for _, m := range maps {
-				if part.Variable == m.Variable || m.Variable == "*" {
-					results = append(results, part.Object)
-				}
+				results = append(results, m.Interpret(part.Variable, part.Object)...)
 			}
 		}
 

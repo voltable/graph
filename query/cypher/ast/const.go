@@ -6,3 +6,5 @@ const (
 	RPAREN Parentheses = iota // )
 	LPAREN                    // (
 )
+
+const StringEmpty string = ""
