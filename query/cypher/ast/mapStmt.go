@@ -46,12 +46,9 @@ func (m *MapProperty) Interpret(variable string, prop vertices.Properties) inter
 		key = m.Alias
 	}
 
-	return struct {
-		key   string
-		value interface{}
-	}{
-		key:   key,
-		value: prop.Property(m.Key),
+	return vertices.KeyValue{
+		Key:   key,
+		Value: prop.Property(m.Key),
 	}
 }
 
@@ -74,12 +71,9 @@ func (m *MapLiteral) Interpret(variable string, prop vertices.Properties) interf
 			key = m.Alias
 		}
 
-		return struct {
-			key   string
-			value interface{}
-		}{
-			key:   key,
-			value: inter.Interpret(variable, prop),
+		return vertices.KeyValue{
+			Key:   key,
+			Value: inter.Interpret(variable, prop),
 		}
 	}
 
