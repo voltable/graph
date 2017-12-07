@@ -64,20 +64,21 @@ func (*MapLiteral) mapElement() {}
 
 func (m *MapLiteral) Interpret(variable string, prop vertices.Properties) interface{} {
 
+	key := m.Key
+	if m.Alias != StringEmpty {
+		key = m.Alias
+	}
 	if inter, ok := m.Expression.(InterpretExpr); ok {
-
-		key := m.Key
-		if m.Alias != StringEmpty {
-			key = m.Alias
-		}
-
 		return vertices.KeyValue{
 			Key:   key,
 			Value: inter.Interpret(variable, prop),
 		}
 	}
 
-	return nil
+	return vertices.KeyValue{
+		Key:   key,
+		Value: false,
+	}
 }
 
 // MapVariable Projects a variable, with the variable name as the key, and the value the variable is pointing to as the value of the projection. Its syntax is just the variable.
