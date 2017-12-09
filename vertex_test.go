@@ -1,13 +1,13 @@
-package vertices_test
+package graph_test
 
 import (
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/vertices"
+	"github.com/RossMerr/Caudex.Graph"
 )
 
 func Test_VertexLabels(t *testing.T) {
-	v := vertices.Vertex{}
+	v := graph.Vertex{}
 	v.SetLabel("foo")
 
 	if v.Label() != "foo" {
@@ -16,7 +16,7 @@ func Test_VertexLabels(t *testing.T) {
 }
 
 func Test_NewVertex(t *testing.T) {
-	v, err := vertices.NewVertex()
+	v, err := graph.NewVertex()
 
 	if err != nil {
 		t.Fatalf("Expected err to be nil but was %s", err)
@@ -43,8 +43,8 @@ func Test_NewVertex(t *testing.T) {
 // }
 
 func Test_AddDirectedEdge(t *testing.T) {
-	vertex, _ := vertices.NewVertex()
-	vertexDirection, _ := vertices.NewVertex()
+	vertex, _ := graph.NewVertex()
+	vertexDirection, _ := graph.NewVertex()
 	_, err := vertex.AddDirectedEdge(vertexDirection)
 
 	if err != nil {
@@ -65,7 +65,7 @@ func Test_AddDirectedEdge(t *testing.T) {
 }
 
 func Test_Value(t *testing.T) {
-	x, _ := vertices.NewVertex()
+	x, _ := graph.NewVertex()
 	x.SetProperty("Age", 10)
 	if x.Property("Age") != 10 {
 		t.Fatalf("Expected %d edge but was %v", 10, x.Property("Age"))

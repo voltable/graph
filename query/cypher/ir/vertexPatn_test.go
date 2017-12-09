@@ -3,10 +3,10 @@ package ir_test
 import (
 	"testing"
 
+	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/query"
 
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ir"
-	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 // (n:Person {name: "test"})
@@ -18,7 +18,7 @@ func Test_ToPredicateVertex(t *testing.T) {
 
 	predicateVertexPath := vp.ToPredicateVertexPath()
 
-	v, _ := vertices.NewVertex()
+	v, _ := graph.NewVertex()
 	v.SetLabel("Person")
 	v.SetProperty("name", "test")
 	_, result := predicateVertexPath.PredicateVertex(v)
@@ -34,7 +34,7 @@ func Test_ToPredicateVertexLabelFail(t *testing.T) {
 	vp := ir.VertexPatn{Variable: "n", Label: "World", Properties: properties}
 	predicateVertexPath := vp.ToPredicateVertexPath()
 
-	v, _ := vertices.NewVertex()
+	v, _ := graph.NewVertex()
 	v.SetLabel("Person")
 	_, result := predicateVertexPath.PredicateVertex(v)
 
@@ -51,7 +51,7 @@ func Test_ToPredicateVertexPropertiesFail(t *testing.T) {
 	vp := ir.VertexPatn{Variable: "n", Label: "Person", Properties: properties}
 	predicateVertexPath := vp.ToPredicateVertexPath()
 
-	v, _ := vertices.NewVertex()
+	v, _ := graph.NewVertex()
 	v.SetLabel("Person")
 	v.SetProperty("name", "hello")
 
@@ -70,7 +70,7 @@ func Test_ToPredicateVertexPropertiesFailEmpty(t *testing.T) {
 	vp := ir.VertexPatn{Variable: "n", Label: "Person", Properties: properties}
 	predicateVertexPath := vp.ToPredicateVertexPath()
 
-	v, _ := vertices.NewVertex()
+	v, _ := graph.NewVertex()
 	v.SetLabel("Person")
 
 	_, result := predicateVertexPath.PredicateVertex(v)

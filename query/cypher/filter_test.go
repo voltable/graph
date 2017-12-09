@@ -3,8 +3,8 @@ package cypher_test
 import (
 	"testing"
 
+	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/expressions"
-	"github.com/RossMerr/Caudex.Graph/vertices"
 
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
@@ -52,7 +52,7 @@ func Test_Filter(t *testing.T) {
 			setup: func(iterate int) query.IteratorFrontier {
 				count := 0
 				return func() (*query.Frontier, bool) {
-					v, _ := vertices.NewVertex()
+					v, _ := graph.NewVertex()
 					v.SetProperty("name", "foo")
 					f := query.NewFrontier(v, "n")
 					if count < iterate {
@@ -71,7 +71,7 @@ func Test_Filter(t *testing.T) {
 			setup: func(iterate int) query.IteratorFrontier {
 				count := 0
 				return func() (*query.Frontier, bool) {
-					v, _ := vertices.NewVertex()
+					v, _ := graph.NewVertex()
 					v.SetProperty("name", "foo")
 					f := query.NewFrontier(v, "n")
 					if count < iterate {
@@ -90,8 +90,8 @@ func Test_Filter(t *testing.T) {
 			setup: func(iterate int) query.IteratorFrontier {
 				count := 0
 				return func() (*query.Frontier, bool) {
-					x, _ := vertices.NewVertex()
-					v, _ := vertices.NewVertex()
+					x, _ := graph.NewVertex()
+					v, _ := graph.NewVertex()
 					f := query.NewFrontier(x, "")
 					fq := f.Values[0]
 					fv := query.FrontierProperties{Object: v, Variable: ""}
@@ -116,8 +116,8 @@ func Test_Filter(t *testing.T) {
 			setup: func(iterate int) query.IteratorFrontier {
 				count := 0
 				return func() (*query.Frontier, bool) {
-					x, _ := vertices.NewVertex()
-					v, _ := vertices.NewVertex()
+					x, _ := graph.NewVertex()
+					v, _ := graph.NewVertex()
 					e, _ := x.AddDirectedEdge(v)
 					f := query.NewFrontier(x, "")
 					fq := f.Values[0]
@@ -159,14 +159,14 @@ func Test_ExpressionEvaluator(t *testing.T) {
 	var tests = []struct {
 		expr     ast.Expr
 		variable string
-		v        *vertices.Vertex
+		v        *graph.Vertex
 		result   bool
 	}{
 		{
 			expr:     &ast.PropertyStmt{Variable: "n", Value: "name"},
 			variable: "n",
-			v: func() *vertices.Vertex {
-				x, _ := vertices.NewVertex()
+			v: func() *graph.Vertex {
+				x, _ := graph.NewVertex()
 				x.SetProperty("name", "foo")
 				return x
 			}(),
@@ -175,8 +175,8 @@ func Test_ExpressionEvaluator(t *testing.T) {
 		{
 			expr:     ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}),
 			variable: "n",
-			v: func() *vertices.Vertex {
-				x, _ := vertices.NewVertex()
+			v: func() *graph.Vertex {
+				x, _ := graph.NewVertex()
 				x.SetProperty("name", "foo")
 				return x
 			}(),
@@ -185,8 +185,8 @@ func Test_ExpressionEvaluator(t *testing.T) {
 		{
 			expr:     ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}),
 			variable: "x",
-			v: func() *vertices.Vertex {
-				x, _ := vertices.NewVertex()
+			v: func() *graph.Vertex {
+				x, _ := graph.NewVertex()
 				x.SetProperty("name", "foo")
 				return x
 			}(),
@@ -195,8 +195,8 @@ func Test_ExpressionEvaluator(t *testing.T) {
 		{
 			expr:     ast.NewBooleanExpr(expressions.OR, ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}), nil),
 			variable: "n",
-			v: func() *vertices.Vertex {
-				x, _ := vertices.NewVertex()
+			v: func() *graph.Vertex {
+				x, _ := graph.NewVertex()
 				x.SetProperty("name", "foo")
 				return x
 			}(),
@@ -205,8 +205,8 @@ func Test_ExpressionEvaluator(t *testing.T) {
 		{
 			expr:     ast.NewBooleanExpr(expressions.OR, ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}), ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "m", Value: "name"}, &ast.Ident{Data: "bar"})),
 			variable: "n",
-			v: func() *vertices.Vertex {
-				x, _ := vertices.NewVertex()
+			v: func() *graph.Vertex {
+				x, _ := graph.NewVertex()
 				x.SetProperty("name", "foo")
 				return x
 			}(),
@@ -215,8 +215,8 @@ func Test_ExpressionEvaluator(t *testing.T) {
 		{
 			expr:     ast.NewBooleanExpr(expressions.OR, ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}), ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "m", Value: "name"}, &ast.Ident{Data: "bar"})),
 			variable: "m",
-			v: func() *vertices.Vertex {
-				x, _ := vertices.NewVertex()
+			v: func() *graph.Vertex {
+				x, _ := graph.NewVertex()
 				x.SetProperty("name", "foo")
 				return x
 			}(),
@@ -225,8 +225,8 @@ func Test_ExpressionEvaluator(t *testing.T) {
 		{
 			expr:     ast.NewBooleanExpr(expressions.OR, ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}), ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "m", Value: "name"}, &ast.Ident{Data: "bar"})),
 			variable: "m",
-			v: func() *vertices.Vertex {
-				x, _ := vertices.NewVertex()
+			v: func() *graph.Vertex {
+				x, _ := graph.NewVertex()
 				x.SetProperty("name", "bar")
 				return x
 			}(),
@@ -235,8 +235,8 @@ func Test_ExpressionEvaluator(t *testing.T) {
 		{
 			expr:     ast.NewBooleanExpr(expressions.OR, ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}), ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "m", Value: "person"}, &ast.Ident{Data: "john smith"})),
 			variable: "m",
-			v: func() *vertices.Vertex {
-				x, _ := vertices.NewVertex()
+			v: func() *graph.Vertex {
+				x, _ := graph.NewVertex()
 				x.SetProperty("person", "john smith")
 				return x
 			}(),

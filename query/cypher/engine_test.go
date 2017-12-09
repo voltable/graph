@@ -6,11 +6,10 @@ import (
 	"reflect"
 	"testing"
 
-	graph "github.com/RossMerr/Caudex.Graph"
+	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
-	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 type FakeParser struct {
@@ -32,7 +31,7 @@ type FakeTraversal struct {
 type FakeStorage struct {
 }
 
-func (s FakeStorage) Fetch(string) (*vertices.Vertex, error) {
+func (s FakeStorage) Fetch(string) (*graph.Vertex, error) {
 	return nil, nil
 }
 

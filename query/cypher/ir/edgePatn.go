@@ -3,8 +3,8 @@ package ir
 import (
 	"strings"
 
+	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 // Patn all pattern nodes implement the Patn interface.
@@ -34,7 +34,7 @@ func (*EdgePatn) patnNode() {}
 // ToPredicateEdgePath creates a PredicateEdgePath out of the EdgePatn
 func (patn *EdgePatn) ToPredicateEdgePath() *query.PredicateEdgePath {
 	relationshipType := strings.ToLower(patn.Body.Type)
-	pvp := query.PredicateEdgePath{PredicateEdge: func(v *vertices.Edge, depth uint) (string, query.Traverse) {
+	pvp := query.PredicateEdgePath{PredicateEdge: func(v *graph.Edge, depth uint) (string, query.Traverse) {
 
 		if depth < patn.Body.LengthMinimum {
 			return patn.Body.Variable, query.Visiting

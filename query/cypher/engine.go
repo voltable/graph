@@ -6,7 +6,6 @@ import (
 	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
-	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 func init() {
@@ -105,7 +104,7 @@ func (qe Engine) toFrontier(i graph.Iterator, variable string) query.IteratorFro
 	return func() (*query.Frontier, bool) {
 		item, ok := i()
 		if ok {
-			if v, is := item.(*vertices.Vertex); is {
+			if v, is := item.(*graph.Vertex); is {
 				f := query.NewFrontier(v, variable)
 				return &f, true
 			}

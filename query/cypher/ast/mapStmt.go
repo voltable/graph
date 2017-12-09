@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/RossMerr/Caudex.Graph/vertices"
+	"github.com/RossMerr/Caudex.Graph"
 )
 
 // MapProjectionStmt begins with the variable bound to the graph entity to be projected from, and contains a body of comma-separated map elements, enclosed by { and }.
@@ -15,7 +15,7 @@ func NewMapProjectionStmt(v string, e ...MapElementStmt) *MapProjectionStmt {
 	return &MapProjectionStmt{Variable: v, Elements: e}
 }
 
-func (m *MapProjectionStmt) Interpret(variable string, prop vertices.Properties) []interface{} {
+func (m *MapProjectionStmt) Interpret(variable string, prop graph.Properties) []interface{} {
 	arr := make([]interface{}, 0)
 	if variable == m.Variable || m.Variable == "*" {
 		for _, e := range m.Elements {
@@ -28,7 +28,7 @@ func (m *MapProjectionStmt) Interpret(variable string, prop vertices.Properties)
 // MapElementStmt projects one or more key-value pairs to the map projection.
 type MapElementStmt interface {
 	mapElement()
-	Interpret(string, vertices.Properties) interface{}
+	Interpret(string, graph.Properties) interface{}
 }
 
 // MapProperty selector - Projects the property name as the key, and the value from the map_variable as the value for the projection.
@@ -40,13 +40,13 @@ type MapProperty struct {
 
 func (*MapProperty) mapElement() {}
 
-func (m *MapProperty) Interpret(variable string, prop vertices.Properties) interface{} {
+func (m *MapProperty) Interpret(variable string, prop graph.Properties) interface{} {
 	key := m.Key
 	if m.Alias != StringEmpty {
 		key = m.Alias
 	}
 
-	return vertices.KeyValue{
+	return graph.KeyValue{
 		Key:   key,
 		Value: prop.Property(m.Key),
 	}
@@ -62,20 +62,20 @@ type MapLiteral struct {
 
 func (*MapLiteral) mapElement() {}
 
-func (m *MapLiteral) Interpret(variable string, prop vertices.Properties) interface{} {
+func (m *MapLiteral) Interpret(variable string, prop graph.Properties) interface{} {
 
 	key := m.Key
 	if m.Alias != StringEmpty {
 		key = m.Alias
 	}
 	if inter, ok := m.Expression.(InterpretExpr); ok {
-		return vertices.KeyValue{
+		return graph.KeyValue{
 			Key:   key,
 			Value: inter.Interpret(variable, prop),
 		}
 	}
 
-	return vertices.KeyValue{
+	return graph.KeyValue{
 		Key:   key,
 		Value: false,
 	}
@@ -89,7 +89,7 @@ type MapVariable struct {
 
 func (*MapVariable) mapElement() {}
 
-func (m *MapVariable) Interpret(variable string, prop vertices.Properties) interface{} {
+func (m *MapVariable) Interpret(variable string, prop graph.Properties) interface{} {
 	// todo
 	return nil
 }
@@ -100,6 +100,6 @@ type MapAll struct {
 
 func (*MapAll) mapElement() {}
 
-func (m *MapAll) Interpret(variable string, prop vertices.Properties) interface{} {
+func (m *MapAll) Interpret(variable string, prop graph.Properties) interface{} {
 	return prop
 }

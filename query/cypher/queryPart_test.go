@@ -3,12 +3,12 @@ package cypher_test
 import (
 	"testing"
 
+	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/expressions"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ir"
-	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 func Test_ToQueryPath(t *testing.T) {
@@ -19,7 +19,7 @@ func Test_ToQueryPath(t *testing.T) {
 
 	var b bool
 	toPredicateVertex := func(*ir.VertexPatn) query.PredicateVertex {
-		return func(v *vertices.Vertex) (string, query.Traverse) {
+		return func(v *graph.Vertex) (string, query.Traverse) {
 			if b {
 				return "", query.Matched
 			} else {
@@ -30,7 +30,7 @@ func Test_ToQueryPath(t *testing.T) {
 	}
 
 	toPredicateEdge := func(patn *ir.EdgePatn) query.PredicateEdge {
-		return func(e *vertices.Edge, depth uint) (string, query.Traverse) {
+		return func(e *graph.Edge, depth uint) (string, query.Traverse) {
 			if b {
 				return "", query.Matched
 			} else {

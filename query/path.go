@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 type (
@@ -35,10 +34,10 @@ type (
 	IteratorFrontier func() (item *Frontier, ok bool)
 
 	// PredicateVertex apply the predicate over the vertex
-	PredicateVertex func(v *vertices.Vertex) (string, Traverse)
+	PredicateVertex func(v *graph.Vertex) (string, Traverse)
 
 	// PredicateEdge apply the predicate over the edge
-	PredicateEdge func(e *vertices.Edge, depth uint) (string, Traverse)
+	PredicateEdge func(e *graph.Edge, depth uint) (string, Traverse)
 )
 
 var (

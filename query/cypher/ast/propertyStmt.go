@@ -1,6 +1,6 @@
 package ast
 
-import "github.com/RossMerr/Caudex.Graph/vertices"
+import "github.com/RossMerr/Caudex.Graph"
 
 var _ TerminalExpr = (*PropertyStmt)(nil)
 var _ InterpretExpr = (*PropertyStmt)(nil)
@@ -24,7 +24,7 @@ func (p *PropertyStmt) SetValue(x interface{}) {
 	}
 }
 
-func (p *PropertyStmt) Interpret(variable string, prop vertices.Properties) interface{} {
+func (p *PropertyStmt) Interpret(variable string, prop graph.Properties) interface{} {
 	if p.Variable == variable {
 		return prop.Property(p.Value)
 	}

@@ -3,10 +3,10 @@ package ir_test
 import (
 	"testing"
 
+	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/query"
 
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ir"
-	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 func Test_ToPredicateEdge(t *testing.T) {
@@ -16,7 +16,7 @@ func Test_ToPredicateEdge(t *testing.T) {
 	vp := ir.EdgePatn{Body: eb}
 	predicateEdgePath := vp.ToPredicateEdgePath()
 
-	v, _ := vertices.NewEdge()
+	v, _ := graph.NewEdge()
 	v.SetRelationshipType("Person")
 	v.SetProperty("name", "test")
 	_, result := predicateEdgePath.PredicateEdge(v, 0)
@@ -31,7 +31,7 @@ func Test_ToPredicateEdgeLengthMinimumFail(t *testing.T) {
 	vp := ir.EdgePatn{Body: eb}
 	predicateEdgePath := vp.ToPredicateEdgePath()
 
-	v, _ := vertices.NewEdge()
+	v, _ := graph.NewEdge()
 	v.SetRelationshipType("Person")
 	_, result := predicateEdgePath.PredicateEdge(v, 1)
 
@@ -45,7 +45,7 @@ func Test_ToPredicateEdgeLengthMaximumFail(t *testing.T) {
 	vp := ir.EdgePatn{Body: eb}
 	predicateEdgePath := vp.ToPredicateEdgePath()
 
-	v, _ := vertices.NewEdge()
+	v, _ := graph.NewEdge()
 	v.SetRelationshipType("Person")
 	_, result := predicateEdgePath.PredicateEdge(v, 1)
 
@@ -59,7 +59,7 @@ func Test_ToPredicateEdgeTypeFail(t *testing.T) {
 	vp := ir.EdgePatn{Body: eb}
 	predicateEdgePath := vp.ToPredicateEdgePath()
 
-	v, _ := vertices.NewEdge()
+	v, _ := graph.NewEdge()
 	v.SetRelationshipType("Person")
 	_, result := predicateEdgePath.PredicateEdge(v, 0)
 
@@ -75,7 +75,7 @@ func Test_ToPredicateEdgePropertiesFail(t *testing.T) {
 	vp := ir.EdgePatn{Body: eb}
 	predicateEdgePath := vp.ToPredicateEdgePath()
 
-	v, _ := vertices.NewEdge()
+	v, _ := graph.NewEdge()
 	v.SetProperty("name", "hello")
 
 	_, result := predicateEdgePath.PredicateEdge(v, 0)
@@ -92,7 +92,7 @@ func Test_ToPredicateEdgePropertiesFailEmpty(t *testing.T) {
 	vp := ir.EdgePatn{Body: eb}
 	predicateEdgePath := vp.ToPredicateEdgePath()
 
-	v, _ := vertices.NewEdge()
+	v, _ := graph.NewEdge()
 
 	_, result := predicateEdgePath.PredicateEdge(v, 0)
 

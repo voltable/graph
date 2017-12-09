@@ -4,40 +4,40 @@ import (
 	"math"
 	"testing"
 
+	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/expressions"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
-	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 func Test_ComparisonExprInterpret(t *testing.T) {
 
 	var tests = []struct {
 		c      *ast.ComparisonExpr
-		v      *vertices.Vertex
+		v      *graph.Vertex
 		p      string
 		result bool
 		err    string
 	}{
 		{
 			c:      &ast.ComparisonExpr{Comparison: expressions.EQ},
-			v:      &vertices.Vertex{},
+			v:      &graph.Vertex{},
 			result: true,
 		},
 		{
 			c:      ast.NewComparisonExpr(expressions.NEQ, &ast.PropertyStmt{}, &ast.Ident{}),
-			v:      &vertices.Vertex{},
+			v:      &graph.Vertex{},
 			result: false,
 		},
 		{
 			c:      ast.NewComparisonExpr(expressions.IS_NULL, &ast.PropertyStmt{Variable: "n"}, &ast.Ident{}),
-			v:      &vertices.Vertex{},
+			v:      &graph.Vertex{},
 			p:      "n",
 			result: true,
 		},
 		{
 			c: ast.NewComparisonExpr(expressions.IS_NOT_NULL, &ast.PropertyStmt{Variable: "n", Value: "Person"}, &ast.Ident{}),
-			v: func() *vertices.Vertex {
-				x, _ := vertices.NewVertex()
+			v: func() *graph.Vertex {
+				x, _ := graph.NewVertex()
 				x.SetProperty("Person", "John Smith")
 				return x
 			}(),
@@ -46,8 +46,8 @@ func Test_ComparisonExprInterpret(t *testing.T) {
 		},
 		{
 			c: ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: math.MaxInt32}),
-			v: func() *vertices.Vertex {
-				x, _ := vertices.NewVertex()
+			v: func() *graph.Vertex {
+				x, _ := graph.NewVertex()
 				x.SetProperty("Age", math.MaxInt32-1)
 				return x
 			}(),

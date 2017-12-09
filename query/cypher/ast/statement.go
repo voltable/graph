@@ -1,8 +1,6 @@
 package ast
 
-import (
-	"github.com/RossMerr/Caudex.Graph/vertices"
-)
+import "github.com/RossMerr/Caudex.Graph"
 
 // Stmt all statments implement the Stmt interface.
 type Stmt interface {
@@ -51,7 +49,7 @@ type TerminalExpr interface {
 type InterpretExpr interface {
 	exprNode()
 	interpretNode()
-	Interpret(variable string, prop vertices.Properties) interface{}
+	Interpret(variable string, prop graph.Properties) interface{}
 }
 
 type PatternStmt interface {

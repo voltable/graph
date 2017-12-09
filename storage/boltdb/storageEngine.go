@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/vertices"
 	"github.com/Sirupsen/logrus"
 	"github.com/boltdb/bolt"
 )
@@ -75,7 +74,7 @@ func createBolt(o *graph.Options) *bolt.DB {
 }
 
 // Create adds a array of vertices to the persistence
-func (se *StorageEngine) Create(c ...*vertices.Vertex) error {
+func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 	var err error
 	var buf []byte
 	return se.db.Update(func(tx *bolt.Tx) error {
@@ -92,7 +91,7 @@ func (se *StorageEngine) Create(c ...*vertices.Vertex) error {
 }
 
 // Delete the array of vertices from the persistence
-func (se *StorageEngine) Delete(c ...*vertices.Vertex) error {
+func (se *StorageEngine) Delete(c ...*graph.Vertex) error {
 	return se.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketGraph))
 		for _, vertex := range c {
@@ -103,10 +102,10 @@ func (se *StorageEngine) Delete(c ...*vertices.Vertex) error {
 }
 
 // Find a vertex from the persistence
-func (se *StorageEngine) Find(ID string) (*vertices.Vertex, error) {
+func (se *StorageEngine) Find(ID string) (*graph.Vertex, error) {
 	var err error
 	var buf []byte
-	var v vertices.Vertex
+	var v graph.Vertex
 	return &v, se.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketGraph))
 		buf = b.Get([]byte(ID))
@@ -120,7 +119,7 @@ func (se *StorageEngine) Find(ID string) (*vertices.Vertex, error) {
 }
 
 // Update the array of vertices from the persistence
-func (se *StorageEngine) Update(c ...*vertices.Vertex) error {
+func (se *StorageEngine) Update(c ...*graph.Vertex) error {
 	var err error
 	var buf []byte
 	return se.db.Update(func(tx *bolt.Tx) error {

@@ -6,11 +6,10 @@ import (
 	"reflect"
 	"testing"
 
-	graph "github.com/RossMerr/Caudex.Graph"
+	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/expressions"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ir"
-	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 var (
@@ -18,15 +17,15 @@ var (
 )
 
 var (
-	drw, _ = vertices.NewVertex()
-	cns, _ = vertices.NewVertex()
-	asp, _ = vertices.NewVertex()
-	bne, _ = vertices.NewVertex()
-	syd, _ = vertices.NewVertex()
-	cbr, _ = vertices.NewVertex()
-	mel, _ = vertices.NewVertex()
-	adl, _ = vertices.NewVertex()
-	per, _ = vertices.NewVertex()
+	drw, _ = graph.NewVertex()
+	cns, _ = graph.NewVertex()
+	asp, _ = graph.NewVertex()
+	bne, _ = graph.NewVertex()
+	syd, _ = graph.NewVertex()
+	cbr, _ = graph.NewVertex()
+	mel, _ = graph.NewVertex()
+	adl, _ = graph.NewVertex()
+	per, _ = graph.NewVertex()
 )
 
 // https://neo4j.com/blog/graph-search-algorithm-basics/
@@ -134,19 +133,19 @@ func Test_UniformCostSearch(t *testing.T) {
 }
 
 func AustraliaGraph() *StorageEngine {
-	g := &StorageEngine{vertices: make(map[string]vertices.Vertex)}
+	g := &StorageEngine{vertices: make(map[string]graph.Vertex)}
 	g.Create(drw, cns, asp, bne, syd, cbr, mel, adl, per)
 	return g
 }
 
 type StorageEngine struct {
-	vertices  map[string]vertices.Vertex
+	vertices  map[string]graph.Vertex
 	keys      []string
 	traversal query.Traversal
 }
 
 // Create adds a array of vertices to the persistence
-func (se *StorageEngine) Create(c ...*vertices.Vertex) error {
+func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 	for _, v := range c {
 		se.vertices[v.ID()] = *v
 		se.keys = append(se.keys, v.ID())
@@ -156,12 +155,12 @@ func (se *StorageEngine) Create(c ...*vertices.Vertex) error {
 }
 
 // Delete the array of vertices from the persistence
-func (se *StorageEngine) Delete(c ...*vertices.Vertex) error {
+func (se *StorageEngine) Delete(c ...*graph.Vertex) error {
 	return nil
 }
 
 // Update the array of vertices from the persistence
-func (se *StorageEngine) Update(c ...*vertices.Vertex) error {
+func (se *StorageEngine) Update(c ...*graph.Vertex) error {
 	se.Create(c...)
 	return nil
 }
@@ -170,7 +169,7 @@ func (se *StorageEngine) Query(str string) (*graph.Query, error) {
 	return nil, nil
 }
 
-func (se *StorageEngine) Fetch(id string) (*vertices.Vertex, error) {
+func (se *StorageEngine) Fetch(id string) (*graph.Vertex, error) {
 	if v, ok := se.vertices[id]; ok {
 		return &v, nil
 	} else {
@@ -205,14 +204,14 @@ func (se *StorageEngine) ForEachTest() query.IteratorFrontier {
 	}
 }
 
-func ToIterator(i query.IteratorFrontier) []*vertices.Vertex {
-	results := make([]*vertices.Vertex, 0)
+func ToIterator(i query.IteratorFrontier) []*graph.Vertex {
+	results := make([]*graph.Vertex, 0)
 
 	for frontier, ok := i(); ok; frontier, ok = i() {
 		if frontier.Len() > 0 {
 			parts := frontier.OptimalPath()
 			for _, i := range parts {
-				if v, ok := i.Object.(*vertices.Vertex); ok {
+				if v, ok := i.Object.(*graph.Vertex); ok {
 					results = append(results, v)
 				}
 			}
@@ -223,7 +222,7 @@ func ToIterator(i query.IteratorFrontier) []*vertices.Vertex {
 
 func toPredicateVertex(t *testing.T) func(*ir.VertexPatn) query.PredicateVertex {
 	return func(*ir.VertexPatn) query.PredicateVertex {
-		return func(v *vertices.Vertex) (string, query.Traverse) {
+		return func(v *graph.Vertex) (string, query.Traverse) {
 			if v.ID() == per.ID() {
 				return "", query.Matched
 			} else {
@@ -235,7 +234,7 @@ func toPredicateVertex(t *testing.T) func(*ir.VertexPatn) query.PredicateVertex 
 
 func toPredicateEdge(t *testing.T) func(patn *ir.EdgePatn) query.PredicateEdge {
 	return func(patn *ir.EdgePatn) query.PredicateEdge {
-		return func(e *vertices.Edge, depth uint) (string, query.Traverse) {
+		return func(e *graph.Edge, depth uint) (string, query.Traverse) {
 			if e.ID() != per.ID() {
 				return "", query.Visiting
 			} else {

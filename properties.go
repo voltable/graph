@@ -1,4 +1,4 @@
-package vertices
+package graph
 
 type Properties interface {
 	Property(name string) interface{}

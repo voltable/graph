@@ -5,10 +5,9 @@ import (
 	"reflect"
 	"testing"
 
-	graph "github.com/RossMerr/Caudex.Graph"
+	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
 	"github.com/RossMerr/Caudex.Graph/storage/memorydb"
-	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 func Test_Query(t *testing.T) {
@@ -17,7 +16,7 @@ func Test_Query(t *testing.T) {
 
 	var tests = []struct {
 		expecting    []interface{}
-		uninterested []*vertices.Vertex
+		uninterested []*graph.Vertex
 		query        string
 	}{
 		// 0
@@ -26,9 +25,9 @@ func Test_Query(t *testing.T) {
 				arr := make([]interface{}, 0, 0)
 				return arr
 			}(),
-			uninterested: func() []*vertices.Vertex {
-				arr := make([]*vertices.Vertex, 0, 0)
-				v2, _ := vertices.NewVertex()
+			uninterested: func() []*graph.Vertex {
+				arr := make([]*graph.Vertex, 0, 0)
+				v2, _ := graph.NewVertex()
 				v2.SetLabel("person")
 				v2.SetProperty("name", "foo bar")
 				arr = append(arr, v2)
@@ -40,16 +39,16 @@ func Test_Query(t *testing.T) {
 		{
 			expecting: func() []interface{} {
 				arr := make([]interface{}, 0, 0)
-				v1, _ := vertices.NewVertex()
+				v1, _ := graph.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "john smith")
 				arr = append(arr, v1)
 				fmt.Printf("%+v", v1.ID())
 				return arr
 			}(),
-			uninterested: func() []*vertices.Vertex {
-				arr := make([]*vertices.Vertex, 0, 0)
-				v2, _ := vertices.NewVertex()
+			uninterested: func() []*graph.Vertex {
+				arr := make([]*graph.Vertex, 0, 0)
+				v2, _ := graph.NewVertex()
 				v2.SetLabel("person")
 				v2.SetProperty("name", "foo bar")
 				arr = append(arr, v2)
@@ -61,20 +60,20 @@ func Test_Query(t *testing.T) {
 		{
 			expecting: func() []interface{} {
 				arr := make([]interface{}, 0, 0)
-				v1, _ := vertices.NewVertex()
+				v1, _ := graph.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "john smith")
 				arr = append(arr, v1)
 
-				v2, _ := vertices.NewVertex()
+				v2, _ := graph.NewVertex()
 				v2.SetLabel("person")
 				v2.SetProperty("name", "john smith")
 				arr = append(arr, v2)
 				return arr
 			}(),
-			uninterested: func() []*vertices.Vertex {
-				arr := make([]*vertices.Vertex, 0, 0)
-				v2, _ := vertices.NewVertex()
+			uninterested: func() []*graph.Vertex {
+				arr := make([]*graph.Vertex, 0, 0)
+				v2, _ := graph.NewVertex()
 				v2.SetLabel("person")
 				v2.SetProperty("name", "foo bar")
 				arr = append(arr, v2)
@@ -86,20 +85,20 @@ func Test_Query(t *testing.T) {
 		{
 			expecting: func() []interface{} {
 				arr := make([]interface{}, 0, 0)
-				v1, _ := vertices.NewVertex()
+				v1, _ := graph.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "john smith")
 				arr = append(arr, v1)
 
-				v2, _ := vertices.NewVertex()
+				v2, _ := graph.NewVertex()
 				v2.SetLabel("person")
 				v2.SetProperty("location", "london")
 				arr = append(arr, v2)
 				return arr
 			}(),
-			uninterested: func() []*vertices.Vertex {
-				arr := make([]*vertices.Vertex, 0, 0)
-				v2, _ := vertices.NewVertex()
+			uninterested: func() []*graph.Vertex {
+				arr := make([]*graph.Vertex, 0, 0)
+				v2, _ := graph.NewVertex()
 				v2.SetLabel("person")
 				v2.SetProperty("name", "foo bar")
 				arr = append(arr, v2)
@@ -111,22 +110,22 @@ func Test_Query(t *testing.T) {
 		{
 			expecting: func() []interface{} {
 				arr := make([]interface{}, 0, 0)
-				v1, _ := vertices.NewVertex()
+				v1, _ := graph.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "john smith")
 				arr = append(arr, v1)
 
 				return arr
 			}(),
-			uninterested: func() []*vertices.Vertex {
-				arr := make([]*vertices.Vertex, 0, 0)
+			uninterested: func() []*graph.Vertex {
+				arr := make([]*graph.Vertex, 0, 0)
 
-				v1, _ := vertices.NewVertex()
+				v1, _ := graph.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "foo bar")
 				arr = append(arr, v1)
 
-				v2, _ := vertices.NewVertex()
+				v2, _ := graph.NewVertex()
 				v2.SetLabel("location")
 				v2.SetProperty("address", "london")
 				arr = append(arr, v2)
@@ -138,27 +137,27 @@ func Test_Query(t *testing.T) {
 		{
 			expecting: func() []interface{} {
 				arr := make([]interface{}, 0, 0)
-				v1, _ := vertices.NewVertex()
+				v1, _ := graph.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "john smith")
 				arr = append(arr, v1)
 
-				v2, _ := vertices.NewVertex()
+				v2, _ := graph.NewVertex()
 				v2.SetLabel("person")
 				v2.SetProperty("age", 18)
 				arr = append(arr, v2)
 
 				return arr
 			}(),
-			uninterested: func() []*vertices.Vertex {
-				arr := make([]*vertices.Vertex, 0, 0)
+			uninterested: func() []*graph.Vertex {
+				arr := make([]*graph.Vertex, 0, 0)
 
-				v1, _ := vertices.NewVertex()
+				v1, _ := graph.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "foo bar")
 				arr = append(arr, v1)
 
-				v2, _ := vertices.NewVertex()
+				v2, _ := graph.NewVertex()
 				v2.SetLabel("location")
 				v2.SetProperty("address", "london")
 				arr = append(arr, v2)
@@ -170,12 +169,12 @@ func Test_Query(t *testing.T) {
 		{
 			expecting: func() []interface{} {
 				arr := make([]interface{}, 0, 0)
-				v1, _ := vertices.NewVertex()
+				v1, _ := graph.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "john smith")
 				arr = append(arr, v1)
 
-				v2, _ := vertices.NewVertex()
+				v2, _ := graph.NewVertex()
 
 				v2.SetLabel("person")
 				v2.SetProperty("name", "max power")
@@ -187,10 +186,10 @@ func Test_Query(t *testing.T) {
 
 				return arr
 			}(),
-			uninterested: func() []*vertices.Vertex {
-				arr := make([]*vertices.Vertex, 0, 0)
+			uninterested: func() []*graph.Vertex {
+				arr := make([]*graph.Vertex, 0, 0)
 
-				v1, _ := vertices.NewVertex()
+				v1, _ := graph.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "foo bar")
 				arr = append(arr, v1)
@@ -205,15 +204,15 @@ func Test_Query(t *testing.T) {
 				arr := make([]interface{}, 0, 0)
 				return arr
 			}(),
-			uninterested: func() []*vertices.Vertex {
-				arr := make([]*vertices.Vertex, 0, 0)
+			uninterested: func() []*graph.Vertex {
+				arr := make([]*graph.Vertex, 0, 0)
 
-				v1, _ := vertices.NewVertex()
+				v1, _ := graph.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "john smith")
 				arr = append(arr, v1)
 
-				v2, _ := vertices.NewVertex()
+				v2, _ := graph.NewVertex()
 				v2.SetLabel("person")
 				v2.SetProperty("name", "max power")
 				arr = append(arr, v2)
@@ -221,7 +220,7 @@ func Test_Query(t *testing.T) {
 				edge, _ := v1.AddDirectedEdge(v2)
 				edge.SetRelationshipType("knows")
 
-				v3, _ := vertices.NewVertex()
+				v3, _ := graph.NewVertex()
 				v3.SetLabel("person")
 				v3.SetProperty("name", "foo bar")
 				arr = append(arr, v3)
@@ -234,22 +233,22 @@ func Test_Query(t *testing.T) {
 		{
 			expecting: func() []interface{} {
 				arr := make([]interface{}, 0, 0)
-				v1, _ := vertices.NewVertex()
+				v1, _ := graph.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "john smith")
 				arr = append(arr, v1)
 
 				return arr
 			}(),
-			uninterested: func() []*vertices.Vertex {
-				arr := make([]*vertices.Vertex, 0, 0)
+			uninterested: func() []*graph.Vertex {
+				arr := make([]*graph.Vertex, 0, 0)
 
-				v1, _ := vertices.NewVertex()
+				v1, _ := graph.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "foo bar")
 				arr = append(arr, v1)
 
-				v2, _ := vertices.NewVertex()
+				v2, _ := graph.NewVertex()
 				v2.SetLabel("location")
 				v2.SetProperty("address", "london")
 				arr = append(arr, v2)
@@ -265,7 +264,7 @@ func Test_Query(t *testing.T) {
 		}
 
 		for _, i := range tt.expecting {
-			if v, ok := i.(*vertices.Vertex); ok {
+			if v, ok := i.(*graph.Vertex); ok {
 				g.Create(v)
 			}
 		}
@@ -315,13 +314,13 @@ func Test_QueryRelationships(t *testing.T) {
 			},
 			setup: func() []interface{} {
 				arr := make([]interface{}, 0, 0)
-				v1, _ := vertices.NewVertex()
+				v1, _ := graph.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "john smith")
 				//v1.SetProperty("male", true)
 				arr = append(arr, v1)
 
-				v2, _ := vertices.NewVertex()
+				v2, _ := graph.NewVertex()
 				v2.SetLabel("person")
 				v2.SetProperty("name", "max power")
 				arr = append(arr, v2)
@@ -330,7 +329,7 @@ func Test_QueryRelationships(t *testing.T) {
 				edge.SetRelationshipType("knows")
 				arr = append(arr, edge)
 
-				v3, _ := vertices.NewVertex()
+				v3, _ := graph.NewVertex()
 				v3.SetLabel("person")
 				v3.SetProperty("name", "foo bar")
 				arr = append(arr, v3)
@@ -448,7 +447,7 @@ func Test_QueryRelationships(t *testing.T) {
 		}
 
 		for _, i := range tt.setup {
-			if v, ok := i.(*vertices.Vertex); ok {
+			if v, ok := i.(*graph.Vertex); ok {
 				g.Create(v)
 			}
 		}

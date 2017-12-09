@@ -3,9 +3,9 @@ package ast_test
 import (
 	"testing"
 
+	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/expressions"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
-	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 func Test_BooleanPrecedence(t *testing.T) {
@@ -50,7 +50,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 
 	var tests = []struct {
 		c      *ast.BooleanExpr
-		v      *vertices.Vertex
+		v      *graph.Vertex
 		p      string
 		result bool
 		err    string
@@ -60,8 +60,8 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.GT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 10}),
 				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
-			v: func() *vertices.Vertex {
-				x, _ := vertices.NewVertex()
+			v: func() *graph.Vertex {
+				x, _ := graph.NewVertex()
 				x.SetProperty("Age", 100)
 				return x
 			}(),
@@ -73,8 +73,8 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 10}),
 				ast.NewComparisonExpr(expressions.GT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
-			v: func() *vertices.Vertex {
-				x, _ := vertices.NewVertex()
+			v: func() *graph.Vertex {
+				x, _ := graph.NewVertex()
 				x.SetProperty("Age", 100)
 				return x
 			}(),
@@ -86,8 +86,8 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.GT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 10}),
 				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
-			v: func() *vertices.Vertex {
-				x, _ := vertices.NewVertex()
+			v: func() *graph.Vertex {
+				x, _ := graph.NewVertex()
 				x.SetProperty("Age", 100)
 				return x
 			}(),
@@ -99,8 +99,8 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 10}),
 				ast.NewComparisonExpr(expressions.GT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
-			v: func() *vertices.Vertex {
-				x, _ := vertices.NewVertex()
+			v: func() *graph.Vertex {
+				x, _ := graph.NewVertex()
 				x.SetProperty("Age", 100)
 				return x
 			}(),
@@ -112,8 +112,8 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 10}),
 				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
-			v: func() *vertices.Vertex {
-				x, _ := vertices.NewVertex()
+			v: func() *graph.Vertex {
+				x, _ := graph.NewVertex()
 				x.SetProperty("Age", 100)
 				return x
 			}(),
@@ -125,8 +125,8 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 10}),
 				ast.NewComparisonExpr(expressions.GT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
-			v: func() *vertices.Vertex {
-				x, _ := vertices.NewVertex()
+			v: func() *graph.Vertex {
+				x, _ := graph.NewVertex()
 				x.SetProperty("Age", 100)
 				return x
 			}(),

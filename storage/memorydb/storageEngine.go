@@ -5,7 +5,6 @@ import (
 
 	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 func init() {
@@ -21,7 +20,7 @@ var (
 )
 
 type StorageEngine struct {
-	vertices map[string]vertices.Vertex
+	vertices map[string]graph.Vertex
 	keys     []string
 	Options  *graph.Options
 	engine   query.Engine
@@ -39,7 +38,7 @@ func (se *StorageEngine) Close() {
 func NewStorageEngine(o *graph.Options) (graph.Graph, error) {
 	se := StorageEngine{
 		Options:  o,
-		vertices: make(map[string]vertices.Vertex)}
+		vertices: make(map[string]graph.Vertex)}
 
 	queryEngine, err := query.NewQueryEngine(o.QueryEngine, &se)
 	if err != nil {
@@ -51,7 +50,7 @@ func NewStorageEngine(o *graph.Options) (graph.Graph, error) {
 }
 
 // Create adds a array of vertices to the persistence
-func (se *StorageEngine) Create(c ...*vertices.Vertex) error {
+func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 	for _, v := range c {
 		se.vertices[v.ID()] = *v
 		se.keys = append(se.keys, v.ID())
@@ -61,7 +60,7 @@ func (se *StorageEngine) Create(c ...*vertices.Vertex) error {
 }
 
 // Delete the array of vertices from the persistence
-func (se *StorageEngine) Delete(c ...*vertices.Vertex) error {
+func (se *StorageEngine) Delete(c ...*graph.Vertex) error {
 	for _, v := range c {
 		delete(se.vertices, v.ID())
 		for i, k := range se.keys {
@@ -78,7 +77,7 @@ func (se *StorageEngine) Delete(c ...*vertices.Vertex) error {
 }
 
 // Find a vertex from the persistence
-func (se *StorageEngine) Find(ID string) (*vertices.Vertex, error) {
+func (se *StorageEngine) Find(ID string) (*graph.Vertex, error) {
 	if v, ok := se.vertices[ID]; ok {
 		return &v, nil
 	} else {
@@ -87,7 +86,7 @@ func (se *StorageEngine) Find(ID string) (*vertices.Vertex, error) {
 }
 
 // Update the array of vertices from the persistence
-func (se *StorageEngine) Update(c ...*vertices.Vertex) error {
+func (se *StorageEngine) Update(c ...*graph.Vertex) error {
 	se.Create(c...)
 	return nil
 }
@@ -96,7 +95,7 @@ func (se *StorageEngine) Query(str string) (*graph.Query, error) {
 	return se.engine.Parse(str)
 }
 
-func (se *StorageEngine) Fetch(id string) (*vertices.Vertex, error) {
+func (se *StorageEngine) Fetch(id string) (*graph.Vertex, error) {
 	return se.Find(id)
 }
 

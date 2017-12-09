@@ -1,6 +1,6 @@
 package query
 
-import "github.com/RossMerr/Caudex.Graph/vertices"
+import graph "github.com/RossMerr/Caudex.Graph"
 
 type FrontierQueue struct {
 	Parts []FrontierProperties
@@ -9,7 +9,7 @@ type FrontierQueue struct {
 
 // FrontierProperties containers a vertex or edge it's Variable used by a query
 type FrontierProperties struct {
-	Object   vertices.Properties
+	Object   graph.Properties
 	Variable string
 }
 
@@ -54,12 +54,12 @@ func (f *Frontier) AppendQueue(queue *FrontierQueue) {
 	f.append(queue.Parts, queue.Cost)
 }
 
-func (f *Frontier) AppendVertex(queue *FrontierQueue, v *vertices.Vertex, variable string) {
+func (f *Frontier) AppendVertex(queue *FrontierQueue, v *graph.Vertex, variable string) {
 	fv := FrontierProperties{Object: v, Variable: variable}
 	f.append(append(queue.Parts, fv), queue.Cost)
 }
 
-func (f *Frontier) AppendEdgeAndVertex(queue *FrontierQueue, e *vertices.Edge, v *vertices.Vertex, variable string, weight float32) {
+func (f *Frontier) AppendEdgeAndVertex(queue *FrontierQueue, e *graph.Edge, v *graph.Vertex, variable string, weight float32) {
 	fe := FrontierProperties{Object: e, Variable: variable}
 	fv := FrontierProperties{Object: v, Variable: variable}
 	parts := append(queue.Parts, fe)
@@ -68,7 +68,7 @@ func (f *Frontier) AppendEdgeAndVertex(queue *FrontierQueue, e *vertices.Edge, v
 }
 
 // NewFrontier create the Frontier using the inistal Vertex as the root of the graph
-func NewFrontier(v *vertices.Vertex, variable string) Frontier {
+func NewFrontier(v *graph.Vertex, variable string) Frontier {
 	fv := FrontierProperties{Object: v, Variable: variable}
 	f := Frontier{Explored: make(map[string]bool)}
 	f.append([]FrontierProperties{fv}, 0)

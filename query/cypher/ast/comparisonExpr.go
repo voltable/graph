@@ -1,8 +1,8 @@
 package ast
 
 import (
+	graph "github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/expressions"
-	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
 // ComparisonExpr comparison expression
@@ -48,7 +48,7 @@ func (b *ComparisonExpr) SetRight(right InterpretExpr) {
 //     WHERE n.age < 30
 //
 // Finally the Vertex is the vertex you want to run the Evaluate over to check for a match
-func (b *ComparisonExpr) Interpret(variable string, prop vertices.Properties) interface{} {
+func (b *ComparisonExpr) Interpret(variable string, prop graph.Properties) interface{} {
 
 	left := b.GetLeft()
 	right := b.GetRight()

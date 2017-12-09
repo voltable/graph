@@ -1,14 +1,12 @@
 package graph
 
-import (
-	"github.com/RossMerr/Caudex.Graph/vertices"
-)
+
 
 //Graph structure for saving graph data
 type Graph interface {
-	Create(...*vertices.Vertex) error
-	Delete(...*vertices.Vertex) error
-	Update(...*vertices.Vertex) error
+	Create(...*Vertex) error
+	Delete(...*Vertex) error
+	Update(...*Vertex) error
 	Close()
 	Query(string) (*Query, error)
 }

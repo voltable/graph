@@ -1,4 +1,4 @@
-package vertices
+package graph
 
 import uuid "github.com/hashicorp/go-uuid"
 import "strings"

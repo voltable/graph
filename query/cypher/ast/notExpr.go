@@ -1,6 +1,6 @@
 package ast
 
-import "github.com/RossMerr/Caudex.Graph/vertices"
+import graph "github.com/RossMerr/Caudex.Graph"
 
 // NotExpr a bitwise complement or logical negation operation (Not a).
 type NotExpr struct {
@@ -21,7 +21,7 @@ func (b *NotExpr) GetValue() InterpretExpr {
 }
 
 // Interpret runs the NotExpr over a Vertex to check for a match
-func (b *NotExpr) Interpret(variable string, prop vertices.Properties) interface{} {
+func (b *NotExpr) Interpret(variable string, prop graph.Properties) interface{} {
 	return false
 }
 

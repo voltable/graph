@@ -1,6 +1,6 @@
 package ast
 
-import "github.com/RossMerr/Caudex.Graph/vertices"
+import graph "github.com/RossMerr/Caudex.Graph"
 
 var _ TerminalExpr = (*Ident)(nil)
 
@@ -20,6 +20,6 @@ func (p *Ident) SetValue(x interface{}) {
 	p.Data = x
 }
 
-func (p *Ident) Interpret(variable string, prop vertices.Properties) interface{} {
+func (p *Ident) Interpret(variable string, prop graph.Properties) interface{} {
 	return p.Data
 }
