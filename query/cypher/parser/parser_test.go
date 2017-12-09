@@ -229,62 +229,77 @@ func TestParser_Return(t *testing.T) {
 		stmt ast.Stmt
 		err  string
 	}{
+		// 0
 		{
 			s:    `MATCH (n) RETURN *`,
 			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "n"}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt("*", &ast.MapAll{}))},
 		},
+		// 1
 		{
 			s:    `MATCH (n) RETURN n`,
-			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "n"}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt("n"))},
+			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "n"}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt("n", &ast.MapAll{}))},
 		},
+		// 2
 		{
 			s:    `MATCH (n) RETURN n { .number }`,
 			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "n"}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt("n", &ast.MapProperty{Key: "number"}))},
 		},
+		// 3
 		{
 			s:    `MATCH (n) RETURN n { nrOfMovies }`,
 			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "n"}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt("n", &ast.MapVariable{Key: "nrOfMovies"}))},
 		},
+		// 4
 		{
 			s:    `MATCH (n) RETURN n { .* }`,
 			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "n"}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt("n", &ast.MapAll{}))},
 		},
+		// 5
 		{
 			s:    `MATCH (n) RETURN n { .number, .name }`,
 			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "n"}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt("n", &ast.MapProperty{Key: "number"}, &ast.MapProperty{Key: "name"}))},
 		},
+		// 6
 		{
 			s:    `MATCH (n) RETURN n { .number, nrOfMovies }`,
 			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "n"}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt("n", &ast.MapProperty{Key: "number"}, &ast.MapVariable{Key: "nrOfMovies"}))},
 		},
+		// 7
 		{
 			s:    `MATCH (n) RETURN n { .number, nrOfMovies, .* }`,
 			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "n"}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt("n", &ast.MapProperty{Key: "number"}, &ast.MapVariable{Key: "nrOfMovies"}, &ast.MapAll{}))},
 		},
+		// 8
 		{
 			s:    `MATCH (n) RETURN n.number`,
 			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "n"}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt("n", &ast.MapProperty{Key: "number"}))},
 		},
+		// 9
 		{
 			s:    `MATCH (n) RETURN n.number, n.name`,
 			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "n"}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt("n", &ast.MapProperty{Key: "number"}, &ast.MapProperty{Key: "name"}))},
 		},
+		// 10
 		{
 			s:    "MATCH (n) RETURN `This isn't a common variable`",
-			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "n"}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt(`This isn't a common variable`))},
+			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "n"}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt(`This isn't a common variable`, &ast.MapAll{}))},
 		},
+		// 11
 		{
 			s:    "MATCH (n) RETURN `This isn't a common variable`.number",
 			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "n"}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt(`This isn't a common variable`, &ast.MapProperty{Key: "number"}))},
 		},
+		// 12
 		{
 			s:    "MATCH (n) RETURN `This isn't a common variable` { .number }",
 			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "n"}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt(`This isn't a common variable`, &ast.MapProperty{Key: "number"}))},
 		},
+		// 13
 		{
 			s:    `MATCH (n) RETURN n.number AS SomethingTotallyDifferent`,
 			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "n"}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt("n", &ast.MapProperty{Key: "number", Alias: "SomethingTotallyDifferent"}))},
 		},
+		// 14
 		{
 			s:    `MATCH (n) RETURN n { .number AS SomethingTotallyDifferent}`,
 			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{Variable: "n"}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt("n", &ast.MapProperty{Key: "number", Alias: "SomethingTotallyDifferent"}))},

@@ -613,9 +613,8 @@ func (p *CypherParser) MapElements() ([]ast.MapElementStmt, error) {
 }
 func (p *CypherParser) MapVariables() ([]*ast.MapProjectionStmt, error) {
 	maps := make(map[string]*ast.MapProjectionStmt)
-	var err error
 	for {
-		tok, lit := p.scanIgnoreWhitespace()
+		tok, lit, err := p.scanForQuotation()
 
 		if tok == lexer.GRAVE {
 			p.unscan()
@@ -673,6 +672,9 @@ func (p *CypherParser) MapVariables() ([]*ast.MapProjectionStmt, error) {
 
 	arr := make([]*ast.MapProjectionStmt, 0)
 	for _, m := range maps {
+		if len(m.Elements) == 0 {
+			m.Elements = append(m.Elements, &ast.MapAll{})
+		}
 		arr = append(arr, m)
 	}
 

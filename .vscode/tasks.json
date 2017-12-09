@@ -30,6 +30,20 @@
                 "reveal": "always",
                 "panel": "new"
             }
-        }         
+        },
+        {
+            "label": "proto build",
+            "type": "shell",
+            "command": "protoc -I=${workspaceFolder}/protobuf/ --go_out=${workspaceFolder}/test/ ${workspaceFolder}/protobuf/vertex.proto",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        }             
     ]
 }

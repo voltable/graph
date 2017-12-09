@@ -1,7 +1,9 @@
 package vertices
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
 	"strings"
 
 	uuid "github.com/hashicorp/go-uuid"
@@ -178,4 +180,17 @@ func (v *Vertex) RemoveEdge(to *Vertex) error {
 	}
 
 	return nil
+}
+
+func (b Vertex) String() string {
+
+	var buffer bytes.Buffer
+	buffer.WriteString("{")
+	for k, v := range b.properties {
+		buffer.WriteString(fmt.Sprintf("%v => %#v", k, v))
+		buffer.WriteString(", ")
+	}
+	w := bytes.NewBuffer(buffer.Bytes()[:buffer.Len()-2])
+	w.WriteString("}")
+	return fmt.Sprintf(w.String())
 }
