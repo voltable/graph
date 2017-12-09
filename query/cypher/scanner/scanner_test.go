@@ -12,7 +12,7 @@ import (
 func TestScanner_Scan(t *testing.T) {
 	var tests = []struct {
 		s   string
-		tok lexer.Token
+		tok lexer.Type
 		lit string
 	}{
 

@@ -1,11 +1,28 @@
 package lexer
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
-type Token int
+// Token defines a single token
+type Token struct {
+	Type     Type
+	Position Position
+	Text     string
+}
+
+// String returns the token's literal text
+func (t Token) String() string {
+	return fmt.Sprintf("%s %s %s", t.Position.String(), t.Type.String(), t.Text)
+}
+
+// Type is the set of lexical tokens
+type Type int
 
 const (
-	ILLEGAL Token = iota
+	// Special tokens
+	ILLEGAL Type = iota
 	EOF
 	WS
 
@@ -145,92 +162,92 @@ var tokens = [...]string{
 	NOT: "NOT",
 }
 
-var clauses map[string]Token
-var subClauses map[string]Token
-var comparison map[string]Token
-var boolean map[string]Token
+var clauses map[string]Type
+var subClauses map[string]Type
+var comparison map[string]Type
+var boolean map[string]Type
 
-var quotations map[string]Token
+var quotations map[string]Type
 
 func init() {
-	clauses = make(map[string]Token)
+	clauses = make(map[string]Type)
 	for tok := clausesBag + 1; tok < clausesEnd; tok++ {
 		clauses[strings.ToLower(tokens[tok])] = tok
 	}
 
-	subClauses = make(map[string]Token)
+	subClauses = make(map[string]Type)
 	for tok := subClausesBag + 1; tok < subClausesEnd; tok++ {
 		subClauses[strings.ToLower(tokens[tok])] = tok
 	}
 
-	comparison = make(map[string]Token)
+	comparison = make(map[string]Type)
 	for tok := comparisonBeg + 1; tok < comparisonEnd; tok++ {
 		comparison[strings.ToLower(tokens[tok])] = tok
 	}
 
-	boolean = make(map[string]Token)
+	boolean = make(map[string]Type)
 	for tok := booleanBeg + 1; tok < booleanEnd; tok++ {
 		boolean[strings.ToLower(tokens[tok])] = tok
 	}
 
-	quotations = make(map[string]Token)
+	quotations = make(map[string]Type)
 	for tok := quotationBeg + 1; tok < quotationEnd; tok++ {
 		quotations[strings.ToLower(tokens[tok])] = tok
 	}
 }
 
 // String returns the string representation of the token.
-func (tok Token) String() string {
-	if tok >= 0 && tok < Token(len(tokens)) {
+func (tok Type) String() string {
+	if tok >= 0 && tok < Type(len(tokens)) {
 		return tokens[tok]
 	}
 	return ""
 }
 
 // IsClause returns true for clauses tokens.
-func (tok Token) IsClause() bool { return tok > clausesBag && tok < clausesEnd }
+func (tok Type) IsClause() bool { return tok > clausesBag && tok < clausesEnd }
 
 // IsSubClausesClause returns true for clauses tokens.
-func (tok Token) IsSubClause() bool { return tok > subClausesBag && tok < subClausesEnd }
+func (tok Type) IsSubClause() bool { return tok > subClausesBag && tok < subClausesEnd }
 
 // IsOperator returns true for operator tokens.
-func (tok Token) IsOperator() bool { return tok > operatorBeg && tok < operatorEnd }
+func (tok Type) IsOperator() bool { return tok > operatorBeg && tok < operatorEnd }
 
 // IsComparison returns true for comparison tokens.
-func (tok Token) IsComparison() bool { return tok > comparisonBeg && tok < comparisonEnd }
+func (tok Type) IsComparison() bool { return tok > comparisonBeg && tok < comparisonEnd }
 
 // IsQuotation returns true for comparison tokens.
-func (tok Token) IsQuotation() bool { return tok > quotationBeg && tok < quotationEnd }
+func (tok Type) IsQuotation() bool { return tok > quotationBeg && tok < quotationEnd }
 
-func Clause(ident string) Token {
+func Clause(ident string) Type {
 	if tok, ok := clauses[strings.ToLower(ident)]; ok {
 		return tok
 	}
 	return IDENT
 }
 
-func SubClause(ident string) Token {
+func SubClause(ident string) Type {
 	if tok, ok := subClauses[strings.ToLower(ident)]; ok {
 		return tok
 	}
 	return IDENT
 }
 
-func Boolean(ident string) Token {
+func Boolean(ident string) Type {
 	if tok, ok := boolean[strings.ToLower(ident)]; ok {
 		return tok
 	}
 	return IDENT
 }
 
-func Comparison(ident string) Token {
+func Comparison(ident string) Type {
 	if tok, ok := comparison[strings.ToLower(ident)]; ok {
 		return tok
 	}
 	return IDENT
 }
 
-func Quotation(ident string) Token {
+func Quotation(ident string) Type {
 	if tok, ok := quotations[strings.ToLower(ident)]; ok {
 		return tok
 	}

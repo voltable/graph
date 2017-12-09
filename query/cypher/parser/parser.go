@@ -12,21 +12,13 @@ import (
 	"github.com/RossMerr/Caudex.Graph/query/cypher/scanner"
 )
 
-const emptyString = ""
-
-// MaxUint the max size of a uint in golang
-const MaxUint uint = ^uint(0)
-
-// MinUint the min size of a uint
-const MinUint uint = 1
-
 // CypherParser represents a parser.
 type CypherParser struct {
 	s   *scanner.Scanner
 	buf struct {
-		tok lexer.Token // last read token
-		lit string      // last read literal
-		n   int         // buffer size (max=1)
+		tok lexer.Type // last read token
+		lit string     // last read literal
+		n   int        // buffer size (max=1)
 	}
 }
 
@@ -288,7 +280,7 @@ func (p *CypherParser) relationship() (*ir.EdgePatn, error) {
 	return nil, nil
 }
 
-func (p *CypherParser) value(tok lexer.Token, lit string) (interface{}, error) {
+func (p *CypherParser) value(tok lexer.Type, lit string) (interface{}, error) {
 	//	tok, lit := p.scanIgnoreWhitespace()
 	if tok == lexer.SINGLEQUOTATION {
 		tok, lit := p.scanIgnoreWhitespace()
@@ -741,7 +733,7 @@ func (p *CypherParser) clause() (ast.Clauses, error) {
 	return nil, fmt.Errorf("No matching statement found %q", lit)
 }
 
-func (p *CypherParser) subClause() (lexer.Token, bool) {
+func (p *CypherParser) subClause() (lexer.Type, bool) {
 	tok, _ := p.scanIgnoreWhitespace()
 
 	if tok.IsSubClause() {
@@ -784,7 +776,7 @@ func NewParser() *CypherParser {
 
 // scan returns the next token from the underlying scanner.
 // If a token has been unscanned then read that instead.
-func (p *CypherParser) scan() (tok lexer.Token, lit string) {
+func (p *CypherParser) scan() (tok lexer.Type, lit string) {
 	// If we have a token on the buffer, then return it.
 	if p.buf.n != 0 {
 		p.buf.n = 0
@@ -801,7 +793,7 @@ func (p *CypherParser) scan() (tok lexer.Token, lit string) {
 }
 
 // scanIgnoreWhitespace scans the next non-whitespace lexer.
-func (p *CypherParser) scanIgnoreWhitespace() (tok lexer.Token, lit string) {
+func (p *CypherParser) scanIgnoreWhitespace() (tok lexer.Type, lit string) {
 	tok, lit = p.scan()
 	if tok == lexer.WS {
 		tok, lit = p.scan()
@@ -810,7 +802,7 @@ func (p *CypherParser) scanIgnoreWhitespace() (tok lexer.Token, lit string) {
 }
 
 // scanForQuotation scans the next matching quotations lexer.
-func (p *CypherParser) scanForQuotation() (tok lexer.Token, lit string, err error) {
+func (p *CypherParser) scanForQuotation() (tok lexer.Type, lit string, err error) {
 	tok, lit = p.scanIgnoreWhitespace()
 	if tok == lexer.QUOTATION || tok == lexer.SINGLEQUOTATION || tok == lexer.GRAVE {
 		lit = emptyString

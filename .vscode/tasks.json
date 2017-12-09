@@ -4,9 +4,9 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "npm build",
+            "label": "yarn build",
             "type": "shell",
-            "command": "npm --prefix ${workspaceFolder}/browser/ run build",
+            "command": "yarn --cwd ${workspaceFolder}/browser/ run build",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
@@ -18,9 +18,9 @@
             }
         },
         {
-            "label": "npm watch",
+            "label": "yarn watch",
             "type": "shell",
-            "command": "npm --prefix ${workspaceFolder}/browser/ run watch",
+            "command": "yarn --cwd ${workspaceFolder}/browser/ run watch",
             "problemMatcher": [],
             "group": {
                 "kind": "build",

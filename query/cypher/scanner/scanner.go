@@ -50,7 +50,7 @@ func isLetter(ch rune) bool {
 func isDigit(ch rune) bool { return (ch >= '0' && ch <= '9') }
 
 // Scan returns the next token and literal value.
-func (s *Scanner) Scan() (tok lexer.Token, lit string) {
+func (s *Scanner) Scan() (tok lexer.Type, lit string) {
 	// Read the next rune.
 	ch := s.read()
 
@@ -67,7 +67,7 @@ func (s *Scanner) Scan() (tok lexer.Token, lit string) {
 	return s.scanIdent()
 }
 
-func (s *Scanner) scanCharacter(ch rune) (tok lexer.Token, lit string) {
+func (s *Scanner) scanCharacter(ch rune) (tok lexer.Type, lit string) {
 	// Otherwise read the individual character.
 
 	switch ch {
@@ -140,7 +140,7 @@ func (s *Scanner) scanCharacter(ch rune) (tok lexer.Token, lit string) {
 }
 
 // scanWhitespace consumes the current rune and all contiguous whitespace.
-func (s *Scanner) scanWhitespace() (tok lexer.Token, lit string) {
+func (s *Scanner) scanWhitespace() (tok lexer.Type, lit string) {
 	// Create a buffer and read the current character into it.
 	var buf bytes.Buffer
 	buf.WriteRune(s.read())
@@ -167,7 +167,7 @@ func (s *Scanner) isCharacter(ch rune) bool {
 }
 
 // scanIdent consumes the current rune and all contiguous ident runes.
-func (s *Scanner) scanIdent() (tok lexer.Token, lit string) {
+func (s *Scanner) scanIdent() (tok lexer.Type, lit string) {
 	// Create a buffer and read the current character into it.
 	var buf bytes.Buffer
 	buf.WriteRune(s.read())
