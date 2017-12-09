@@ -32,16 +32,6 @@ func Test_NewVertex(t *testing.T) {
 
 }
 
-// func Test_Edges(t *testing.T) {
-// 	v, _ := vertices.NewVertex()
-// 	e := vertices.Edge{}
-// 	v.edges["test"] = e
-
-// 	if len(v.Edges()) != 1 {
-// 		t.Fatalf("Expected 1 edge but was %s", len(v.Edges()))
-// 	}
-// }
-
 func Test_AddDirectedEdge(t *testing.T) {
 	vertex, _ := graph.NewVertex()
 	vertexDirection, _ := graph.NewVertex()

@@ -317,7 +317,6 @@ func Test_QueryRelationships(t *testing.T) {
 				v1, _ := graph.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "john smith")
-				//v1.SetProperty("male", true)
 				arr = append(arr, v1)
 
 				v2, _ := graph.NewVertex()
@@ -337,6 +336,70 @@ func Test_QueryRelationships(t *testing.T) {
 				return arr
 			}(),
 			query: "MATCH (n:person)-[*]->(m:person) RETURN n",
+		},
+		// 1
+		{
+			expecting: func(in []interface{}) []interface{} {
+				arr := make([]interface{}, 0, 0)
+				arr = append(arr, graph.KeyValue{Key: "name", Value: "john smith"})
+				return arr
+			},
+			setup: func() []interface{} {
+				arr := make([]interface{}, 0, 0)
+				v1, _ := graph.NewVertex()
+				v1.SetLabel("person")
+				v1.SetProperty("name", "john smith")
+				arr = append(arr, v1)
+
+				v2, _ := graph.NewVertex()
+				v2.SetLabel("person")
+				v2.SetProperty("name", "max power")
+				arr = append(arr, v2)
+
+				edge, _ := v1.AddDirectedEdge(v2)
+				edge.SetRelationshipType("knows")
+				arr = append(arr, edge)
+
+				v3, _ := graph.NewVertex()
+				v3.SetLabel("person")
+				v3.SetProperty("name", "foo bar")
+				arr = append(arr, v3)
+
+				return arr
+			}(),
+			query: "MATCH (n:person)-[*]->(m:person) RETURN n.name",
+		},
+		// 2
+		{
+			expecting: func(in []interface{}) []interface{} {
+				arr := make([]interface{}, 0, 0)
+				arr = append(arr, graph.KeyValue{Key: "FullName", Value: "john smith"})
+				return arr
+			},
+			setup: func() []interface{} {
+				arr := make([]interface{}, 0, 0)
+				v1, _ := graph.NewVertex()
+				v1.SetLabel("person")
+				v1.SetProperty("name", "john smith")
+				arr = append(arr, v1)
+
+				v2, _ := graph.NewVertex()
+				v2.SetLabel("person")
+				v2.SetProperty("name", "max power")
+				arr = append(arr, v2)
+
+				edge, _ := v1.AddDirectedEdge(v2)
+				edge.SetRelationshipType("knows")
+				arr = append(arr, edge)
+
+				v3, _ := graph.NewVertex()
+				v3.SetLabel("person")
+				v3.SetProperty("name", "foo bar")
+				arr = append(arr, v3)
+
+				return arr
+			}(),
+			query: "MATCH (n:person)-[*]->(m:person) RETURN n.name AS FullName",
 		},
 		// // 1
 		// {
