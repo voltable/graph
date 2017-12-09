@@ -1,5 +1,5 @@
 syntax = "proto3";
-package caudex;
+package graph;
 import "google/protobuf/any.proto";
 
 message Vertex {

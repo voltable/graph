@@ -1,4 +1,4 @@
-package query
+package graph
 
 // Query is the return object you'll get back from a traversal
 type Query struct {

@@ -4,7 +4,7 @@ import (
 	"container/list"
 	"errors"
 
-	"github.com/RossMerr/Caudex.Graph/storage"
+	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
@@ -13,7 +13,7 @@ type (
 	Path struct {
 		Iterate    IteratorFrontier
 		explored   map[string]bool
-		storage    storage.Storage
+		storage    graph.Storage
 		predicates *list.List
 	}
 

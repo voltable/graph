@@ -4,9 +4,7 @@ import (
 	"errors"
 
 	"github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/enumerables"
 	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/storage"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
@@ -31,7 +29,7 @@ type StorageEngine struct {
 
 var _ graph.Graph = (*StorageEngine)(nil)
 
-var _ storage.Storage = (*StorageEngine)(nil)
+var _ graph.Storage = (*StorageEngine)(nil)
 
 func (se *StorageEngine) Close() {
 
@@ -94,7 +92,7 @@ func (se *StorageEngine) Update(c ...*vertices.Vertex) error {
 	return nil
 }
 
-func (se *StorageEngine) Query(str string) (*query.Query, error) {
+func (se *StorageEngine) Query(str string) (*graph.Query, error) {
 	return se.engine.Parse(str)
 }
 
@@ -102,7 +100,7 @@ func (se *StorageEngine) Fetch(id string) (*vertices.Vertex, error) {
 	return se.Find(id)
 }
 
-func (se *StorageEngine) ForEach() enumerables.Iterator {
+func (se *StorageEngine) ForEach() graph.Iterator {
 	position := 0
 	length := len(se.keys)
 	return func() (item interface{}, ok bool) {

@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/enumerables"
+	graph "github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/expressions"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ir"
@@ -166,7 +166,7 @@ func (se *StorageEngine) Update(c ...*vertices.Vertex) error {
 	return nil
 }
 
-func (se *StorageEngine) Query(str string) (*query.Query, error) {
+func (se *StorageEngine) Query(str string) (*graph.Query, error) {
 	return nil, nil
 }
 
@@ -182,7 +182,7 @@ func (se *StorageEngine) Close() {
 
 }
 
-func (se *StorageEngine) ForEach() enumerables.Iterator {
+func (se *StorageEngine) ForEach() graph.Iterator {
 	position := 0
 	length := len(se.keys)
 	return func() (item interface{}, ok bool) {

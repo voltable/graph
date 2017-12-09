@@ -1,7 +1,6 @@
 package graph
 
 import (
-	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
@@ -11,5 +10,5 @@ type Graph interface {
 	Delete(...*vertices.Vertex) error
 	Update(...*vertices.Vertex) error
 	Close()
-	Query(string) (*query.Query, error)
+	Query(string) (*Query, error)
 }

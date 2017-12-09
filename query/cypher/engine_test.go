@@ -6,11 +6,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/enumerables"
+	graph "github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
-	"github.com/RossMerr/Caudex.Graph/storage"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
@@ -37,14 +36,14 @@ func (s FakeStorage) Fetch(string) (*vertices.Vertex, error) {
 	return nil, nil
 }
 
-func (s FakeStorage) ForEach() enumerables.Iterator {
+func (s FakeStorage) ForEach() graph.Iterator {
 	return func() (item interface{}, ok bool) {
 
 		return nil, false
 	}
 }
 
-func NewFakeStorage() storage.Storage {
+func NewFakeStorage() graph.Storage {
 	return &FakeStorage{}
 }
 

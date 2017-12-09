@@ -3,10 +3,9 @@ package cypher
 import (
 	"strings"
 
-	"github.com/RossMerr/Caudex.Graph/enumerables"
+	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
-	"github.com/RossMerr/Caudex.Graph/storage"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 )
 
@@ -23,12 +22,12 @@ func RegisterEngine() {
 
 const queryType = "Cypher"
 
-func newEngine(i storage.Storage) (query.Engine, error) {
+func newEngine(i graph.Storage) (query.Engine, error) {
 	e := NewEngine(i)
 	return e, nil
 }
 
-func NewEngine(i storage.Storage) *Engine {
+func NewEngine(i graph.Storage) *Engine {
 	return &Engine{
 		Parser:    parser.NewParser(),
 		Traversal: query.NewPlan(i),
@@ -43,7 +42,7 @@ type Engine struct {
 	Parser     parser.Parser
 	Traversal  query.Traversal
 	Filter     CypherFilter
-	Storage    storage.Storage
+	Storage    graph.Storage
 	Parts      Parts
 	Projection Projection
 }
@@ -51,7 +50,7 @@ type Engine struct {
 var _ query.Engine = (*Engine)(nil)
 
 // Parse in a cypher query as a string and get back Query that is abstracted from the cypher AST
-func (qe Engine) Parse(q string) (*query.Query, error) {
+func (qe Engine) Parse(q string) (*graph.Query, error) {
 	stmt, err := qe.Parser.Parse(strings.NewReader(q))
 	if err != nil {
 		return nil, err
@@ -73,7 +72,7 @@ func (qe Engine) Parse(q string) (*query.Query, error) {
 		results = append(results, qe.Projection.Transform(f, part.Maps())...)
 	}
 
-	query := query.NewQuery(q, results)
+	query := graph.NewQuery(q, results)
 
 	return query, nil
 
@@ -102,7 +101,7 @@ func (qe Engine) toVertices(i query.IteratorFrontier) []interface{} {
 	return results
 }
 
-func (qe Engine) toFrontier(i enumerables.Iterator, variable string) query.IteratorFrontier {
+func (qe Engine) toFrontier(i graph.Iterator, variable string) query.IteratorFrontier {
 	return func() (*query.Frontier, bool) {
 		item, ok := i()
 		if ok {

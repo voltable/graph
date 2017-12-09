@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/vertices"
 	"github.com/Sirupsen/logrus"
 	"github.com/boltdb/bolt"
@@ -151,7 +150,7 @@ func (se *StorageEngine) Close() {
 }
 
 // Query used to query the graph
-func (se *StorageEngine) Query(q string) (*query.Query, error) {
+func (se *StorageEngine) Query(q string) (*graph.Query, error) {
 	// iterate := func() query.Iterator {
 	// 	ch := make(chan vertices.Vertex)
 	// 	go se.db.View(func(tx *bolt.Tx) error {

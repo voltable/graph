@@ -6,7 +6,7 @@ import (
 
 	"github.com/RossMerr/Caudex.Graph/vertices"
 
-	"github.com/RossMerr/Caudex.Graph/storage"
+	"github.com/RossMerr/Caudex.Graph"
 )
 
 type Traversal interface {
@@ -14,13 +14,13 @@ type Traversal interface {
 }
 
 type Plan struct {
-	storage    storage.Storage
+	storage    graph.Storage
 	wg         *sync.WaitGroup
 	predicates []interface{}
 	Depth      int
 }
 
-func NewPlan(storage storage.Storage) *Plan {
+func NewPlan(storage graph.Storage) *Plan {
 	plan := &Plan{
 		storage: storage,
 		wg:      &sync.WaitGroup{},
