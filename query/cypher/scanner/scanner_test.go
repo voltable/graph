@@ -58,7 +58,7 @@ func TestScanner_Scan(t *testing.T) {
 
 	for i, tt := range tests {
 		s := scanner.NewScanner(strings.NewReader(tt.s))
-		tok, lit := s.Scan()
+		tok, lit, _ := s.Scan()
 		if tt.tok != tok {
 			t.Errorf("%d. %q token mismatch: exp=%q got=%q <%q>", i, tt.s, tt.tok, tok, lit)
 		} else if tt.s != lit {

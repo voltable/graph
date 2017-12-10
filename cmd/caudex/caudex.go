@@ -3,9 +3,10 @@ package main
 import (
 	"compress/gzip"
 	"io"
-	"log"
 	"net/http"
 	"strings"
+
+	"github.com/Sirupsen/logrus"
 )
 
 type gzipResponseWriter struct {
@@ -34,6 +35,6 @@ func main() {
 	fs := http.FileServer(http.Dir("../../browser/www"))
 	http.Handle("/", Gzip(fs))
 
-	log.Println("Listening...")
+	logrus.Print("Listening...")
 	http.ListenAndServe(":3000", nil)
 }

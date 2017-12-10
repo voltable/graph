@@ -11,6 +11,29 @@ import (
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
 )
 
+// Ensure the parser can scan.
+func TestParser_Scan(t *testing.T) {
+	var tests = []struct {
+		s    string
+		stmt ast.Stmt
+		err  string
+	}{
+		{
+			s:    `MATCH () RETURN *`,
+			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt("*", &ast.MapAll{}))},
+		},
+	}
+
+	for i, tt := range tests {
+		stmt, err := parser.NewParser().Parse(strings.NewReader(tt.s))
+		if !reflect.DeepEqual(tt.err, errstring(err)) {
+			t.Errorf("%d. %q: error mismatch:\n  exp=%s\n  got=%s\n\n", i, tt.s, tt.err, err)
+		} else if tt.err == "" && !reflect.DeepEqual(tt.stmt, stmt) {
+			t.Errorf("%d. %q\n\nstmt mismatch:\n\nexp=%#v\n\ngot=%#v\n\n", i, tt.s, tt.stmt, stmt)
+		}
+	}
+}
+
 // Ensure the parser can parse the right patterns.
 func TestParser_Pattern(t *testing.T) {
 	var tests = []struct {
@@ -181,14 +204,6 @@ func TestParser_Clauses(t *testing.T) {
 	}
 }
 
-// errstring returns the string representation of an error.
-func errstring(err error) string {
-	if err != nil {
-		return err.Error()
-	}
-	return ""
-}
-
 func TestParser_Where(t *testing.T) {
 
 	var tests = []struct {
@@ -314,4 +329,12 @@ func TestParser_Return(t *testing.T) {
 			t.Errorf("%d. %q\n\nstmt mismatch:\n\nexp=%#v\n\ngot=%#v\n\n", i, tt.s, tt.stmt, stmt)
 		}
 	}
+}
+
+// errstring returns the string representation of an error.
+func errstring(err error) string {
+	if err != nil {
+		return err.Error()
+	}
+	return ""
 }

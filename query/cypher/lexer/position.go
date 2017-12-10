@@ -18,3 +18,19 @@ func (p *Position) IsValid() bool { return p.Line > 0 }
 func (p Position) String() string {
 	return fmt.Sprintf("%d:%d", p.Line, p.Column)
 }
+
+var _ error = (*PositionError)(nil)
+
+// PositionError is a parse error that contains a position.
+type PositionError struct {
+	Pos Position
+	Err error
+}
+
+func (e *PositionError) Error() string {
+	return fmt.Sprintf("At %s: %s", e.Pos, e.Err)
+}
+
+func (p Position) Errorf(format string, a ...interface{}) *PositionError {
+	return &PositionError{Pos: p, Err: fmt.Errorf(format, a)}
+}

@@ -50,7 +50,7 @@ func isLetter(ch rune) bool {
 func isDigit(ch rune) bool { return (ch >= '0' && ch <= '9') }
 
 // Scan returns the next token and literal value.
-func (s *Scanner) Scan() (tok lexer.Type, lit string) {
+func (s *Scanner) Scan() (tok lexer.Type, lit string, pos *lexer.Position) {
 	// Read the next rune.
 	ch := s.read()
 
@@ -60,7 +60,7 @@ func (s *Scanner) Scan() (tok lexer.Type, lit string) {
 		s.unread()
 		return s.scanWhitespace()
 	} else if tok, lit := s.scanCharacter(ch); tok != lexer.ILLEGAL {
-		return tok, lit
+		return tok, lit, nil
 	}
 
 	s.unread()
@@ -140,7 +140,7 @@ func (s *Scanner) scanCharacter(ch rune) (tok lexer.Type, lit string) {
 }
 
 // scanWhitespace consumes the current rune and all contiguous whitespace.
-func (s *Scanner) scanWhitespace() (tok lexer.Type, lit string) {
+func (s *Scanner) scanWhitespace() (tok lexer.Type, lit string, pos *lexer.Position) {
 	// Create a buffer and read the current character into it.
 	var buf bytes.Buffer
 	buf.WriteRune(s.read())
@@ -158,7 +158,7 @@ func (s *Scanner) scanWhitespace() (tok lexer.Type, lit string) {
 		}
 	}
 
-	return lexer.WS, buf.String()
+	return lexer.WS, buf.String(), nil
 }
 
 func (s *Scanner) isCharacter(ch rune) bool {
@@ -167,7 +167,7 @@ func (s *Scanner) isCharacter(ch rune) bool {
 }
 
 // scanIdent consumes the current rune and all contiguous ident runes.
-func (s *Scanner) scanIdent() (tok lexer.Type, lit string) {
+func (s *Scanner) scanIdent() (tok lexer.Type, lit string, pos *lexer.Position) {
 	// Create a buffer and read the current character into it.
 	var buf bytes.Buffer
 	buf.WriteRune(s.read())
@@ -187,28 +187,28 @@ func (s *Scanner) scanIdent() (tok lexer.Type, lit string) {
 	lit = buf.String()
 
 	if tok = lexer.Clause(lit); tok != lexer.IDENT {
-		return tok, buf.String()
+		return tok, buf.String(), nil
 	}
 
 	if tok = lexer.SubClause(lit); tok != lexer.IDENT {
-		return tok, buf.String()
+		return tok, buf.String(), nil
 	}
 
 	if tok = lexer.Boolean(lit); tok != lexer.IDENT {
-		return tok, buf.String()
+		return tok, buf.String(), nil
 	}
 
 	if tok = lexer.Comparison(lit); tok != lexer.IDENT {
-		return tok, buf.String()
+		return tok, buf.String(), nil
 	}
 
 	switch strings.ToUpper(buf.String()) {
 	case "IS":
-		return lexer.IS, buf.String()
+		return lexer.IS, buf.String(), nil
 	case "NULL":
-		return lexer.NULL, buf.String()
+		return lexer.NULL, buf.String(), nil
 	}
 
 	// Otherwise return as a regular identifier.
-	return lexer.IDENT, buf.String()
+	return lexer.IDENT, buf.String(), nil
 }
