@@ -60,11 +60,43 @@ func (s *Scanner) Scan() (tok lexer.Type, lit string, pos *lexer.Position) {
 		s.unread()
 		return s.scanWhitespace()
 	} else if tok, lit := s.scanCharacter(ch); tok != lexer.ILLEGAL {
+		if tok, lit := s.scanLongCharacter(tok); tok != lexer.ILLEGAL {
+			return tok, lit, nil
+		}
 		return tok, lit, nil
 	}
 
 	s.unread()
 	return s.scanIdent()
+}
+
+func (s *Scanner) scanLongCharacter(tok lexer.Type) (lexer.Type, string) {
+	if tok == lexer.LT {
+		ch := s.read()
+		tok, _ := s.scanCharacter(ch)
+		if tok == lexer.GT {
+			return lexer.NEQ, "<>"
+		} else if tok == lexer.EQ {
+			return lexer.LTE, "<="
+		}
+		s.unread()
+	} else if tok == lexer.GT {
+		ch := s.read()
+		tok, _ := s.scanCharacter(ch)
+		if tok == lexer.EQ {
+			return lexer.GTE, ">="
+		}
+		s.unread()
+	} else if tok == lexer.EQ {
+		ch := s.read()
+		tok, _ := s.scanCharacter(ch)
+		if tok == lexer.TILDE {
+			return lexer.EQREGEX, "=~"
+		}
+		s.unread()
+	}
+
+	return lexer.ILLEGAL, ""
 }
 
 func (s *Scanner) scanCharacter(ch rune) (tok lexer.Type, lit string) {
@@ -104,12 +136,9 @@ func (s *Scanner) scanCharacter(ch rune) (tok lexer.Type, lit string) {
 	case '^':
 		return lexer.POW, string(ch)
 	case '=':
-		next := s.read()
-		if next == '~' {
-			return lexer.EQREGEX, "=~"
-		}
-		s.unread()
 		return lexer.EQ, string(ch)
+	case '~':
+		return lexer.TILDE, string(ch)
 	case '{':
 		return lexer.LCURLY, string(ch)
 	case '}':
@@ -119,21 +148,8 @@ func (s *Scanner) scanCharacter(ch rune) (tok lexer.Type, lit string) {
 	case '\'':
 		return lexer.SINGLEQUOTATION, string(ch)
 	case '<':
-		next := s.read()
-		if next == '=' {
-			return lexer.LTE, "<="
-		}
-		if next == '>' {
-			return lexer.NEQ, "<>"
-		}
-		s.unread()
 		return lexer.LT, string(ch)
 	case '>':
-		next := s.read()
-		if next == '=' {
-			return lexer.GTE, ">="
-		}
-		s.unread()
 		return lexer.GT, string(ch)
 	}
 	return lexer.ILLEGAL, string(ch)

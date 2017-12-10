@@ -42,6 +42,7 @@ func TestScanner_Scan(t *testing.T) {
 		{s: `{`, tok: lexer.LCURLY},
 		{s: `}`, tok: lexer.RCURLY},
 		{s: `"`, tok: lexer.QUOTATION},
+		{s: `~`, tok: lexer.TILDE},
 
 		{s: `AND`, tok: lexer.AND},
 		{s: `OR`, tok: lexer.OR},
@@ -50,7 +51,6 @@ func TestScanner_Scan(t *testing.T) {
 
 		{s: `<`, tok: lexer.LT},
 		{s: `>`, tok: lexer.GT},
-		{s: `<>`, tok: lexer.NEQ},
 		{s: `=`, tok: lexer.EQ},
 		{s: `IS`, tok: lexer.IS},
 		{s: `NULL`, tok: lexer.NULL},

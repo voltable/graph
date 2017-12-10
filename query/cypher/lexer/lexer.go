@@ -81,11 +81,8 @@ const (
 	// The comparison operators
 	comparisonBeg
 	EQ   // =
-	NEQ  // <>
 	LT   // <
-	LTE  // <=
 	GT   // >
-	GTE  // >=
 	IS   // IS
 	NULL // NULL
 	comparisonEnd
@@ -94,8 +91,13 @@ const (
 	ENDSWITH   // ENDS WITH
 	CONTAINS   // CONTAINS
 
-	// Regular expression matching
+	// Other characters that are long
+	longCharacterBeg
+	NEQ     // <>
+	LTE     // <=
+	GTE     // >=
 	EQREGEX // =~
+	longCharacterEnd
 
 	LPAREN  // (
 	RPAREN  // )
@@ -107,6 +109,7 @@ const (
 	RSQUARE // ]
 	LCURLY  // {
 	RCURLY  // }
+	TILDE   // ~
 
 	quotationBeg
 	QUOTATION       // "
@@ -151,10 +154,16 @@ var tokens = [...]string{
 	RSQUARE: "]",
 	LCURLY:  "{",
 	RCURLY:  "}",
+	TILDE:   "~",
+	EQREGEX: "=~",
 
 	QUOTATION:       "\"",
 	SINGLEQUOTATION: "'",
 	GRAVE:           "`",
+
+	NEQ: "<>",
+	LTE: "<=",
+	GTE: ">=",
 
 	AND: "AND",
 	OR:  "OR",
@@ -166,7 +175,6 @@ var clauses map[string]Type
 var subClauses map[string]Type
 var comparison map[string]Type
 var boolean map[string]Type
-
 var quotations map[string]Type
 
 func init() {
@@ -207,7 +215,7 @@ func (tok Type) String() string {
 // IsClause returns true for clauses tokens.
 func (tok Type) IsClause() bool { return tok > clausesBag && tok < clausesEnd }
 
-// IsSubClausesClause returns true for clauses tokens.
+// IsSubClause returns true for clauses tokens.
 func (tok Type) IsSubClause() bool { return tok > subClausesBag && tok < subClausesEnd }
 
 // IsOperator returns true for operator tokens.
