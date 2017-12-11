@@ -4,10 +4,8 @@ import "fmt"
 
 // Position describes an  source position
 type Position struct {
-	Offset int    // offset, starting at 0
-	Line   int    // line number, starting at 1
-	Column int    // column number, starting at 1 (character count)
-	Text   string // the text
+	Line   int // line number, starting at 1
+	Column int // column number, starting at 1 (character count)
 }
 
 // IsValid returns true if the position is valid.

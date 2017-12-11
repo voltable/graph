@@ -18,7 +18,7 @@ type Scanner struct {
 
 // NewScanner returns a new instance of Scanner.
 func NewScanner(s string) *Scanner {
-	return &Scanner{r: bufio.NewReader(strings.NewReader(s)), pos: &lexer.Position{Text: s}}
+	return &Scanner{r: bufio.NewReader(strings.NewReader(s)), pos: &lexer.Position{}}
 }
 
 // read reads the next rune from the bufferred reader.
@@ -33,14 +33,12 @@ func (s *Scanner) read() rune {
 		s.pos.Column = 0
 	}
 	s.pos.Column++
-	s.pos.Offset++
 	return ch
 }
 
 // unread places the previously read rune back on the reader.
 func (s *Scanner) unread() {
 	s.r.UnreadRune()
-	s.pos.Offset--
 	s.pos.Column--
 }
 
