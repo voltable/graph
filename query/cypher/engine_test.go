@@ -2,7 +2,6 @@ package cypher_test
 
 import (
 	"fmt"
-	"io"
 	"reflect"
 	"testing"
 
@@ -16,7 +15,7 @@ type FakeParser struct {
 	err error
 }
 
-func (p *FakeParser) Parse(r io.Reader) (ast.Clauses, error) {
+func (p *FakeParser) Parse(s string) (ast.Clauses, error) {
 	return nil, p.err
 }
 

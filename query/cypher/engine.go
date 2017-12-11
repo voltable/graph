@@ -1,8 +1,6 @@
 package cypher
 
 import (
-	"strings"
-
 	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
@@ -50,7 +48,7 @@ var _ query.Engine = (*Engine)(nil)
 
 // Parse in a cypher query as a string and get back Query that is abstracted from the cypher AST
 func (qe Engine) Parse(q string) (*graph.Query, error) {
-	stmt, err := qe.Parser.Parse(strings.NewReader(q))
+	stmt, err := qe.Parser.Parse(q)
 	if err != nil {
 		return nil, err
 	}

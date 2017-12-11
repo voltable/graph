@@ -3,7 +3,6 @@ package scanner
 import (
 	"bufio"
 	"bytes"
-	"io"
 	"strings"
 
 	"github.com/RossMerr/Caudex.Graph/query/cypher/lexer"
@@ -13,12 +12,13 @@ var eof = rune(0)
 
 // Scanner represents a lexical scanner.
 type Scanner struct {
-	r *bufio.Reader
+	r   *bufio.Reader
+	pos *lexer.Position
 }
 
 // NewScanner returns a new instance of Scanner.
-func NewScanner(r io.Reader) *Scanner {
-	return &Scanner{r: bufio.NewReader(r)}
+func NewScanner(s string) *Scanner {
+	return &Scanner{r: bufio.NewReader(strings.NewReader(s)), pos: &lexer.Position{Text: s}}
 }
 
 // read reads the next rune from the bufferred reader.
@@ -28,12 +28,20 @@ func (s *Scanner) read() rune {
 	if err != nil {
 		return eof
 	}
+	if ch == '\n' {
+		s.pos.Line++
+		s.pos.Column = 0
+	}
+	s.pos.Column++
+	s.pos.Offset++
 	return ch
 }
 
 // unread places the previously read rune back on the reader.
 func (s *Scanner) unread() {
-	_ = s.r.UnreadRune()
+	s.r.UnreadRune()
+	s.pos.Offset--
+	s.pos.Column--
 }
 
 // isWhitespace returns true if the rune is a space, tab, or newline.
@@ -50,28 +58,28 @@ func isLetter(ch rune) bool {
 func isDigit(ch rune) bool { return (ch >= '0' && ch <= '9') }
 
 // Scan returns the next token and literal value.
-func (s *Scanner) Scan() (tok lexer.Type, lit string, pos *lexer.Position) {
+func (s *Scanner) Scan() (tok lexer.Token, lit string, pos *lexer.Position) {
 	// Read the next rune.
 	ch := s.read()
-
 	// If we see whitespace then consume all contiguous whitespace.
 	// If we see a letter then consume as an ident or reserved word.
 	if isWhitespace(ch) {
 		s.unread()
 		return s.scanWhitespace()
+	} else if tok, lit := s.scanLongCharacter(ch); tok != lexer.ILLEGAL {
+		return tok, lit, s.pos
 	} else if tok, lit := s.scanCharacter(ch); tok != lexer.ILLEGAL {
-		if tok, lit := s.scanLongCharacter(tok); tok != lexer.ILLEGAL {
-			return tok, lit, nil
-		}
-		return tok, lit, nil
+		return tok, lit, s.pos
 	}
 
 	s.unread()
 	return s.scanIdent()
 }
 
-func (s *Scanner) scanLongCharacter(tok lexer.Type) (lexer.Type, string) {
-	if tok == lexer.LT {
+func (s *Scanner) scanLongCharacter(ch rune) (lexer.Token, string) {
+	m, _ := s.scanCharacter(ch)
+	switch m {
+	case lexer.LT:
 		ch := s.read()
 		tok, _ := s.scanCharacter(ch)
 		if tok == lexer.GT {
@@ -80,14 +88,14 @@ func (s *Scanner) scanLongCharacter(tok lexer.Type) (lexer.Type, string) {
 			return lexer.LTE, "<="
 		}
 		s.unread()
-	} else if tok == lexer.GT {
+	case lexer.GT:
 		ch := s.read()
 		tok, _ := s.scanCharacter(ch)
 		if tok == lexer.EQ {
 			return lexer.GTE, ">="
 		}
 		s.unread()
-	} else if tok == lexer.EQ {
+	case lexer.EQ:
 		ch := s.read()
 		tok, _ := s.scanCharacter(ch)
 		if tok == lexer.TILDE {
@@ -95,13 +103,11 @@ func (s *Scanner) scanLongCharacter(tok lexer.Type) (lexer.Type, string) {
 		}
 		s.unread()
 	}
-
 	return lexer.ILLEGAL, ""
 }
 
-func (s *Scanner) scanCharacter(ch rune) (tok lexer.Type, lit string) {
+func (s *Scanner) scanCharacter(ch rune) (tok lexer.Token, lit string) {
 	// Otherwise read the individual character.
-
 	switch ch {
 	case eof:
 		return lexer.EOF, ""
@@ -156,7 +162,7 @@ func (s *Scanner) scanCharacter(ch rune) (tok lexer.Type, lit string) {
 }
 
 // scanWhitespace consumes the current rune and all contiguous whitespace.
-func (s *Scanner) scanWhitespace() (tok lexer.Type, lit string, pos *lexer.Position) {
+func (s *Scanner) scanWhitespace() (tok lexer.Token, lit string, pos *lexer.Position) {
 	// Create a buffer and read the current character into it.
 	var buf bytes.Buffer
 	buf.WriteRune(s.read())
@@ -174,7 +180,7 @@ func (s *Scanner) scanWhitespace() (tok lexer.Type, lit string, pos *lexer.Posit
 		}
 	}
 
-	return lexer.WS, buf.String(), nil
+	return lexer.WS, buf.String(), s.pos
 }
 
 func (s *Scanner) isCharacter(ch rune) bool {
@@ -183,7 +189,7 @@ func (s *Scanner) isCharacter(ch rune) bool {
 }
 
 // scanIdent consumes the current rune and all contiguous ident runes.
-func (s *Scanner) scanIdent() (tok lexer.Type, lit string, pos *lexer.Position) {
+func (s *Scanner) scanIdent() (tok lexer.Token, lit string, pos *lexer.Position) {
 	// Create a buffer and read the current character into it.
 	var buf bytes.Buffer
 	buf.WriteRune(s.read())
@@ -203,28 +209,28 @@ func (s *Scanner) scanIdent() (tok lexer.Type, lit string, pos *lexer.Position) 
 	lit = buf.String()
 
 	if tok = lexer.Clause(lit); tok != lexer.IDENT {
-		return tok, buf.String(), nil
+		return tok, buf.String(), s.pos
 	}
 
 	if tok = lexer.SubClause(lit); tok != lexer.IDENT {
-		return tok, buf.String(), nil
+		return tok, buf.String(), s.pos
 	}
 
 	if tok = lexer.Boolean(lit); tok != lexer.IDENT {
-		return tok, buf.String(), nil
+		return tok, buf.String(), s.pos
 	}
 
 	if tok = lexer.Comparison(lit); tok != lexer.IDENT {
-		return tok, buf.String(), nil
+		return tok, buf.String(), s.pos
 	}
 
 	switch strings.ToUpper(buf.String()) {
 	case "IS":
-		return lexer.IS, buf.String(), nil
+		return lexer.IS, buf.String(), s.pos
 	case "NULL":
-		return lexer.NULL, buf.String(), nil
+		return lexer.NULL, buf.String(), s.pos
 	}
 
 	// Otherwise return as a regular identifier.
-	return lexer.IDENT, buf.String(), nil
+	return lexer.IDENT, buf.String(), s.pos
 }

@@ -4,9 +4,10 @@ import "fmt"
 
 // Position describes an  source position
 type Position struct {
-	Offset int // offset, starting at 0
-	Line   int // line number, starting at 1
-	Column int // column number, starting at 1 (character count)
+	Offset int    // offset, starting at 0
+	Line   int    // line number, starting at 1
+	Column int    // column number, starting at 1 (character count)
+	Text   string // the text
 }
 
 // IsValid returns true if the position is valid.
@@ -32,5 +33,5 @@ func (e *PositionError) Error() string {
 }
 
 func (p Position) Errorf(format string, a ...interface{}) *PositionError {
-	return &PositionError{Pos: p, Err: fmt.Errorf(format, a)}
+	return &PositionError{Pos: p, Err: fmt.Errorf(format, a...)}
 }

@@ -1,7 +1,6 @@
 package scanner_test
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph/query/cypher/lexer"
@@ -12,7 +11,7 @@ import (
 func TestScanner_Scan(t *testing.T) {
 	var tests = []struct {
 		s   string
-		tok lexer.Type
+		tok lexer.Token
 		lit string
 	}{
 
@@ -43,21 +42,35 @@ func TestScanner_Scan(t *testing.T) {
 		{s: `}`, tok: lexer.RCURLY},
 		{s: `"`, tok: lexer.QUOTATION},
 		{s: `~`, tok: lexer.TILDE},
-
+		{s: "`", tok: lexer.GRAVE},
+		{s: `+`, tok: lexer.ADD},
+		{s: `-`, tok: lexer.SUB},
+		{s: `*`, tok: lexer.MUL},
+		{s: `/`, tok: lexer.DIV},
+		{s: `%`, tok: lexer.MOD},
+		{s: "^", tok: lexer.POW},
+		{s: `'`, tok: lexer.SINGLEQUOTATION},
 		{s: `AND`, tok: lexer.AND},
 		{s: `OR`, tok: lexer.OR},
 		{s: `XOR`, tok: lexer.XOR},
 		{s: `NOT`, tok: lexer.NOT},
-
 		{s: `<`, tok: lexer.LT},
 		{s: `>`, tok: lexer.GT},
 		{s: `=`, tok: lexer.EQ},
 		{s: `IS`, tok: lexer.IS},
 		{s: `NULL`, tok: lexer.NULL},
+		{s: `<>`, tok: lexer.NEQ},
+		{s: `<=`, tok: lexer.LTE},
+		{s: `>=`, tok: lexer.GTE},
+		{s: `=~`, tok: lexer.EQREGEX},
+		{s: ` `, tok: lexer.WS},
+		{s: "\t", tok: lexer.WS},
+		{s: "\n", tok: lexer.WS},
+		{s: "Hello", tok: lexer.IDENT},
 	}
 
 	for i, tt := range tests {
-		s := scanner.NewScanner(strings.NewReader(tt.s))
+		s := scanner.NewScanner(tt.s)
 		tok, lit, _ := s.Scan()
 		if tt.tok != tok {
 			t.Errorf("%d. %q token mismatch: exp=%q got=%q <%q>", i, tt.s, tt.tok, tok, lit)

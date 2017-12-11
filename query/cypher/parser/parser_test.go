@@ -2,7 +2,6 @@ package parser_test
 
 import (
 	"reflect"
-	"strings"
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph/expressions"
@@ -19,17 +18,15 @@ func TestParser_Scan(t *testing.T) {
 		err  string
 	}{
 		{
-			s:    `MATCH () RETURN *`,
-			stmt: &ast.MatchStmt{Pattern: &ir.VertexPatn{}, Next: ast.NewReturnStmt(ast.NewMapProjectionStmt("*", &ast.MapAll{}))},
+			s:   `MATCH test`,
+			err: `At 0:10: found "test", expected "("`,
 		},
 	}
 
 	for i, tt := range tests {
-		stmt, err := parser.NewParser().Parse(strings.NewReader(tt.s))
-		if !reflect.DeepEqual(tt.err, errstring(err)) {
+		_, err := parser.NewParser().Parse(tt.s)
+		if tt.err != errstring(err) {
 			t.Errorf("%d. %q: error mismatch:\n  exp=%s\n  got=%s\n\n", i, tt.s, tt.err, err)
-		} else if tt.err == "" && !reflect.DeepEqual(tt.stmt, stmt) {
-			t.Errorf("%d. %q\n\nstmt mismatch:\n\nexp=%#v\n\ngot=%#v\n\n", i, tt.s, tt.stmt, stmt)
 		}
 	}
 }
@@ -128,7 +125,7 @@ func TestParser_Pattern(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		stmt, err := parser.NewParser().Parse(strings.NewReader(tt.s))
+		stmt, err := parser.NewParser().Parse(tt.s)
 		if !reflect.DeepEqual(tt.err, errstring(err)) {
 			t.Errorf("%d. %q: error mismatch:\n  exp=%s\n  got=%s\n\n", i, tt.s, tt.err, err)
 		} else if tt.err == "" && !reflect.DeepEqual(tt.stmt, stmt) {
@@ -195,7 +192,7 @@ func TestParser_Clauses(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		stmt, err := parser.NewParser().Parse(strings.NewReader(tt.s))
+		stmt, err := parser.NewParser().Parse(tt.s)
 		if !reflect.DeepEqual(tt.err, errstring(err)) {
 			t.Errorf("%d. %q: error mismatch:\n  exp=%s\n  got=%s\n\n", i, tt.s, tt.err, err)
 		} else if tt.err == "" && !reflect.DeepEqual(tt.stmt, stmt) {
@@ -228,7 +225,7 @@ func TestParser_Where(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		stmt, err := parser.NewParser().Parse(strings.NewReader(tt.s))
+		stmt, err := parser.NewParser().Parse(tt.s)
 		if !reflect.DeepEqual(tt.err, errstring(err)) {
 			t.Errorf("%d. %q: error mismatch:\n  exp=%s\n  got=%s\n\n", i, tt.s, tt.err, err)
 		} else if tt.err == "" && !reflect.DeepEqual(tt.stmt, stmt) {
@@ -322,7 +319,7 @@ func TestParser_Return(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		stmt, err := parser.NewParser().Parse(strings.NewReader(tt.s))
+		stmt, err := parser.NewParser().Parse(tt.s)
 		if !reflect.DeepEqual(tt.err, errstring(err)) {
 			t.Errorf("%d. %q: error mismatch:\n  exp=%s\n  got=%s\n\n", i, tt.s, tt.err, err)
 		} else if tt.err == "" && !reflect.DeepEqual(tt.stmt, stmt) {
