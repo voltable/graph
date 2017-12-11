@@ -33,7 +33,7 @@ func Test_Query(t *testing.T) {
 				arr = append(arr, v2)
 				return arr
 			}(),
-			query: "MATCH (n:person) WHERE n.name = 'john smith'",
+			query: "MATCH (n:person) WHERE n.name = 'john smith' RETURN *",
 		},
 		// 1
 		{

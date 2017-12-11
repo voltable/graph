@@ -118,13 +118,13 @@ func (p *CypherParser) node() (*ir.VertexPatn, error) {
 
 		tok, lit, pos = p.scanIgnoreWhitespace()
 		if tok != lexer.IDENT && tok != lexer.RPAREN {
-			return nil, pos.Errorf("found %q, expected %q", lit, lexer.RPAREN)
+			return nil, pos.Errorf("found %q, expected close of pattern %q", lit, lexer.RPAREN)
 		}
 
 		return stmt, nil
 	}
 
-	return nil, pos.Errorf("found %q, expected %q", lit, lexer.LPAREN)
+	return nil, pos.Errorf("found %q, expected start of pattern %q", lit, lexer.LPAREN)
 }
 
 func (p *CypherParser) length() (uint, uint, error) {
@@ -258,7 +258,7 @@ func (p *CypherParser) relationship() (*ir.EdgePatn, error) {
 
 		tok, lit, pos = p.scanIgnoreWhitespace()
 		if tok != lexer.IDENT && tok != lexer.SUB {
-			return nil, pos.Errorf("found %q, expected %q", lit, lexer.SUB)
+			return nil, pos.Errorf("found %q expected %q, %q or %q for pattern", lit, "-", ">", "[")
 		}
 
 		// Check for inbound relationship
@@ -511,7 +511,7 @@ func (p *CypherParser) pattern() (ir.Patn, error) {
 }
 
 func (p *CypherParser) returns() (*ast.ReturnStmt, error) {
-	tok, _, _ := p.scanIgnoreWhitespace()
+	tok, lit, pos := p.scanIgnoreWhitespace()
 	if tok == lexer.RETURN {
 		state := &ast.ReturnStmt{}
 
@@ -524,8 +524,7 @@ func (p *CypherParser) returns() (*ast.ReturnStmt, error) {
 		return state, nil
 	}
 
-	p.unscan()
-	return nil, nil
+	return nil, pos.Errorf("found %q, expected %q", lit, lexer.RETURN)
 }
 
 func (p *CypherParser) MapAlias() (string, error) {

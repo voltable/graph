@@ -19,7 +19,19 @@ func TestParser_Scan(t *testing.T) {
 	}{
 		{
 			s:   `MATCH test`,
-			err: `At 0:10: found "test", expected "("`,
+			err: `At 0:10: found "test", expected start of pattern "("`,
+		},
+		{
+			s:   `MATCH (n`,
+			err: `At 0:8: found "", expected close of pattern ")"`,
+		},
+		{
+			s:   `MATCH (n)#`,
+			err: `At 0:10: found "#", expected "RETURN"`,
+		},
+		{
+			s:   `MATCH (n)-`,
+			err: `At 0:10: found "" expected "-", ">" or "[" for pattern`,
 		},
 	}
 
