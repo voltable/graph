@@ -41,56 +41,6 @@
                 "-cover"
             ],
             "showLog": true
-        },        
-           {
-            "name": "Query Test",
-            "type": "go",
-            "request": "launch",
-            "mode": "test",
-            "remotePath": "",
-            "port": 2346,
-            "host": "127.0.0.1",
-            "program": "${workspaceRoot}/query",
-            "env": {},
-            "args": [
-                "-test.v",
-                "-test.run",
-                "^Test_MatchEdge"
-            ],
-            "showLog": true
-        },
-           {
-            "name": "Parser Cypher Test",
-            "type": "go",
-            "request": "launch",
-            "mode": "test",
-            "remotePath": "",
-            "port": 2346,
-            "host": "127.0.0.1",
-            "program": "${workspaceRoot}/query/cypher/parser",
-            "env": {},
-            "args": [
-                "-test.run",
-                "TestParser_Clauses"
-            ],
-            "showLog": true
-        },
-           {
-            "name": "Query Cypher Scanner Test",
-            "type": "go",
-            "request": "launch",
-            "mode": "test",
-            "remotePath": "",
-            "port": 2346,
-            "host": "127.0.0.1",
-            "program": "${workspaceRoot}/query/cypher/scanner",
-            "env": {},
-            "args": [
-                "-test.v",
-                "-test.run",
-                "^TestScanner_Scan"
-            ],
-            "showLog": true
-        }          
+        }
     ]
 }

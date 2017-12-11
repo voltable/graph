@@ -1,5 +1,4 @@
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 module.exports = {
@@ -8,13 +7,10 @@ module.exports = {
   },
   devtool: 'inline-source-map',
   plugins: [
-    new CleanWebpackPlugin(['www']),
-    new HtmlWebpackPlugin({
-      title: 'Caudex Browser'
-    })
+    new CleanWebpackPlugin(['www'])
   ],
   output: {
-    filename: '[name].bundle.js',
+    filename: 'static/[name].bundle.js',
     path: path.resolve(__dirname, 'www')
   },
   module: {

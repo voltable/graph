@@ -1,40 +1,52 @@
 package main
 
 import (
-	"compress/gzip"
-	"io"
+	"flag"
+	"fmt"
+	"log"
 	"net/http"
-	"strings"
 
 	"github.com/Sirupsen/logrus"
 )
 
-type gzipResponseWriter struct {
-	io.Writer
-	http.ResponseWriter
+var httpAddr = flag.String("http", ":8080", "Listen address")
+
+const (
+	path = "../../browser/www/static"
+)
+
+func main() {
+	flag.Parse()
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(path))))
+	http.Handle("/", Push())
+	logrus.Print(http.ListenAndServeTLS(*httpAddr, "cert.pem", "key.pem", nil))
 }
 
-func (w gzipResponseWriter) Write(b []byte) (int, error) {
-	return w.Writer.Write(b)
-}
-
-func Gzip(handler http.Handler) http.Handler {
+func Push() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
-			handler.ServeHTTP(w, r)
+		if r.URL.Path != "/" {
+			http.NotFound(w, r)
+			return
 		}
-		w.Header().Set("Content-Encoding", "gzip")
-		gz := gzip.NewWriter(w)
-		defer gz.Close()
-		gzw := gzipResponseWriter{Writer: gz, ResponseWriter: w}
-		handler.ServeHTTP(gzw, r)
+		pusher, ok := w.(http.Pusher)
+		if ok {
+			// Push is supported. Try pushing rather than
+			// waiting for the browser request these static assets.
+			if err := pusher.Push(path+"/index.bundle.js", nil); err != nil {
+				log.Printf("Failed to push: %v", err)
+			}
+		}
+		fmt.Fprintf(w, indexHTML)
 	})
 }
 
-func main() {
-	fs := http.FileServer(http.Dir("../../browser/www"))
-	http.Handle("/", Gzip(fs))
-
-	logrus.Print("Listening...")
-	http.ListenAndServe(":3000", nil)
-}
+const indexHTML = `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Caudex Browser</title>
+  </head>
+  <body>
+  <script type="text/javascript" src="/static/index.bundle.js"></script></body>
+</html>
+`
