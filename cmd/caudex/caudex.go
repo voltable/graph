@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/Sirupsen/logrus"
@@ -18,11 +17,11 @@ const (
 func main() {
 	flag.Parse()
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(path))))
-	http.Handle("/", Push())
+	http.Handle("/", push())
 	logrus.Print(http.ListenAndServeTLS(*httpAddr, "cert.pem", "key.pem", nil))
 }
 
-func Push() http.Handler {
+func push() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
 			http.NotFound(w, r)
@@ -33,7 +32,7 @@ func Push() http.Handler {
 			// Push is supported. Try pushing rather than
 			// waiting for the browser request these static assets.
 			if err := pusher.Push(path+"/index.bundle.js", nil); err != nil {
-				log.Printf("Failed to push: %v", err)
+				logrus.Printf("Failed to push: %v", err)
 			}
 		}
 		fmt.Fprintf(w, indexHTML)
