@@ -3,3 +3,4 @@ debug
 debug.test
 node_modules
 browser/www/*.*
+browser/www/static/
