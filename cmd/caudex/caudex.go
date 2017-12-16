@@ -4,8 +4,11 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"strings"
 
+	"github.com/RossMerr/Caudex.Graph/client"
 	"github.com/Sirupsen/logrus"
+	"google.golang.org/grpc"
 )
 
 var httpAddr = flag.String("http", ":8080", "Listen address")
@@ -16,22 +19,30 @@ const (
 
 func main() {
 	flag.Parse()
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(path))))
-	http.Handle("/", push())
-	logrus.Print(http.ListenAndServeTLS(*httpAddr, "cert.pem", "key.pem", nil))
+	grpcServer := grpc.NewServer()
+	client.RegisterGraphServer(grpcServer, client.Graph{})
+
+	mux := http.NewServeMux()
+	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(path))))
+	mux.Handle("/", push(grpcServer))
+	logrus.Print(http.ListenAndServeTLS(*httpAddr, "cert.pem", "key.pem", mux))
 }
 
-func push() http.Handler {
+func push(grpcServer *grpc.Server) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/" {
+		if r.ProtoMajor == 2 && strings.HasPrefix(r.Header.Get("Content-Type"), "application/grpc") {
+			grpcServer.ServeHTTP(w, r)
+			return
+		} else if r.URL.Path != "/" {
 			http.NotFound(w, r)
 			return
 		}
 		pusher, ok := w.(http.Pusher)
 		if ok {
-			// Push is supported. Try pushing rather than
-			// waiting for the browser request these static assets.
-			if err := pusher.Push(path+"/index.bundle.js", nil); err != nil {
+			if err := pusher.Push("/static/index.bundle.js", nil); err != nil {
+				logrus.Printf("Failed to push: %v", err)
+			}
+			if err := pusher.Push("/static/vertex.proto.json", nil); err != nil {
 				logrus.Printf("Failed to push: %v", err)
 			}
 		}

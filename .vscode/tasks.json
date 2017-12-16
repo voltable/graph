@@ -32,7 +32,7 @@
         {
             "label": "proto build",
             "type": "shell",
-            "command": "protoc -I=${workspaceFolder}/protobuf/ --go_out=${workspaceFolder}/client/ ${workspaceFolder}/protobuf/vertex.proto",
+            "command": "protoc -I=${workspaceFolder}/protobuf/ vertex.proto --go_out=plugins=grpc:client",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
@@ -42,6 +42,20 @@
                 "reveal": "always",
                 "panel": "new"
             }
-        }             
+        },
+        {
+            "label": "proto build client",
+            "type": "shell",
+            "command": "protoc -I=${workspaceFolder}/protobuf/ vertex.proto --js_out=import_style=commonjs,binary:browser/src/grpc",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        }                        
     ]
 }

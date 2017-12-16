@@ -5,6 +5,9 @@ import Dialog from 'material-ui/Dialog';
 import {deepOrange500} from 'material-ui/styles/colors';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import graph from './grpc/graph';
+
+graph()
 
 const styles = {
   container: {

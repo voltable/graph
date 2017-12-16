@@ -1,5 +1,5 @@
 syntax = "proto3";
-package graph;
+package client;
 import "google/protobuf/any.proto";
 
 message Vertex {
@@ -22,3 +22,17 @@ enum Digraph {
     Directed = 0;
     Undirected = 1;
 }
+
+service Graph {
+    // Sends a greeting
+    rpc Query (QueryRequest) returns (QueryReply) {}
+  }
+  
+
+  message QueryRequest {
+    string text = 1;
+  }
+
+  message QueryReply {
+    map<string, Vertex> properties = 1;
+  }
