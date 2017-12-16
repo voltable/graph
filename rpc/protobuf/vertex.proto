@@ -1,5 +1,5 @@
 syntax = "proto3";
-package client;
+package rpc;
 import "google/protobuf/any.proto";
 
 message Vertex {
