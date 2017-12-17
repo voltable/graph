@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/RossMerr/Caudex.Graph/client"
+	"github.com/RossMerr/Caudex.Graph/rpc"
 	"github.com/Sirupsen/logrus"
 	"google.golang.org/grpc"
 )
@@ -20,7 +20,7 @@ const (
 func main() {
 	flag.Parse()
 	grpcServer := grpc.NewServer()
-	client.RegisterGraphServer(grpcServer, client.Graph{})
+	rpc.RegisterGraphServer(grpcServer, rpc.Graph{})
 
 	mux := http.NewServeMux()
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(path))))

@@ -685,7 +685,8 @@ proto.rpc.QueryReply.prototype.toObject = function(opt_includeInstance) {
  */
 proto.rpc.QueryReply.toObject = function(includeInstance, msg) {
   var f, obj = {
-    propertiesMap: (f = msg.getPropertiesMap()) ? f.toObject(includeInstance, proto.rpc.Vertex.toObject) : []
+    propertiesMap: (f = msg.getPropertiesMap()) ? f.toObject(includeInstance, proto.rpc.Vertex.toObject) : [],
+    text: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -728,6 +729,10 @@ proto.rpc.QueryReply.deserializeBinaryFromReader = function(msg, reader) {
         jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readMessage, proto.rpc.Vertex.deserializeBinaryFromReader);
          });
       break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setText(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -761,6 +766,13 @@ proto.rpc.QueryReply.serializeBinaryToWriter = function(message, writer) {
   if (f && f.getLength() > 0) {
     f.serializeBinary(1, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeMessage, proto.rpc.Vertex.serializeBinaryToWriter);
   }
+  f = message.getText();
+  if (f.length > 0) {
+    writer.writeString(
+      2,
+      f
+    );
+  }
 };
 
 
@@ -779,6 +791,21 @@ proto.rpc.QueryReply.prototype.getPropertiesMap = function(opt_noLazyCreate) {
 
 proto.rpc.QueryReply.prototype.clearPropertiesMap = function() {
   this.getPropertiesMap().clear();
+};
+
+
+/**
+ * optional string text = 2;
+ * @return {string}
+ */
+proto.rpc.QueryReply.prototype.getText = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/** @param {string} value */
+proto.rpc.QueryReply.prototype.setText = function(value) {
+  jspb.Message.setProto3StringField(this, 2, value);
 };
 
 

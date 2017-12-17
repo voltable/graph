@@ -35,4 +35,6 @@ service Graph {
 
   message QueryReply {
     map<string, Vertex> properties = 1;
+    string text = 2;
+
   }
