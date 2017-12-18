@@ -10,7 +10,7 @@ function pad(n, width) {
 // grpcEncode adds the grpc header to the protocol buffer object
 function grpcEncode(bytes) {
     let size = pad(bytes.length, 4);
-    var bufHeader = new Int8Array(payloadLen + sizeLen + bytes.length);
+    var bufHeader = new Uint8Array(payloadLen + sizeLen + bytes.length);
     // Not supporting comprssion
     bufHeader[0] = compressionNone;
     bufHeader[1] = size[0];
@@ -29,7 +29,7 @@ function grpcEncode(bytes) {
 function grpcDecode(bytes) {
     // Not supporting comprssion so can ignore the header
     let length = bytes.byteLength - (payloadLen + sizeLen);
-    return new Int8Array(bytes, payloadLen + sizeLen, length);
+    return new Uint8Array(bytes, payloadLen + sizeLen, length);
 }
 
 export default function fetchGRPC(url, bytes) {
