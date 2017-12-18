@@ -541,7 +541,7 @@ func (p *CypherParser) MapAlias() (string, error) {
 	return "", nil
 }
 
-func (p *CypherParser) MapElement() (ast.MapElementStmt, error) {
+func (p *CypherParser) MapElement() (ast.ProjectionMapElementStmt, error) {
 	tok, lit, _ := p.scanIgnoreWhitespace()
 
 	if tok == lexer.DOT {
@@ -553,9 +553,9 @@ func (p *CypherParser) MapElement() (ast.MapElementStmt, error) {
 				return nil, err
 			}
 
-			return &ast.MapProperty{Key: lit, Alias: alias}, nil
+			return &ast.ProjectionMapProperty{Key: lit, Alias: alias}, nil
 		} else if tok == lexer.MUL {
-			return &ast.MapAll{}, nil
+			return &ast.ProjectionMapAll{}, nil
 		} else {
 			return nil, pos.Errorf("found %q, expected part of a map", lit)
 		}
@@ -571,16 +571,16 @@ func (p *CypherParser) MapElement() (ast.MapElementStmt, error) {
 			// mapPro.Elements = append(mapPro.Elements, literal)
 		} else {
 			p.unscan()
-			return &ast.MapVariable{Key: key}, nil
+			return &ast.ProjectionMapVariable{Key: key}, nil
 		}
 	}
 	p.unscan()
 	return nil, nil
 }
 
-func (p *CypherParser) MapElements() ([]ast.MapElementStmt, error) {
+func (p *CypherParser) MapElements() ([]ast.ProjectionMapElementStmt, error) {
 
-	elements := make([]ast.MapElementStmt, 0)
+	elements := make([]ast.ProjectionMapElementStmt, 0)
 
 	for {
 		if e, err := p.MapElement(); e != nil && err == nil {
@@ -601,8 +601,8 @@ func (p *CypherParser) MapElements() ([]ast.MapElementStmt, error) {
 
 	return elements, nil
 }
-func (p *CypherParser) MapVariables() ([]*ast.MapProjectionStmt, error) {
-	maps := make(map[string]*ast.MapProjectionStmt)
+func (p *CypherParser) MapVariables() ([]*ast.ProjectionMapStmt, error) {
+	maps := make(map[string]*ast.ProjectionMapStmt)
 	for {
 		tok, lit, _, err := p.scanForQuotation()
 
@@ -619,14 +619,14 @@ func (p *CypherParser) MapVariables() ([]*ast.MapProjectionStmt, error) {
 
 		if tok == lexer.MUL {
 			if _, ok := maps[lit]; !ok {
-				maps["*"] = ast.NewMapProjectionStmt("*", &ast.MapAll{})
+				maps["*"] = ast.NewProjectionMapStmt("*", &ast.ProjectionMapAll{})
 			}
 		}
 
 		if tok == lexer.IDENT {
 
 			if _, ok := maps[lit]; !ok {
-				maps[lit] = ast.NewMapProjectionStmt(lit)
+				maps[lit] = ast.NewProjectionMapStmt(lit)
 			}
 
 			tok, _, _ := p.scanIgnoreWhitespace()
@@ -660,10 +660,10 @@ func (p *CypherParser) MapVariables() ([]*ast.MapProjectionStmt, error) {
 
 	}
 
-	arr := make([]*ast.MapProjectionStmt, 0)
+	arr := make([]*ast.ProjectionMapStmt, 0)
 	for _, m := range maps {
 		if len(m.Elements) == 0 {
-			m.Elements = append(m.Elements, &ast.MapAll{})
+			m.Elements = append(m.Elements, &ast.ProjectionMapAll{})
 		}
 		arr = append(arr, m)
 	}

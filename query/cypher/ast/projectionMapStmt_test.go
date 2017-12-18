@@ -10,13 +10,13 @@ import (
 
 func Test_MapPropertyInterpret(t *testing.T) {
 	var tests = []struct {
-		expr     *ast.MapProperty
+		expr     *ast.ProjectionMapProperty
 		variable string
 		prop     graph.Properties
 		result   interface{}
 	}{
 		{
-			expr: &ast.MapProperty{Key: "name"},
+			expr: &ast.ProjectionMapProperty{Key: "name"},
 			prop: func() graph.Properties {
 				v, _ := graph.NewVertex()
 				v.SetProperty("name", "john smith")
@@ -31,7 +31,7 @@ func Test_MapPropertyInterpret(t *testing.T) {
 			}(),
 		},
 		{
-			expr: &ast.MapProperty{Key: "name", Alias: "alias"},
+			expr: &ast.ProjectionMapProperty{Key: "name", Alias: "alias"},
 			prop: func() graph.Properties {
 				v, _ := graph.NewVertex()
 				v.SetProperty("name", "john smith")
@@ -58,13 +58,13 @@ func Test_MapPropertyInterpret(t *testing.T) {
 
 func Test_MapLiteralInterpret(t *testing.T) {
 	var tests = []struct {
-		expr     *ast.MapLiteral
+		expr     *ast.ProjectionMapLiteral
 		variable string
 		prop     graph.Properties
 		result   interface{}
 	}{
 		{
-			expr: &ast.MapLiteral{Key: "name", Expression: &ast.ComparisonExpr{Comparison: expressions.EQ}},
+			expr: &ast.ProjectionMapLiteral{Key: "name", Expression: &ast.ComparisonExpr{Comparison: expressions.EQ}},
 			prop: func() graph.Properties {
 				v, _ := graph.NewVertex()
 				v.SetProperty("name", "john smith")
@@ -79,7 +79,7 @@ func Test_MapLiteralInterpret(t *testing.T) {
 			}(),
 		},
 		{
-			expr: &ast.MapLiteral{Key: "name", Alias: "alias", Expression: &ast.ComparisonExpr{Comparison: expressions.EQ}},
+			expr: &ast.ProjectionMapLiteral{Key: "name", Alias: "alias", Expression: &ast.ComparisonExpr{Comparison: expressions.EQ}},
 			prop: func() graph.Properties {
 				v, _ := graph.NewVertex()
 				v.SetProperty("name", "john smith")
@@ -94,7 +94,7 @@ func Test_MapLiteralInterpret(t *testing.T) {
 			}(),
 		},
 		{
-			expr: &ast.MapLiteral{Key: "name", Expression: nil},
+			expr: &ast.ProjectionMapLiteral{Key: "name", Expression: nil},
 			prop: func() graph.Properties {
 				v, _ := graph.NewVertex()
 				v.SetProperty("name", "john smith")
@@ -125,13 +125,13 @@ func Test_MapAllInterpret(t *testing.T) {
 	v.SetProperty("name", "john smith")
 
 	var tests = []struct {
-		expr     *ast.MapAll
+		expr     *ast.ProjectionMapAll
 		variable string
 		prop     graph.Properties
 		result   interface{}
 	}{
 		{
-			expr: &ast.MapAll{},
+			expr: &ast.ProjectionMapAll{},
 			prop: func() graph.Properties {
 				return v
 			}(),

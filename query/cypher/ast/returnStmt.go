@@ -2,14 +2,14 @@ package ast
 
 // ReturnStmt used to return results from the search.
 type ReturnStmt struct {
-	Maps []*MapProjectionStmt
+	Maps []*ProjectionMapStmt
 	Next Clauses
 }
 
 func (*ReturnStmt) exprNode() {}
 
 // NewMapProjectionStmt
-func NewReturnStmt(maps ...*MapProjectionStmt) *ReturnStmt {
+func NewReturnStmt(maps ...*ProjectionMapStmt) *ReturnStmt {
 	return &ReturnStmt{Maps: maps}
 }
 

@@ -65,6 +65,18 @@ func Test_ComparisonExprInterpret(t *testing.T) {
 	}
 }
 
+func Test_ComparisonGetSet(t *testing.T) {
+	c := ast.NewComparisonExpr(expressions.IS_NULL, &ast.PropertyStmt{Variable: "n"}, &ast.Ident{})
+	c.SetLeft(nil)
+	c.SetRight(nil)
+	if c.GetLeft() != nil {
+		t.Errorf("comparison left not nil got:\n got=%t\n\n", c.GetLeft())
+	}
+	if c.GetRight() != nil {
+		t.Errorf("comparison right not nil got :\n got=%t\n\n", c.GetRight())
+	}
+}
+
 func Test_ComparisonPrecedence(t *testing.T) {
 
 	var tests = []struct {
@@ -95,6 +107,9 @@ func Test_ComparisonPrecedence(t *testing.T) {
 		}, {
 			c: ast.ComparisonExpr{Comparison: expressions.IS_NOT_NULL},
 			p: 7,
+		}, {
+			c: ast.ComparisonExpr{Comparison: 20},
+			p: 20,
 		},
 	}
 

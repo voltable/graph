@@ -46,6 +46,18 @@ func Test_BooleanPrecedence(t *testing.T) {
 
 }
 
+func Test_BooleanGetSet(t *testing.T) {
+	c := ast.BooleanExpr{Boolean: expressions.AND}
+	c.SetLeft(nil)
+	c.SetRight(nil)
+	if c.GetLeft() != nil {
+		t.Errorf("boolean left not nil got:\n got=%t\n\n", c.GetLeft())
+	}
+	if c.GetRight() != nil {
+		t.Errorf("boolean right not nil got :\n got=%t\n\n", c.GetRight())
+	}
+}
+
 func Test_BooleanExprInterpret(t *testing.T) {
 
 	var tests = []struct {
@@ -125,6 +137,16 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 10}),
 				ast.NewComparisonExpr(expressions.GT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
+			v: func() *graph.Vertex {
+				x, _ := graph.NewVertex()
+				x.SetProperty("Age", 100)
+				return x
+			}(),
+			p:      "n",
+			result: false,
+		},
+		{
+			c: ast.NewBooleanExpr(20, nil, nil),
 			v: func() *graph.Vertex {
 				x, _ := graph.NewVertex()
 				x.SetProperty("Age", 100)

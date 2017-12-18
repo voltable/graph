@@ -28,7 +28,7 @@ func (qp *QueryPart) Predicate() ast.Expr {
 }
 
 // Maps gets the []*MapProjectionStmt from the query return statment
-func (qp *QueryPart) Maps() []*ast.MapProjectionStmt {
+func (qp *QueryPart) Maps() []*ast.ProjectionMapStmt {
 
 	if qp.Return != nil {
 		if qp.Return.Maps != nil {

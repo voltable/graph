@@ -8,7 +8,7 @@ import (
 type Projection struct {
 }
 
-func (p *Projection) Transform(i query.IteratorFrontier, maps []*ast.MapProjectionStmt) []interface{} {
+func (p *Projection) Transform(i query.IteratorFrontier, maps []*ast.ProjectionMapStmt) []interface{} {
 	results := make([]interface{}, 0)
 	for item, ok := i(); ok; item, ok = i() {
 		for _, part := range item.OptimalPath() {
