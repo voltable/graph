@@ -7,7 +7,7 @@ module.exports = {
   },
   devtool: 'inline-source-map',
   plugins: [
-    new CleanWebpackPlugin(['www'])
+    new CleanWebpackPlugin(['www/static'])
   ],
   output: {
     filename: 'static/[name].bundle.js',

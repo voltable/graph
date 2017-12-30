@@ -30,7 +30,7 @@ const App =
                 1-2-3-4-5
            
             </Dialog>
-            <D3visualization></D3visualization>
+            <D3visualization width="960" height="960"></D3visualization>
             <h1>Material-UI</h1>
             <h2>example project</h2>
             <RaisedButton
