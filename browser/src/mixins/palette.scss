@@ -1,10 +1,19 @@
 // https://www.materialpalette.com/blue-grey/red
 
-@mixin dark-primary-color    { background: #455A64; }
-@mixin default-primary-color { background: #607D8B; }
-@mixin light-primary-color   { background: #CFD8DC; }
-@mixin text-primary-color    { color: #FFFFFF; }
-@mixin accent-color          { background: #FF5252; }
-@mixin primary-text-color    { color: #212121; }
-@mixin secondary-text-color  { color: #757575; }
-@mixin divider-color         { border-color: #BDBDBD; }
+$dark-primary-color: #455A64; 
+$default-primary-color:#607D8B; 
+$light-primary-color: #CFD8DC; 
+$text-primary-color: #FFFFFF; 
+$accent-color: #FF5252; 
+$primary-text-color: #212121; 
+$secondary-text-color: #757575; 
+$divider-color: #BDBDBD; 
+
+@mixin dark-primary-color    { background: $dark-primary-color; }
+@mixin default-primary-color { background: $default-primary-color; }
+@mixin light-primary-color   { background: $light-primary-color; }
+@mixin text-primary-color    { color: $text-primary-color; }
+@mixin accent-color          { background: $accent-color; }
+@mixin primary-text-color    { color: $primary-text-color; }
+@mixin secondary-text-color  { color: $secondary-text-color; }
+@mixin divider-color         { border-color: $divider-color; }

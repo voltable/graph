@@ -6,6 +6,7 @@ app-toolbar {
   @include text-primary-color;
   @include font-family;
   --app-toolbar-font-size: 24px;
+  font-weight: 300;
 }
 
 app-drawer-layout:not([narrow]) [drawer-toggle] { 
@@ -14,4 +15,8 @@ app-drawer-layout:not([narrow]) [drawer-toggle] {
 
 app-drawer-layout:not([narrow]) [drawer-toggle-title] { 
   display: none; 
+}
+
+iron-icon {
+  --iron-icon-fill-color: $secondary-text-color;
 }
