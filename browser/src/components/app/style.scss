@@ -1,0 +1,17 @@
+@import '../../mixins/palette';
+@import '../../mixins/typography';
+
+app-toolbar {
+  @include default-primary-color;
+  @include text-primary-color;
+  @include font-family;
+  --app-toolbar-font-size: 24px;
+}
+
+app-drawer-layout:not([narrow]) [drawer-toggle] { 
+  display: none; 
+}
+
+app-drawer-layout:not([narrow]) [drawer-toggle-title] { 
+  display: none; 
+}

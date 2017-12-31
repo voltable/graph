@@ -18,11 +18,9 @@ const (
 
 func main() {
 	flag.Parse()
-
 	mux := http.NewServeMux()
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(static))))
 	mux.Handle("/json/", http.StripPrefix("/json/", http.FileServer(http.Dir(json))))
-
 	mux.Handle("/", handlers.NotFound(handlers.Grpc(handlers.Push(Index()))))
 	logrus.Print("Caudex ", http.ListenAndServeTLS(*httpAddr, "cert.pem", "key.pem", mux))
 }
@@ -36,10 +34,15 @@ func Index() http.Handler {
 const indexHTML = `<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8">
-    <title>Caudex Browser</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+	<title>Caudex Browser</title>
+	<script src="/static/webcomponents-hi-sd-ce.js" nomodule></script>
+	<script src="/static/index.bundle.js"></script>
+	<link rel="stylesheet" media="screen" href="/static/style.css" />
   </head>
   <body>
-  <script rel="preload" type="text/javascript" src="/static/index.bundle.js"></script></body>
+  	<cg-app></cg-app>
+  </body>
 </html>
 `

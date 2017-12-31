@@ -12,7 +12,7 @@
             },
             "presentation": {
                 "reveal": "always",
-                "panel": "new"
+                "panel": "shared"
             }
         },
         {
@@ -26,7 +26,21 @@
             },
             "presentation": {
                 "reveal": "always",
-                "panel": "new"
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "sass build",
+            "type": "shell",
+            "command": "sass ${workspaceFolder}/browser/src/style.scss ${workspaceFolder}/browser/dist/style.css",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
             }
         },
         {
@@ -40,7 +54,7 @@
             },
             "presentation": {
                 "reveal": "always",
-                "panel": "new"
+                "panel": "shared"
             }
         },
         {
@@ -54,7 +68,7 @@
             },
             "presentation": {
                 "reveal": "always",
-                "panel": "new"
+                "panel": "shared"
             }
         }                        
     ]

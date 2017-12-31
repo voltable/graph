@@ -1,0 +1,8 @@
+@import './mixins/palette';
+@import './mixins/typography';
+
+body {
+    margin: 0;
+    @include font-family;
+    @include primary-text-color;
+}

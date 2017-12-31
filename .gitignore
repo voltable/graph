@@ -4,3 +4,5 @@ debug.test
 node_modules
 browser/www/*.*
 browser/www/static/
+browser/dist/
+.sass-cache
