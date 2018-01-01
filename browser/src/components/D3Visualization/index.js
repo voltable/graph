@@ -19,12 +19,10 @@ export default class D3Visualization extends PolymerElement {
     super.connectedCallback();
 
     let canvas = this.$.canvas;
-
     let width = canvas.clientWidth;
     let height = canvas.clientHeight;
 
     let context = canvas.getContext('2d');
-
     canvas.width = width;
     canvas.height = height;
 
