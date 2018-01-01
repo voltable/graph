@@ -19,6 +19,7 @@
     "clean-webpack-plugin": "^0.1.17",
     "copy-webpack-plugin": "^4.3.1",
     "css-loader": "^0.28.7",
+    "d3": "4.12.0",
     "i": "^0.3.6",
     "node-sass": "^4.7.2",
     "npm": "^5.6.0",
@@ -30,7 +31,6 @@
   "dependencies": {
     "@polymer/polymer": "^3.0.0-pre.1",
     "@webcomponents/webcomponentsjs": "^1.0.22",
-    "d3": "^4.12.2",
     "google-protobuf": "^3.5.0"
   },
   "resolutions": {

@@ -11,6 +11,9 @@ import "@polymer/app-layout/app-toolbar/app-toolbar.js";
 import "@polymer/app-layout/app-scroll-effects/app-scroll-effects.js";
 import "@polymer/iron-icon/iron-icon.js";
 
+import '../D3Visualization';
+
+
 import css from './style.scss';
 import template from './template.html';
 
