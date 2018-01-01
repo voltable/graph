@@ -29,13 +29,9 @@ export default class App extends PolymerElement {
 
   constructor() {
     super();
-    this.name = '3.0 preview';
   }
 
   static get properties() {
-    name: {
-      Type: String
-    }
   }
 }
 
