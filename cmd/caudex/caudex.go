@@ -37,9 +37,14 @@ const indexHTML = `<!DOCTYPE html>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
 	<title>Caudex Browser</title>
+	<link rel="stylesheet" media="screen" href="/static/style.css" />
+
+	<!-- Ensure Web Animations polyfill is loaded since neon-animation 2.0 doesn't import it -->
+	<script src="static/web-animations-next-lite.min.js"></script>
+
 	<script src="/static/webcomponents-hi-sd-ce.js" nomodule></script>
 	<script src="/static/index.bundle.js"></script>
-	<link rel="stylesheet" media="screen" href="/static/style.css" />
+
   </head>
   <body>
   	<cg-app></cg-app>

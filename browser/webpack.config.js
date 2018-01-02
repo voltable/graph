@@ -15,6 +15,7 @@ module.exports = {
     new CleanWebpackPlugin(['www/static']),
     new CopyWebpackPlugin([
       { from: path.resolve(__dirname, 'node_modules/@webcomponents/webcomponentsjs/webcomponents-hi-sd-ce.js'), to: 'static/webcomponents-hi-sd-ce.js' },
+      { from: path.resolve(__dirname, 'node_modules/web-animations-js/web-animations-next-lite.min.js'), to: 'static/web-animations-next-lite.min.js' },
       // style.css is built from the VSCode task 'build sass' as webpack is only for ES modules
       { from: path.resolve(__dirname, 'dist/style.css'), to: 'static/style.css' },      
     ])

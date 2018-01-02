@@ -11,13 +11,11 @@ import "@polymer/app-layout/app-toolbar/app-toolbar.js";
 import "@polymer/app-layout/app-scroll-effects/app-scroll-effects.js";
 import "@polymer/iron-icon/iron-icon.js";
 
-import '../D3Visualization';
-import '../query';
 
 import css from './style.scss';
 import template from './template.html';
 
-export default class App extends PolymerElement {
+export default class Query extends PolymerElement {
 
   static get template() {
     return `
@@ -35,4 +33,4 @@ export default class App extends PolymerElement {
   }
 }
 
-customElements.define('cg-app', App);
+customElements.define('cg-query', Query);
