@@ -70,6 +70,20 @@
                 "reveal": "always",
                 "panel": "shared"
             }
-        }                        
+        },
+        {
+            "label": "proto build triple",
+            "type": "shell",
+            "command": "protoc -I=${workspaceFolder}/container/triples/protobuf/ triple.proto --go_out=rpc",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },                     
     ]
 }

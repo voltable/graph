@@ -1,0 +1,9 @@
+syntax = "proto3";
+package rpc;
+import "google/protobuf/any.proto";
+
+message Triple {
+    string row = 1;
+    string column = 2;    
+    google.protobuf.Any value = 3;    
+}

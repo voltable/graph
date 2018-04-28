@@ -3,10 +3,13 @@ package boltdb
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/RossMerr/Caudex.Graph"
+	"github.com/RossMerr/Caudex.Graph/triplestore"
 	"github.com/Sirupsen/logrus"
 	"github.com/boltdb/bolt"
 )
@@ -27,10 +30,18 @@ var (
 
 const (
 	// GraphType the underlying storage, bolt
-	GraphType          = "bolt"
-	bucketGraph bucket = "graph"
-	bucketLabel bucket = "label"
-	bucketIndex bucket = "index"
+	GraphType = "bolt"
+)
+
+var (
+	// TKey primary table for graph
+	TKey = []byte("TKey")
+
+	// TKeyT is the transpose of TKey
+	TKeyT = []byte("TKeyT")
+
+	// Ttxt holds original values
+	Ttxt = []byte("Ttxt")
 )
 
 type (
@@ -57,12 +68,17 @@ func createBolt(o *graph.Options) *bolt.DB {
 
 	// create the bucket to hold the Adjacency list.
 	db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists([]byte(bucketGraph))
+		_, err := tx.CreateBucketIfNotExists(TKey)
 		if err != nil {
 			logrus.Panic(err)
 		}
 
-		_, err = tx.CreateBucketIfNotExists([]byte(bucketIndex))
+		_, err = tx.CreateBucketIfNotExists(TKeyT)
+		if err != nil {
+			logrus.Panic(err)
+		}
+
+		_, err = tx.CreateBucketIfNotExists(Ttxt)
 		if err != nil {
 			logrus.Panic(err)
 		}
@@ -75,16 +91,23 @@ func createBolt(o *graph.Options) *bolt.DB {
 
 // Create adds a array of vertices to the persistence
 func (se *StorageEngine) Create(c ...*graph.Vertex) error {
-	var err error
-	var buf []byte
 	return se.db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(bucketGraph))
-		for _, vertex := range c {
-			if buf, err = json.Marshal(vertex); err != nil {
-				b.Put([]byte(vertex.ID()), buf)
-			} else {
-				return err
-			}
+		b := tx.Bucket(TKey)
+		triples := triplestore.Marshal(c...)
+		var errstrings []string
+		for _, t := range triples {
+			buf := []byte(t.Column)
+			b.Put([]byte(buf), buf)
+			// if buf, err = []byte(t); err != nil {
+			// 	if err = b.Put([]byte(t.Row), buf); err != nil {
+			// 		errstrings = append(errstrings, err.Error())
+			// 	}
+			// } else {
+			// 	errstrings = append(errstrings, err.Error())
+			// }
+		}
+		if len(errstrings) > 0 {
+			return fmt.Errorf(strings.Join(errstrings, "\n"))
 		}
 		return nil
 	})
@@ -93,7 +116,7 @@ func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 // Delete the array of vertices from the persistence
 func (se *StorageEngine) Delete(c ...*graph.Vertex) error {
 	return se.db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(bucketGraph))
+		b := tx.Bucket(TKey)
 		for _, vertex := range c {
 			b.Delete([]byte(vertex.ID()))
 		}
@@ -107,7 +130,7 @@ func (se *StorageEngine) Find(ID string) (*graph.Vertex, error) {
 	var buf []byte
 	var v graph.Vertex
 	return &v, se.db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(bucketGraph))
+		b := tx.Bucket(TKey)
 		buf = b.Get([]byte(ID))
 
 		if err = json.Unmarshal(buf, v); err == nil {
@@ -123,7 +146,7 @@ func (se *StorageEngine) Update(c ...*graph.Vertex) error {
 	var err error
 	var buf []byte
 	return se.db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(bucketGraph))
+		b := tx.Bucket(TKey)
 		for _, vertex := range c {
 			if buf, err = json.Marshal(vertex); err != nil {
 				b.Put([]byte(vertex.ID()), buf)

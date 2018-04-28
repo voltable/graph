@@ -66,6 +66,10 @@ func (e *Edge) PropertiesCount() int {
 	return len(e.properties)
 }
 
+func (e *Edge) Properties() map[string]interface{} {
+	return e.properties
+}
+
 func (a Edges) Len() int           { return len(a) }
 func (a Edges) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a Edges) Less(i, j int) bool { return a[i].Weight > a[j].Weight }

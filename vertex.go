@@ -65,6 +65,10 @@ func (v *Vertex) PropertiesCount() int {
 	return len(v.properties)
 }
 
+func (v *Vertex) Properties() map[string]interface{} {
+	return v.properties
+}
+
 // ID returns the generate UUID
 func (v *Vertex) ID() string {
 	return v.id
