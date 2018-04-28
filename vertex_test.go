@@ -23,11 +23,11 @@ func Test_NewVertex(t *testing.T) {
 	}
 
 	if v.ID() == "" {
-		t.Fatalf("Expected ID to be set but was %s", v.ID)
+		t.Fatalf("Expected ID to be set but was %+v", v.ID())
 	}
 
 	if v.Edges() == nil {
-		t.Fatalf("Expected edges to be set but was %s", v.Edges())
+		t.Fatalf("Expected edges to be set but was %+v", v.Edges())
 	}
 
 }
@@ -44,13 +44,13 @@ func Test_AddDirectedEdge(t *testing.T) {
 	results := vertex.Edges()
 
 	if len(results) != 1 {
-		t.Fatalf("Expected 1 edge but was %s", len(results))
+		t.Fatalf("Expected 1 edge but was %+v", len(results))
 	}
 
 	results2 := vertexDirection.Edges()
 
 	if len(results2) != 0 {
-		t.Fatalf("Expected 0 edge but was %s", len(results2))
+		t.Fatalf("Expected 0 edge but was %+v", len(results2))
 	}
 }
 
