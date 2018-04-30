@@ -1,5 +1,5 @@
 syntax = "proto3";
-package triples;
+package triplestore;
 
 message Triple {
     string row = 1;
