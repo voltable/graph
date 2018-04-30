@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/triplestore"
+	"github.com/RossMerr/Caudex.Graph/triplestore/store64"
 	"github.com/Sirupsen/logrus"
 	"github.com/boltdb/bolt"
 )
@@ -93,7 +93,7 @@ func createBolt(o *graph.Options) *bolt.DB {
 func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 	return se.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket(TKey)
-		triples := triplestore.Marshal(c...)
+		triples := store64.Marshal(c...)
 		var errstrings []string
 		for _, t := range triples {
 			buf := []byte(t.Column)
