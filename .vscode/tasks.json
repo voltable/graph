@@ -74,7 +74,7 @@
         {
             "label": "proto build triple",
             "type": "shell",
-            "command": "protoc -I=${workspaceFolder}/container/triples/proto/ ${workspaceFolder}/container/triples/proto/triple.proto --go_out=${workspaceFolder}/container/triples/",
+            "command": "protoc -I=${workspaceFolder}/triplestore/proto/ ${workspaceFolder}/triplestore/proto/triple.proto --go_out=${workspaceFolder}/triplestore/",
             "problemMatcher": [],
             "group": {
                 "kind": "build",

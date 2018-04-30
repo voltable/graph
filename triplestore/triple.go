@@ -1,11 +1,8 @@
-package triples
+package triplestore
 
 import (
 	"bytes"
 	"encoding/binary"
-	"errors"
-	"fmt"
-	"io"
 	"math"
 	"reflect"
 
@@ -37,15 +34,33 @@ func init() {
 func NewAny(i interface{}) (*Any, error) {
 	t := reflect.TypeOf(i)
 
-	buf := new(bytes.Buffer)
-	err := write(buf, binary.LittleEndian, i)
-	//err := binary.Write(buf, binary.BigEndian, i)
-	if err != nil {
-		return nil, err
+	// floats are not supported by the binary.Write 😕
+	var b [8]byte
+	var bs []byte
+	n := intDataSize(i)
+	if n > len(b) {
+		bs = make([]byte, n)
+	} else {
+		bs = b[:n]
+	}
+
+	if f, ok := i.(float32); ok {
+		float32ToByte(bs, f)
+	} else if f, ok := i.(float64); ok {
+		float64ToByte(bs, f)
+	} else {
+		buf := new(bytes.Buffer)
+		err := binary.Write(buf, binary.LittleEndian, i)
+
+		if err != nil {
+			return nil, err
+		}
+
+		bs = buf.Bytes()
 	}
 
 	any := &Any{
-		Value: buf.Bytes(),
+		Value: bs,
 		Type:  t.Name(),
 	}
 	return any, nil
@@ -105,110 +120,18 @@ func Transpose(tt []*Triple) []*Triple {
 }
 
 func (s *Any) Interface() (interface{}, error) {
-	i := makeInstance(s.Type)
-	//i := float64(0)
+	i := typeRegister[s.Type]
+	v := reflect.New(i).Elem()
+
+	if i == reflect.TypeOf(float32(0)) {
+		return bytesToFloat32(s.Value), nil
+	} else if i == reflect.TypeOf(float64(0)) {
+		return bytesToFloat64(s.Value), nil
+	}
+
 	r := bytes.NewReader(s.Value)
-	err := read(r, binary.LittleEndian, i)
-	fmt.Printf("\nfloat64 %+v", i)
-	//err := binary.Read(r, binary.BigEndian, i)
-	return i, err
-}
-
-func makeInstance(name string) interface{} {
-	//t := typeRegister[name]
-	f := float64(5)
-	t := reflect.TypeOf(f)
-	v := reflect.New(t)
-
-	if f, err := extractFloat64(v); err == nil {
-		return f
-	}
-
-	return v.Interface()
-}
-
-func extractFloat64(v reflect.Value) (float64, error) {
-	if v.Kind() != reflect.Float64 {
-		return float64(0), errors.New("Invalid input")
-	}
-	var floatVal float64
-	floatVal = v.Float()
-	return floatVal, nil
-}
-
-func write(w io.Writer, order binary.ByteOrder, data interface{}) error {
-	if n := intDataSize(data); n != 0 {
-		var b [8]byte
-		var bs []byte
-		if n > len(b) {
-			bs = make([]byte, n)
-		} else {
-			bs = b[:n]
-		}
-		switch v := data.(type) {
-
-		case *float32:
-			float32ToByte(bs, float32(*v))
-		case float32:
-			float32ToByte(bs, float32(v))
-		case []float32:
-			for i, x := range v {
-				float32ToByte(bs[4*i:], float32(x))
-			}
-		case *float64:
-			float64ToByte(bs, float64(*v))
-		case float64:
-			float64ToByte(bs, float64(v))
-		case []float64:
-			for i, x := range v {
-				float64ToByte(bs[8*i:], float64(x))
-			}
-		}
-		_, err := w.Write(bs)
-		return err
-	}
-
-	return binary.Write(w, order, data)
-
-}
-
-// A internal read to get support for floats
-func read(r io.Reader, order binary.ByteOrder, data interface{}) error {
-	if n := intDataSize(data); n != 0 {
-		var b [8]byte
-		var bs []byte
-		if n > len(b) {
-			bs = make([]byte, n)
-		} else {
-			bs = b[:n]
-		}
-		if _, err := io.ReadFull(r, bs); err != nil {
-			return err
-		}
-		switch data := data.(type) {
-		case *float32:
-			*data = bytesToFloat32(bs)
-		case *float64:
-			fmt.Printf("\nfloat64 %+v", data)
-			*data = bytesToFloat64(bs)
-			fmt.Printf("\nfloat64 %+v", data)
-		case float64:
-			fmt.Printf("\nfloat64 %+v", data)
-			data = bytesToFloat64(bs)
-			fmt.Printf("\nfloat64 %+v", data)
-		case []float32:
-			for i := range data {
-				data[i] = bytesToFloat32(bs[4*i:])
-			}
-		case []float64:
-			for i := range data {
-				data[i] = bytesToFloat64(bs[8*i:])
-			}
-		}
-		return nil
-	}
-
-	return binary.Read(r, order, data)
+	err := binary.Read(r, binary.LittleEndian, &v)
+	return v, err
 }
 
 func float64ToByte(b []byte, f float64) {

@@ -1,14 +1,13 @@
-package triples_test
+package triplestore_test
 
 import (
 	"encoding/binary"
-	fmt "fmt"
 	"math"
 	"strings"
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph/container/table"
-	"github.com/RossMerr/Caudex.Graph/container/triples"
+	triples "github.com/RossMerr/Caudex.Graph/triplestore"
 	proto "github.com/golang/protobuf/proto"
 )
 
@@ -88,7 +87,8 @@ func TestNewTripleFromTable(t *testing.T) {
 }
 
 func Test_Proto(t *testing.T) {
-	any, _ := triples.NewAny(float64(5))
+	v := float64(5)
+	any, _ := triples.NewAny(v)
 
 	triple := &triples.Triple{Row: "1", Column: "2", Value: any}
 
@@ -102,10 +102,10 @@ func Test_Proto(t *testing.T) {
 		t.Errorf("Failed to parse address book: %+v", err)
 	}
 
-	fmt.Printf("tripe: %+v", out)
-	i, err := out.Value.Interface()
-
-	fmt.Printf("\nfloat64: %+v", i)
+	found, _ := out.Value.Interface()
+	if found != v {
+		t.Errorf("%+v got %+v, want %+v", "float64", found, v)
+	}
 
 }
 

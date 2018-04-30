@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/RossMerr/Caudex.Graph/container/triples"
+	triples "github.com/RossMerr/Caudex.Graph/triplestore"
 	GraphBLAS "github.com/RossMerr/Caudex.GraphBLAS"
 )
 

@@ -11,7 +11,7 @@ It has these top-level messages:
 	Triple
 	Any
 */
-package triples
+package triplestore
 
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
