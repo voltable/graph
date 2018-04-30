@@ -7,7 +7,7 @@ import (
 	"math"
 	"strconv"
 
-	triples "github.com/RossMerr/Caudex.Graph/triplestore"
+	triples "github.com/RossMerr/Caudex.Graph/triplestore/store64"
 	GraphBLAS "github.com/RossMerr/Caudex.GraphBLAS"
 )
 
@@ -110,15 +110,10 @@ func (s *Reader) ReadToTriples() ([]*triples.Triple, error) {
 			return tt, err
 		}
 
-		a := &triples.Any{
-			Value: float64ToByte(value),
-			Type:  "float64",
-		}
-
 		tt = append(tt, &triples.Triple{
 			Row:    strconv.Itoa(r),
 			Column: strconv.Itoa(c),
-			Value:  a,
+			Value:  value,
 		})
 
 	}

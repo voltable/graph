@@ -1,0 +1,9 @@
+syntax = "proto3";
+package storeStr;
+
+message Triple {
+    string row = 1;
+    string column = 2;    
+    string value = 3;    
+}
+

@@ -9,7 +9,7 @@ type (
 		id         string
 		isDirected Digraph
 		// Weight of a path in a weighted graph
-		Weight           float32
+		Weight           float64
 		relationshipType string
 		properties       map[string]interface{}
 	}

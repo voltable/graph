@@ -4,7 +4,7 @@ import graph "github.com/RossMerr/Caudex.Graph"
 
 type FrontierQueue struct {
 	Parts []FrontierProperties
-	Cost  float32
+	Cost  float64
 }
 
 // FrontierProperties containers a vertex or edge it's Variable used by a query
@@ -45,7 +45,7 @@ func (f *Frontier) Clear() {
 }
 
 // Append adds the vertices onto the frontier
-func (f *Frontier) append(vertices []FrontierProperties, cost float32) {
+func (f *Frontier) append(vertices []FrontierProperties, cost float64) {
 	fp := &FrontierQueue{vertices, cost}
 	f.Values = append(f.Values, fp)
 }
@@ -59,7 +59,7 @@ func (f *Frontier) AppendVertex(queue *FrontierQueue, v *graph.Vertex, variable 
 	f.append(append(queue.Parts, fv), queue.Cost)
 }
 
-func (f *Frontier) AppendEdgeAndVertex(queue *FrontierQueue, e *graph.Edge, v *graph.Vertex, variable string, weight float32) {
+func (f *Frontier) AppendEdgeAndVertex(queue *FrontierQueue, e *graph.Edge, v *graph.Vertex, variable string, weight float64) {
 	fe := FrontierProperties{Object: e, Variable: variable}
 	fv := FrontierProperties{Object: v, Variable: variable}
 	parts := append(queue.Parts, fe)

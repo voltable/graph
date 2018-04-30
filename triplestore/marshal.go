@@ -4,39 +4,37 @@ import (
 	"fmt"
 
 	graph "github.com/RossMerr/Caudex.Graph"
+	"github.com/RossMerr/Caudex.Graph/triplestore/store64"
 )
 
 var Delimiter = '|'
 
-func Marshal(c ...*graph.Vertex) []*Triple {
-	tt := []*Triple{}
+func Marshal(c ...*graph.Vertex) []*store64.Triple {
+	tt := []*store64.Triple{}
 	for _, v := range c {
 		for k, p := range v.Properties() {
-			a, _ := NewAny(float64(1))
-			t := &Triple{
+			t := &store64.Triple{
 				Row:    k + string(Delimiter) + v.ID(),
 				Column: fmt.Sprint(p),
-				Value:  a,
+				Value:  float64(1),
 			}
 			tt = append(tt, t)
 		}
 
 		for _, e := range v.Edges() {
-			a, _ := NewAny(e.Weight)
-			t := &Triple{
+			t := &store64.Triple{
 				Row:    e.RelationshipType() + string(Delimiter) + v.ID(),
 				Column: fmt.Sprint(e.ID()),
-				Value:  a,
+				Value:  e.Weight,
 			}
 			tt = append(tt, t)
 
 			for k, p := range e.Properties() {
 
-				a, _ := NewAny(float64(1))
-				t := &Triple{
+				t := &store64.Triple{
 					Row:    k + string(Delimiter) + e.RelationshipType() + string(Delimiter) + v.ID(),
 					Column: fmt.Sprint(p),
-					Value:  a,
+					Value:  float64(1),
 				}
 				tt = append(tt, t)
 			}

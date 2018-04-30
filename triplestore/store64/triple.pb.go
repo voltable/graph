@@ -11,7 +11,7 @@ It has these top-level messages:
 	Triple
 	Any
 */
-package triplestore
+package store64
 
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
@@ -29,9 +29,9 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type Triple struct {
-	Row    string `protobuf:"bytes,1,opt,name=row" json:"row,omitempty"`
-	Column string `protobuf:"bytes,2,opt,name=column" json:"column,omitempty"`
-	Value  *Any   `protobuf:"bytes,3,opt,name=value" json:"value,omitempty"`
+	Row    string  `protobuf:"bytes,1,opt,name=row" json:"row,omitempty"`
+	Column string  `protobuf:"bytes,2,opt,name=column" json:"column,omitempty"`
+	Value  float64 `protobuf:"bytes,3,opt,name=value" json:"value,omitempty"`
 }
 
 func (m *Triple) Reset()                    { *m = Triple{} }
@@ -53,40 +53,15 @@ func (m *Triple) GetColumn() string {
 	return ""
 }
 
-func (m *Triple) GetValue() *Any {
+func (m *Triple) GetValue() float64 {
 	if m != nil {
 		return m.Value
 	}
-	return nil
-}
-
-type Any struct {
-	Type  string `protobuf:"bytes,1,opt,name=type" json:"type,omitempty"`
-	Value []byte `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
-}
-
-func (m *Any) Reset()                    { *m = Any{} }
-func (m *Any) String() string            { return proto.CompactTextString(m) }
-func (*Any) ProtoMessage()               {}
-func (*Any) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
-
-func (m *Any) GetType() string {
-	if m != nil {
-		return m.Type
-	}
-	return ""
-}
-
-func (m *Any) GetValue() []byte {
-	if m != nil {
-		return m.Value
-	}
-	return nil
+	return 0.0
 }
 
 func init() {
 	proto.RegisterType((*Triple)(nil), "triples.Triple")
-	proto.RegisterType((*Any)(nil), "triples.Any")
 }
 
 func init() { proto.RegisterFile("triple.proto", fileDescriptor0) }

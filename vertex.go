@@ -135,11 +135,11 @@ func (v *Vertex) AddDirectedEdge(to *Vertex) (*Edge, error) {
 
 // AddEdge links two vertex's and returns the edge
 func (v *Vertex) AddEdge(to *Vertex) (*Edge, *Edge, error) {
-	return v.AddEdgeWeight(to, float32(0))
+	return v.AddEdgeWeight(to, float64(0))
 }
 
 // AddEdgeWeight links two vertex's with a weight and returns the edge
-func (v *Vertex) AddEdgeWeight(to *Vertex, weight float32) (*Edge, *Edge, error) {
+func (v *Vertex) AddEdgeWeight(to *Vertex, weight float64) (*Edge, *Edge, error) {
 	if to.id == EmptyString {
 		return nil, nil, errIdNotSet
 	}
