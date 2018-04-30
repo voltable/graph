@@ -72,9 +72,9 @@
             }
         },
         {
-            "label": "proto build triple",
+            "label": "proto build store64",
             "type": "shell",
-            "command": "protoc -I='${workspaceFolder}/triplestore/proto' triple.proto --go_out='${workspaceFolder}/triplestore'",
+            "command": "protoc -I=${workspaceFolder}/triplestore/proto store64.proto --go_out=${workspaceFolder}/triplestore/store64",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
@@ -84,5 +84,20 @@
                 "reveal": "always",
                 "panel": "shared"
             }
-        },                     
+        },   
+        {
+            "label": "proto build storeStr",
+            "type": "shell",
+            "command": "protoc -I=${workspaceFolder}/triplestore/proto storeStr.proto --go_out=${workspaceFolder}/triplestore/storeStr",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },          
+    ]                 
 }
