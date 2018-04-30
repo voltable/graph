@@ -1,9 +1,4 @@
-// Copyright (c) 2018 Ross Merrigan
-//
-// This software is released under the MIT License.
-// https://opensource.org/licenses/MIT
-
-package mmio_test
+package tsv_test
 
 import (
 	"reflect"
@@ -11,24 +6,21 @@ import (
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph/container/triples"
-
-	"github.com/RossMerr/Caudex.Graph/encoding/mmio"
+	"github.com/RossMerr/Caudex.Graph/encoding/tsv"
 	GraphBLAS "github.com/RossMerr/Caudex.GraphBLAS"
 )
 
-func TestMMIO_ReadToMatrix(t *testing.T) {
+func TestTSV_ReadToMatrix(t *testing.T) {
 	tests := []struct {
 		name string
 		in   string
 		want GraphBLAS.Matrix
 	}{
 		{
-			name: "Matrix Market sparse ",
-			in: `%%MatrixMarket matrix coordinate real general
-			3 3 3
-			1 1 10
-3 3 8
-2 2 3`,
+			name: "Tab-Separated Values Read Raw",
+			in: `"1"	"1"	10
+3	3	8
+"2"	"2"	"3"`,
 			want: func() GraphBLAS.Matrix {
 				matrix := make([][]float64, 3)
 				matrix[0] = make([]float64, 3)
@@ -43,7 +35,7 @@ func TestMMIO_ReadToMatrix(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := mmio.NewReader(strings.NewReader(tt.in))
+			r := tsv.NewReader(strings.NewReader(tt.in))
 
 			if got, err := r.ReadToMatrix(); err == nil {
 
@@ -62,19 +54,17 @@ func TestMMIO_ReadToMatrix(t *testing.T) {
 	}
 }
 
-func TestMMIO_ReadToTriples(t *testing.T) {
+func TestTSV_ReadToTriples(t *testing.T) {
 	tests := []struct {
 		name string
 		in   string
 		want []*triples.Triple
 	}{
 		{
-			name: "Matrix Market sparse",
-			in: `%%MatrixMarket matrix coordinate real general
-			3 3 3
-			1 1 10
-3 3 8
-2 2 3`,
+			name: "Tab-Separated Values Read Raw",
+			in: `"1"	"1"	10
+3	3	8
+"2"	"2"	"3"`,
 			want: func() []*triples.Triple {
 				triples := []*triples.Triple{
 					&triples.Triple{
@@ -93,13 +83,14 @@ func TestMMIO_ReadToTriples(t *testing.T) {
 						Value:  float64(3),
 					},
 				}
+
 				return triples
 			}(),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := mmio.NewReader(strings.NewReader(tt.in))
+			r := tsv.NewReader(strings.NewReader(tt.in))
 			if got, err := r.ReadToTriples(); err == nil {
 				if len(tt.want) == len(got) {
 					for i := 0; i < len(tt.want); i++ {

@@ -1,13 +1,10 @@
-// Copyright (c) 2018 Ross Merrigan
-//
-// This software is released under the MIT License.
-// https://opensource.org/licenses/MIT
-
 package tsv
 
 import (
+	"encoding/binary"
 	"encoding/csv"
 	"io"
+	"math"
 	"strconv"
 
 	"github.com/RossMerr/Caudex.Graph/container/triples"
@@ -113,11 +110,22 @@ func (s *Reader) ReadToTriples() ([]*triples.Triple, error) {
 			return tt, err
 		}
 
+		a := &triples.Any{
+			Value: float64ToByte(value),
+			Type:  "float64",
+		}
+
 		tt = append(tt, &triples.Triple{
 			Row:    strconv.Itoa(r),
 			Column: strconv.Itoa(c),
-			Value:  value,
+			Value:  a,
 		})
 
 	}
+}
+
+func float64ToByte(f float64) []byte {
+	var buf [8]byte
+	binary.BigEndian.PutUint64(buf[:], math.Float64bits(f))
+	return buf[:]
 }

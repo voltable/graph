@@ -1,16 +1,15 @@
-// Copyright (c) 2018 Ross Merrigan
-//
-// This software is released under the MIT License.
-// https://opensource.org/licenses/MIT
-
 package triples_test
 
 import (
+	"encoding/binary"
+	fmt "fmt"
+	"math"
 	"strings"
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph/container/table"
 	"github.com/RossMerr/Caudex.Graph/container/triples"
+	proto "github.com/golang/protobuf/proto"
 )
 
 func TestNewTripleFromTable(t *testing.T) {
@@ -86,4 +85,32 @@ func TestNewTripleFromTable(t *testing.T) {
 			}
 		})
 	}
+}
+
+func Test_Proto(t *testing.T) {
+	any, _ := triples.NewAny(float64(5))
+
+	triple := &triples.Triple{Row: "1", Column: "2", Value: any}
+
+	in, err := proto.Marshal(triple)
+	if err != nil {
+		t.Errorf("Failed to encode address book: %+v", err)
+	}
+
+	out := &triples.Triple{}
+	if err := proto.Unmarshal(in, out); err != nil {
+		t.Errorf("Failed to parse address book: %+v", err)
+	}
+
+	fmt.Printf("tripe: %+v", out)
+	i, err := out.Value.Interface()
+
+	fmt.Printf("\nfloat64: %+v", i)
+
+}
+
+func float64ToByte(f float64) []byte {
+	var buf [8]byte
+	binary.BigEndian.PutUint64(buf[:], math.Float64bits(f))
+	return buf[:]
 }

@@ -46,7 +46,7 @@
         {
             "label": "proto build",
             "type": "shell",
-            "command": "protoc -I=${workspaceFolder}/rpc/protobuf/ vertex.proto --go_out=plugins=grpc:rpc",
+            "command": "protoc -I=${workspaceFolder}/rpc/proto/ vertex.proto --go_out=plugins=grpc:rpc",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
@@ -60,7 +60,7 @@
         {
             "label": "proto build client",
             "type": "shell",
-            "command": "protoc -I=${workspaceFolder}/rpc/protobuf/ vertex.proto --js_out=import_style=commonjs,binary:browser/src/rpc",
+            "command": "protoc -I=${workspaceFolder}/rpc/proto/ vertex.proto --js_out=import_style=commonjs,binary:browser/src/rpc",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
@@ -74,7 +74,7 @@
         {
             "label": "proto build triple",
             "type": "shell",
-            "command": "protoc -I=${workspaceFolder}/container/triples/protobuf/ triple.proto --go_out=rpc",
+            "command": "protoc -I=${workspaceFolder}/container/triples/proto/ ${workspaceFolder}/container/triples/proto/triple.proto --go_out=${workspaceFolder}/container/triples/",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
