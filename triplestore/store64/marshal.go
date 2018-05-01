@@ -6,15 +6,21 @@ import (
 	graph "github.com/RossMerr/Caudex.Graph"
 )
 
+// Delimiter used for triplestore column
 var Delimiter = '|'
 
 const (
-	Vertex           = "v"
+	// Vertex prefix used triplestore column
+	Vertex = "v"
+	// VertexProperties prefix used triplestore column
 	VertexProperties = "p"
-	Edge             = "e"
-	EdgeProperties   = "k"
+	// Edge prefix used triplestore column
+	Edge = "e"
+	// EdgeProperties prefix used triplestore column
+	EdgeProperties = "k"
 )
 
+// Marshal a Vertex into triples
 func Marshal(c ...*graph.Vertex) []*Triple {
 	delimiter := string(Delimiter)
 	tt := []*Triple{}
