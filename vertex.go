@@ -128,7 +128,7 @@ func (v *Vertex) AddDirectedEdge(to *Vertex) (*Edge, error) {
 		return nil, errIdNotSet
 	}
 
-	edge := &Edge{id: to.id, isDirected: Directed}
+	edge := &Edge{id: to.id, isDirected: Directed, properties: make(map[string]interface{})}
 	v.edges[edge.id] = edge
 	return edge, nil
 }
@@ -144,14 +144,14 @@ func (v *Vertex) AddEdgeWeight(to *Vertex, weight float64) (*Edge, *Edge, error)
 		return nil, nil, errIdNotSet
 	}
 
-	edge := &Edge{id: to.id, isDirected: Undirected, Weight: weight}
+	edge := &Edge{id: to.id, isDirected: Undirected, Weight: weight, properties: make(map[string]interface{})}
 	v.edges[edge.id] = edge
 
 	if v.id == EmptyString {
 		return nil, nil, errIdNotSet
 	}
 
-	edge2 := &Edge{id: v.id, isDirected: Undirected, Weight: weight}
+	edge2 := &Edge{id: v.id, isDirected: Undirected, Weight: weight, properties: make(map[string]interface{})}
 	to.edges[edge2.id] = edge2
 	return edge, edge2, nil
 }

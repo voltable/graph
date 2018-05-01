@@ -4,6 +4,11 @@ import (
 	"github.com/RossMerr/Caudex.Graph/container/table"
 )
 
+// NewTriple returns a store64.Triple
+func NewTriple(r, c string, value float64) *Triple {
+	return &Triple{Row: r, Column: c, Value: value}
+}
+
 // NewTriplesFromTable returns a []*Triple
 func NewTriplesFromTable(t table.Table) []*Triple {
 	tt := make([]*Triple, 0)
