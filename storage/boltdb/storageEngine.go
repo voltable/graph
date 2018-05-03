@@ -12,6 +12,7 @@ import (
 	"github.com/RossMerr/Caudex.Graph/triplestore/store64"
 	"github.com/Sirupsen/logrus"
 	"github.com/boltdb/bolt"
+	"github.com/gogo/protobuf/proto"
 )
 
 func init() {
@@ -92,19 +93,25 @@ func createBolt(o *graph.Options) *bolt.DB {
 // Create adds a array of vertices to the persistence
 func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 	return se.db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket(TKey)
+		bucketTKey := tx.Bucket(TKey)
+		bucketTKeyT := tx.Bucket(TKeyT)
 		triples := store64.Marshal(c...)
+		transposes := store64.Transpose(triples)
 		var errstrings []string
-		for _, t := range triples {
-			buf := []byte(t.Column)
-			b.Put([]byte(buf), buf)
-			// if buf, err = []byte(t); err != nil {
-			// 	if err = b.Put([]byte(t.Row), buf); err != nil {
-			// 		errstrings = append(errstrings, err.Error())
-			// 	}
-			// } else {
-			// 	errstrings = append(errstrings, err.Error())
-			// }
+		for i := 0; i < len(triples); i++ {
+			triple := triples[i]
+			if bytes, err := proto.Marshal(triple); err != nil {
+				errstrings = append(errstrings, err.Error())
+			} else {
+				bucketTKey.Put([]byte(triple.Row), bytes)
+			}
+
+			transpose := transposes[i]
+			if bytes, err := proto.Marshal(transpose); err != nil {
+				errstrings = append(errstrings, err.Error())
+			} else {
+				bucketTKeyT.Put([]byte(transpose.Row), bytes)
+			}
 		}
 		if len(errstrings) > 0 {
 			return fmt.Errorf(strings.Join(errstrings, "\n"))
