@@ -1,6 +1,7 @@
 package boltdb
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,9 +10,9 @@ import (
 	"time"
 
 	"github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/triplestore/store64"
+	"github.com/RossMerr/Caudex.Graph/storage/keyValue"
 	"github.com/Sirupsen/logrus"
-	"github.com/boltdb/bolt"
+	bolt "github.com/coreos/bbolt"
 	"github.com/gogo/protobuf/proto"
 )
 
@@ -95,22 +96,21 @@ func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 	return se.db.Update(func(tx *bolt.Tx) error {
 		bucketTKey := tx.Bucket(TKey)
 		bucketTKeyT := tx.Bucket(TKeyT)
-		triples := store64.Marshal(c...)
-		transposes := store64.Transpose(triples)
+		triples := keyValue.Marshal(c...)
+		transposes := keyValue.MarshalTranspose(c...)
 		var errstrings []string
 		for i := 0; i < len(triples); i++ {
 			triple := triples[i]
-			if bytes, err := proto.Marshal(triple); err != nil {
+
+			buf, _ := proto.Marshal(triple.Value)
+			if err := bucketTKey.Put(triple.Key, buf); err != nil {
 				errstrings = append(errstrings, err.Error())
-			} else {
-				bucketTKey.Put([]byte(triple.Row), bytes)
 			}
 
 			transpose := transposes[i]
-			if bytes, err := proto.Marshal(transpose); err != nil {
+			buf, _ = proto.Marshal(transpose.Value)
+			if err := bucketTKeyT.Put(transpose.Key, buf); err != nil {
 				errstrings = append(errstrings, err.Error())
-			} else {
-				bucketTKeyT.Put([]byte(transpose.Row), bytes)
 			}
 		}
 		if len(errstrings) > 0 {
@@ -123,9 +123,25 @@ func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 // Delete the array of vertices from the persistence
 func (se *StorageEngine) Delete(c ...*graph.Vertex) error {
 	return se.db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket(TKey)
-		for _, vertex := range c {
-			b.Delete([]byte(vertex.ID()))
+		bucketTKey := tx.Bucket(TKey)
+		bucketTKeyT := tx.Bucket(TKeyT)
+		triples := keyValue.Marshal(c...)
+		transposes := keyValue.MarshalTranspose(c...)
+		var errstrings []string
+
+		for i := 0; i < len(triples); i++ {
+			triple := triples[i]
+			if err := bucketTKey.Delete(triple.Key); err != nil {
+				errstrings = append(errstrings, err.Error())
+			}
+
+			transpose := transposes[i]
+			if err := bucketTKeyT.Delete(transpose.Key); err != nil {
+				errstrings = append(errstrings, err.Error())
+			}
+		}
+		if len(errstrings) > 0 {
+			return fmt.Errorf(strings.Join(errstrings, "\n"))
 		}
 		return nil
 	})
@@ -133,18 +149,49 @@ func (se *StorageEngine) Delete(c ...*graph.Vertex) error {
 
 // Find a vertex from the persistence
 func (se *StorageEngine) Find(ID string) (*graph.Vertex, error) {
-	var err error
+	//var err error
 	var buf []byte
 	var v graph.Vertex
 	return &v, se.db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket(TKey)
-		buf = b.Get([]byte(ID))
+		// b := tx.Bucket(TKey)
+		// buf = b.Get([]byte(ID))
 
-		if err = json.Unmarshal(buf, v); err == nil {
-			return nil
+		// if err = json.Unmarshal(buf, v); err == nil {
+		// 	return nil
+		// }
+
+		// return err
+
+		//c := tx.Bucket([]byte("MyBucket")).Cursor()
+
+		bucketTKey := tx.Bucket(TKey)
+		c := bucketTKey.Cursor()
+
+		prefix := []byte(ID)
+		for k, v := c.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, v = c.Next() {
+			fmt.Printf("key=%s, value=%s\n", k, v)
 		}
 
-		return err
+		bucketTKeyT := tx.Bucket(TKeyT)
+		//triples := store64.Unarshal(c...)
+		//transposes := store64.Transpose(triples)
+		//var errstrings []string
+
+		byteID := []byte(ID)
+		buf = bucketTKey.Get(byteID)
+
+		// if err := ; err != nil {
+		// 	errstrings = append(errstrings, err.Error())
+		// }
+
+		buf = bucketTKeyT.Get(byteID)
+
+		// transpose := transposes[i]
+		// if err := bucketTKeyT.Get([]byte(transpose.Row)); err != nil {
+		// 	errstrings = append(errstrings, err.Error())
+		// }
+
+		return nil
 	})
 }
 

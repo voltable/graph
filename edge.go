@@ -1,12 +1,11 @@
 package graph
 
-import uuid "github.com/hashicorp/go-uuid"
 import "strings"
 
 type (
 	// An Edge connects two Vertex in a graph.
 	Edge struct {
-		id         string
+		id         VertexID
 		isDirected Digraph
 		// Weight of a path in a weighted graph
 		Weight           float64
@@ -22,10 +21,10 @@ var _ Properties = (*Edge)(nil)
 
 // NewEdge build a new edge with a id
 func NewEdge() (*Edge, error) {
-	var id string
+	var id VertexID
 	var err error
 
-	if id, err = uuid.GenerateUUID(); err != nil {
+	if id, err = generateRandomBytes(); err != nil {
 		return nil, errCreatVertexID
 	}
 
@@ -35,7 +34,7 @@ func NewEdge() (*Edge, error) {
 
 // ID returns the generate UUID
 func (e *Edge) ID() string {
-	return e.id
+	return formatUUID(e.id)
 }
 
 // RelationshipType the type of relationship

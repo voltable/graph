@@ -98,6 +98,20 @@
                 "reveal": "always",
                 "panel": "shared"
             }
-        },          
+        },      
+        {
+            "label": "proto build keyValue",
+            "type": "shell",
+            "command": "protoc -I=${workspaceFolder}/storage/proto keyValue.proto --go_out=${workspaceFolder}/storage/keyValue",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },    
     ]                 
 }

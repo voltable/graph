@@ -1,0 +1,12 @@
+syntax = "proto3";
+package keyValue;
+
+message KeyValue {
+    bytes key = 1;
+    Any value = 2;   
+}
+
+message Any {
+    string TypeUrl = 1;
+    bytes value = 2;   
+}
