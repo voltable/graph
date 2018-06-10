@@ -1,4 +1,4 @@
-package keyValue
+package keyvalue
 
 import (
 	"fmt"
@@ -7,11 +7,12 @@ import (
 )
 
 const (
-	// Delimiter used for KeyValue column
-	delimiter    = "|"
 	label        = "l"
 	properties   = "p"
 	relationship = "r"
+
+	// US unit separator can be used as delimiters to mark fields of data structures. If used for hierarchical levels, US is the lowest level (dividing plain-text data items)
+	US = string('\u241F')
 )
 
 // Marshal a Vertex into triples
@@ -19,7 +20,7 @@ func Marshal(c ...*graph.Vertex) []*KeyValue {
 	tt := []*KeyValue{}
 	for _, v := range c {
 		t := &KeyValue{
-			Key: []byte(label + delimiter + v.Label() + delimiter + v.ID()),
+			Key: []byte(label + US + v.Label() + US + v.ID()),
 			Value: &Any{
 				TypeUrl: "Vertex",
 				Value:   []byte(v.ID()),
@@ -29,7 +30,7 @@ func Marshal(c ...*graph.Vertex) []*KeyValue {
 
 		for k, p := range v.Properties() {
 			t := &KeyValue{
-				Key: []byte(properties + delimiter + k + delimiter + v.ID()),
+				Key: []byte(properties + US + k + US + v.ID()),
 				Value: &Any{
 					TypeUrl: fmt.Sprintf("%T", p),
 					Value:   []byte(fmt.Sprint(p)),
@@ -40,7 +41,7 @@ func Marshal(c ...*graph.Vertex) []*KeyValue {
 
 		for _, e := range v.Edges() {
 			t := &KeyValue{
-				Key: []byte(relationship + delimiter + e.RelationshipType() + delimiter + v.ID()),
+				Key: []byte(relationship + US + e.RelationshipType() + US + v.ID()),
 				Value: &Any{
 					TypeUrl: "Vertex",
 					Value:   []byte(e.ID()),
@@ -50,7 +51,7 @@ func Marshal(c ...*graph.Vertex) []*KeyValue {
 
 			for k, p := range e.Properties() {
 				t := &KeyValue{
-					Key: []byte(relationship + delimiter + properties + delimiter + k + delimiter + v.ID()),
+					Key: []byte(relationship + US + properties + US + k + US + v.ID()),
 					Value: &Any{
 						TypeUrl: fmt.Sprintf("%T", p),
 						Value:   []byte(fmt.Sprint(p)),
@@ -78,7 +79,7 @@ func MarshalTranspose(c ...*graph.Vertex) []*KeyValue {
 
 		for k, p := range v.Properties() {
 			t := &KeyValue{
-				Key: []byte(v.ID() + properties + delimiter + k),
+				Key: []byte(v.ID() + properties + US + k),
 				Value: &Any{
 					TypeUrl: fmt.Sprintf("%T", p),
 					Value:   []byte(fmt.Sprint(p)),
@@ -89,7 +90,7 @@ func MarshalTranspose(c ...*graph.Vertex) []*KeyValue {
 
 		for _, e := range v.Edges() {
 			t := &KeyValue{
-				Key: []byte(v.ID() + delimiter + "Relationship" + delimiter + e.RelationshipType()),
+				Key: []byte(v.ID() + US + "Relationship" + US + e.RelationshipType()),
 				Value: &Any{
 					TypeUrl: "Vertex",
 					Value:   []byte(e.ID()),
@@ -99,7 +100,7 @@ func MarshalTranspose(c ...*graph.Vertex) []*KeyValue {
 
 			for k, p := range e.Properties() {
 				t := &KeyValue{
-					Key: []byte(v.ID() + delimiter + "Relationship" + delimiter + properties + delimiter + k + delimiter + e.ID()),
+					Key: []byte(v.ID() + US + "Relationship" + US + properties + US + k + US + e.ID()),
 					Value: &Any{
 						TypeUrl: fmt.Sprintf("%T", p),
 						Value:   []byte(fmt.Sprint(p)),

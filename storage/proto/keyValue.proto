@@ -1,5 +1,5 @@
 syntax = "proto3";
-package keyValue;
+package keyvalue;
 
 message KeyValue {
     bytes key = 1;

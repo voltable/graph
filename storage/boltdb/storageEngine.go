@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/storage/keyValue"
+	"github.com/RossMerr/Caudex.Graph/storage/keyvalue"
 	"github.com/Sirupsen/logrus"
 	bolt "github.com/coreos/bbolt"
 	"github.com/gogo/protobuf/proto"
@@ -96,8 +96,8 @@ func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 	return se.db.Update(func(tx *bolt.Tx) error {
 		bucketTKey := tx.Bucket(TKey)
 		bucketTKeyT := tx.Bucket(TKeyT)
-		triples := keyValue.Marshal(c...)
-		transposes := keyValue.MarshalTranspose(c...)
+		triples := keyvalue.Marshal(c...)
+		transposes := keyvalue.MarshalTranspose(c...)
 		var errstrings []string
 		for i := 0; i < len(triples); i++ {
 			triple := triples[i]
@@ -125,8 +125,8 @@ func (se *StorageEngine) Delete(c ...*graph.Vertex) error {
 	return se.db.Update(func(tx *bolt.Tx) error {
 		bucketTKey := tx.Bucket(TKey)
 		bucketTKeyT := tx.Bucket(TKeyT)
-		triples := keyValue.Marshal(c...)
-		transposes := keyValue.MarshalTranspose(c...)
+		triples := keyvalue.Marshal(c...)
+		transposes := keyvalue.MarshalTranspose(c...)
 		var errstrings []string
 
 		for i := 0; i < len(triples); i++ {
