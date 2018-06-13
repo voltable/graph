@@ -8,14 +8,18 @@ package keyvalue
 import (
 	"log"
 	"reflect"
+	"strconv"
 )
 
 var typeRegistry = make(map[string]reflect.Type)
 var typeDecoder = make(map[string]func(buf []byte) interface{})
 
 func init() {
-	RegisterType("", "string", decodeStringBytes)
-	RegisterType(true, "bool", decodeBoolBytes)
+	RegisterType("", "string", DecodeStringBytes)
+	RegisterType(true, "bool", DecodeBoolBytes)
+	RegisterType(int8(0), "int8", DecodeInt8Bytes)
+	RegisterType(int16(0), "int16", DecodeInt16Bytes)
+
 	// typeRegistry[String.String()] = reflect.TypeOf("")
 	// typeRegistry[Bool] = reflect.TypeOf(false)
 	// typeRegistry[Int8] = reflect.TypeOf(int8(1))
@@ -54,10 +58,24 @@ func DecodeBytes(name string, buf []byte) interface{} {
 	return nil
 }
 
-func decodeStringBytes(buf []byte) interface{} {
+// DecodeStringBytes decodes bytes into a string
+func DecodeStringBytes(buf []byte) interface{} {
 	return string(buf)
 }
 
-func decodeBoolBytes(buf []byte) interface{} {
+// DecodeBoolBytes decodes bytes into a bool
+func DecodeBoolBytes(buf []byte) interface{} {
 	return uint64(buf[0]) != 0
+}
+
+// DecodeInt8Bytes decodes bytes into a int8
+func DecodeInt8Bytes(buf []byte) interface{} {
+	i, _ := strconv.ParseInt(string(buf), 10, 8)
+	return int8(i)
+}
+
+// DecodeInt16Bytes decodes bytes into a int16
+func DecodeInt16Bytes(buf []byte) interface{} {
+	i, _ := strconv.ParseInt(string(buf), 10, 16)
+	return int16(i)
 }
