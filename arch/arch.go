@@ -183,6 +183,19 @@ func Float64(buf []byte) float64 {
 	return math.Float64frombits(binary.LittleEndian.Uint64(buf))
 }
 
+// EncodeComplex64Bytes encodes a complex64 into bytes
+func EncodeComplex64Bytes(v complex64) []byte {
+	rpart := float32(real(v))
+	ipart := float32(imag(v))
+
+	var buf [8]byte
+
+	binary.LittleEndian.PutUint32(buf[0:4], math.Float32bits(rpart))
+	binary.LittleEndian.PutUint32(buf[4:8], math.Float32bits(ipart))
+
+	return buf[:]
+}
+
 // DecodeComplex64Bytes decodes bytes into a complex64
 func DecodeComplex64Bytes(buf []byte) interface{} {
 	return Complex64(buf)
@@ -191,6 +204,19 @@ func DecodeComplex64Bytes(buf []byte) interface{} {
 // Complex64 decodes bytes into a complex64
 func Complex64(buf []byte) complex64 {
 	return complex(Float32(buf[0:4]), Float32(buf[4:8]))
+}
+
+// EncodeComplex128Bytes encodes a complex128 into bytes
+func EncodeComplex128Bytes(v complex128) []byte {
+	rpart := float64(real(v))
+	ipart := float64(imag(v))
+
+	var buf [16]byte
+
+	binary.LittleEndian.PutUint64(buf[0:8], math.Float64bits(rpart))
+	binary.LittleEndian.PutUint64(buf[8:16], math.Float64bits(ipart))
+
+	return buf[:]
 }
 
 // DecodeComplex128Bytes decodes bytes into a complex128
@@ -226,6 +252,10 @@ func EncodeType(i interface{}) (string, []byte) {
 		return "float32", EncodeFloat32Bytes(v)
 	case float64:
 		return "float64", EncodeFloat64Bytes(v)
+	case complex64:
+		return "complex64", EncodeComplex64Bytes(v)
+	case complex128:
+		return "complex128", EncodeComplex128Bytes(v)
 	case []byte:
 		return "[]byte", v
 	}
@@ -256,6 +286,10 @@ func DecodeType(t string, buf []byte) interface{} {
 		return DecodeFloat32Bytes(buf)
 	case "float64":
 		return DecodeFloat64Bytes(buf)
+	case "complex64":
+		return DecodeComplex64Bytes(buf)
+	case "complex128":
+		return DecodeComplex128Bytes(buf)
 	case "[]byte":
 		return buf
 	}
