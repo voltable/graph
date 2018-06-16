@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	graph "github.com/RossMerr/Caudex.Graph"
+	"github.com/RossMerr/Caudex.Graph/arch"
 )
 
 const (
@@ -39,42 +40,30 @@ func Marshal(c ...*graph.Vertex) []*KeyValue {
 	tt := []*KeyValue{}
 	for _, v := range c {
 		t := &KeyValue{
-			Key: []byte(v.ID()),
-			Value: &Any{
-				TypeUrl: label,
-				Value:   []byte(v.Label()),
-			},
+			Key:   []byte(v.ID()),
+			Value: NewAny(v.Label()),
 		}
 		tt = append(tt, t)
 
 		for k, p := range v.Properties() {
 			t := &KeyValue{
-				Key: PropertiesID(v.ID(), k),
-				Value: &Any{
-					TypeUrl: fmt.Sprintf("%T", p),
-					Value:   []byte(fmt.Sprint(p)),
-				},
+				Key:   PropertiesID(v.ID(), k),
+				Value: NewAny(p),
 			}
 			tt = append(tt, t)
 		}
 
 		for _, e := range v.Edges() {
 			t := &KeyValue{
-				Key: RelationshipID(v.ID(), e.RelationshipType()),
-				Value: &Any{
-					TypeUrl: vertex,
-					Value:   []byte(e.ID()),
-				},
+				Key:   RelationshipID(v.ID(), e.RelationshipType()),
+				Value: NewAny(e.ID()),
 			}
 			tt = append(tt, t)
 
 			for k, p := range e.Properties() {
 				t := &KeyValue{
-					Key: RelationshipPropertiesID(v.ID(), e.ID(), k),
-					Value: &Any{
-						TypeUrl: fmt.Sprintf("%T", p),
-						Value:   []byte(fmt.Sprint(p)),
-					},
+					Key:   RelationshipPropertiesID(v.ID(), e.ID(), k),
+					Value: NewAny(p),
 				}
 				tt = append(tt, t)
 			}
@@ -103,42 +92,30 @@ func MarshalTranspose(c ...*graph.Vertex) []*KeyValue {
 	tt := []*KeyValue{}
 	for _, v := range c {
 		t := &KeyValue{
-			Key: []byte(label + US + v.Label() + US + v.ID()),
-			Value: &Any{
-				TypeUrl: vertex,
-				Value:   []byte(v.ID()),
-			},
+			Key:   []byte(label + US + v.Label() + US + v.ID()),
+			Value: NewAny(v.ID()),
 		}
 		tt = append(tt, t)
 
 		for k, p := range v.Properties() {
 			t := &KeyValue{
-				Key: PropertiesIDTranspose(v.ID(), k),
-				Value: &Any{
-					TypeUrl: fmt.Sprintf("%T", p),
-					Value:   []byte(fmt.Sprint(p)),
-				},
+				Key:   PropertiesIDTranspose(v.ID(), k),
+				Value: NewAny(p),
 			}
 			tt = append(tt, t)
 		}
 
 		for _, e := range v.Edges() {
 			t := &KeyValue{
-				Key: RelationshipIDTranspose(v.ID(), e.RelationshipType()),
-				Value: &Any{
-					TypeUrl: vertex,
-					Value:   []byte(e.ID()),
-				},
+				Key:   RelationshipIDTranspose(v.ID(), e.RelationshipType()),
+				Value: NewAny(e.ID()),
 			}
 			tt = append(tt, t)
 
 			for k, p := range e.Properties() {
 				t := &KeyValue{
-					Key: RelationshipPropertiesIDTranspose(v.ID(), e.ID(), k),
-					Value: &Any{
-						TypeUrl: fmt.Sprintf("%T", p),
-						Value:   []byte(fmt.Sprint(p)),
-					},
+					Key:   RelationshipPropertiesIDTranspose(v.ID(), e.ID(), k),
+					Value: NewAny(p),
 				}
 				tt = append(tt, t)
 			}
@@ -147,7 +124,7 @@ func MarshalTranspose(c ...*graph.Vertex) []*KeyValue {
 	return tt
 }
 
-// PropertiesID generate the properties key
+// Property generate the properties key
 func Property(kv KeyValue) (string, interface{}, error) {
 	split := strings.Split(string(kv.Key), US)
 
@@ -157,8 +134,7 @@ func Property(kv KeyValue) (string, interface{}, error) {
 
 	property := split[4]
 
-	return property, kv.Value.Decode(), nil
-
+	return property, arch.DecodeType(kv.Value.TypeUrl, kv.Value.Value), nil
 }
 
 // // RelationshipID generate the relationship key
