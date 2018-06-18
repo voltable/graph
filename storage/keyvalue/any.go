@@ -15,3 +15,8 @@ func NewAny(p interface{}) *Any {
 		Value:   v,
 	}
 }
+
+// Unmarshal returns the Value as it's type defined by the TypeUrl
+func (s *Any) Unmarshal() interface{} {
+	return arch.DecodeType(s.TypeUrl, s.Value)
+}

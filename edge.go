@@ -32,6 +32,13 @@ func NewEdge() (*Edge, error) {
 	return &v, nil
 }
 
+// NewEdgeFromID creates a edge form the id
+func NewEdgeFromID(ID [16]byte) (*Edge, error) {
+	e, err := NewEdge()
+	e.id = ID
+	return e, err
+}
+
 // ID returns the generate UUID
 func (e *Edge) ID() string {
 	return formatUUID(e.id)
