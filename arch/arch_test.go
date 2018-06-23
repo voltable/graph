@@ -34,6 +34,10 @@ func TestEncodeType(t *testing.T) {
 			arg:  uint32(1),
 		},
 		{
+			name: "uint",
+			arg:  uint(1),
+		},
+		{
 			name: "uint64",
 			arg:  uint64(1),
 		},
@@ -44,6 +48,10 @@ func TestEncodeType(t *testing.T) {
 		{
 			name: "int32",
 			arg:  int32(1),
+		},
+		{
+			name: "int",
+			arg:  int(1),
 		},
 		{
 			name: "int64",

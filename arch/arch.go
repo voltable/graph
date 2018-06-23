@@ -240,12 +240,16 @@ func EncodeType(i interface{}) (string, []byte) {
 		return "int16", EncodeInt16Bytes(v)
 	case int32:
 		return "int32", EncodeInt32Bytes(v)
+	case int:
+		return "int", EncodeInt32Bytes(int32(v))
 	case int64:
 		return "int64", EncodeInt64Bytes(v)
 	case uint16:
 		return "uint16", EncodeUint16Bytes(v)
 	case uint32:
 		return "uint32", EncodeUint32Bytes(v)
+	case uint:
+		return "uint", EncodeUint32Bytes(uint32(v))
 	case uint64:
 		return "uint64", EncodeUint64Bytes(v)
 	case float32:
@@ -274,12 +278,16 @@ func DecodeType(t string, buf []byte) interface{} {
 		return DecodeInt16Bytes(buf)
 	case "int32":
 		return DecodeInt32Bytes(buf)
+	case "int":
+		return int(Uint32(buf))
 	case "int64":
 		return DecodeInt64Bytes(buf)
 	case "uint16":
 		return DecodeUint16Bytes(buf)
 	case "uint32":
 		return DecodeUint32Bytes(buf)
+	case "uint":
+		return uint(Uint32(buf))
 	case "uint64":
 		return DecodeUint64Bytes(buf)
 	case "float32":

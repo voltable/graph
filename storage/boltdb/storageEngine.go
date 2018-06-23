@@ -96,8 +96,9 @@ func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 	return se.db.Update(func(tx *bolt.Tx) error {
 		bucketTKey := tx.Bucket(TKey)
 		bucketTKeyT := tx.Bucket(TKeyT)
-		triples := keyvalue.Marshal(c...)
-		transposes := keyvalue.MarshalTranspose(c...)
+
+		triples := keyvalue.Marshal(c[0])
+		transposes := keyvalue.MarshalTranspose(c[0])
 		var errstrings []string
 		for i := 0; i < len(triples); i++ {
 			triple := triples[i]
@@ -125,8 +126,8 @@ func (se *StorageEngine) Delete(c ...*graph.Vertex) error {
 	return se.db.Update(func(tx *bolt.Tx) error {
 		bucketTKey := tx.Bucket(TKey)
 		bucketTKeyT := tx.Bucket(TKeyT)
-		triples := keyvalue.Marshal(c...)
-		transposes := keyvalue.MarshalTranspose(c...)
+		triples := keyvalue.Marshal(c[0])
+		transposes := keyvalue.MarshalTranspose(c[0])
 		var errstrings []string
 
 		for i := 0; i < len(triples); i++ {

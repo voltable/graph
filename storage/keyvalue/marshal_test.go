@@ -112,19 +112,65 @@ func TestRelationshipProperty(t *testing.T) {
 
 func TestMarshal(t *testing.T) {
 	tests := []struct {
-		name     string
-		vertices []*graph.Vertex
-		want     []*keyvalue.KeyValue
+		name   string
+		vertex *graph.Vertex
+		want   []*keyvalue.KeyValue
 	}{
-		// {
-		// 	name: "vertex",
-
-		// },
+		{
+			name: "vertex",
+			vertex: func() *graph.Vertex {
+				v, _ := graph.NewVertex()
+				v.SetLabel("person")
+				v.SetProperty("name", "john smith")
+				t, _ := graph.NewVertex()
+				id, _ := graph.ParseUUID(t.ID())
+				e, _ := graph.NewEdgeFromID(id)
+				e.SetRelationshipType("friend")
+				e.SetProperty("years", 10)
+				v.AddEdge(e)
+				return v
+			}(),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := keyvalue.Marshal(tt.vertices...); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Marshal() = %v, want %v", got, tt.want)
+			got := keyvalue.Marshal(tt.vertex)
+			v := keyvalue.Unmarshal(got...)
+			if !reflect.DeepEqual(v, tt.vertex) {
+				t.Errorf("Marshal() = %v, want %v", v, tt.vertex)
+			}
+		})
+	}
+}
+
+func TestMarshalTranspose(t *testing.T) {
+	tests := []struct {
+		name   string
+		vertex *graph.Vertex
+		want   []*keyvalue.KeyValue
+	}{
+		{
+			name: "vertex",
+			vertex: func() *graph.Vertex {
+				v, _ := graph.NewVertex()
+				v.SetLabel("person")
+				v.SetProperty("name", "john smith")
+				t, _ := graph.NewVertex()
+				id, _ := graph.ParseUUID(t.ID())
+				e, _ := graph.NewEdgeFromID(id)
+				e.SetRelationshipType("friend")
+				e.SetProperty("years", 10)
+				v.AddEdge(e)
+				return v
+			}(),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := keyvalue.MarshalTranspose(tt.vertex)
+			v := keyvalue.UnmarshalTranspose(got...)
+			if !reflect.DeepEqual(v, tt.vertex) {
+				t.Errorf("Marshal() = %v, want %v", v, tt.vertex)
 			}
 		})
 	}

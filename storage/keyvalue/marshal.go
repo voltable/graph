@@ -40,39 +40,39 @@ func RelationshipPropertiesID(ID, edgeID, key string) []byte {
 }
 
 // Marshal a Vertex into KeyValue
-func Marshal(c ...*graph.Vertex) []*KeyValue {
+func Marshal(v *graph.Vertex) []*KeyValue {
 	tt := []*KeyValue{}
-	for _, v := range c {
+
+	t := &KeyValue{
+		Key:   VertexID(v.ID()),
+		Value: NewAny(v.Label()),
+	}
+	tt = append(tt, t)
+
+	for k, p := range v.Properties() {
 		t := &KeyValue{
-			Key:   VertexID(v.ID()),
-			Value: NewAny(v.Label()),
+			Key:   PropertiesID(v.ID(), k),
+			Value: NewAny(p),
+		}
+		tt = append(tt, t)
+	}
+
+	for _, e := range v.Edges {
+		t := &KeyValue{
+			Key:   RelationshipID(v.ID(), e.RelationshipType()),
+			Value: NewAny(e.ID()),
 		}
 		tt = append(tt, t)
 
-		for k, p := range v.Properties() {
+		for k, p := range e.Properties() {
 			t := &KeyValue{
-				Key:   PropertiesID(v.ID(), k),
+				Key:   RelationshipPropertiesID(v.ID(), e.ID(), k),
 				Value: NewAny(p),
 			}
 			tt = append(tt, t)
 		}
-
-		for _, e := range v.Edges {
-			t := &KeyValue{
-				Key:   RelationshipID(v.ID(), e.RelationshipType()),
-				Value: NewAny(e.ID()),
-			}
-			tt = append(tt, t)
-
-			for k, p := range e.Properties() {
-				t := &KeyValue{
-					Key:   RelationshipPropertiesID(v.ID(), e.ID(), k),
-					Value: NewAny(p),
-				}
-				tt = append(tt, t)
-			}
-		}
 	}
+
 	return tt
 }
 
@@ -96,37 +96,35 @@ func RelationshipPropertiesIDTranspose(ID, edgeID, key string) []byte {
 }
 
 // MarshalTranspose mashal a Vertex into a transposed KeyValue
-func MarshalTranspose(c ...*graph.Vertex) []*KeyValue {
+func MarshalTranspose(v *graph.Vertex) []*KeyValue {
 	tt := []*KeyValue{}
-	for _, v := range c {
+	t := &KeyValue{
+		Key:   LabelID(v.ID(), v.Label()),
+		Value: NewAny(v.ID()),
+	}
+	tt = append(tt, t)
+
+	for k, p := range v.Properties() {
 		t := &KeyValue{
-			Key:   LabelID(v.ID(), v.Label()),
-			Value: NewAny(v.ID()),
+			Key:   PropertiesIDTranspose(v.ID(), k),
+			Value: NewAny(p),
+		}
+		tt = append(tt, t)
+	}
+
+	for _, e := range v.Edges {
+		t := &KeyValue{
+			Key:   RelationshipIDTranspose(v.ID(), e.RelationshipType()),
+			Value: NewAny(e.ID()),
 		}
 		tt = append(tt, t)
 
-		for k, p := range v.Properties() {
+		for k, p := range e.Properties() {
 			t := &KeyValue{
-				Key:   PropertiesIDTranspose(v.ID(), k),
+				Key:   RelationshipPropertiesIDTranspose(v.ID(), e.ID(), k),
 				Value: NewAny(p),
 			}
 			tt = append(tt, t)
-		}
-
-		for _, e := range v.Edges {
-			t := &KeyValue{
-				Key:   RelationshipIDTranspose(v.ID(), e.RelationshipType()),
-				Value: NewAny(e.ID()),
-			}
-			tt = append(tt, t)
-
-			for k, p := range e.Properties() {
-				t := &KeyValue{
-					Key:   RelationshipPropertiesIDTranspose(v.ID(), e.ID(), k),
-					Value: NewAny(p),
-				}
-				tt = append(tt, t)
-			}
 		}
 	}
 	return tt
@@ -229,10 +227,12 @@ func Unmarshal(c ...*KeyValue) *graph.Vertex {
 			if ok {
 				v.SetLabel(value)
 			}
+			continue
 		}
 		if isProperty(split) {
 			_, key, _ := Property(split)
 			v.SetProperty(key, kv.Value.Unmarshal())
+			continue
 		}
 		if isRelationship(split) {
 			_, relationshipType, _ := Relationship(split)
@@ -248,6 +248,7 @@ func Unmarshal(c ...*KeyValue) *graph.Vertex {
 
 				edge.SetRelationshipType(relationshipType)
 			}
+			continue
 		}
 
 		if isRelationshipProperties(split) {
@@ -259,6 +260,122 @@ func Unmarshal(c ...*KeyValue) *graph.Vertex {
 				v.AddEdge(edge)
 			}
 			edge.SetProperty(key, kv.Value.Unmarshal())
+			continue
+		}
+	}
+	return v
+}
+
+func isVertexTranspose(split []string) bool {
+	if split[0] == label {
+		return true
+	}
+
+	return false
+}
+
+func vertexTranspose(split []string) (string, string) {
+	label := split[1]
+	id := split[2]
+
+	return id, label
+}
+
+func isPropertiesTranspose(split []string) bool {
+	if split[0] == properties {
+		return true
+	}
+
+	return false
+}
+
+func propertiesTranspose(split []string) (string, string) {
+	key := split[1]
+	id := split[2]
+
+	return id, key
+}
+
+func isRelationshipTranspose(split []string) bool {
+	if split[0] == relationship {
+		return true
+	}
+
+	return false
+}
+
+//relationshipTranspose generate the relationship key
+func relationshipTranspose(split []string) (string, string) {
+	relationshipType := split[1]
+	id := split[2]
+
+	return id, relationshipType
+}
+
+func isRelationshipPropertiesTranspose(split []string) bool {
+	if split[0] == relationshipproperties {
+		return true
+	}
+
+	return false
+}
+
+// relationshipProperties generate the properties key for a relationship
+func relationshipPropertiesTranspose(split []string) (string, string, string) {
+	key := split[1]
+	edgeID := split[2]
+	id := split[3]
+	return id, edgeID, key
+}
+
+// UnmarshalTranspose a KeyValue into Vertex
+func UnmarshalTranspose(c ...*KeyValue) *graph.Vertex {
+	var v *graph.Vertex
+	if s, ok := c[0].Value.Unmarshal().(string); ok {
+		uuid, _ := graph.ParseUUID(s)
+		v, _ = graph.NewVertexFromID(uuid)
+	}
+
+	for _, kv := range c {
+		split := strings.Split(string(kv.Key), US)
+
+		if isVertexTranspose(split) {
+			_, label := vertexTranspose(split)
+			v.SetLabel(label)
+			continue
+		}
+		if isPropertiesTranspose(split) {
+			_, key := propertiesTranspose(split)
+			v.SetProperty(key, kv.Value.Unmarshal())
+			continue
+		}
+		if isRelationshipTranspose(split) {
+			_, relationshipType := relationshipTranspose(split)
+			value, ok := kv.Value.Unmarshal().(string)
+			if ok {
+				edgeID, _ := graph.ParseUUID(value)
+
+				edge, ok := v.Edges[edgeID]
+				if !ok {
+					edge, _ = graph.NewEdgeFromID(edgeID)
+					v.AddEdge(edge)
+				}
+
+				edge.SetRelationshipType(relationshipType)
+			}
+			continue
+		}
+
+		if isRelationshipPropertiesTranspose(split) {
+			_, value, key := relationshipPropertiesTranspose(split)
+			edgeID, _ := graph.ParseUUID(value)
+			edge, ok := v.Edges[edgeID]
+			if !ok {
+				edge, _ := graph.NewEdgeFromID(edgeID)
+				v.AddEdge(edge)
+			}
+			edge.SetProperty(key, kv.Value.Unmarshal())
+			continue
 		}
 	}
 	return v
