@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/storage/keyvalue"
 	"github.com/Sirupsen/logrus"
 	bolt "github.com/coreos/bbolt"
 	"github.com/gogo/protobuf/proto"
@@ -96,22 +95,24 @@ func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 	return se.db.Update(func(tx *bolt.Tx) error {
 		bucketTKey := tx.Bucket(TKey)
 		bucketTKeyT := tx.Bucket(TKeyT)
-
-		triples := keyvalue.Marshal(c[0])
-		transposes := keyvalue.MarshalTranspose(c[0])
 		var errstrings []string
-		for i := 0; i < len(triples); i++ {
-			triple := triples[i]
 
-			buf, _ := proto.Marshal(triple.Value)
-			if err := bucketTKey.Put(triple.Key, buf); err != nil {
-				errstrings = append(errstrings, err.Error())
-			}
+		for _, v := range c {
+			triples := v.MarshalKeyValue()
+			transposes := v.MarshalKeyValueTranspose()
+			for i := 0; i < len(triples); i++ {
+				triple := triples[i]
 
-			transpose := transposes[i]
-			buf, _ = proto.Marshal(transpose.Value)
-			if err := bucketTKeyT.Put(transpose.Key, buf); err != nil {
-				errstrings = append(errstrings, err.Error())
+				buf, _ := proto.Marshal(triple.Value)
+				if err := bucketTKey.Put(triple.Key, buf); err != nil {
+					errstrings = append(errstrings, err.Error())
+				}
+
+				transpose := transposes[i]
+				buf, _ = proto.Marshal(transpose.Value)
+				if err := bucketTKeyT.Put(transpose.Key, buf); err != nil {
+					errstrings = append(errstrings, err.Error())
+				}
 			}
 		}
 		if len(errstrings) > 0 {
@@ -126,19 +127,21 @@ func (se *StorageEngine) Delete(c ...*graph.Vertex) error {
 	return se.db.Update(func(tx *bolt.Tx) error {
 		bucketTKey := tx.Bucket(TKey)
 		bucketTKeyT := tx.Bucket(TKeyT)
-		triples := keyvalue.Marshal(c[0])
-		transposes := keyvalue.MarshalTranspose(c[0])
 		var errstrings []string
 
-		for i := 0; i < len(triples); i++ {
-			triple := triples[i]
-			if err := bucketTKey.Delete(triple.Key); err != nil {
-				errstrings = append(errstrings, err.Error())
-			}
+		for _, v := range c {
+			triples := v.MarshalKeyValue()
+			transposes := v.MarshalKeyValueTranspose()
+			for i := 0; i < len(triples); i++ {
+				triple := triples[i]
+				if err := bucketTKey.Delete(triple.Key); err != nil {
+					errstrings = append(errstrings, err.Error())
+				}
 
-			transpose := transposes[i]
-			if err := bucketTKeyT.Delete(transpose.Key); err != nil {
-				errstrings = append(errstrings, err.Error())
+				transpose := transposes[i]
+				if err := bucketTKeyT.Delete(transpose.Key); err != nil {
+					errstrings = append(errstrings, err.Error())
+				}
 			}
 		}
 		if len(errstrings) > 0 {

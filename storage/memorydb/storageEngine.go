@@ -2,9 +2,12 @@ package memorydb
 
 import (
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/query"
+	"github.com/gogo/protobuf/proto"
 )
 
 func init() {
@@ -20,10 +23,10 @@ var (
 )
 
 type StorageEngine struct {
-	vertices map[string]graph.Vertex
-	keys     []string
-	Options  *graph.Options
-	engine   query.Engine
+	tKey    map[string][]byte
+	tKeyT   map[string][]byte
+	Options *graph.Options
+	engine  query.Engine
 }
 
 var _ graph.Graph = (*StorageEngine)(nil)
@@ -37,8 +40,10 @@ func (se *StorageEngine) Close() {
 // NewStorageEngine creates anew in memory storage engine
 func NewStorageEngine(o *graph.Options) (graph.Graph, error) {
 	se := StorageEngine{
-		Options:  o,
-		vertices: make(map[string]graph.Vertex)}
+		Options: o,
+		tKey:    make(map[string][]byte),
+		tKeyT:   make(map[string][]byte),
+	}
 
 	queryEngine, err := query.NewQueryEngine(o.QueryEngine, &se)
 	if err != nil {
@@ -52,8 +57,24 @@ func NewStorageEngine(o *graph.Options) (graph.Graph, error) {
 // Create adds a array of vertices to the persistence
 func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 	for _, v := range c {
-		se.vertices[v.ID()] = *v
-		se.keys = append(se.keys, v.ID())
+
+		triples := v.MarshalKeyValue()
+		transposes := v.MarshalKeyValueTranspose()
+		var errstrings []string
+
+		for i := 0; i < len(triples); i++ {
+			triple := triples[i]
+			buf, _ := proto.Marshal(triple.Value)
+			se.tKey[string(triple.Key)] = buf
+
+			transpose := transposes[i]
+			buf, _ = proto.Marshal(transpose.Value)
+			se.tKeyT[string(transpose.Key)] = buf
+		}
+
+		if len(errstrings) > 0 {
+			return fmt.Errorf(strings.Join(errstrings, "\n"))
+		}
 	}
 
 	return nil
@@ -61,28 +82,41 @@ func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 
 // Delete the array of vertices from the persistence
 func (se *StorageEngine) Delete(c ...*graph.Vertex) error {
-	for _, v := range c {
-		delete(se.vertices, v.ID())
-		for i, k := range se.keys {
-			if k == v.ID() {
-				se.keys = append(se.keys[:i], se.keys[i+1:]...)
-				break
+	//	for _, v := range c {
 
-			}
-		}
-		//delete(se.keys, v.ID())
-	}
+	//keyvalue.LabelID
+	// for i := 0; i < len(triples); i++ {
+	// 	triple := triples[i]
+	// 	buf, _ := proto.Marshal(triple.Value)
+	// 	se.tKey[string(triple.Key)] = buf
+
+	// 	transpose := transposes[i]
+	// 	buf, _ = proto.Marshal(transpose.Value)
+	// 	se.tKeyT[string(transpose.Key)] = buf
+	// }
+
+	// delete(se.vertices, v.ID())
+	// for i, k := range se.keys {
+	// 	if k == v.ID() {
+	// 		se.keys = append(se.keys[:i], se.keys[i+1:]...)
+	// 		break
+
+	// 	}
+	// }
+	//delete(se.keys, v.ID())
+	//	}
 
 	return nil
 }
 
 // Find a vertex from the persistence
 func (se *StorageEngine) Find(ID string) (*graph.Vertex, error) {
-	if v, ok := se.vertices[ID]; ok {
-		return &v, nil
-	} else {
-		return nil, errRecordNotFound
-	}
+	// if v, ok := se.vertices[ID]; ok {
+	// 	return &v, nil
+	// } else {
+	// 	return nil, errRecordNotFound
+	// }
+	return nil, errRecordNotFound
 }
 
 // Update the array of vertices from the persistence
@@ -100,15 +134,19 @@ func (se *StorageEngine) Fetch(id string) (*graph.Vertex, error) {
 }
 
 func (se *StorageEngine) ForEach() graph.Iterator {
-	position := 0
-	length := len(se.keys)
+	// position := 0
+	// length := len(se.keys)
+	// return func() (item interface{}, ok bool) {
+	// 	if position < length {
+	// 		key := se.keys[position]
+	// 		v := se.vertices[key]
+	// 		position = position + 1
+	// 		return &v, true
+	// 	}
+	// 	return nil, false
+	// }
+
 	return func() (item interface{}, ok bool) {
-		if position < length {
-			key := se.keys[position]
-			v := se.vertices[key]
-			position = position + 1
-			return &v, true
-		}
 		return nil, false
 	}
 }

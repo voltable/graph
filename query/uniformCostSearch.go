@@ -64,9 +64,9 @@ func (t *Plan) UniformCostSearch(frontier *Frontier) bool {
 		}
 		if pe := t.predicateEdge(depth); pe != nil {
 			for _, e := range vertex.Edges {
-				if _, ok := frontier.Explored[e.ID()]; !ok {
+				if _, ok := frontier.Explored[e.To()]; !ok {
 					if variable, p := pe(e, uint(depth)); p == Visiting || p == Matching {
-						if v, err := t.storage.Fetch(e.ID()); err == nil {
+						if v, err := t.storage.Fetch(e.To()); err == nil {
 							frontier.AppendEdgeAndVertex(queue, e, v, variable, e.Weight)
 						}
 					}

@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+
+	"github.com/RossMerr/Caudex.Graph/storage/keyvalue"
 )
 
 // VertexID a UUID
@@ -47,8 +49,16 @@ func NewVertexWithLabel(label string) (*Vertex, error) {
 		return nil, errCreatVertexID
 	}
 
-	v := Vertex{id: id, Edges: make(map[VertexID]*Edge), properties: make(map[string]interface{}), label: label}
-	return &v, nil
+	v := NewEmptyVertex()
+	v.id = id
+	v.label = label
+	return v, nil
+}
+
+// NewEmptyVertex create's a empty vertex with no ID
+func NewEmptyVertex() *Vertex {
+	v := Vertex{Edges: make(map[VertexID]*Edge), properties: make(map[string]interface{})}
+	return &v
 }
 
 // SetProperty set a property to store against this Vertex
@@ -118,7 +128,7 @@ func (v *Vertex) removeRelationshipsOnVertex(to *Vertex) Digraph {
 func (v *Vertex) removeRelationshipsF(f func(id VertexID, e Edge) bool) Digraph {
 	for id, edge := range v.Edges {
 		if f(id, *edge) {
-			delete(v.Edges, edge.id)
+			delete(v.Edges, edge.to)
 			return edge.isDirected
 		}
 	}
@@ -132,15 +142,15 @@ func (v *Vertex) SetLabel(label string) *Vertex {
 
 // AddDirectedEdge links two vertex's and returns the edge
 func (v *Vertex) AddDirectedEdge(to *Vertex) (*Edge, error) {
-	edge := &Edge{id: VertexID(to.id), isDirected: Directed, properties: make(map[string]interface{})}
-	v.Edges[edge.id] = edge
+	edge := &Edge{from: v.id, to: to.id, isDirected: Directed, properties: make(map[string]interface{})}
+	v.Edges[edge.to] = edge
 	return edge, nil
 }
 
 // AddEdge links two vertex's and returns the edge
 func (v *Vertex) AddEdge(to *Edge) {
 
-	v.Edges[to.id] = to
+	v.Edges[to.to] = to
 }
 
 // RemoveEdgeByLabel remove a edge
@@ -173,15 +183,291 @@ func (v *Vertex) RemoveEdge(to *Vertex) error {
 	return nil
 }
 
-func (b Vertex) String() string {
+func (v Vertex) String() string {
 
 	var buffer bytes.Buffer
 	buffer.WriteString("{")
-	for k, v := range b.properties {
-		buffer.WriteString(fmt.Sprintf("%v => %#v", k, v))
+	for k, b := range v.properties {
+		buffer.WriteString(fmt.Sprintf("%v => %#v", k, b))
 		buffer.WriteString(", ")
 	}
 	w := bytes.NewBuffer(buffer.Bytes()[:buffer.Len()-2])
 	w.WriteString("}")
 	return fmt.Sprintf(w.String())
+}
+
+// MarshalKeyValue marshal a Vertex into KeyValue
+func (v *Vertex) MarshalKeyValue() []*keyvalue.KeyValue {
+	tt := []*keyvalue.KeyValue{}
+
+	t := &keyvalue.KeyValue{
+		Key:   []byte(v.ID() + US + vertex),
+		Value: keyvalue.NewAny(v.Label()),
+	}
+	tt = append(tt, t)
+
+	for k, p := range v.Properties() {
+		t := &keyvalue.KeyValue{
+			Key:   []byte(v.ID() + US + properties + US + k),
+			Value: keyvalue.NewAny(p),
+		}
+		tt = append(tt, t)
+	}
+
+	for _, e := range v.Edges {
+		tt = append(tt, e.MarshalKeyValue()...)
+	}
+
+	return tt
+}
+
+// MarshalKeyValueTranspose mashal a Vertex into a transposed KeyValue
+func (v *Vertex) MarshalKeyValueTranspose() []*keyvalue.KeyValue {
+	tt := []*keyvalue.KeyValue{}
+
+	t := &keyvalue.KeyValue{
+		Key:   []byte(label + US + v.Label() + US + v.ID()),
+		Value: keyvalue.NewAny(v.ID()),
+	}
+	tt = append(tt, t)
+
+	for k, p := range v.Properties() {
+		t := &keyvalue.KeyValue{
+			Key:   []byte(properties + US + k + US + v.ID()),
+			Value: keyvalue.NewAny(p),
+		}
+		tt = append(tt, t)
+	}
+
+	for _, e := range v.Edges {
+		tt = append(tt, e.MarshalTranspose()...)
+	}
+	return tt
+}
+
+// UnmarshalKeyValue a KeyValue into Vertex
+func (v *Vertex) UnmarshalKeyValue(c ...*keyvalue.KeyValue) {
+	parts := strings.Split(string(c[0].Key), US)
+	id := parts[0]
+	uuid, _ := ParseUUID(id)
+	v.id = uuid
+
+	for _, kv := range c {
+		split := strings.Split(string(kv.Key), US)
+
+		if isVertex(split) {
+			//id, _ := Vertex(split)
+			value, ok := kv.Value.Unmarshal().(string)
+			if ok {
+				v.SetLabel(value)
+			}
+			continue
+		}
+		if isProperty(split) {
+			_, key := property(split)
+			v.SetProperty(key, kv.Value.Unmarshal())
+			continue
+		}
+		if isRelationship(split) {
+			_, relationshipType, _ := relationshipKey(split)
+			value, ok := kv.Value.Unmarshal().(string)
+			if ok {
+				edgeID, _ := ParseUUID(value)
+
+				edge, ok := v.Edges[edgeID]
+				if !ok {
+					edge = NewEdgeFromID(v.id, edgeID)
+					v.AddEdge(edge)
+				}
+
+				edge.SetRelationshipType(relationshipType)
+			}
+			continue
+		}
+
+		if isRelationshipProperties(split) {
+			_, value, key, _ := relationshipProperties(split)
+			edgeID, _ := ParseUUID(value)
+			edge, ok := v.Edges[edgeID]
+			if !ok {
+				edge := NewEdgeFromID(v.id, edgeID)
+				v.AddEdge(edge)
+			}
+			edge.SetProperty(key, kv.Value.Unmarshal())
+			continue
+		}
+	}
+}
+
+func isVertex(split []string) bool {
+	if split[1] == vertex {
+		return true
+	}
+
+	return false
+}
+
+func isProperty(split []string) bool {
+	if split[1] == properties {
+		return true
+	}
+
+	return false
+}
+
+// Property generate the properties key
+func property(split []string) (string, string) {
+	id := split[0]
+
+	property := split[2]
+
+	return id, property
+}
+
+func isRelationship(split []string) bool {
+	if split[1] == relationship {
+		return true
+	}
+
+	return false
+}
+
+//Relationship generate the relationship key
+func relationshipKey(split []string) (string, string, error) {
+	id := split[0]
+
+	relationshipType := split[2]
+
+	return id, relationshipType, nil
+}
+
+func isRelationshipProperties(split []string) bool {
+	if split[1] == relationshipproperties {
+		return true
+	}
+
+	return false
+}
+
+// RelationshipProperties generate the properties key for a relationship
+func relationshipProperties(split []string) (string, string, string, error) {
+	id := split[0]
+	key := split[2]
+	edgeID := split[3]
+
+	return id, edgeID, key, nil
+}
+
+// UnmarshalKeyValueTranspose a KeyValue into Vertex
+func (v *Vertex) UnmarshalKeyValueTranspose(c ...*keyvalue.KeyValue) {
+
+	if s, ok := c[0].Value.Unmarshal().(string); ok {
+		uuid, _ := ParseUUID(s)
+		v.id = uuid
+	}
+
+	for _, kv := range c {
+		split := strings.Split(string(kv.Key), US)
+
+		if isVertexTranspose(split) {
+			_, label := vertexTranspose(split)
+			v.SetLabel(label)
+			continue
+		}
+		if isPropertiesTranspose(split) {
+			_, key := propertiesTranspose(split)
+			v.SetProperty(key, kv.Value.Unmarshal())
+			continue
+		}
+		if isRelationshipTranspose(split) {
+			_, relationshipType := relationshipTranspose(split)
+			value, ok := kv.Value.Unmarshal().(string)
+			if ok {
+				edgeID, _ := ParseUUID(value)
+
+				edge, ok := v.Edges[edgeID]
+				if !ok {
+					edge = NewEdgeFromID(v.id, edgeID)
+					v.AddEdge(edge)
+				}
+
+				edge.SetRelationshipType(relationshipType)
+			}
+			continue
+		}
+
+		if isRelationshipPropertiesTranspose(split) {
+			_, value, key := relationshipPropertiesTranspose(split)
+			edgeID, _ := ParseUUID(value)
+			edge, ok := v.Edges[edgeID]
+			if !ok {
+				edge := NewEdgeFromID(v.id, edgeID)
+				v.AddEdge(edge)
+			}
+			edge.SetProperty(key, kv.Value.Unmarshal())
+			continue
+		}
+	}
+}
+
+func isVertexTranspose(split []string) bool {
+	if split[0] == label {
+		return true
+	}
+
+	return false
+}
+
+func vertexTranspose(split []string) (string, string) {
+	label := split[1]
+	id := split[2]
+
+	return id, label
+}
+
+func isPropertiesTranspose(split []string) bool {
+	if split[0] == properties {
+		return true
+	}
+
+	return false
+}
+
+func propertiesTranspose(split []string) (string, string) {
+	key := split[1]
+	id := split[2]
+
+	return id, key
+}
+
+func isRelationshipTranspose(split []string) bool {
+	if split[0] == relationship {
+		return true
+	}
+
+	return false
+}
+
+//relationshipTranspose generate the relationship key
+func relationshipTranspose(split []string) (string, string) {
+	relationshipType := split[1]
+	id := split[2]
+
+	return id, relationshipType
+}
+
+func isRelationshipPropertiesTranspose(split []string) bool {
+	if split[0] == relationshipproperties {
+		return true
+	}
+
+	return false
+}
+
+// relationshipProperties generate the properties key for a relationship
+func relationshipPropertiesTranspose(split []string) (string, string, string) {
+	key := split[1]
+	edgeID := split[2]
+	id := split[3]
+	return id, edgeID, key
 }

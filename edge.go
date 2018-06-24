@@ -1,11 +1,17 @@
 package graph
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/RossMerr/Caudex.Graph/storage/keyvalue"
+)
 
 type (
 	// An Edge connects two Vertex in a graph.
 	Edge struct {
-		id         VertexID
+		from VertexID
+		to   VertexID
+
 		isDirected Digraph
 		// Weight of a path in a weighted graph
 		Weight           float64
@@ -20,28 +26,21 @@ type (
 var _ Properties = (*Edge)(nil)
 
 // NewEdge build a new edge with a id
-func NewEdge() (*Edge, error) {
-	var id VertexID
-	var err error
-
-	if id, err = generateRandomBytes(); err != nil {
-		return nil, errCreatVertexID
-	}
-
-	v := Edge{id: id, properties: make(map[string]interface{})}
-	return &v, nil
+func NewEdge(from, to *Vertex) *Edge {
+	return NewEdgeFromID(from.id, to.id)
 }
 
 // NewEdgeFromID creates a edge form the id
-func NewEdgeFromID(ID [16]byte) (*Edge, error) {
-	e, err := NewEdge()
-	e.id = ID
-	return e, err
+func NewEdgeFromID(from, to [16]byte) *Edge {
+	return &Edge{from: from, to: to, properties: make(map[string]interface{})}
 }
 
-// ID returns the generate UUID
-func (e *Edge) ID() string {
-	return formatUUID(e.id)
+func (e *Edge) From() string {
+	return formatUUID(e.from)
+}
+
+func (e *Edge) To() string {
+	return formatUUID(e.to)
 }
 
 // RelationshipType the type of relationship
@@ -79,3 +78,45 @@ func (e *Edge) Properties() map[string]interface{} {
 func (a Edges) Len() int           { return len(a) }
 func (a Edges) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a Edges) Less(i, j int) bool { return a[i].Weight > a[j].Weight }
+
+// MarshalKeyValue marshal a edge into KeyValue
+func (e *Edge) MarshalKeyValue() []*keyvalue.KeyValue {
+	tt := []*keyvalue.KeyValue{}
+
+	t := &keyvalue.KeyValue{
+		Key:   []byte(e.From() + US + relationship + US + e.RelationshipType()),
+		Value: keyvalue.NewAny(e.To()),
+	}
+	tt = append(tt, t)
+
+	for k, p := range e.Properties() {
+		t := &keyvalue.KeyValue{
+			Key:   []byte(e.From() + US + relationshipproperties + US + k + US + e.To()),
+			Value: keyvalue.NewAny(p),
+		}
+		tt = append(tt, t)
+	}
+
+	return tt
+}
+
+// MarshalTranspose mashal a Edge into a transposed KeyValue
+func (e *Edge) MarshalTranspose() []*keyvalue.KeyValue {
+	tt := []*keyvalue.KeyValue{}
+
+	t := &keyvalue.KeyValue{
+		Key:   []byte(relationship + US + e.RelationshipType() + US + e.From()),
+		Value: keyvalue.NewAny(e.To()),
+	}
+	tt = append(tt, t)
+
+	for k, p := range e.Properties() {
+		t := &keyvalue.KeyValue{
+			Key:   []byte(relationshipproperties + US + k + US + e.To() + US + e.From()),
+			Value: keyvalue.NewAny(p),
+		}
+		tt = append(tt, t)
+	}
+
+	return tt
+}
