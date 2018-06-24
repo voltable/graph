@@ -255,21 +255,20 @@ func (v *Vertex) UnmarshalKeyValue(c ...*keyvalue.KeyValue) {
 	for _, kv := range c {
 		split := strings.Split(string(kv.Key), US)
 
-		if isVertex(split) {
-			//id, _ := Vertex(split)
+		if split[1] == vertex {
 			value, ok := kv.Value.Unmarshal().(string)
 			if ok {
 				v.SetLabel(value)
 			}
 			continue
 		}
-		if isProperty(split) {
-			_, key := property(split)
+		if split[1] == properties {
+			key := split[2]
 			v.SetProperty(key, kv.Value.Unmarshal())
 			continue
 		}
-		if isRelationship(split) {
-			_, relationshipType, _ := relationshipKey(split)
+		if split[1] == relationship {
+			relationshipType := split[2]
 			value, ok := kv.Value.Unmarshal().(string)
 			if ok {
 				edgeID, _ := ParseUUID(value)
@@ -285,9 +284,9 @@ func (v *Vertex) UnmarshalKeyValue(c ...*keyvalue.KeyValue) {
 			continue
 		}
 
-		if isRelationshipProperties(split) {
-			_, value, key, _ := relationshipProperties(split)
-			edgeID, _ := ParseUUID(value)
+		if split[1] == relationshipproperties {
+			key := split[2]
+			edgeID, _ := ParseUUID(split[3])
 			edge, ok := v.Edges[edgeID]
 			if !ok {
 				edge := NewEdgeFromID(v.id, edgeID)
@@ -297,65 +296,6 @@ func (v *Vertex) UnmarshalKeyValue(c ...*keyvalue.KeyValue) {
 			continue
 		}
 	}
-}
-
-func isVertex(split []string) bool {
-	if split[1] == vertex {
-		return true
-	}
-
-	return false
-}
-
-func isProperty(split []string) bool {
-	if split[1] == properties {
-		return true
-	}
-
-	return false
-}
-
-// Property generate the properties key
-func property(split []string) (string, string) {
-	id := split[0]
-
-	property := split[2]
-
-	return id, property
-}
-
-func isRelationship(split []string) bool {
-	if split[1] == relationship {
-		return true
-	}
-
-	return false
-}
-
-//Relationship generate the relationship key
-func relationshipKey(split []string) (string, string, error) {
-	id := split[0]
-
-	relationshipType := split[2]
-
-	return id, relationshipType, nil
-}
-
-func isRelationshipProperties(split []string) bool {
-	if split[1] == relationshipproperties {
-		return true
-	}
-
-	return false
-}
-
-// RelationshipProperties generate the properties key for a relationship
-func relationshipProperties(split []string) (string, string, string, error) {
-	id := split[0]
-	key := split[2]
-	edgeID := split[3]
-
-	return id, edgeID, key, nil
 }
 
 // UnmarshalKeyValueTranspose a KeyValue into Vertex
@@ -369,18 +309,18 @@ func (v *Vertex) UnmarshalKeyValueTranspose(c ...*keyvalue.KeyValue) {
 	for _, kv := range c {
 		split := strings.Split(string(kv.Key), US)
 
-		if isVertexTranspose(split) {
-			_, label := vertexTranspose(split)
+		if split[0] == label {
+			label := split[1]
 			v.SetLabel(label)
 			continue
 		}
-		if isPropertiesTranspose(split) {
-			_, key := propertiesTranspose(split)
+		if split[0] == properties {
+			key := split[1]
 			v.SetProperty(key, kv.Value.Unmarshal())
 			continue
 		}
-		if isRelationshipTranspose(split) {
-			_, relationshipType := relationshipTranspose(split)
+		if split[0] == relationship {
+			relationshipType := split[1]
 			value, ok := kv.Value.Unmarshal().(string)
 			if ok {
 				edgeID, _ := ParseUUID(value)
@@ -396,9 +336,9 @@ func (v *Vertex) UnmarshalKeyValueTranspose(c ...*keyvalue.KeyValue) {
 			continue
 		}
 
-		if isRelationshipPropertiesTranspose(split) {
-			_, value, key := relationshipPropertiesTranspose(split)
-			edgeID, _ := ParseUUID(value)
+		if split[0] == relationshipproperties {
+			key := split[1]
+			edgeID, _ := ParseUUID(split[2])
 			edge, ok := v.Edges[edgeID]
 			if !ok {
 				edge := NewEdgeFromID(v.id, edgeID)
@@ -408,66 +348,4 @@ func (v *Vertex) UnmarshalKeyValueTranspose(c ...*keyvalue.KeyValue) {
 			continue
 		}
 	}
-}
-
-func isVertexTranspose(split []string) bool {
-	if split[0] == label {
-		return true
-	}
-
-	return false
-}
-
-func vertexTranspose(split []string) (string, string) {
-	label := split[1]
-	id := split[2]
-
-	return id, label
-}
-
-func isPropertiesTranspose(split []string) bool {
-	if split[0] == properties {
-		return true
-	}
-
-	return false
-}
-
-func propertiesTranspose(split []string) (string, string) {
-	key := split[1]
-	id := split[2]
-
-	return id, key
-}
-
-func isRelationshipTranspose(split []string) bool {
-	if split[0] == relationship {
-		return true
-	}
-
-	return false
-}
-
-//relationshipTranspose generate the relationship key
-func relationshipTranspose(split []string) (string, string) {
-	relationshipType := split[1]
-	id := split[2]
-
-	return id, relationshipType
-}
-
-func isRelationshipPropertiesTranspose(split []string) bool {
-	if split[0] == relationshipproperties {
-		return true
-	}
-
-	return false
-}
-
-// relationshipProperties generate the properties key for a relationship
-func relationshipPropertiesTranspose(split []string) (string, string, string) {
-	key := split[1]
-	edgeID := split[2]
-	id := split[3]
-	return id, edgeID, key
 }
