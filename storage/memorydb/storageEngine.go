@@ -57,7 +57,6 @@ func NewStorageEngine(o *graph.Options) (graph.Graph, error) {
 // Create adds a array of vertices to the persistence
 func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 	for _, v := range c {
-
 		triples := v.MarshalKeyValue()
 		transposes := v.MarshalKeyValueTranspose()
 		var errstrings []string
@@ -82,29 +81,23 @@ func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 
 // Delete the array of vertices from the persistence
 func (se *StorageEngine) Delete(c ...*graph.Vertex) error {
-	//	for _, v := range c {
+	for _, v := range c {
+		triples := v.MarshalKeyValue()
+		transposes := v.MarshalKeyValueTranspose()
+		var errstrings []string
 
-	//keyvalue.LabelID
-	// for i := 0; i < len(triples); i++ {
-	// 	triple := triples[i]
-	// 	buf, _ := proto.Marshal(triple.Value)
-	// 	se.tKey[string(triple.Key)] = buf
+		for i := 0; i < len(triples); i++ {
+			triple := triples[i]
+			delete(se.tKey, string(triple.Key))
 
-	// 	transpose := transposes[i]
-	// 	buf, _ = proto.Marshal(transpose.Value)
-	// 	se.tKeyT[string(transpose.Key)] = buf
-	// }
+			transpose := transposes[i]
+			delete(se.tKeyT, string(transpose.Key))
+		}
 
-	// delete(se.vertices, v.ID())
-	// for i, k := range se.keys {
-	// 	if k == v.ID() {
-	// 		se.keys = append(se.keys[:i], se.keys[i+1:]...)
-	// 		break
-
-	// 	}
-	// }
-	//delete(se.keys, v.ID())
-	//	}
+		if len(errstrings) > 0 {
+			return fmt.Errorf(strings.Join(errstrings, "\n"))
+		}
+	}
 
 	return nil
 }
