@@ -31,7 +31,7 @@ func NewEdge(from, to *Vertex) *Edge {
 }
 
 // NewEdgeFromID creates a edge form the id
-func NewEdgeFromID(from, to [16]byte) *Edge {
+func NewEdgeFromID(from, to VertexID) *Edge {
 	return &Edge{from: from, to: to, properties: make(map[string]interface{})}
 }
 
@@ -83,39 +83,23 @@ func (a Edges) Less(i, j int) bool { return a[i].Weight > a[j].Weight }
 func (e *Edge) MarshalKeyValue() []*keyvalue.KeyValue {
 	tt := []*keyvalue.KeyValue{}
 
-	t := &keyvalue.KeyValue{
-		Key:   []byte(e.From() + US + relationship + US + e.RelationshipType()),
-		Value: keyvalue.NewAny(e.To()),
-	}
-	tt = append(tt, t)
+	tt = append(tt, keyvalue.NewKeyValue(e.To(), e.from[:], US, relationship, US, []byte(e.RelationshipType())))
 
 	for k, p := range e.Properties() {
-		t := &keyvalue.KeyValue{
-			Key:   []byte(e.From() + US + relationshipproperties + US + k + US + e.To()),
-			Value: keyvalue.NewAny(p),
-		}
-		tt = append(tt, t)
+		tt = append(tt, keyvalue.NewKeyValue(p, e.from[:], US, relationshipproperties, US, []byte(k), US, e.to[:]))
 	}
 
 	return tt
 }
 
 // MarshalTranspose mashal a Edge into a transposed KeyValue
-func (e *Edge) MarshalTranspose() []*keyvalue.KeyValue {
+func (e *Edge) MarshalKeyValueTranspose() []*keyvalue.KeyValue {
 	tt := []*keyvalue.KeyValue{}
 
-	t := &keyvalue.KeyValue{
-		Key:   []byte(relationship + US + e.RelationshipType() + US + e.From()),
-		Value: keyvalue.NewAny(e.To()),
-	}
-	tt = append(tt, t)
+	tt = append(tt, keyvalue.NewKeyValue(e.To(), relationship, US, []byte(e.RelationshipType()), US, e.from[:]))
 
 	for k, p := range e.Properties() {
-		t := &keyvalue.KeyValue{
-			Key:   []byte(relationshipproperties + US + k + US + e.To() + US + e.From()),
-			Value: keyvalue.NewAny(p),
-		}
-		tt = append(tt, t)
+		tt = append(tt, keyvalue.NewKeyValue(p, relationshipproperties, US, []byte(k), US, e.to[:], US, e.from[:]))
 	}
 
 	return tt

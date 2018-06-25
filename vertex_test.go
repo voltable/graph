@@ -90,7 +90,7 @@ func TestMarshalKeyValue(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.vertex.MarshalKeyValue()
 			v := graph.NewEmptyVertex()
-			v.UnmarshalKeyValue(got...)
+			v.UnmarshalKeyValue(got)
 			if !reflect.DeepEqual(v, tt.vertex) {
 				t.Errorf("Marshal() = %v, want %v", v, tt.vertex)
 			}
@@ -123,7 +123,7 @@ func TestMarshalKeyValueTranspose(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.vertex.MarshalKeyValueTranspose()
 			v := graph.NewEmptyVertex()
-			v.UnmarshalKeyValueTranspose(got...)
+			v.UnmarshalKeyValueTranspose(got)
 			if !reflect.DeepEqual(v, tt.vertex) {
 				t.Errorf("Marshal() = %v, want %v", v, tt.vertex)
 			}

@@ -11,7 +11,7 @@ import (
 	"fmt"
 )
 
-func generateRandomBytes() ([16]byte, error) {
+func generateRandomVertexID() (VertexID, error) {
 	buf := make([]byte, 16)
 	var arr [16]byte
 	if _, err := rand.Read(buf); err != nil {
@@ -19,6 +19,12 @@ func generateRandomBytes() ([16]byte, error) {
 	}
 	copy(arr[:], buf)
 	return arr, nil
+}
+
+func sliceToVertexID(buf []byte) VertexID {
+	var arr [16]byte
+	copy(arr[:], buf)
+	return arr
 }
 
 func formatUUID(buf [16]byte) string {
@@ -30,7 +36,7 @@ func formatUUID(buf [16]byte) string {
 		buf[10:16])
 }
 
-func ParseUUID(uuid string) ([16]byte, error) {
+func parseUUID(uuid string) ([16]byte, error) {
 	var arr [16]byte
 	if len(uuid) != 36 {
 		return arr, fmt.Errorf("uuid string is wrong length")
