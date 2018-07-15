@@ -1,6 +1,6 @@
 package ast
 
-import "github.com/RossMerr/Caudex.Graph"
+import "github.com/RossMerr/Caudex.Graph/keyvalue"
 
 var _ TerminalExpr = (*PropertyStmt)(nil)
 var _ InterpretExpr = (*PropertyStmt)(nil)
@@ -24,9 +24,12 @@ func (p *PropertyStmt) SetValue(x interface{}) {
 	}
 }
 
-func (p *PropertyStmt) Interpret(variable string, prop graph.Properties) interface{} {
+func (p *PropertyStmt) Interpret(variable string, prop *keyvalue.KeyValue) interface{} {
 	if p.Variable == variable {
-		return prop.Property(p.Value)
+		// TODO probably not right
+		if p.Value == string(prop.Key) {
+			return prop.Value.Unmarshal()
+		}
 	}
 	return false
 }

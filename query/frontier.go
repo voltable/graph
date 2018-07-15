@@ -1,22 +1,26 @@
 package query
 
-import graph "github.com/RossMerr/Caudex.Graph"
+import (
+	graph "github.com/RossMerr/Caudex.Graph"
+	"github.com/RossMerr/Caudex.Graph/keyvalue"
+)
 
 type FrontierQueue struct {
 	Parts []FrontierProperties
 	Cost  float64
 }
 
-// FrontierProperties containers a vertex or edge it's Variable used by a query
+// FrontierProperties containers a KeyValue (vertex or edge) and it's Variable used by a query
 type FrontierProperties struct {
-	Object   graph.Properties
+	Object   *keyvalue.KeyValue
 	Variable string
+	UUID     graph.UUID
 }
 
 // Frontier priority queue containing vertices to be explored and the cost for a Uniform Cost Search
 type Frontier struct {
 	Values   []*FrontierQueue
-	Explored map[string]bool
+	Explored map[graph.UUID]bool
 }
 
 // Sort interface
@@ -50,27 +54,15 @@ func (f *Frontier) append(vertices []FrontierProperties, cost float64) {
 	f.Values = append(f.Values, fp)
 }
 
-func (f *Frontier) AppendQueue(queue *FrontierQueue) {
-	f.append(queue.Parts, queue.Cost)
-}
-
-func (f *Frontier) AppendVertex(queue *FrontierQueue, v *graph.Vertex, variable string) {
+func (f *Frontier) AppendKeyValue(queue *FrontierQueue, v *keyvalue.KeyValue, variable string) {
 	fv := FrontierProperties{Object: v, Variable: variable}
 	f.append(append(queue.Parts, fv), queue.Cost)
 }
 
-func (f *Frontier) AppendEdgeAndVertex(queue *FrontierQueue, e *graph.Edge, v *graph.Vertex, variable string, weight float64) {
-	fe := FrontierProperties{Object: e, Variable: variable}
-	fv := FrontierProperties{Object: v, Variable: variable}
-	parts := append(queue.Parts, fe)
-	parts = append(parts, fv)
-	f.append(parts, queue.Cost+weight)
-}
-
 // NewFrontier create the Frontier using the inistal Vertex as the root of the graph
-func NewFrontier(v *graph.Vertex, variable string) Frontier {
+func NewFrontier(v *keyvalue.KeyValue, variable string) Frontier {
 	fv := FrontierProperties{Object: v, Variable: variable}
-	f := Frontier{Explored: make(map[string]bool)}
+	f := Frontier{Explored: make(map[graph.UUID]bool)}
 	f.append([]FrontierProperties{fv}, 0)
 	return f
 }

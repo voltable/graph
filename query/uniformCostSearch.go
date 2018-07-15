@@ -3,85 +3,51 @@ package query
 import (
 	"sort"
 	"sync"
-
-	"github.com/RossMerr/Caudex.Graph"
 )
 
 type Traversal interface {
-	SearchPlan(iterator IteratorFrontier, predicates []interface{}) (iteratorFrontier IteratorFrontier, err error)
+	SearchPlan(iterator IteratorFrontier, predicates []*PredicatePath) (iteratorFrontier IteratorFrontier, err error)
 }
 
 type Plan struct {
-	storage    graph.Storage
 	wg         *sync.WaitGroup
-	predicates []interface{}
+	predicates []*PredicatePath
 	Depth      int
 }
 
-func NewPlan(storage graph.Storage) *Plan {
+func NewPlan() *Plan {
 	plan := &Plan{
-		storage: storage,
-		wg:      &sync.WaitGroup{},
+		wg: &sync.WaitGroup{},
 	}
 	return plan
 }
 
-func (t *Plan) predicateVertex(i int) PredicateVertex {
-	if i < len(t.predicates) {
-		e := t.predicates[i]
-		if pv, ok := e.(*PredicateVertexPath); ok {
-			return pv.PredicateVertex
-		}
-	}
-	return nil
-}
-
-func (t *Plan) predicateEdge(i int) PredicateEdge {
-	if i < len(t.predicates) {
-		e := t.predicates[i]
-		if pv, ok := e.(*PredicateEdgePath); ok {
-			return pv.PredicateEdge
-		}
-	}
-	return nil
-}
-
-func (t *Plan) UniformCostSearch(frontier *Frontier) bool {
+func (t *Plan) uniformCostSearch(frontier *Frontier) bool {
 	if frontier.Len() > 0 {
 		queue := frontier.Pop()
 		depth := len(queue.Parts)
-		vertex := queue.Parts[depth-1].Object.(*graph.Vertex)
-		if _, ok := frontier.Explored[vertex.ID()]; !ok {
-			frontier.Explored[vertex.ID()] = true
-			if pv := t.predicateVertex(depth - 1); pv != nil {
-				if variable, p := pv(vertex); p == Matched {
-					queue.Parts[depth-1].Variable = variable
-					frontier.AppendQueue(queue)
-					sort.Sort(frontier)
-					return depth == t.Depth
-				}
+		part := queue.Parts[depth-1]
+
+		if _, ok := frontier.Explored[part.UUID]; !ok {
+			frontier.Explored[part.UUID] = true
+			pv := t.predicates[depth-1]
+			if variable, p := pv.Predicate(part.Object); p == Matched {
+				queue.Parts[depth-1].Variable = variable
+				frontier.AppendKeyValue(queue, part.Object, part.Variable)
+				sort.Sort(frontier)
+				return depth == t.Depth
 			}
+
 		}
-		if pe := t.predicateEdge(depth); pe != nil {
-			for _, e := range vertex.Edges {
-				if _, ok := frontier.Explored[e.To()]; !ok {
-					if variable, p := pe(e, uint(depth)); p == Visiting || p == Matching {
-						if v, err := t.storage.Fetch(e.To()); err == nil {
-							frontier.AppendEdgeAndVertex(queue, e, v, variable, e.Weight)
-						}
-					}
-				}
-			}
-		}
+
 		sort.Sort(frontier)
 	}
 	return false
 }
 
-func (t *Plan) SearchPlan(iterator IteratorFrontier, predicates []interface{}) (iteratorFrontier IteratorFrontier, err error) {
+func (t *Plan) SearchPlan(iterator IteratorFrontier, predicates []*PredicatePath) (iteratorFrontier IteratorFrontier, err error) {
 	t.predicates = predicates
 	t.Depth = len(predicates)
-
 	results := make(chan *Frontier)
 
 	t.forEach(iterator, results)
@@ -101,7 +67,7 @@ func (t *Plan) SearchPlan(iterator IteratorFrontier, predicates []interface{}) (
 }
 
 func (t *Plan) worker(f *Frontier, results chan *Frontier) {
-	if t.UniformCostSearch(f) {
+	if t.uniformCostSearch(f) {
 		results <- f
 		t.wg.Done()
 	} else if f.Len() > 0 {

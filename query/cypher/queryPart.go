@@ -1,8 +1,9 @@
 package cypher
 
 import (
+	"github.com/RossMerr/Caudex.Graph/keyvalue/ir"
+	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ir"
 )
 
 type Parts interface {
@@ -13,7 +14,7 @@ type Parts interface {
 type QueryPart struct {
 	Return     *ast.ReturnStmt
 	Where      *ast.WhereStmt
-	Predicates []interface{}
+	Predicates []*query.PredicatePath
 }
 
 // Predicate gets the Predicate from the query where statment
@@ -51,19 +52,12 @@ func NewParts() Parts {
 // ToQueryPath converts a cypher.Stmt to a QueryPath the queryPath is used to walk the graph
 func (qq cypherParts) ToQueryPart(stmt ast.Clauses) ([]*QueryPart, error) {
 	arr := make([]*QueryPart, 0)
-	qp := QueryPart{Predicates: make([]interface{}, 0)}
+	qp := QueryPart{Predicates: make([]*query.PredicatePath, 0)}
 	arr = append(arr, &qp)
 	if pattern, ok := IsPattern(stmt); ok {
 		for pattern != nil {
-			if v, ok := pattern.(*ir.VertexPatn); ok && v != nil {
-				qp.Predicates = append(qp.Predicates, v.ToPredicateVertexPath())
-				pattern = v.Edge
-			} else if e, ok := pattern.(*ir.EdgePatn); ok && e != nil {
-				qp.Predicates = append(qp.Predicates, e.ToPredicateEdgePath())
-				pattern = e.Vertex
-			} else {
-				break
-			}
+			qp.Predicates = append(qp.Predicates, ir.ToPredicatePath(pattern))
+			pattern = pattern.Next
 		}
 	}
 
@@ -80,7 +74,7 @@ func (qq cypherParts) ToQueryPart(stmt ast.Clauses) ([]*QueryPart, error) {
 	return arr, nil
 }
 
-func IsPattern(item ast.Stmt) (ir.Patn, bool) {
+func IsPattern(item ast.Stmt) (*ast.Patn, bool) {
 	if b, ok := item.(*ast.DeleteStmt); ok {
 		return b.Pattern, true
 	} else if b, ok := item.(*ast.CreateStmt); ok {

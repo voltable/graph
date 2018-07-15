@@ -1,8 +1,8 @@
 package ast
 
 import (
-	graph "github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/expressions"
+	"github.com/RossMerr/Caudex.Graph/keyvalue"
 )
 
 // BooleanExpr boolean expression
@@ -43,7 +43,7 @@ func (b *BooleanExpr) SetRight(right InterpretExpr) {
 }
 
 // Interpret runs the BooleanExpr over a Vertex to check for a match
-func (b *BooleanExpr) Interpret(variable string, prop graph.Properties) interface{} {
+func (b *BooleanExpr) Interpret(variable string, prop *keyvalue.KeyValue) interface{} {
 	left := b.GetLeft()
 	right := b.GetRight()
 

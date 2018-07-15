@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/RossMerr/Caudex.Graph/keyvalue"
+
 	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/gogo/protobuf/proto"
 )
 
 func init() {
@@ -23,10 +24,12 @@ var (
 )
 
 type StorageEngine struct {
-	tKey    map[string][]byte
-	tKeyT   map[string][]byte
-	Options *graph.Options
-	engine  query.Engine
+	tKeyIndex  map[int]string
+	tKey       map[string]*keyvalue.Any
+	tKeyTIndex map[int]string
+	tKeyT      map[string]*keyvalue.Any
+	Options    *graph.Options
+	engine     query.Engine
 }
 
 var _ graph.Graph = (*StorageEngine)(nil)
@@ -40,9 +43,11 @@ func (se *StorageEngine) Close() {
 // NewStorageEngine creates anew in memory storage engine
 func NewStorageEngine(o *graph.Options) (graph.Graph, error) {
 	se := StorageEngine{
-		Options: o,
-		tKey:    make(map[string][]byte),
-		tKeyT:   make(map[string][]byte),
+		Options:    o,
+		tKeyIndex:  make(map[int]string),
+		tKey:       make(map[string]*keyvalue.Any),
+		tKeyT:      make(map[string]*keyvalue.Any),
+		tKeyTIndex: make(map[int]string),
 	}
 
 	queryEngine, err := query.NewQueryEngine(o.QueryEngine, &se)
@@ -63,12 +68,12 @@ func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 
 		for i := 0; i < len(triples); i++ {
 			triple := triples[i]
-			buf, _ := proto.Marshal(triple.Value)
-			se.tKey[string(triple.Key)] = buf
+			se.tKey[string(triple.Key)] = triple.Value
+			se.tKeyIndex[len(se.tKey)] = string(triple.Key)
 
 			transpose := transposes[i]
-			buf, _ = proto.Marshal(transpose.Value)
-			se.tKeyT[string(transpose.Key)] = buf
+			se.tKeyT[string(transpose.Key)] = transpose.Value
+			se.tKeyTIndex[len(se.tKeyT)] = string(transpose.Key)
 		}
 
 		if len(errstrings) > 0 {
@@ -127,19 +132,36 @@ func (se *StorageEngine) Fetch(id string) (*graph.Vertex, error) {
 }
 
 func (se *StorageEngine) ForEach() graph.Iterator {
-	// position := 0
-	// length := len(se.keys)
-	// return func() (item interface{}, ok bool) {
-	// 	if position < length {
-	// 		key := se.keys[position]
-	// 		v := se.vertices[key]
-	// 		position = position + 1
-	// 		return &v, true
-	// 	}
-	// 	return nil, false
-	// }
-
+	position := 0
+	length := len(se.tKey)
 	return func() (item interface{}, ok bool) {
+		for position < length {
+			key := se.tKeyIndex[position]
+			v := se.tKey[key]
+			position = position + 1
+			kv := &keyvalue.KeyValue{Key: []byte(key), Value: v}
+			return &kv, true
+		}
+		return nil, false
+	}
+}
+
+func (se *StorageEngine) HasPrefix(prefix []byte) graph.Iterator {
+	position := 0
+	length := len(se.tKey)
+	p := string(prefix)
+	return func() (item interface{}, ok bool) {
+		for position < length {
+			key := se.tKeyIndex[position]
+			position = position + 1
+
+			if strings.HasPrefix(key, p) {
+				v := se.tKey[key]
+				kv := &keyvalue.KeyValue{Key: []byte(key), Value: v}
+				return &kv, true
+			}
+		}
+
 		return nil, false
 	}
 }

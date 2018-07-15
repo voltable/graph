@@ -1,18 +1,14 @@
 package ast
 
-import (
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ir"
-)
-
 // MatchStmt used to search for the pattern described in it.
 type MatchStmt struct {
-	Pattern ir.Patn
+	Pattern *Patn
 	Next    Clauses
 }
 
 func (MatchStmt) patternNode() {}
 
-func (m *MatchStmt) GetPattern() ir.Patn {
+func (m *MatchStmt) GetPattern() *Patn {
 	return m.Pattern
 }
 

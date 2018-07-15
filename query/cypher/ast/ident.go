@@ -1,6 +1,6 @@
 package ast
 
-import graph "github.com/RossMerr/Caudex.Graph"
+import "github.com/RossMerr/Caudex.Graph/keyvalue"
 
 var _ TerminalExpr = (*Ident)(nil)
 
@@ -20,6 +20,6 @@ func (p *Ident) SetValue(x interface{}) {
 	p.Data = x
 }
 
-func (p *Ident) Interpret(variable string, prop graph.Properties) interface{} {
+func (p *Ident) Interpret(variable string, prop *keyvalue.KeyValue) interface{} {
 	return p.Data
 }

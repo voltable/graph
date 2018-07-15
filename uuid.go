@@ -1,8 +1,3 @@
-// Copyright (c) 2018 Ross Merrigan
-//
-// This software is released under the MIT License.
-// https://opensource.org/licenses/MIT
-
 package graph
 
 import (
@@ -11,7 +6,10 @@ import (
 	"fmt"
 )
 
-func generateRandomVertexID() (VertexID, error) {
+// UUID
+type UUID [16]byte
+
+func generateRandomVertexID() (UUID, error) {
 	buf := make([]byte, 16)
 	var arr [16]byte
 	if _, err := rand.Read(buf); err != nil {
@@ -21,7 +19,7 @@ func generateRandomVertexID() (VertexID, error) {
 	return arr, nil
 }
 
-func sliceToVertexID(buf []byte) VertexID {
+func sliceToVertexID(buf []byte) UUID {
 	var arr [16]byte
 	copy(arr[:], buf)
 	return arr

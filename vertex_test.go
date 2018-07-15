@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/storage/keyvalue"
+	"github.com/RossMerr/Caudex.Graph/keyvalue"
 )
 
 func Test_VertexLabels(t *testing.T) {
@@ -28,8 +28,8 @@ func Test_NewVertex(t *testing.T) {
 		t.Fatalf("Expected ID to be set but was %+v", v.ID())
 	}
 
-	if v.Edges == nil {
-		t.Fatalf("Expected edges to be set but was %+v", v.Edges)
+	if v.Edges() == nil {
+		t.Fatalf("Expected edges to be set but was %+v", v.Edges())
 	}
 
 }
@@ -43,13 +43,13 @@ func Test_AddDirectedEdge(t *testing.T) {
 		t.Fatalf("Unexpected AddDirectedEdge error %s", err)
 	}
 
-	results := vertex.Edges
+	results := vertex.Edges()
 
 	if len(results) != 1 {
 		t.Fatalf("Expected 1 edge but was %+v", len(results))
 	}
 
-	results2 := vertexDirection.Edges
+	results2 := vertexDirection.Edges()
 
 	if len(results2) != 0 {
 		t.Fatalf("Expected 0 edge but was %+v", len(results2))

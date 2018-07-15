@@ -1,7 +1,7 @@
 package cypher
 
 import (
-	"github.com/RossMerr/Caudex.Graph"
+	"github.com/RossMerr/Caudex.Graph/keyvalue"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 )
@@ -57,7 +57,7 @@ func (qe Filter) Filter(i query.IteratorFrontier, predicate ast.Expr) query.Iter
 }
 
 // ExpressionEvaluator checks the vertex pass the where part of the AST
-func (qe Filter) ExpressionEvaluator(expr ast.Expr, variable string, prop graph.Properties) bool {
+func (qe Filter) ExpressionEvaluator(expr ast.Expr, variable string, prop *keyvalue.KeyValue) bool {
 	if inter, ok := expr.(ast.InterpretExpr); ok {
 		result := inter.Interpret(variable, prop)
 		if result, ok := result.(bool); ok {

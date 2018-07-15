@@ -1,6 +1,6 @@
 package ast
 
-import graph "github.com/RossMerr/Caudex.Graph"
+import "github.com/RossMerr/Caudex.Graph/keyvalue"
 
 type ParenthesesExpr struct {
 	Parentheses
@@ -12,7 +12,7 @@ var _ InterpretExpr = (*ParenthesesExpr)(nil)
 func (ParenthesesExpr) exprNode()      {}
 func (ParenthesesExpr) interpretNode() {}
 
-func (p *ParenthesesExpr) Interpret(variable string, prop graph.Properties) interface{} {
+func (p *ParenthesesExpr) Interpret(variable string, prop *keyvalue.KeyValue) interface{} {
 	return nil
 }
 

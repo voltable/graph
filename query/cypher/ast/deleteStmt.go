@@ -1,16 +1,14 @@
 package ast
 
-import "github.com/RossMerr/Caudex.Graph/query/cypher/ir"
-
 // DeleteStmt used to delete graph elements — nodes, relationships or paths.
 type DeleteStmt struct {
-	Pattern ir.Patn
+	Pattern *Patn
 	Next    Clauses
 }
 
 func (DeleteStmt) patternNode() {}
 
-func (m *DeleteStmt) GetPattern() ir.Patn {
+func (m *DeleteStmt) GetPattern() *Patn {
 	return m.Pattern
 }
 

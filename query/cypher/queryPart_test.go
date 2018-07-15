@@ -3,66 +3,22 @@ package cypher_test
 import (
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/expressions"
-	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ir"
 )
 
 func Test_ToQueryPath(t *testing.T) {
-	edgePatn := &ir.EdgePatn{Body: &ir.EdgeBodyStmt{LengthMinimum: 2, LengthMaximum: 5}}
-	vertexPatn := &ir.VertexPatn{Variable: "bar", Edge: edgePatn}
+	//edgePatn := &ir.EdgePatn{Body: &ir.EdgeBodyStmt{LengthMinimum: 2, LengthMaximum: 5}}
+	//vertexPatn := &ir.VertexPatn{Variable: "bar", Edge: edgePatn}
 	wherePatn := &ast.WhereStmt{Predicate: ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"})}
-	match := &ast.MatchStmt{Pattern: vertexPatn, Next: wherePatn}
-
-	var b bool
-	toPredicateVertex := func(*ir.VertexPatn) query.PredicateVertex {
-		return func(v *graph.Vertex) (string, query.Traverse) {
-			if b {
-				return "", query.Matched
-			} else {
-				return "", query.Failed
-
-			}
-		}
-	}
-
-	toPredicateEdge := func(patn *ir.EdgePatn) query.PredicateEdge {
-		return func(e *graph.Edge, depth uint) (string, query.Traverse) {
-			if b {
-				return "", query.Matched
-			} else {
-				return "", query.Failed
-
-			}
-		}
-	}
-
-	want := make([]interface{}, 0)
-
-	want = append(want, &query.PredicateVertexPath{PredicateVertex: toPredicateVertex(vertexPatn)})
-	want = append(want, &query.PredicateEdgePath{PredicateEdge: toPredicateEdge(edgePatn)})
+	match := &ast.MatchStmt{Next: wherePatn}
 
 	parts, _ := cypher.NewParts().ToQueryPart(match)
 	partOne := parts[0]
 
 	if partOne.Where == nil {
 		t.Errorf("Where statment not matched")
-	}
-
-	got := partOne.Predicates
-	e := got[0]
-	v, _ := e.(*query.PredicateVertexPath)
-	if v == nil {
-		t.Errorf("VertexNext")
-	}
-
-	e = got[1]
-	en, _ := e.(*query.PredicateEdgePath)
-	if en == nil {
-		t.Errorf("EdgeNext")
 	}
 }
 

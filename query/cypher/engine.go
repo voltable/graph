@@ -2,6 +2,7 @@ package cypher
 
 import (
 	"github.com/RossMerr/Caudex.Graph"
+	"github.com/RossMerr/Caudex.Graph/keyvalue"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
 )
@@ -26,18 +27,16 @@ func newEngine(i graph.Storage) (query.Engine, error) {
 
 func NewEngine(i graph.Storage) *Engine {
 	return &Engine{
-		Parser:    parser.NewParser(),
-		Traversal: query.NewPlan(i),
-		Storage:   i,
-		Parts:     NewParts(),
-		Filter:    NewFilter(),
+		Parser:  parser.NewParser(),
+		Storage: i,
+		Parts:   NewParts(),
+		Filter:  NewFilter(),
 	}
 }
 
 // Engine is a implementation of the Query interface used to pass cypher queries
 type Engine struct {
 	Parser     parser.Parser
-	Traversal  query.Traversal
 	Filter     CypherFilter
 	Storage    graph.Storage
 	Parts      Parts
@@ -57,11 +56,13 @@ func (qe Engine) Parse(q string) (*graph.Query, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	plan := query.NewPlan()
 	results := make([]interface{}, 0)
 	for _, part := range queryPart {
-		frontier := qe.toFrontier(qe.Storage.ForEach(), variableVertex(queryPart))
-		f, err := qe.Traversal.SearchPlan(frontier, part.Predicates)
+		// todo need to build up the hasprefix
+		// qe.Storage.HasPrefix([]byte(""))
+		frontier := qe.toFrontier(qe.Storage.ForEach(), part, variableVertex(queryPart))
+		f, err := plan.SearchPlan(frontier, part.Predicates)
 		if err != nil {
 			return nil, err
 		}
@@ -79,9 +80,7 @@ func variableVertex(queryPart []*QueryPart) string {
 	if len(queryPart) > 0 {
 		if len(queryPart[0].Predicates) > 0 {
 			e := queryPart[0].Predicates[0]
-			if pv, ok := e.(*query.PredicateVertexPath); ok {
-				return pv.Variable
-			}
+			return e.Variable
 		}
 	}
 	return ""
@@ -98,12 +97,12 @@ func (qe Engine) toVertices(i query.IteratorFrontier) []interface{} {
 	return results
 }
 
-func (qe Engine) toFrontier(i graph.Iterator, variable string) query.IteratorFrontier {
+func (qe Engine) toFrontier(i graph.Iterator, part *QueryPart, variable string) query.IteratorFrontier {
 	return func() (*query.Frontier, bool) {
 		item, ok := i()
 		if ok {
-			if v, is := item.(*graph.Vertex); is {
-				f := query.NewFrontier(v, variable)
+			if kv, is := item.(*keyvalue.KeyValue); is {
+				f := query.NewFrontier(kv, variable)
 				return &f, true
 			}
 		}

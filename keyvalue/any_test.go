@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/storage/keyvalue"
+	"github.com/RossMerr/Caudex.Graph/keyvalue"
 )
 
 func TestAny_Unmarshal(t *testing.T) {

@@ -6,7 +6,6 @@ import (
 
 	"github.com/RossMerr/Caudex.Graph/expressions"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ir"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/lexer"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/scanner"
 )
@@ -92,10 +91,10 @@ func (p *CypherParser) KeyValue() (map[string]interface{}, error) {
 	return properties, nil
 }
 
-func (p *CypherParser) node() (*ir.VertexPatn, error) {
+func (p *CypherParser) node() (*ast.Patn, error) {
 	tok, lit, pos := p.scanIgnoreWhitespace()
 	if tok != lexer.IDENT && tok == lexer.LPAREN {
-		stmt := &ir.VertexPatn{}
+		stmt := &ast.Patn{}
 
 		tok, lit, pos = p.scanIgnoreWhitespace()
 		if tok == lexer.RPAREN {
@@ -191,10 +190,10 @@ func (p *CypherParser) length() (uint, uint, error) {
 	return 0, 0, nil
 }
 
-func (p *CypherParser) relationshipBody() (*ir.EdgeBodyStmt, error) {
+func (p *CypherParser) relationshipBody() (*ast.Patn, error) {
 	tok, lit, _ := p.scanIgnoreWhitespace()
 	if tok != lexer.IDENT && tok == lexer.LSQUARE {
-		stmt := &ir.EdgeBodyStmt{}
+		stmt := &ast.Patn{}
 
 		tok, lit, _ = p.scanIgnoreWhitespace()
 		if tok == lexer.IDENT {
@@ -204,7 +203,7 @@ func (p *CypherParser) relationshipBody() (*ir.EdgeBodyStmt, error) {
 		}
 
 		if label, ok := p.label(); ok {
-			stmt.Type = label
+			stmt.Label = label
 		}
 
 		if min, max, err := p.length(); err == nil && (min != 0 && max != 00) {
@@ -234,14 +233,14 @@ func (p *CypherParser) relationshipBody() (*ir.EdgeBodyStmt, error) {
 	return nil, nil
 }
 
-func (p *CypherParser) relationship() (*ir.EdgePatn, error) {
+func (p *CypherParser) relationship() (*ast.Patn, error) {
 	tok, lit, pos := p.scanIgnoreWhitespace()
 	// Look for the start of a relationship < or -
 	if tok != lexer.IDENT && (tok == lexer.LT || tok == lexer.SUB) {
-		stmt := &ir.EdgePatn{Relationship: ir.Undirected}
+		stmt := &ast.Patn{Relationship: ast.Undirected}
 
 		if tok == lexer.LT {
-			stmt.Relationship = ir.Outbound
+			stmt.Relationship = ast.Outbound
 
 			tok, lit, pos = p.scanIgnoreWhitespace()
 			// Look for the end of the relationship -
@@ -266,7 +265,7 @@ func (p *CypherParser) relationship() (*ir.EdgePatn, error) {
 			tok, _, _ = p.scanIgnoreWhitespace()
 			// Look for the end of the relationship - or >
 			if tok != lexer.IDENT && tok == lexer.GT {
-				stmt.Relationship = ir.Inbound
+				stmt.Relationship = ast.Inbound
 			} else {
 				p.unscan()
 			}
@@ -477,10 +476,10 @@ func (p *CypherParser) optionalMatch() (ast.Clauses, error) {
 	return nil, err
 }
 
-func (p *CypherParser) pattern() (ir.Patn, error) {
-	var pattern ir.Patn
-	var lastVertex *ir.VertexPatn
-	var lastEdge *ir.EdgePatn
+func (p *CypherParser) pattern() (*ast.Patn, error) {
+	var pattern *ast.Patn
+	var lastVertex *ast.Patn
+	var lastEdge *ast.Patn
 
 	// Next we should loop over all the pattern.
 	for {
@@ -491,7 +490,7 @@ func (p *CypherParser) pattern() (ir.Patn, error) {
 				pattern = lastVertex
 			}
 			if lastEdge != nil {
-				lastEdge.Vertex = node
+				lastEdge.Next = node
 			}
 		} else if err != nil {
 			return nil, err
@@ -499,7 +498,7 @@ func (p *CypherParser) pattern() (ir.Patn, error) {
 
 		if relationship, err := p.relationship(); err == nil && relationship != nil {
 			lastEdge = relationship
-			lastVertex.Edge = relationship
+			lastVertex.Next = relationship
 		} else if err != nil {
 			return nil, err
 		} else {

@@ -3,14 +3,14 @@ package graph
 import (
 	"strings"
 
-	"github.com/RossMerr/Caudex.Graph/storage/keyvalue"
+	"github.com/RossMerr/Caudex.Graph/keyvalue"
 )
 
 type (
 	// An Edge connects two Vertex in a graph.
 	Edge struct {
-		from VertexID
-		to   VertexID
+		from UUID
+		to   UUID
 
 		isDirected Digraph
 		// Weight of a path in a weighted graph
@@ -23,15 +23,13 @@ type (
 	Edges []*Edge
 )
 
-var _ Properties = (*Edge)(nil)
-
 // NewEdge build a new edge with a id
 func NewEdge(from, to *Vertex) *Edge {
 	return NewEdgeFromID(from.id, to.id)
 }
 
 // NewEdgeFromID creates a edge form the id
-func NewEdgeFromID(from, to VertexID) *Edge {
+func NewEdgeFromID(from, to UUID) *Edge {
 	return &Edge{from: from, to: to, properties: make(map[string]interface{})}
 }
 
