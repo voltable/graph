@@ -1,6 +1,7 @@
 package cypher_test
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph/expressions"
@@ -9,16 +10,27 @@ import (
 )
 
 func Test_ToQueryPath(t *testing.T) {
-	//edgePatn := &ir.EdgePatn{Body: &ir.EdgeBodyStmt{LengthMinimum: 2, LengthMaximum: 5}}
-	//vertexPatn := &ir.VertexPatn{Variable: "bar", Edge: edgePatn}
+	patn := &ast.Patn{}
 	wherePatn := &ast.WhereStmt{Predicate: ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"})}
-	match := &ast.MatchStmt{Next: wherePatn}
+	match := &ast.MatchStmt{Pattern: patn, Next: wherePatn}
 
 	parts, _ := cypher.NewParts().ToQueryPart(match)
 	partOne := parts[0]
 
 	if partOne.Where == nil {
 		t.Errorf("Where statment not matched")
+	}
+}
+
+func Test_ToQueryPath_Return(t *testing.T) {
+	returnPatn := &ast.ReturnStmt{}
+	match := &ast.MatchStmt{Next: returnPatn}
+
+	parts, _ := cypher.NewParts().ToQueryPart(match)
+	partOne := parts[0]
+
+	if partOne.Return == nil {
+		t.Errorf("Return statment not matched")
 	}
 }
 
@@ -60,4 +72,30 @@ func errstring(err error) string {
 		return err.Error()
 	}
 	return ""
+}
+
+func TestQueryPart_Predicate(t *testing.T) {
+	predicate := ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"})
+	wherePatn := &ast.WhereStmt{Predicate: predicate}
+
+	qp := &cypher.QueryPart{}
+	qp.Where = wherePatn
+
+	result := qp.Predicate()
+	if result != predicate {
+		t.Errorf("Where predicate not found")
+	}
+}
+
+func TestQueryPart_Maps(t *testing.T) {
+	maps := make([]*ast.ProjectionMapStmt, 0)
+	returnPatn := &ast.ReturnStmt{Maps: maps}
+
+	qp := &cypher.QueryPart{}
+	qp.Return = returnPatn
+
+	result := qp.Maps()
+	if !reflect.DeepEqual(result, maps) {
+		t.Errorf("Return maps not found")
+	}
 }
