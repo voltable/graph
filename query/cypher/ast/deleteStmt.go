@@ -2,13 +2,13 @@ package ast
 
 // DeleteStmt used to delete graph elements — nodes, relationships or paths.
 type DeleteStmt struct {
-	Pattern *Patn
+	Pattern Patn
 	Next    Clauses
 }
 
 func (DeleteStmt) patternNode() {}
 
-func (m *DeleteStmt) GetPattern() *Patn {
+func (m *DeleteStmt) GetPattern() Patn {
 	return m.Pattern
 }
 

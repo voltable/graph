@@ -2,13 +2,13 @@ package ast
 
 // MatchStmt used to search for the pattern described in it.
 type MatchStmt struct {
-	Pattern *Patn
+	Pattern Patn
 	Next    Clauses
 }
 
 func (MatchStmt) patternNode() {}
 
-func (m *MatchStmt) GetPattern() *Patn {
+func (m *MatchStmt) GetPattern() Patn {
 	return m.Pattern
 }
 

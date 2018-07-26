@@ -10,7 +10,7 @@ import (
 )
 
 func Test_ToQueryPath(t *testing.T) {
-	patn := &ast.Patn{}
+	var patn ast.Patn
 	wherePatn := &ast.WhereStmt{Predicate: ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"})}
 	match := &ast.MatchStmt{Pattern: patn, Next: wherePatn}
 

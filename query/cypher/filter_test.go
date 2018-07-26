@@ -5,6 +5,7 @@ import (
 
 	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/expressions"
+	"github.com/RossMerr/Caudex.Graph/keyvalue"
 
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
@@ -52,8 +53,9 @@ func Test_Filter(t *testing.T) {
 			setup: func(iterate int) query.IteratorFrontier {
 				count := 0
 				return func() (*query.Frontier, bool) {
-					v, _ := graph.NewVertex()
-					v.SetProperty("name", "foo")
+					id, _ := graph.GenerateRandomUUID()
+					v := keyvalue.NewKeyValue("foo", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
+
 					f := query.NewFrontier(v, "n")
 					if count < iterate {
 						count++
@@ -71,8 +73,9 @@ func Test_Filter(t *testing.T) {
 			setup: func(iterate int) query.IteratorFrontier {
 				count := 0
 				return func() (*query.Frontier, bool) {
-					v, _ := graph.NewVertex()
-					v.SetProperty("name", "foo")
+					id, _ := graph.GenerateRandomUUID()
+					v := keyvalue.NewKeyValue("foo", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
+
 					f := query.NewFrontier(v, "n")
 					if count < iterate {
 						count++
@@ -90,8 +93,9 @@ func Test_Filter(t *testing.T) {
 			setup: func(iterate int) query.IteratorFrontier {
 				count := 0
 				return func() (*query.Frontier, bool) {
-					x, _ := graph.NewVertex()
-					v, _ := graph.NewVertex()
+					x := &keyvalue.KeyValue{}
+					v := &keyvalue.KeyValue{}
+
 					f := query.NewFrontier(x, "")
 					fq := f.Values[0]
 					fv := query.FrontierProperties{Object: v, Variable: ""}
@@ -116,9 +120,14 @@ func Test_Filter(t *testing.T) {
 			setup: func(iterate int) query.IteratorFrontier {
 				count := 0
 				return func() (*query.Frontier, bool) {
-					x, _ := graph.NewVertex()
-					v, _ := graph.NewVertex()
-					e, _ := x.AddDirectedEdge(v)
+					x := &keyvalue.KeyValue{}
+					v := &keyvalue.KeyValue{}
+
+					to, _ := graph.GenerateRandomUUID()
+					from, _ := graph.GenerateRandomUUID()
+
+					e := keyvalue.NewKeyValue(string(to[:]), from[:], keyvalue.US, keyvalue.Relationship, keyvalue.US, []byte(""))
+
 					f := query.NewFrontier(x, "")
 					fq := f.Values[0]
 					fv := query.FrontierProperties{Object: v, Variable: ""}
@@ -159,85 +168,99 @@ func Test_ExpressionEvaluator(t *testing.T) {
 	var tests = []struct {
 		expr     ast.Expr
 		variable string
-		v        *graph.Vertex
+		v        *keyvalue.KeyValue
 		result   bool
 	}{
+		// 0
 		{
 			expr:     &ast.PropertyStmt{Variable: "n", Value: "name"},
 			variable: "n",
-			v: func() *graph.Vertex {
-				x, _ := graph.NewVertex()
-				x.SetProperty("name", "foo")
+			v: func() *keyvalue.KeyValue {
+				id, _ := graph.GenerateRandomUUID()
+				x := keyvalue.NewKeyValue("foo", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
 				return x
 			}(),
 			result: false,
 		},
+		// 1
 		{
 			expr:     ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}),
 			variable: "n",
-			v: func() *graph.Vertex {
-				x, _ := graph.NewVertex()
-				x.SetProperty("name", "foo")
+			v: func() *keyvalue.KeyValue {
+				id, _ := graph.GenerateRandomUUID()
+				x := keyvalue.NewKeyValue("foo", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
 				return x
 			}(),
 			result: true,
 		},
+		// 2
 		{
 			expr:     ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}),
 			variable: "x",
-			v: func() *graph.Vertex {
-				x, _ := graph.NewVertex()
-				x.SetProperty("name", "foo")
+			v: func() *keyvalue.KeyValue {
+				id, _ := graph.GenerateRandomUUID()
+				x := keyvalue.NewKeyValue("foo", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
 				return x
 			}(),
 			result: false,
 		},
+		// 3
 		{
 			expr:     ast.NewBooleanExpr(expressions.OR, ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}), nil),
 			variable: "n",
-			v: func() *graph.Vertex {
-				x, _ := graph.NewVertex()
-				x.SetProperty("name", "foo")
+			v: func() *keyvalue.KeyValue {
+				id, _ := graph.GenerateRandomUUID()
+				x := keyvalue.NewKeyValue("foo", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
 				return x
 			}(),
 			result: true,
 		},
+		// 4
 		{
-			expr:     ast.NewBooleanExpr(expressions.OR, ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}), ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "m", Value: "name"}, &ast.Ident{Data: "bar"})),
+			expr: ast.NewBooleanExpr(expressions.OR,
+				ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}),
+				ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "m", Value: "name"}, &ast.Ident{Data: "bar"}),
+			),
 			variable: "n",
-			v: func() *graph.Vertex {
-				x, _ := graph.NewVertex()
-				x.SetProperty("name", "foo")
+			v: func() *keyvalue.KeyValue {
+				id, _ := graph.GenerateRandomUUID()
+				x := keyvalue.NewKeyValue("foo", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
 				return x
 			}(),
 			result: true,
 		},
+		// 5
 		{
 			expr:     ast.NewBooleanExpr(expressions.OR, ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}), ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "m", Value: "name"}, &ast.Ident{Data: "bar"})),
 			variable: "m",
-			v: func() *graph.Vertex {
-				x, _ := graph.NewVertex()
-				x.SetProperty("name", "foo")
+			v: func() *keyvalue.KeyValue {
+				id, _ := graph.GenerateRandomUUID()
+				x := keyvalue.NewKeyValue("foo", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
 				return x
 			}(),
 			result: false,
 		},
+		// 6
 		{
-			expr:     ast.NewBooleanExpr(expressions.OR, ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}), ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "m", Value: "name"}, &ast.Ident{Data: "bar"})),
+			expr: ast.NewBooleanExpr(expressions.OR,
+				ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}),
+				ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "m", Value: "name"}, &ast.Ident{Data: "bar"}),
+			),
 			variable: "m",
-			v: func() *graph.Vertex {
-				x, _ := graph.NewVertex()
-				x.SetProperty("name", "bar")
+			v: func() *keyvalue.KeyValue {
+				id, _ := graph.GenerateRandomUUID()
+				x := keyvalue.NewKeyValue("bar", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
 				return x
 			}(),
 			result: true,
 		},
+		// 7
 		{
 			expr:     ast.NewBooleanExpr(expressions.OR, ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}), ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "m", Value: "person"}, &ast.Ident{Data: "john smith"})),
 			variable: "m",
-			v: func() *graph.Vertex {
-				x, _ := graph.NewVertex()
-				x.SetProperty("person", "john smith")
+			v: func() *keyvalue.KeyValue {
+				id, _ := graph.GenerateRandomUUID()
+				x := keyvalue.NewKeyValue("john smith", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("person"))
 				return x
 			}(),
 			result: true,

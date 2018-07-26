@@ -9,7 +9,7 @@ import (
 // UUID
 type UUID [16]byte
 
-func generateRandomVertexID() (UUID, error) {
+func GenerateRandomUUID() (UUID, error) {
 	buf := make([]byte, 16)
 	var arr [16]byte
 	if _, err := rand.Read(buf); err != nil {

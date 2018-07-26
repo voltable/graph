@@ -91,10 +91,10 @@ func (p *CypherParser) KeyValue() (map[string]interface{}, error) {
 	return properties, nil
 }
 
-func (p *CypherParser) node() (*ast.Patn, error) {
+func (p *CypherParser) node() (*ast.VertexPatn, error) {
 	tok, lit, pos := p.scanIgnoreWhitespace()
 	if tok != lexer.IDENT && tok == lexer.LPAREN {
-		stmt := &ast.Patn{}
+		stmt := &ast.VertexPatn{}
 
 		tok, lit, pos = p.scanIgnoreWhitespace()
 		if tok == lexer.RPAREN {
@@ -190,10 +190,10 @@ func (p *CypherParser) length() (uint, uint, error) {
 	return 0, 0, nil
 }
 
-func (p *CypherParser) relationshipBody() (*ast.Patn, error) {
+func (p *CypherParser) relationshipBody() (*ast.EdgeBodyStmt, error) {
 	tok, lit, _ := p.scanIgnoreWhitespace()
 	if tok != lexer.IDENT && tok == lexer.LSQUARE {
-		stmt := &ast.Patn{}
+		stmt := &ast.EdgeBodyStmt{}
 
 		tok, lit, _ = p.scanIgnoreWhitespace()
 		if tok == lexer.IDENT {
@@ -203,7 +203,7 @@ func (p *CypherParser) relationshipBody() (*ast.Patn, error) {
 		}
 
 		if label, ok := p.label(); ok {
-			stmt.Label = label
+			stmt.Type = label
 		}
 
 		if min, max, err := p.length(); err == nil && (min != 0 && max != 00) {
@@ -233,11 +233,11 @@ func (p *CypherParser) relationshipBody() (*ast.Patn, error) {
 	return nil, nil
 }
 
-func (p *CypherParser) relationship() (*ast.Patn, error) {
+func (p *CypherParser) relationship() (*ast.EdgePatn, error) {
 	tok, lit, pos := p.scanIgnoreWhitespace()
 	// Look for the start of a relationship < or -
 	if tok != lexer.IDENT && (tok == lexer.LT || tok == lexer.SUB) {
-		stmt := &ast.Patn{Relationship: ast.Undirected}
+		stmt := &ast.EdgePatn{Relationship: ast.Undirected}
 
 		if tok == lexer.LT {
 			stmt.Relationship = ast.Outbound
@@ -476,10 +476,10 @@ func (p *CypherParser) optionalMatch() (ast.Clauses, error) {
 	return nil, err
 }
 
-func (p *CypherParser) pattern() (*ast.Patn, error) {
-	var pattern *ast.Patn
-	var lastVertex *ast.Patn
-	var lastEdge *ast.Patn
+func (p *CypherParser) pattern() (ast.Patn, error) {
+	var pattern ast.Patn
+	var lastVertex *ast.VertexPatn
+	var lastEdge *ast.EdgePatn
 
 	// Next we should loop over all the pattern.
 	for {
@@ -490,7 +490,7 @@ func (p *CypherParser) pattern() (*ast.Patn, error) {
 				pattern = lastVertex
 			}
 			if lastEdge != nil {
-				lastEdge.Next = node
+				lastEdge.Vertex = node
 			}
 		} else if err != nil {
 			return nil, err
@@ -498,7 +498,7 @@ func (p *CypherParser) pattern() (*ast.Patn, error) {
 
 		if relationship, err := p.relationship(); err == nil && relationship != nil {
 			lastEdge = relationship
-			lastVertex.Next = relationship
+			lastVertex.Edge = relationship
 		} else if err != nil {
 			return nil, err
 		} else {

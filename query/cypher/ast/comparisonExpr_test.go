@@ -4,8 +4,9 @@ import (
 	"math"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph"
+	graph "github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/expressions"
+	"github.com/RossMerr/Caudex.Graph/keyvalue"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 )
 
@@ -13,32 +14,32 @@ func Test_ComparisonExprInterpret(t *testing.T) {
 
 	var tests = []struct {
 		c      *ast.ComparisonExpr
-		v      *graph.Vertex
+		v      *keyvalue.KeyValue
 		p      string
 		result bool
 		err    string
 	}{
 		{
 			c:      &ast.ComparisonExpr{Comparison: expressions.EQ},
-			v:      &graph.Vertex{},
+			v:      &keyvalue.KeyValue{},
 			result: true,
 		},
 		{
 			c:      ast.NewComparisonExpr(expressions.NEQ, &ast.PropertyStmt{}, &ast.Ident{}),
-			v:      &graph.Vertex{},
+			v:      &keyvalue.KeyValue{},
 			result: false,
 		},
 		{
 			c:      ast.NewComparisonExpr(expressions.IS_NULL, &ast.PropertyStmt{Variable: "n"}, &ast.Ident{}),
-			v:      &graph.Vertex{},
+			v:      &keyvalue.KeyValue{},
 			p:      "n",
 			result: true,
 		},
 		{
 			c: ast.NewComparisonExpr(expressions.IS_NOT_NULL, &ast.PropertyStmt{Variable: "n", Value: "Person"}, &ast.Ident{}),
-			v: func() *graph.Vertex {
-				x, _ := graph.NewVertex()
-				x.SetProperty("Person", "John Smith")
+			v: func() *keyvalue.KeyValue {
+				id, _ := graph.GenerateRandomUUID()
+				x := keyvalue.NewKeyValue("John Smith", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Person"))
 				return x
 			}(),
 			p:      "n",
@@ -46,9 +47,9 @@ func Test_ComparisonExprInterpret(t *testing.T) {
 		},
 		{
 			c: ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: math.MaxInt32}),
-			v: func() *graph.Vertex {
-				x, _ := graph.NewVertex()
-				x.SetProperty("Age", math.MaxInt32-1)
+			v: func() *keyvalue.KeyValue {
+				id, _ := graph.GenerateRandomUUID()
+				x := keyvalue.NewKeyValue(math.MaxInt32-1, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
 				return x
 			}(),
 			p: "n",

@@ -2,13 +2,13 @@ package ast
 
 // OptionalMatchStmt used to search for the pattern described in it, can match on nil
 type OptionalMatchStmt struct {
-	Pattern *Patn
+	Pattern Patn
 	Next    Clauses
 }
 
 func (OptionalMatchStmt) patternNode() {}
 
-func (m *OptionalMatchStmt) GetPattern() *Patn {
+func (m *OptionalMatchStmt) GetPattern() Patn {
 	return m.Pattern
 }
 

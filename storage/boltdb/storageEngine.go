@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/RossMerr/Caudex.Graph/keyvalue"
+
 	"github.com/RossMerr/Caudex.Graph"
 	"github.com/Sirupsen/logrus"
 	bolt "github.com/coreos/bbolt"
@@ -153,48 +155,24 @@ func (se *StorageEngine) Delete(c ...*graph.Vertex) error {
 
 // Find a vertex from the persistence
 func (se *StorageEngine) Find(ID string) (*graph.Vertex, error) {
-	//var err error
-	var buf []byte
-	var v graph.Vertex
-	return &v, se.db.View(func(tx *bolt.Tx) error {
-		// b := tx.Bucket(TKey)
-		// buf = b.Get([]byte(ID))
+	var v *graph.Vertex
 
-		// if err = json.Unmarshal(buf, v); err == nil {
-		// 	return nil
-		// }
-
-		// return err
-
-		//c := tx.Bucket([]byte("MyBucket")).Cursor()
-
+	return v, se.db.View(func(tx *bolt.Tx) error {
 		bucketTKey := tx.Bucket(TKey)
 		c := bucketTKey.Cursor()
 
 		prefix := []byte(ID)
+		kv := []*keyvalue.KeyValue{}
 		for k, v := c.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, v = c.Next() {
-			fmt.Printf("key=%s, value=%s\n", k, v)
+			var any *keyvalue.Any
+			err := proto.Unmarshal(v, any)
+			if err != nil {
+				return err
+			}
+			kv = append(kv, &keyvalue.KeyValue{Key: k, Value: any})
 		}
 
-		bucketTKeyT := tx.Bucket(TKeyT)
-		//triples := store64.Unarshal(c...)
-		//transposes := store64.Transpose(triples)
-		//var errstrings []string
-
-		byteID := []byte(ID)
-		buf = bucketTKey.Get(byteID)
-
-		// if err := ; err != nil {
-		// 	errstrings = append(errstrings, err.Error())
-		// }
-
-		buf = bucketTKeyT.Get(byteID)
-
-		// transpose := transposes[i]
-		// if err := bucketTKeyT.Get([]byte(transpose.Row)); err != nil {
-		// 	errstrings = append(errstrings, err.Error())
-		// }
-
+		v.UnmarshalKeyValue(kv)
 		return nil
 	})
 }

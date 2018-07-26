@@ -5,6 +5,7 @@ import (
 
 	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/expressions"
+	"github.com/RossMerr/Caudex.Graph/keyvalue"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 )
 
@@ -62,7 +63,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 
 	var tests = []struct {
 		c      *ast.BooleanExpr
-		v      *graph.Vertex
+		v      *keyvalue.KeyValue
 		p      string
 		result bool
 		err    string
@@ -72,9 +73,9 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.GT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 10}),
 				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
-			v: func() *graph.Vertex {
-				x, _ := graph.NewVertex()
-				x.SetProperty("Age", 100)
+			v: func() *keyvalue.KeyValue {
+				id, _ := graph.GenerateRandomUUID()
+				x := keyvalue.NewKeyValue(100, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
 				return x
 			}(),
 			p:      "n",
@@ -85,9 +86,9 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 10}),
 				ast.NewComparisonExpr(expressions.GT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
-			v: func() *graph.Vertex {
-				x, _ := graph.NewVertex()
-				x.SetProperty("Age", 100)
+			v: func() *keyvalue.KeyValue {
+				id, _ := graph.GenerateRandomUUID()
+				x := keyvalue.NewKeyValue(100, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
 				return x
 			}(),
 			p:      "n",
@@ -98,9 +99,9 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.GT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 10}),
 				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
-			v: func() *graph.Vertex {
-				x, _ := graph.NewVertex()
-				x.SetProperty("Age", 100)
+			v: func() *keyvalue.KeyValue {
+				id, _ := graph.GenerateRandomUUID()
+				x := keyvalue.NewKeyValue(100, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
 				return x
 			}(),
 			p:      "n",
@@ -111,9 +112,9 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 10}),
 				ast.NewComparisonExpr(expressions.GT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
-			v: func() *graph.Vertex {
-				x, _ := graph.NewVertex()
-				x.SetProperty("Age", 100)
+			v: func() *keyvalue.KeyValue {
+				id, _ := graph.GenerateRandomUUID()
+				x := keyvalue.NewKeyValue(100, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
 				return x
 			}(),
 			p:      "n",
@@ -124,9 +125,9 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 10}),
 				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
-			v: func() *graph.Vertex {
-				x, _ := graph.NewVertex()
-				x.SetProperty("Age", 100)
+			v: func() *keyvalue.KeyValue {
+				id, _ := graph.GenerateRandomUUID()
+				x := keyvalue.NewKeyValue(100, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
 				return x
 			}(),
 			p:      "n",
@@ -137,9 +138,9 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 10}),
 				ast.NewComparisonExpr(expressions.GT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
-			v: func() *graph.Vertex {
-				x, _ := graph.NewVertex()
-				x.SetProperty("Age", 100)
+			v: func() *keyvalue.KeyValue {
+				id, _ := graph.GenerateRandomUUID()
+				x := keyvalue.NewKeyValue(100, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
 				return x
 			}(),
 			p:      "n",
@@ -147,9 +148,9 @@ func Test_BooleanExprInterpret(t *testing.T) {
 		},
 		{
 			c: ast.NewBooleanExpr(20, nil, nil),
-			v: func() *graph.Vertex {
-				x, _ := graph.NewVertex()
-				x.SetProperty("Age", 100)
+			v: func() *keyvalue.KeyValue {
+				id, _ := graph.GenerateRandomUUID()
+				x := keyvalue.NewKeyValue(100, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
 				return x
 			}(),
 			p:      "n",

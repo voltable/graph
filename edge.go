@@ -81,10 +81,10 @@ func (a Edges) Less(i, j int) bool { return a[i].Weight > a[j].Weight }
 func (e *Edge) MarshalKeyValue() []*keyvalue.KeyValue {
 	tt := []*keyvalue.KeyValue{}
 
-	tt = append(tt, keyvalue.NewKeyValue(e.To(), e.from[:], US, relationship, US, []byte(e.RelationshipType())))
+	tt = append(tt, keyvalue.NewKeyValue(e.To(), e.from[:], keyvalue.US, keyvalue.Relationship, keyvalue.US, []byte(e.RelationshipType())))
 
 	for k, p := range e.Properties() {
-		tt = append(tt, keyvalue.NewKeyValue(p, e.from[:], US, relationshipproperties, US, []byte(k), US, e.to[:]))
+		tt = append(tt, keyvalue.NewKeyValue(p, e.from[:], keyvalue.US, keyvalue.Relationshipproperties, keyvalue.US, []byte(k), keyvalue.US, e.to[:]))
 	}
 
 	return tt
@@ -94,10 +94,10 @@ func (e *Edge) MarshalKeyValue() []*keyvalue.KeyValue {
 func (e *Edge) MarshalKeyValueTranspose() []*keyvalue.KeyValue {
 	tt := []*keyvalue.KeyValue{}
 
-	tt = append(tt, keyvalue.NewKeyValue(e.To(), relationship, US, []byte(e.RelationshipType()), US, e.from[:]))
+	tt = append(tt, keyvalue.NewKeyValue(e.To(), keyvalue.Relationship, keyvalue.US, []byte(e.RelationshipType()), keyvalue.US, e.from[:]))
 
 	for k, p := range e.Properties() {
-		tt = append(tt, keyvalue.NewKeyValue(p, relationshipproperties, US, []byte(k), US, e.to[:], US, e.from[:]))
+		tt = append(tt, keyvalue.NewKeyValue(p, keyvalue.Relationshipproperties, keyvalue.US, []byte(k), keyvalue.US, e.to[:], keyvalue.US, e.from[:]))
 	}
 
 	return tt

@@ -41,6 +41,13 @@ func (s FakeStorage) ForEach() graph.Iterator {
 	}
 }
 
+func (s FakeStorage) HasPrefix([]byte) graph.Iterator {
+	return func() (item interface{}, ok bool) {
+
+		return nil, false
+	}
+}
+
 func NewFakeStorage() graph.Storage {
 	return &FakeStorage{}
 }

@@ -42,7 +42,7 @@ func NewVertexWithLabel(label string) (*Vertex, error) {
 	var id UUID
 	var err error
 
-	if id, err = generateRandomVertexID(); err != nil {
+	if id, err = GenerateRandomUUID(); err != nil {
 		return nil, errCreatVertexID
 	}
 
@@ -197,10 +197,10 @@ func (v Vertex) String() string {
 func (v *Vertex) MarshalKeyValue() []*keyvalue.KeyValue {
 	tt := []*keyvalue.KeyValue{}
 
-	tt = append(tt, keyvalue.NewKeyValue(v.Label(), v.id[:], US, vertex))
+	tt = append(tt, keyvalue.NewKeyValue(v.Label(), v.id[:], keyvalue.US, keyvalue.Vertex))
 
 	for k, p := range v.Properties() {
-		tt = append(tt, keyvalue.NewKeyValue(p, v.id[:], US, properties, US, []byte(k)))
+		tt = append(tt, keyvalue.NewKeyValue(p, v.id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte(k)))
 	}
 
 	for _, e := range v.edges {
@@ -214,10 +214,10 @@ func (v *Vertex) MarshalKeyValue() []*keyvalue.KeyValue {
 func (v *Vertex) MarshalKeyValueTranspose() []*keyvalue.KeyValue {
 	tt := []*keyvalue.KeyValue{}
 
-	tt = append(tt, keyvalue.NewKeyValue(v.ID(), label, US, []byte(v.Label()), US, v.id[:]))
+	tt = append(tt, keyvalue.NewKeyValue(v.ID(), keyvalue.Label, keyvalue.US, []byte(v.Label()), keyvalue.US, v.id[:]))
 
 	for k, p := range v.Properties() {
-		tt = append(tt, keyvalue.NewKeyValue(p, properties, US, []byte(k), US, v.id[:]))
+		tt = append(tt, keyvalue.NewKeyValue(p, keyvalue.Properties, keyvalue.US, []byte(k), keyvalue.US, v.id[:]))
 	}
 
 	for _, e := range v.edges {
@@ -228,25 +228,25 @@ func (v *Vertex) MarshalKeyValueTranspose() []*keyvalue.KeyValue {
 
 // UnmarshalKeyValue a KeyValue into Vertex
 func (v *Vertex) UnmarshalKeyValue(c []*keyvalue.KeyValue) {
-	parts := bytes.Split(c[0].Key, US)
+	parts := bytes.Split(c[0].Key, keyvalue.US)
 	uuid := sliceToVertexID(parts[0])
 	v.id = uuid
 
 	for _, kv := range c {
-		split := bytes.Split(kv.Key, US)
-		if bytes.Equal(split[1], vertex) {
+		split := bytes.Split(kv.Key, keyvalue.US)
+		if bytes.Equal(split[1], keyvalue.Vertex) {
 			value, ok := kv.Value.Unmarshal().(string)
 			if ok {
 				v.SetLabel(value)
 			}
 			continue
 		}
-		if bytes.Equal(split[1], properties) {
+		if bytes.Equal(split[1], keyvalue.Properties) {
 			key := split[2]
 			v.SetProperty(string(key), kv.Value.Unmarshal())
 			continue
 		}
-		if bytes.Equal(split[1], relationship) {
+		if bytes.Equal(split[1], keyvalue.Relationship) {
 			relationshipType := split[2]
 			value, ok := kv.Value.Unmarshal().(string)
 			if ok {
@@ -263,7 +263,7 @@ func (v *Vertex) UnmarshalKeyValue(c []*keyvalue.KeyValue) {
 			continue
 		}
 
-		if bytes.Equal(split[1], relationshipproperties) {
+		if bytes.Equal(split[1], keyvalue.Relationshipproperties) {
 			key := split[2]
 			edgeID := sliceToVertexID(split[3])
 			edge, ok := v.edges[edgeID]
@@ -286,17 +286,17 @@ func (v *Vertex) UnmarshalKeyValueTranspose(c []*keyvalue.KeyValue) {
 	}
 
 	for _, kv := range c {
-		split := bytes.Split(kv.Key, US)
+		split := bytes.Split(kv.Key, keyvalue.US)
 
-		if bytes.Equal(split[0], label) {
+		if bytes.Equal(split[0], keyvalue.Label) {
 			v.SetLabel(string(split[1]))
 			continue
 		}
-		if bytes.Equal(split[0], properties) {
+		if bytes.Equal(split[0], keyvalue.Properties) {
 			v.SetProperty(string(split[1]), kv.Value.Unmarshal())
 			continue
 		}
-		if bytes.Equal(split[0], relationship) {
+		if bytes.Equal(split[0], keyvalue.Relationship) {
 			relationshipType := split[1]
 			value, ok := kv.Value.Unmarshal().(string)
 			if ok {
@@ -313,7 +313,7 @@ func (v *Vertex) UnmarshalKeyValueTranspose(c []*keyvalue.KeyValue) {
 			continue
 		}
 
-		if bytes.Equal(split[0], relationshipproperties) {
+		if bytes.Equal(split[0], keyvalue.Relationshipproperties) {
 			key := split[1]
 			edgeID := sliceToVertexID(split[2])
 			edge, ok := v.edges[edgeID]

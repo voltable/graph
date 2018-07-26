@@ -57,7 +57,7 @@ func (qq cypherParts) ToQueryPart(stmt ast.Clauses) ([]*QueryPart, error) {
 	if pattern, ok := IsPattern(stmt); ok {
 		for pattern != nil {
 			qp.Predicates = append(qp.Predicates, ir.ToPredicatePath(pattern))
-			pattern = pattern.Next
+			pattern = pattern.Next()
 		}
 	}
 
@@ -74,7 +74,7 @@ func (qq cypherParts) ToQueryPart(stmt ast.Clauses) ([]*QueryPart, error) {
 	return arr, nil
 }
 
-func IsPattern(item ast.Stmt) (*ast.Patn, bool) {
+func IsPattern(item ast.Stmt) (ast.Patn, bool) {
 	if b, ok := item.(*ast.DeleteStmt); ok {
 		return b.Pattern, true
 	} else if b, ok := item.(*ast.CreateStmt); ok {

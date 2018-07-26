@@ -2,13 +2,13 @@ package ast
 
 // CreateStmt used to create nodes and relationships.
 type CreateStmt struct {
-	Pattern *Patn
+	Pattern Patn
 	Next    Clauses
 }
 
 func (CreateStmt) patternNode() {}
 
-func (m *CreateStmt) GetPattern() *Patn {
+func (m *CreateStmt) GetPattern() Patn {
 	return m.Pattern
 }
 
