@@ -24,7 +24,7 @@ func Test_MapPropertyInterpret(t *testing.T) {
 				return x
 			}(),
 			result: func() interface{} {
-				kv := graph.KeyValue{
+				kv := ast.KeyValueStmt{
 					Key:   "name",
 					Value: "John Smith",
 				}
@@ -39,7 +39,7 @@ func Test_MapPropertyInterpret(t *testing.T) {
 				return x
 			}(),
 			result: func() interface{} {
-				kv := graph.KeyValue{
+				kv := ast.KeyValueStmt{
 					Key:   "alias",
 					Value: "John Smith",
 				}
@@ -72,7 +72,7 @@ func Test_MapLiteralInterpret(t *testing.T) {
 				return x
 			}(),
 			result: func() interface{} {
-				kv := graph.KeyValue{
+				kv := ast.KeyValueStmt{
 					Key:   "name",
 					Value: true,
 				}
@@ -87,7 +87,7 @@ func Test_MapLiteralInterpret(t *testing.T) {
 				return x
 			}(),
 			result: func() interface{} {
-				kv := graph.KeyValue{
+				kv := ast.KeyValueStmt{
 					Key:   "alias",
 					Value: true,
 				}
@@ -102,7 +102,7 @@ func Test_MapLiteralInterpret(t *testing.T) {
 				return x
 			}(),
 			result: func() interface{} {
-				kv := graph.KeyValue{
+				kv := ast.KeyValueStmt{
 					Key:   "name",
 					Value: false,
 				}

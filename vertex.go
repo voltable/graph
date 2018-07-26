@@ -2,9 +2,10 @@ package graph
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	"github.com/RossMerr/Caudex.Graph/keyvalue"
 )
@@ -22,7 +23,7 @@ type Vertex struct {
 var (
 	errCreatVertexID = errors.New("Failed to create Vertex ID")
 	errEdgeNotFound  = errors.New("Edge Not found")
-	errIdNotSet      = errors.New("Use NewVertex to create a new Vertex")
+	errIDNotSet      = errors.New("Use NewVertex to create a new Vertex")
 )
 
 // NewVertex creates the default vertex
@@ -43,7 +44,7 @@ func NewVertexWithLabel(label string) (*Vertex, error) {
 	var err error
 
 	if id, err = GenerateRandomUUID(); err != nil {
-		return nil, errCreatVertexID
+		return nil, errors.Wrap(errCreatVertexID, "UUID failed")
 	}
 
 	v := NewEmptyVertex()

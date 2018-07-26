@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/keyvalue"
 )
 
@@ -47,7 +46,7 @@ func (m *ProjectionMapProperty) Interpret(variable string, prop *keyvalue.KeyVal
 		key = m.Alias
 	}
 
-	return graph.KeyValue{
+	return KeyValueStmt{
 		Key:   key,
 		Value: prop.Value.Unmarshal(),
 	}
@@ -70,13 +69,13 @@ func (m *ProjectionMapLiteral) Interpret(variable string, prop *keyvalue.KeyValu
 		key = m.Alias
 	}
 	if inter, ok := m.Expression.(InterpretExpr); ok {
-		return graph.KeyValue{
+		return KeyValueStmt{
 			Key:   key,
 			Value: inter.Interpret(variable, prop),
 		}
 	}
 
-	return graph.KeyValue{
+	return KeyValueStmt{
 		Key:   key,
 		Value: false,
 	}
