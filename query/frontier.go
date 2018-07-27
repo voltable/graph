@@ -60,6 +60,13 @@ func (f *Frontier) AppendKeyValue(queue *FrontierQueue, id uuid.UUID, variable s
 	f.append(append(queue.Parts, fv), queue.Cost)
 }
 
+func (f *Frontier) AppendEdgeKeyValue(queue *FrontierQueue, id uuid.UUID, variable string, weight float64) {
+	fv := FrontierProperties{Variable: variable, UUID: id}
+	parts := append(queue.Parts, fv)
+	//	parts = append(parts, fv)
+	f.append(parts, queue.Cost+weight)
+}
+
 // NewFrontier create the Frontier using the inistal uuid as the root of the graph
 func NewFrontier(id uuid.UUID, variable string) Frontier {
 	fv := FrontierProperties{Variable: variable, UUID: id}

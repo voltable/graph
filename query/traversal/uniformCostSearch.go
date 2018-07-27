@@ -29,11 +29,12 @@ func UniformCostSearch(storage query.Storage, predicates []query.Predicate, fron
 			iterator := storage.Edges(part.UUID)
 			for kv, hasEdges := iterator(); hasEdges; kv, hasEdges = iterator() {
 				if _, ok := frontier.Explored[kv]; !ok {
-					// if variable, p := pe.Predicate(kv, depth); p == Visiting || p == Matching {
-					// 	if v, err := t.storage.Fetch(e.ID()); err == nil {
-					// 		frontier.AppendEdgeAndVertex(queue, e, v, variable, e.Weight)
-					// 	}
-					// }
+
+					if variable, p := pe(kv, depth); p == query.Visiting || p == query.Matching {
+						// TODO fix weight
+						//frontier.AppendEdgeKeyValue(queue, kv, variable, e.Weight)
+						frontier.AppendEdgeKeyValue(queue, kv, variable, 0)
+					}
 				}
 			}
 		}

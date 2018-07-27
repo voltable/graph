@@ -6,6 +6,8 @@ import (
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph/keyvalue"
+	"github.com/RossMerr/Caudex.Graph/query"
+	"github.com/RossMerr/Caudex.Graph/uuid"
 
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
@@ -35,19 +37,25 @@ func (s FakeStorage) Fetch(string) (*keyvalue.KeyValue, error) {
 	return nil, nil
 }
 
-func (s FakeStorage) ForEach() keyvalue.Iterator {
-	return func() (*keyvalue.KeyValue, bool) {
+func (s FakeStorage) ForEach() query.IteratorUUID {
+	return func() (uuid.UUID, bool) {
+		return uuid.UUID{}, false
+	}
+}
+
+func (s FakeStorage) HasPrefix([]byte) query.Iterator {
+	return func() (interface{}, bool) {
 		return nil, false
 	}
 }
 
-func (s FakeStorage) HasPrefix([]byte) keyvalue.Iterator {
-	return func() (*keyvalue.KeyValue, bool) {
-		return nil, false
+func (s FakeStorage) Edges(uuid.UUID) query.IteratorUUID {
+	return func() (uuid.UUID, bool) {
+		return uuid.UUID{}, false
 	}
 }
 
-func NewFakeStorage() keyvalue.Storage {
+func NewFakeStorage() query.Storage {
 	return &FakeStorage{}
 }
 
