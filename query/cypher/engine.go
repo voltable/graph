@@ -25,10 +25,12 @@ func newEngine(i query.Storage) (query.Engine, error) {
 }
 
 func NewEngine(i query.Storage) *Engine {
+	builder, _ := FristQueryBuilder()
 	return &Engine{
 		Parser:  parser.NewParser(),
 		Storage: i,
 		Parts:   NewParts(),
+		Builder: builder,
 		//Filter:  NewFilter(),
 	}
 }

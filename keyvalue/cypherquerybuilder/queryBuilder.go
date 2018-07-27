@@ -1,9 +1,23 @@
-package cypher
+package cypherquerybuilder
 
 import (
 	"github.com/RossMerr/Caudex.Graph/query"
+	"github.com/RossMerr/Caudex.Graph/query/cypher"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/uuid"
+)
+
+func init() {
+	cypher.RegisterQueryBuilder(QueryBuilderType, cypher.QueryBuilderRegistry{
+		NewFunc: func() cypher.QueryBuilder {
+			return &KeyValueCyperQueryBuilder{}
+		},
+	})
+}
+
+const (
+	// QueryBuilderType the underlying query builder cypher/keyvalue
+	QueryBuilderType = "cypherkeyvalue"
 )
 
 type KeyValueCyperQueryBuilder struct {
