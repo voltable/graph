@@ -146,7 +146,7 @@ func MarshalEdgeKeyValue(e *graph.Edge) []*KeyValue {
 
 	from := e.From()
 	to := e.To()
-	tt = append(tt, NewKeyValue(to[:], from[:], US, Relationship, US, []byte(e.RelationshipType())))
+	tt = append(tt, NewKeyValue(to[:], from[:], US, Relationship, US, []byte(e.RelationshipType()), US, to[:]))
 
 	for k, p := range e.Properties() {
 		tt = append(tt, NewKeyValue(p, from[:], US, Relationshipproperties, US, []byte(k), US, to[:]))

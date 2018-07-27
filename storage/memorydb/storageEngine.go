@@ -34,7 +34,7 @@ type StorageEngine struct {
 
 var _ graph.Graph = (*StorageEngine)(nil)
 
-var _ graph.Storage = (*StorageEngine)(nil)
+var _ keyvalue.Storage = (*StorageEngine)(nil)
 
 func (se *StorageEngine) Close() {
 
@@ -108,7 +108,7 @@ func (se *StorageEngine) Delete(c ...*graph.Vertex) error {
 }
 
 // Find a vertex from the persistence
-func (se *StorageEngine) Find(ID string) (*graph.Vertex, error) {
+func (se *StorageEngine) Find(ID string) (*keyvalue.KeyValue, error) {
 	// if v, ok := se.vertices[ID]; ok {
 	// 	return &v, nil
 	// } else {
@@ -127,11 +127,11 @@ func (se *StorageEngine) Query(str string) (*graph.Query, error) {
 	return se.engine.Parse(str)
 }
 
-func (se *StorageEngine) Fetch(id string) (*graph.Vertex, error) {
+func (se *StorageEngine) Fetch(id string) (*keyvalue.KeyValue, error) {
 	return se.Find(id)
 }
 
-func (se *StorageEngine) ForEach() graph.Iterator {
+func (se *StorageEngine) ForEach() keyvalue.Iterator {
 	position := 0
 	length := len(se.tKey)
 	return func() (item interface{}, ok bool) {
@@ -146,7 +146,7 @@ func (se *StorageEngine) ForEach() graph.Iterator {
 	}
 }
 
-func (se *StorageEngine) HasPrefix(prefix []byte) graph.Iterator {
+func (se *StorageEngine) HasPrefix(prefix []byte) keyvalue.Iterator {
 	position := 0
 	length := len(se.tKey)
 	p := string(prefix)

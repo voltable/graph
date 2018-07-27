@@ -5,7 +5,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph"
+	"github.com/RossMerr/Caudex.Graph/keyvalue"
+
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
@@ -30,25 +31,25 @@ type FakeTraversal struct {
 type FakeStorage struct {
 }
 
-func (s FakeStorage) Fetch(string) (*graph.Vertex, error) {
+func (s FakeStorage) Fetch(string) (*keyvalue.KeyValue, error) {
 	return nil, nil
 }
 
-func (s FakeStorage) ForEach() graph.Iterator {
+func (s FakeStorage) ForEach() keyvalue.Iterator {
 	return func() (item interface{}, ok bool) {
 
 		return nil, false
 	}
 }
 
-func (s FakeStorage) HasPrefix([]byte) graph.Iterator {
+func (s FakeStorage) HasPrefix([]byte) keyvalue.Iterator {
 	return func() (item interface{}, ok bool) {
 
 		return nil, false
 	}
 }
 
-func NewFakeStorage() graph.Storage {
+func NewFakeStorage() keyvalue.Storage {
 	return &FakeStorage{}
 }
 

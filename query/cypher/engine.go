@@ -20,12 +20,12 @@ func RegisterEngine() {
 
 const queryType = "Cypher"
 
-func newEngine(i graph.Storage) (query.Engine, error) {
+func newEngine(i keyvalue.Storage) (query.Engine, error) {
 	e := NewEngine(i)
 	return e, nil
 }
 
-func NewEngine(i graph.Storage) *Engine {
+func NewEngine(i keyvalue.Storage) *Engine {
 	return &Engine{
 		Parser:  parser.NewParser(),
 		Storage: i,
@@ -38,7 +38,7 @@ func NewEngine(i graph.Storage) *Engine {
 type Engine struct {
 	Parser     parser.Parser
 	Filter     CypherFilter
-	Storage    graph.Storage
+	Storage    keyvalue.Storage
 	Parts      Parts
 	Projection Projection
 }
@@ -97,7 +97,7 @@ func (qe Engine) toVertices(i query.IteratorFrontier) []interface{} {
 	return results
 }
 
-func (qe Engine) toFrontier(i graph.Iterator, part *QueryPart, variable string) query.IteratorFrontier {
+func (qe Engine) toFrontier(i keyvalue.Iterator, part *QueryPart, variable string) query.IteratorFrontier {
 	return func() (*query.Frontier, bool) {
 		item, ok := i()
 		if ok {

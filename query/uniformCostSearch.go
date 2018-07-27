@@ -3,6 +3,8 @@ package query
 import (
 	"sort"
 	"sync"
+
+	"github.com/RossMerr/Caudex.Graph/keyvalue"
 )
 
 type Traversal interface {
@@ -13,6 +15,7 @@ type Plan struct {
 	wg         *sync.WaitGroup
 	predicates []*PredicatePath
 	Depth      int
+	storage    keyvalue.Storage
 }
 
 func NewPlan() *Plan {
@@ -39,6 +42,30 @@ func (t *Plan) uniformCostSearch(frontier *Frontier) bool {
 			}
 
 		}
+
+		if pe := t.predicates[depth]; pe != nil {
+
+			iterator := t.storage.HasPrefix(keyvalue.RelationshipPrefix(part.UUID))
+			for value, hasEdges := iterator(); hasEdges; value, hasEdges = iterator() {
+				if kv, isKV := value.(*keyvalue.KeyValue); isKV {
+					if _, ok := frontier.Explored[kv.UUID()]; !ok {
+
+					}
+				}
+			}
+		}
+
+		// 		if pe := t.predicateEdge(depth); pe != nil {
+		// 			for _, e := range vertex.Edges() {
+		// 				if _, ok := frontier.Explored[e.ID()]; !ok {
+		// 					if variable, p := pe(e, uint(depth)); p == Visiting || p == Matching {
+		// 						if v, err := t.storage.Fetch(e.ID()); err == nil {
+		// 							frontier.AppendEdgeAndVertex(queue, e, v, variable, e.Weight)
+		// 						}
+		// 					}
+		// 				}
+		// 			}
+		// }
 
 		sort.Sort(frontier)
 	}

@@ -5,8 +5,6 @@ import (
 	"errors"
 
 	"github.com/RossMerr/Caudex.Graph/keyvalue"
-
-	"github.com/RossMerr/Caudex.Graph"
 )
 
 type (
@@ -14,7 +12,7 @@ type (
 	Path struct {
 		Iterate    IteratorFrontier
 		explored   map[string]bool
-		storage    graph.Storage
+		storage    keyvalue.Storage
 		predicates *list.List
 	}
 

@@ -38,7 +38,7 @@ func TestUUID(t *testing.T) {
 			name: "Relationship",
 			setup: func(id uuid.UUID) *keyvalue.KeyValue {
 				to, _ := uuid.GenerateRandomUUID()
-				return keyvalue.NewKeyValue(to[:], id[:], keyvalue.US, keyvalue.Relationship, keyvalue.US, []byte(""))
+				return keyvalue.NewKeyValue(to[:], id[:], keyvalue.US, keyvalue.Relationship, keyvalue.US, []byte(""), keyvalue.US, to[:])
 			},
 			want: func() uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
