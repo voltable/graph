@@ -99,12 +99,10 @@ func (qe Engine) toVertices(i query.IteratorFrontier) []interface{} {
 
 func (qe Engine) toFrontier(i keyvalue.Iterator, part *QueryPart, variable string) query.IteratorFrontier {
 	return func() (*query.Frontier, bool) {
-		item, ok := i()
+		kv, ok := i()
 		if ok {
-			if kv, is := item.(*keyvalue.KeyValue); is {
-				f := query.NewFrontier(kv, variable)
-				return &f, true
-			}
+			f := query.NewFrontier(kv, variable)
+			return &f, true
 		}
 
 		return nil, false

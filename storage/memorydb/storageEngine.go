@@ -134,13 +134,13 @@ func (se *StorageEngine) Fetch(id string) (*keyvalue.KeyValue, error) {
 func (se *StorageEngine) ForEach() keyvalue.Iterator {
 	position := 0
 	length := len(se.tKey)
-	return func() (item interface{}, ok bool) {
+	return func() (*keyvalue.KeyValue, bool) {
 		for position < length {
 			key := se.tKeyIndex[position]
 			v := se.tKey[key]
 			position = position + 1
 			kv := &keyvalue.KeyValue{Key: []byte(key), Value: v}
-			return &kv, true
+			return kv, true
 		}
 		return nil, false
 	}
@@ -150,7 +150,7 @@ func (se *StorageEngine) HasPrefix(prefix []byte) keyvalue.Iterator {
 	position := 0
 	length := len(se.tKey)
 	p := string(prefix)
-	return func() (item interface{}, ok bool) {
+	return func() (*keyvalue.KeyValue, bool) {
 		for position < length {
 			key := se.tKeyIndex[position]
 			position = position + 1
@@ -158,7 +158,7 @@ func (se *StorageEngine) HasPrefix(prefix []byte) keyvalue.Iterator {
 			if strings.HasPrefix(key, p) {
 				v := se.tKey[key]
 				kv := &keyvalue.KeyValue{Key: []byte(key), Value: v}
-				return &kv, true
+				return kv, true
 			}
 		}
 

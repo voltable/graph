@@ -36,15 +36,13 @@ func (s FakeStorage) Fetch(string) (*keyvalue.KeyValue, error) {
 }
 
 func (s FakeStorage) ForEach() keyvalue.Iterator {
-	return func() (item interface{}, ok bool) {
-
+	return func() (*keyvalue.KeyValue, bool) {
 		return nil, false
 	}
 }
 
 func (s FakeStorage) HasPrefix([]byte) keyvalue.Iterator {
-	return func() (item interface{}, ok bool) {
-
+	return func() (*keyvalue.KeyValue, bool) {
 		return nil, false
 	}
 }

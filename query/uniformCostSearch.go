@@ -46,11 +46,9 @@ func (t *Plan) uniformCostSearch(frontier *Frontier) bool {
 		if pe := t.predicates[depth]; pe != nil {
 
 			iterator := t.storage.HasPrefix(keyvalue.RelationshipPrefix(part.UUID))
-			for value, hasEdges := iterator(); hasEdges; value, hasEdges = iterator() {
-				if kv, isKV := value.(*keyvalue.KeyValue); isKV {
-					if _, ok := frontier.Explored[kv.UUID()]; !ok {
+			for kv, hasEdges := iterator(); hasEdges; kv, hasEdges = iterator() {
+				if _, ok := frontier.Explored[kv.UUID()]; !ok {
 
-					}
 				}
 			}
 		}
