@@ -4,10 +4,10 @@ import (
 	"math"
 	"testing"
 
-	graph "github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/expressions"
 	"github.com/RossMerr/Caudex.Graph/keyvalue"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
+	"github.com/RossMerr/Caudex.Graph/uuid"
 )
 
 func Test_ComparisonExprInterpret(t *testing.T) {
@@ -38,7 +38,7 @@ func Test_ComparisonExprInterpret(t *testing.T) {
 		{
 			c: ast.NewComparisonExpr(expressions.IS_NOT_NULL, &ast.PropertyStmt{Variable: "n", Value: "Person"}, &ast.Ident{}),
 			v: func() *keyvalue.KeyValue {
-				id, _ := graph.GenerateRandomUUID()
+				id, _ := uuid.GenerateRandomUUID()
 				x := keyvalue.NewKeyValue("John Smith", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Person"))
 				return x
 			}(),
@@ -48,7 +48,7 @@ func Test_ComparisonExprInterpret(t *testing.T) {
 		{
 			c: ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: math.MaxInt32}),
 			v: func() *keyvalue.KeyValue {
-				id, _ := graph.GenerateRandomUUID()
+				id, _ := uuid.GenerateRandomUUID()
 				x := keyvalue.NewKeyValue(math.MaxInt32-1, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
 				return x
 			}(),

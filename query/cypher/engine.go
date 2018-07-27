@@ -90,7 +90,7 @@ func (qe Engine) toVertices(i query.IteratorFrontier) []interface{} {
 	results := make([]interface{}, 0)
 	for item, ok := i(); ok; item, ok = i() {
 		for _, i := range item.OptimalPath() {
-			results = append(results, i.Object)
+			results = append(results, i.KeyValue)
 		}
 
 	}

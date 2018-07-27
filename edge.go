@@ -4,13 +4,14 @@ import (
 	"strings"
 
 	"github.com/RossMerr/Caudex.Graph/keyvalue"
+	"github.com/RossMerr/Caudex.Graph/uuid"
 )
 
 type (
 	// An Edge connects two Vertex in a graph.
 	Edge struct {
-		from UUID
-		to   UUID
+		from uuid.UUID
+		to   uuid.UUID
 
 		isDirected Digraph
 		// Weight of a path in a weighted graph
@@ -29,16 +30,16 @@ func NewEdge(from, to *Vertex) *Edge {
 }
 
 // NewEdgeFromID creates a edge form the id
-func NewEdgeFromID(from, to UUID) *Edge {
+func NewEdgeFromID(from, to uuid.UUID) *Edge {
 	return &Edge{from: from, to: to, properties: make(map[string]interface{})}
 }
 
 func (e *Edge) From() string {
-	return formatUUID(e.from)
+	return uuid.FormatUUID(e.from)
 }
 
 func (e *Edge) To() string {
-	return formatUUID(e.to)
+	return uuid.FormatUUID(e.to)
 }
 
 // RelationshipType the type of relationship

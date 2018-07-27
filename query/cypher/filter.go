@@ -35,7 +35,7 @@ func (qe Filter) Filter(i query.IteratorFrontier, predicate ast.Expr) query.Iter
 				}
 				if predicate != nil {
 					for _, i := range optimalPath {
-						if !qe.ExpressionEvaluator(predicate, i.Variable, i.Object) {
+						if !qe.ExpressionEvaluator(predicate, i.Variable, i.KeyValue) {
 							check = false
 							break
 						}

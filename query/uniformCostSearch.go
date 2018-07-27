@@ -31,9 +31,9 @@ func (t *Plan) uniformCostSearch(frontier *Frontier) bool {
 		if _, ok := frontier.Explored[part.UUID]; !ok {
 			frontier.Explored[part.UUID] = true
 			pv := t.predicates[depth-1]
-			if variable, p := pv.Predicate(part.Object); p == Matched {
+			if variable, p := pv.Predicate(part.KeyValue); p == Matched {
 				queue.Parts[depth-1].Variable = variable
-				frontier.AppendKeyValue(queue, part.Object, part.Variable)
+				frontier.AppendKeyValue(queue, part.KeyValue, part.Variable)
 				sort.Sort(frontier)
 				return depth == t.Depth
 			}

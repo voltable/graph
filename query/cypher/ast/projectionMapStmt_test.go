@@ -3,10 +3,10 @@ package ast_test
 import (
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/expressions"
 	"github.com/RossMerr/Caudex.Graph/keyvalue"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
+	"github.com/RossMerr/Caudex.Graph/uuid"
 )
 
 func Test_MapPropertyInterpret(t *testing.T) {
@@ -19,7 +19,7 @@ func Test_MapPropertyInterpret(t *testing.T) {
 		{
 			expr: &ast.ProjectionMapProperty{Key: "name"},
 			prop: func() *keyvalue.KeyValue {
-				id, _ := graph.GenerateRandomUUID()
+				id, _ := uuid.GenerateRandomUUID()
 				x := keyvalue.NewKeyValue("John Smith", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
 				return x
 			}(),
@@ -34,7 +34,7 @@ func Test_MapPropertyInterpret(t *testing.T) {
 		{
 			expr: &ast.ProjectionMapProperty{Key: "name", Alias: "alias"},
 			prop: func() *keyvalue.KeyValue {
-				id, _ := graph.GenerateRandomUUID()
+				id, _ := uuid.GenerateRandomUUID()
 				x := keyvalue.NewKeyValue("John Smith", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
 				return x
 			}(),
@@ -67,7 +67,7 @@ func Test_MapLiteralInterpret(t *testing.T) {
 		{
 			expr: &ast.ProjectionMapLiteral{Key: "name", Expression: &ast.ComparisonExpr{Comparison: expressions.EQ}},
 			prop: func() *keyvalue.KeyValue {
-				id, _ := graph.GenerateRandomUUID()
+				id, _ := uuid.GenerateRandomUUID()
 				x := keyvalue.NewKeyValue("John Smith", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
 				return x
 			}(),
@@ -82,7 +82,7 @@ func Test_MapLiteralInterpret(t *testing.T) {
 		{
 			expr: &ast.ProjectionMapLiteral{Key: "name", Alias: "alias", Expression: &ast.ComparisonExpr{Comparison: expressions.EQ}},
 			prop: func() *keyvalue.KeyValue {
-				id, _ := graph.GenerateRandomUUID()
+				id, _ := uuid.GenerateRandomUUID()
 				x := keyvalue.NewKeyValue("John Smith", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
 				return x
 			}(),
@@ -97,7 +97,7 @@ func Test_MapLiteralInterpret(t *testing.T) {
 		{
 			expr: &ast.ProjectionMapLiteral{Key: "name", Expression: nil},
 			prop: func() *keyvalue.KeyValue {
-				id, _ := graph.GenerateRandomUUID()
+				id, _ := uuid.GenerateRandomUUID()
 				x := keyvalue.NewKeyValue("John Smith", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
 				return x
 			}(),
@@ -122,7 +122,7 @@ func Test_MapLiteralInterpret(t *testing.T) {
 
 func Test_MapAllInterpret(t *testing.T) {
 
-	id, _ := graph.GenerateRandomUUID()
+	id, _ := uuid.GenerateRandomUUID()
 	v := keyvalue.NewKeyValue("John Smith", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
 
 	var tests = []struct {

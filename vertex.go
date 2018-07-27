@@ -8,14 +8,15 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/RossMerr/Caudex.Graph/keyvalue"
+	"github.com/RossMerr/Caudex.Graph/uuid"
 )
 
 var _ keyvalue.MarshalKeyValue = (*Vertex)(nil)
 
 // Vertex .
 type Vertex struct {
-	id         UUID
-	edges      map[UUID]*Edge
+	id         uuid.UUID
+	edges      map[uuid.UUID]*Edge
 	label      string
 	properties map[string]interface{}
 }
@@ -32,7 +33,7 @@ func NewVertex() (*Vertex, error) {
 }
 
 // NewVertexFromID creates a vertex using the id
-func NewVertexFromID(ID UUID) (*Vertex, error) {
+func NewVertexFromID(ID uuid.UUID) (*Vertex, error) {
 	v, err := NewVertexWithLabel("")
 	v.id = ID
 	return v, err
@@ -40,10 +41,10 @@ func NewVertexFromID(ID UUID) (*Vertex, error) {
 
 // NewVertexWithLabel create a vertex with the set label
 func NewVertexWithLabel(label string) (*Vertex, error) {
-	var id UUID
+	var id uuid.UUID
 	var err error
 
-	if id, err = GenerateRandomUUID(); err != nil {
+	if id, err = uuid.GenerateRandomUUID(); err != nil {
 		return nil, errors.Wrap(errCreatVertexID, "UUID failed")
 	}
 
@@ -55,7 +56,7 @@ func NewVertexWithLabel(label string) (*Vertex, error) {
 
 // NewEmptyVertex create's a empty vertex with no ID
 func NewEmptyVertex() *Vertex {
-	v := Vertex{edges: make(map[UUID]*Edge), properties: make(map[string]interface{})}
+	v := Vertex{edges: make(map[uuid.UUID]*Edge), properties: make(map[string]interface{})}
 	return &v
 }
 
@@ -87,7 +88,7 @@ func (v *Vertex) Properties() map[string]interface{} {
 
 // ID returns the generate UUID
 func (v *Vertex) ID() string {
-	return formatUUID(v.id)
+	return uuid.FormatUUID(v.id)
 }
 
 // Label vertex label type
@@ -106,24 +107,24 @@ func (v *Vertex) Edges() Edges {
 }
 
 func (v *Vertex) removeRelationshipOnLabel(label string) Digraph {
-	return v.removeRelationshipsF(func(id UUID, e Edge) bool {
+	return v.removeRelationshipsF(func(id uuid.UUID, e Edge) bool {
 		return e.relationshipType == label
 	})
 }
 
 func (v *Vertex) removeRelationships() {
-	v.removeRelationshipsF(func(id UUID, e Edge) bool {
+	v.removeRelationshipsF(func(id uuid.UUID, e Edge) bool {
 		return true
 	})
 }
 
 func (v *Vertex) removeRelationshipsOnVertex(to *Vertex) Digraph {
-	return v.removeRelationshipsF(func(id UUID, e Edge) bool {
+	return v.removeRelationshipsF(func(id uuid.UUID, e Edge) bool {
 		return id == to.id
 	})
 }
 
-func (v *Vertex) removeRelationshipsF(f func(id UUID, e Edge) bool) Digraph {
+func (v *Vertex) removeRelationshipsF(f func(id uuid.UUID, e Edge) bool) Digraph {
 	for id, edge := range v.edges {
 		if f(id, *edge) {
 			delete(v.edges, edge.to)
@@ -140,7 +141,12 @@ func (v *Vertex) SetLabel(label string) *Vertex {
 
 // AddDirectedEdge links two vertex's and returns the edge
 func (v *Vertex) AddDirectedEdge(to *Vertex) (*Edge, error) {
-	edge := &Edge{from: v.id, to: to.id, isDirected: Directed, properties: make(map[string]interface{})}
+	return v.AddDirectedEdgeWeight(to, 0)
+}
+
+// AddDirectedEdgeWeight links two vertex's with a weight and returns the edge
+func (v *Vertex) AddDirectedEdgeWeight(to *Vertex, weight float64) (*Edge, error) {
+	edge := &Edge{from: v.id, to: to.id, isDirected: Directed, properties: make(map[string]interface{}), Weight: weight}
 	v.edges[edge.to] = edge
 	return edge, nil
 }
@@ -230,8 +236,8 @@ func (v *Vertex) MarshalKeyValueTranspose() []*keyvalue.KeyValue {
 // UnmarshalKeyValue a KeyValue into Vertex
 func (v *Vertex) UnmarshalKeyValue(c []*keyvalue.KeyValue) {
 	parts := bytes.Split(c[0].Key, keyvalue.US)
-	uuid := sliceToVertexID(parts[0])
-	v.id = uuid
+	id := uuid.SliceToUUID(parts[0])
+	v.id = id
 
 	for _, kv := range c {
 		split := bytes.Split(kv.Key, keyvalue.US)
@@ -251,7 +257,7 @@ func (v *Vertex) UnmarshalKeyValue(c []*keyvalue.KeyValue) {
 			relationshipType := split[2]
 			value, ok := kv.Value.Unmarshal().(string)
 			if ok {
-				edgeID, _ := parseUUID(value)
+				edgeID, _ := uuid.ParseUUID(value)
 
 				edge, ok := v.edges[edgeID]
 				if !ok {
@@ -266,7 +272,7 @@ func (v *Vertex) UnmarshalKeyValue(c []*keyvalue.KeyValue) {
 
 		if bytes.Equal(split[1], keyvalue.Relationshipproperties) {
 			key := split[2]
-			edgeID := sliceToVertexID(split[3])
+			edgeID := uuid.SliceToUUID(split[3])
 			edge, ok := v.edges[edgeID]
 			if !ok {
 				edge := NewEdgeFromID(v.id, edgeID)
@@ -282,8 +288,8 @@ func (v *Vertex) UnmarshalKeyValue(c []*keyvalue.KeyValue) {
 func (v *Vertex) UnmarshalKeyValueTranspose(c []*keyvalue.KeyValue) {
 
 	if s, ok := c[0].Value.Unmarshal().(string); ok {
-		uuid, _ := parseUUID(s)
-		v.id = uuid
+		id, _ := uuid.ParseUUID(s)
+		v.id = id
 	}
 
 	for _, kv := range c {
@@ -301,7 +307,7 @@ func (v *Vertex) UnmarshalKeyValueTranspose(c []*keyvalue.KeyValue) {
 			relationshipType := split[1]
 			value, ok := kv.Value.Unmarshal().(string)
 			if ok {
-				edgeID, _ := parseUUID(value)
+				edgeID, _ := uuid.ParseUUID(value)
 
 				edge, ok := v.edges[edgeID]
 				if !ok {
@@ -316,7 +322,7 @@ func (v *Vertex) UnmarshalKeyValueTranspose(c []*keyvalue.KeyValue) {
 
 		if bytes.Equal(split[0], keyvalue.Relationshipproperties) {
 			key := split[1]
-			edgeID := sliceToVertexID(split[2])
+			edgeID := uuid.SliceToUUID(split[2])
 			edge, ok := v.edges[edgeID]
 			if !ok {
 				edge := NewEdgeFromID(v.id, edgeID)

@@ -3,9 +3,9 @@ package cypher_test
 import (
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/expressions"
 	"github.com/RossMerr/Caudex.Graph/keyvalue"
+	"github.com/RossMerr/Caudex.Graph/uuid"
 
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
@@ -53,7 +53,7 @@ func Test_Filter(t *testing.T) {
 			setup: func(iterate int) query.IteratorFrontier {
 				count := 0
 				return func() (*query.Frontier, bool) {
-					id, _ := graph.GenerateRandomUUID()
+					id, _ := uuid.GenerateRandomUUID()
 					v := keyvalue.NewKeyValue("foo", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
 
 					f := query.NewFrontier(v, "n")
@@ -73,7 +73,7 @@ func Test_Filter(t *testing.T) {
 			setup: func(iterate int) query.IteratorFrontier {
 				count := 0
 				return func() (*query.Frontier, bool) {
-					id, _ := graph.GenerateRandomUUID()
+					id, _ := uuid.GenerateRandomUUID()
 					v := keyvalue.NewKeyValue("foo", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
 
 					f := query.NewFrontier(v, "n")
@@ -98,7 +98,7 @@ func Test_Filter(t *testing.T) {
 
 					f := query.NewFrontier(x, "")
 					fq := f.Values[0]
-					fv := query.FrontierProperties{Object: v, Variable: ""}
+					fv := query.FrontierProperties{KeyValue: v, Variable: ""}
 					fq.Parts = append(fq.Parts, fv)
 
 					if count < iterate {
@@ -123,15 +123,15 @@ func Test_Filter(t *testing.T) {
 					x := &keyvalue.KeyValue{}
 					v := &keyvalue.KeyValue{}
 
-					to, _ := graph.GenerateRandomUUID()
-					from, _ := graph.GenerateRandomUUID()
+					to, _ := uuid.GenerateRandomUUID()
+					from, _ := uuid.GenerateRandomUUID()
 
 					e := keyvalue.NewKeyValue(string(to[:]), from[:], keyvalue.US, keyvalue.Relationship, keyvalue.US, []byte(""))
 
 					f := query.NewFrontier(x, "")
 					fq := f.Values[0]
-					fv := query.FrontierProperties{Object: v, Variable: ""}
-					fe := query.FrontierProperties{Object: e, Variable: ""}
+					fv := query.FrontierProperties{KeyValue: v, Variable: ""}
+					fe := query.FrontierProperties{KeyValue: e, Variable: ""}
 
 					fq.Parts = append(fq.Parts, fe)
 					fq.Parts = append(fq.Parts, fv)
@@ -176,7 +176,7 @@ func Test_ExpressionEvaluator(t *testing.T) {
 			expr:     &ast.PropertyStmt{Variable: "n", Value: "name"},
 			variable: "n",
 			v: func() *keyvalue.KeyValue {
-				id, _ := graph.GenerateRandomUUID()
+				id, _ := uuid.GenerateRandomUUID()
 				x := keyvalue.NewKeyValue("foo", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
 				return x
 			}(),
@@ -187,7 +187,7 @@ func Test_ExpressionEvaluator(t *testing.T) {
 			expr:     ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}),
 			variable: "n",
 			v: func() *keyvalue.KeyValue {
-				id, _ := graph.GenerateRandomUUID()
+				id, _ := uuid.GenerateRandomUUID()
 				x := keyvalue.NewKeyValue("foo", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
 				return x
 			}(),
@@ -198,7 +198,7 @@ func Test_ExpressionEvaluator(t *testing.T) {
 			expr:     ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}),
 			variable: "x",
 			v: func() *keyvalue.KeyValue {
-				id, _ := graph.GenerateRandomUUID()
+				id, _ := uuid.GenerateRandomUUID()
 				x := keyvalue.NewKeyValue("foo", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
 				return x
 			}(),
@@ -209,7 +209,7 @@ func Test_ExpressionEvaluator(t *testing.T) {
 			expr:     ast.NewBooleanExpr(expressions.OR, ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}), nil),
 			variable: "n",
 			v: func() *keyvalue.KeyValue {
-				id, _ := graph.GenerateRandomUUID()
+				id, _ := uuid.GenerateRandomUUID()
 				x := keyvalue.NewKeyValue("foo", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
 				return x
 			}(),
@@ -223,7 +223,7 @@ func Test_ExpressionEvaluator(t *testing.T) {
 			),
 			variable: "n",
 			v: func() *keyvalue.KeyValue {
-				id, _ := graph.GenerateRandomUUID()
+				id, _ := uuid.GenerateRandomUUID()
 				x := keyvalue.NewKeyValue("foo", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
 				return x
 			}(),
@@ -234,7 +234,7 @@ func Test_ExpressionEvaluator(t *testing.T) {
 			expr:     ast.NewBooleanExpr(expressions.OR, ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}), ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "m", Value: "name"}, &ast.Ident{Data: "bar"})),
 			variable: "m",
 			v: func() *keyvalue.KeyValue {
-				id, _ := graph.GenerateRandomUUID()
+				id, _ := uuid.GenerateRandomUUID()
 				x := keyvalue.NewKeyValue("foo", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
 				return x
 			}(),
@@ -248,7 +248,7 @@ func Test_ExpressionEvaluator(t *testing.T) {
 			),
 			variable: "m",
 			v: func() *keyvalue.KeyValue {
-				id, _ := graph.GenerateRandomUUID()
+				id, _ := uuid.GenerateRandomUUID()
 				x := keyvalue.NewKeyValue("bar", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
 				return x
 			}(),
@@ -259,7 +259,7 @@ func Test_ExpressionEvaluator(t *testing.T) {
 			expr:     ast.NewBooleanExpr(expressions.OR, ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"}), ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "m", Value: "person"}, &ast.Ident{Data: "john smith"})),
 			variable: "m",
 			v: func() *keyvalue.KeyValue {
-				id, _ := graph.GenerateRandomUUID()
+				id, _ := uuid.GenerateRandomUUID()
 				x := keyvalue.NewKeyValue("john smith", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("person"))
 				return x
 			}(),

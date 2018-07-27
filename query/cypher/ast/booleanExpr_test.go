@@ -3,10 +3,10 @@ package ast_test
 import (
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/expressions"
 	"github.com/RossMerr/Caudex.Graph/keyvalue"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
+	"github.com/RossMerr/Caudex.Graph/uuid"
 )
 
 func Test_BooleanPrecedence(t *testing.T) {
@@ -74,7 +74,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
 			v: func() *keyvalue.KeyValue {
-				id, _ := graph.GenerateRandomUUID()
+				id, _ := uuid.GenerateRandomUUID()
 				x := keyvalue.NewKeyValue(100, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
 				return x
 			}(),
@@ -87,7 +87,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.GT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
 			v: func() *keyvalue.KeyValue {
-				id, _ := graph.GenerateRandomUUID()
+				id, _ := uuid.GenerateRandomUUID()
 				x := keyvalue.NewKeyValue(100, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
 				return x
 			}(),
@@ -100,7 +100,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
 			v: func() *keyvalue.KeyValue {
-				id, _ := graph.GenerateRandomUUID()
+				id, _ := uuid.GenerateRandomUUID()
 				x := keyvalue.NewKeyValue(100, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
 				return x
 			}(),
@@ -113,7 +113,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.GT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
 			v: func() *keyvalue.KeyValue {
-				id, _ := graph.GenerateRandomUUID()
+				id, _ := uuid.GenerateRandomUUID()
 				x := keyvalue.NewKeyValue(100, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
 				return x
 			}(),
@@ -126,7 +126,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
 			v: func() *keyvalue.KeyValue {
-				id, _ := graph.GenerateRandomUUID()
+				id, _ := uuid.GenerateRandomUUID()
 				x := keyvalue.NewKeyValue(100, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
 				return x
 			}(),
@@ -139,7 +139,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.GT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
 			v: func() *keyvalue.KeyValue {
-				id, _ := graph.GenerateRandomUUID()
+				id, _ := uuid.GenerateRandomUUID()
 				x := keyvalue.NewKeyValue(100, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
 				return x
 			}(),
@@ -149,7 +149,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 		{
 			c: ast.NewBooleanExpr(20, nil, nil),
 			v: func() *keyvalue.KeyValue {
-				id, _ := graph.GenerateRandomUUID()
+				id, _ := uuid.GenerateRandomUUID()
 				x := keyvalue.NewKeyValue(100, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
 				return x
 			}(),

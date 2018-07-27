@@ -1,8 +1,8 @@
 package query
 
 import (
-	graph "github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/keyvalue"
+	"github.com/RossMerr/Caudex.Graph/uuid"
 )
 
 type FrontierQueue struct {
@@ -12,15 +12,15 @@ type FrontierQueue struct {
 
 // FrontierProperties containers a KeyValue (vertex or edge) and it's Variable used by a query
 type FrontierProperties struct {
-	Object   *keyvalue.KeyValue
+	KeyValue *keyvalue.KeyValue
 	Variable string
-	UUID     graph.UUID
+	UUID     uuid.UUID
 }
 
 // Frontier priority queue containing vertices to be explored and the cost for a Uniform Cost Search
 type Frontier struct {
 	Values   []*FrontierQueue
-	Explored map[graph.UUID]bool
+	Explored map[uuid.UUID]bool
 }
 
 // Sort interface
@@ -55,14 +55,14 @@ func (f *Frontier) append(vertices []FrontierProperties, cost float64) {
 }
 
 func (f *Frontier) AppendKeyValue(queue *FrontierQueue, v *keyvalue.KeyValue, variable string) {
-	fv := FrontierProperties{Object: v, Variable: variable}
+	fv := FrontierProperties{KeyValue: v, Variable: variable}
 	f.append(append(queue.Parts, fv), queue.Cost)
 }
 
 // NewFrontier create the Frontier using the inistal Vertex as the root of the graph
 func NewFrontier(v *keyvalue.KeyValue, variable string) Frontier {
-	fv := FrontierProperties{Object: v, Variable: variable}
-	f := Frontier{Explored: make(map[graph.UUID]bool)}
+	fv := FrontierProperties{KeyValue: v, Variable: variable}
+	f := Frontier{Explored: make(map[uuid.UUID]bool)}
 	f.append([]FrontierProperties{fv}, 0)
 	return f
 }

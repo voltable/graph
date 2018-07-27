@@ -1,6 +1,7 @@
 package query_test
 
 import (
+	"bytes"
 	"container/list"
 	"errors"
 	"reflect"
@@ -8,8 +9,8 @@ import (
 
 	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/expressions"
+	"github.com/RossMerr/Caudex.Graph/keyvalue"
 	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ir"
 )
 
 var (
@@ -41,65 +42,59 @@ func init() {
 	adl.SetLabel("adl")
 	per.SetLabel("per")
 
-	drw.AddEdgeWeight(cns, float64(30))
-	drw.AddEdgeWeight(asp, float64(15))
-	drw.AddEdgeWeight(per, float64(48))
+	drw.AddDirectedEdgeWeight(cns, float64(30))
+	drw.AddDirectedEdgeWeight(asp, float64(15))
+	drw.AddDirectedEdgeWeight(per, float64(48))
 
-	cns.AddEdgeWeight(drw, float64(30))
-	cns.AddEdgeWeight(asp, float64(24))
-	cns.AddEdgeWeight(bne, float64(22))
+	cns.AddDirectedEdgeWeight(drw, float64(30))
+	cns.AddDirectedEdgeWeight(asp, float64(24))
+	cns.AddDirectedEdgeWeight(bne, float64(22))
 
-	asp.AddEdgeWeight(drw, float64(15))
-	asp.AddEdgeWeight(cns, float64(24))
-	asp.AddEdgeWeight(bne, float64(31))
-	asp.AddEdgeWeight(cbr, float64(15))
-	asp.AddEdgeWeight(adl, float64(15))
+	asp.AddDirectedEdgeWeight(drw, float64(15))
+	asp.AddDirectedEdgeWeight(cns, float64(24))
+	asp.AddDirectedEdgeWeight(bne, float64(31))
+	asp.AddDirectedEdgeWeight(cbr, float64(15))
+	asp.AddDirectedEdgeWeight(adl, float64(15))
 
-	bne.AddEdgeWeight(cns, float64(22))
-	bne.AddEdgeWeight(asp, float64(31))
-	bne.AddEdgeWeight(syd, float64(9))
+	bne.AddDirectedEdgeWeight(cns, float64(22))
+	bne.AddDirectedEdgeWeight(asp, float64(31))
+	bne.AddDirectedEdgeWeight(syd, float64(9))
 
-	syd.AddEdgeWeight(bne, float64(9))
-	syd.AddEdgeWeight(mel, float64(12))
-	syd.AddEdgeWeight(cbr, float64(4))
+	syd.AddDirectedEdgeWeight(bne, float64(9))
+	syd.AddDirectedEdgeWeight(mel, float64(12))
+	syd.AddDirectedEdgeWeight(cbr, float64(4))
 
-	cbr.AddEdgeWeight(mel, float64(6))
-	cbr.AddEdgeWeight(syd, float64(4))
-	cbr.AddEdgeWeight(asp, float64(15))
+	cbr.AddDirectedEdgeWeight(mel, float64(6))
+	cbr.AddDirectedEdgeWeight(syd, float64(4))
+	cbr.AddDirectedEdgeWeight(asp, float64(15))
 
-	mel.AddEdgeWeight(syd, float64(12))
-	mel.AddEdgeWeight(cbr, float64(6))
-	mel.AddEdgeWeight(adl, float64(8))
+	mel.AddDirectedEdgeWeight(syd, float64(12))
+	mel.AddDirectedEdgeWeight(cbr, float64(6))
+	mel.AddDirectedEdgeWeight(adl, float64(8))
 
-	adl.AddEdgeWeight(mel, float64(8))
-	adl.AddEdgeWeight(asp, float64(15))
-	adl.AddEdgeWeight(per, float64(32))
+	adl.AddDirectedEdgeWeight(mel, float64(8))
+	adl.AddDirectedEdgeWeight(asp, float64(15))
+	adl.AddDirectedEdgeWeight(per, float64(32))
 
-	per.AddEdgeWeight(adl, float64(32))
-	per.AddEdgeWeight(drw, float64(48))
+	per.AddDirectedEdgeWeight(adl, float64(32))
+	per.AddDirectedEdgeWeight(drw, float64(48))
 }
 
 func Test_UniformCostSearch(t *testing.T) {
 	g := AustraliaGraph()
 
-	toPredicateVertex := toPredicateVertex(t)
-	vPath := &query.PredicateVertexPath{PredicateVertex: toPredicateVertex(nil)}
+	path := make([]*query.PredicatePath, 0)
+	path = append(path, toPredicateVertex())
+	path = append(path, toPredicateEdge())
+	path = append(path, toPredicateVertex())
+	path = append(path, toPredicateEdge())
+	path = append(path, toPredicateVertex())
+	path = append(path, toPredicateEdge())
+	path = append(path, toPredicateVertex())
+	path = append(path, toPredicateEdge())
+	path = append(path, toPredicateVertex())
 
-	toPredicateEdge := toPredicateEdge(t)
-	ePath := &query.PredicateEdgePath{PredicateEdge: toPredicateEdge(nil)}
-
-	path := make([]interface{}, 0)
-	path = append(path, vPath)
-	path = append(path, ePath)
-	path = append(path, vPath)
-	path = append(path, ePath)
-	path = append(path, vPath)
-	path = append(path, ePath)
-	path = append(path, vPath)
-	path = append(path, ePath)
-	path = append(path, vPath)
-
-	plan := query.NewPlan(g)
+	plan := query.NewPlan()
 	it, err := plan.SearchPlan(g.ForEachTest(), path)
 	if err != nil {
 		t.Fatalf("Travers failed %+v", err)
@@ -196,52 +191,60 @@ func (se *StorageEngine) ForEach() graph.Iterator {
 }
 
 func (se *StorageEngine) ForEachTest() query.IteratorFrontier {
-	state := false
-	return func() (item *query.Frontier, ok bool) {
-		state = expressions.XORSwap(state)
-		f := query.NewFrontier(syd, "")
-		return &f, state
+	ok := false
+	return func() (*query.Frontier, bool) {
+		ok = expressions.XORSwap(ok)
+		if ok {
+			kv := syd.MarshalKeyValue()
+			f := query.NewFrontier(kv[0], "")
+			return &f, ok
+		}
+		return nil, ok
 	}
 }
 
-func ToIterator(i query.IteratorFrontier) []*graph.Vertex {
-	results := make([]*graph.Vertex, 0)
+func ToIterator(i query.IteratorFrontier) []*keyvalue.KeyValue {
+	results := make([]*keyvalue.KeyValue, 0)
 
 	for frontier, ok := i(); ok; frontier, ok = i() {
 		if frontier.Len() > 0 {
 			parts := frontier.OptimalPath()
 			for _, i := range parts {
-				if v, ok := i.Object.(*graph.Vertex); ok {
-					results = append(results, v)
-				}
+				results = append(results, i.Object)
 			}
 		}
 	}
 	return results
 }
 
-func toPredicateVertex(t *testing.T) func(*ir.VertexPatn) query.PredicateVertex {
-	return func(*ir.VertexPatn) query.PredicateVertex {
-		return func(v *graph.Vertex) (string, query.Traverse) {
-			if v.ID() == per.ID() {
+func toPredicateVertex() *query.PredicatePath {
+	pvp := query.PredicatePath{Predicate: func(kv *keyvalue.KeyValue) (string, query.Traverse) {
+		split := bytes.Split(kv.Key, keyvalue.US)
+		if bytes.Equal(split[1], keyvalue.Vertex) {
+			if string(split[0]) == per.ID() {
 				return "", query.Matched
-			} else {
-				return "", query.Failed
 			}
 		}
-	}
+
+		return "", query.Failed
+	}}
+
+	return &pvp
 }
 
-func toPredicateEdge(t *testing.T) func(patn *ir.EdgePatn) query.PredicateEdge {
-	return func(patn *ir.EdgePatn) query.PredicateEdge {
-		return func(e *graph.Edge, depth uint) (string, query.Traverse) {
-			if e.ID() != per.ID() {
+func toPredicateEdge() *query.PredicatePath {
+	pvp := query.PredicatePath{Predicate: func(kv *keyvalue.KeyValue) (string, query.Traverse) {
+		split := bytes.Split(kv.Key, keyvalue.US)
+		if bytes.Equal(split[1], keyvalue.Relationship) {
+			if string(split[0]) != per.ID() {
 				return "", query.Visiting
-			} else {
-				return "", query.Matching
 			}
 		}
-	}
+
+		return "", query.Matching
+	}}
+
+	return &pvp
 }
 
 func index(l *list.List, i int) interface{} {

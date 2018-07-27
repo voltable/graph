@@ -1,4 +1,4 @@
-package graph
+package uuid
 
 import (
 	"crypto/rand"
@@ -19,13 +19,13 @@ func GenerateRandomUUID() (UUID, error) {
 	return arr, nil
 }
 
-func sliceToVertexID(buf []byte) UUID {
+func SliceToUUID(buf []byte) UUID {
 	var arr [16]byte
 	copy(arr[:], buf)
 	return arr
 }
 
-func formatUUID(buf [16]byte) string {
+func FormatUUID(buf [16]byte) string {
 	return fmt.Sprintf("%08x-%04x-%04x-%04x-%12x",
 		buf[0:4],
 		buf[4:6],
@@ -34,7 +34,7 @@ func formatUUID(buf [16]byte) string {
 		buf[10:16])
 }
 
-func parseUUID(uuid string) ([16]byte, error) {
+func ParseUUID(uuid string) ([16]byte, error) {
 	var arr [16]byte
 	if len(uuid) != 36 {
 		return arr, fmt.Errorf("uuid string is wrong length")
