@@ -26,7 +26,7 @@ type (
 	IteratorFrontier func() (item *Frontier, ok bool)
 
 	// Predicate apply the predicate over the key/value
-	Predicate func(kv *keyvalue.KeyValue) (string, Traverse)
+	Predicate func(kv *keyvalue.KeyValue, depth int) (string, Traverse)
 )
 
 var (

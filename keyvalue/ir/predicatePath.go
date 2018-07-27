@@ -25,7 +25,7 @@ func ToPredicatePath(patn ast.Patn) *query.PredicatePath {
 // ToPredicateVertexPath creates a PredicateVertexPath out of the VertexPatn
 func ToPredicateVertexPath(patn *ast.VertexPatn) *query.PredicatePath {
 	label := strings.ToLower(patn.Label)
-	pvp := query.PredicatePath{Predicate: func(kv *keyvalue.KeyValue) (string, query.Traverse) {
+	pvp := query.PredicatePath{Predicate: func(kv *keyvalue.KeyValue, depth int) (string, query.Traverse) {
 		split := bytes.Split(kv.Key, keyvalue.US)
 
 		if bytes.Equal(split[1], keyvalue.Vertex) {
@@ -59,7 +59,7 @@ func ToPredicateVertexPath(patn *ast.VertexPatn) *query.PredicatePath {
 // ToPredicateEdgePath creates a PredicateEdgePath out of the EdgePatn
 func ToPredicateEdgePath(patn *ast.EdgePatn) *query.PredicatePath {
 	label := strings.ToLower(patn.Body.Type)
-	pvp := query.PredicatePath{Predicate: func(kv *keyvalue.KeyValue) (string, query.Traverse) {
+	pvp := query.PredicatePath{Predicate: func(kv *keyvalue.KeyValue, depth int) (string, query.Traverse) {
 		split := bytes.Split(kv.Key, keyvalue.US)
 
 		if bytes.Equal(split[1], keyvalue.Vertex) {

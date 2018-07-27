@@ -127,10 +127,6 @@ func (se *StorageEngine) Query(str string) (*graph.Query, error) {
 	return se.engine.Parse(str)
 }
 
-func (se *StorageEngine) Fetch(id string) (*keyvalue.KeyValue, error) {
-	return se.Find(id)
-}
-
 func (se *StorageEngine) ForEach() keyvalue.Iterator {
 	position := 0
 	length := len(se.tKey)

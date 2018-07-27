@@ -128,13 +128,13 @@ func Test_UniformCostSearch(t *testing.T) {
 }
 
 func AustraliaGraph() *StorageEngine {
-	g := &StorageEngine{vertices: make(map[uuid.UUID]graph.Vertex)}
+	g := &StorageEngine{vertices: make(map[uuid.UUID]*keyvalue.KeyValue)}
 	g.Create(drw, cns, asp, bne, syd, cbr, mel, adl, per)
 	return g
 }
 
 type StorageEngine struct {
-	vertices  map[uuid.UUID]graph.Vertex
+	kv        map[uuid.UUID]*keyvalue.KeyValue
 	keys      []uuid.UUID
 	traversal query.Traversal
 }
@@ -164,22 +164,22 @@ func (se *StorageEngine) Query(str string) (*graph.Query, error) {
 	return nil, nil
 }
 
-func (se *StorageEngine) Fetch(id uuid.UUID) (*graph.Vertex, error) {
-	if v, ok := se.vertices[id]; ok {
-		return &v, nil
-	} else {
-		return nil, errRecordNotFound
-	}
-}
+// func (se *StorageEngine) Fetch(id uuid.UUID) (*graph.Vertex, error) {
+// 	if v, ok := se.vertices[id]; ok {
+// 		return &v, nil
+// 	} else {
+// 		return nil, errRecordNotFound
+// 	}
+// }
 
 func (se *StorageEngine) Close() {
 
 }
 
-func (se *StorageEngine) ForEach() graph.Iterator {
+func (se *StorageEngine) ForEach() keyvalue.Iterator {
 	position := 0
 	length := len(se.keys)
-	return func() (item interface{}, ok bool) {
+	return func() (*keyvalue.KeyValue, bool) {
 		if position < length {
 			key := se.keys[position]
 			v := se.vertices[key]

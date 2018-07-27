@@ -34,7 +34,7 @@ func (t *Plan) uniformCostSearch(frontier *Frontier) bool {
 		if _, ok := frontier.Explored[part.UUID]; !ok {
 			frontier.Explored[part.UUID] = true
 			pv := t.predicates[depth-1]
-			if variable, p := pv.Predicate(part.KeyValue); p == Matched {
+			if variable, p := pv.Predicate(part.KeyValue, depth-1); p == Matched {
 				queue.Parts[depth-1].Variable = variable
 				frontier.AppendKeyValue(queue, part.KeyValue, part.Variable)
 				sort.Sort(frontier)
@@ -44,11 +44,14 @@ func (t *Plan) uniformCostSearch(frontier *Frontier) bool {
 		}
 
 		if pe := t.predicates[depth]; pe != nil {
-
 			iterator := t.storage.HasPrefix(keyvalue.RelationshipPrefix(part.UUID))
 			for kv, hasEdges := iterator(); hasEdges; kv, hasEdges = iterator() {
 				if _, ok := frontier.Explored[kv.UUID()]; !ok {
-
+					// if variable, p := pe.Predicate(kv, depth); p == Visiting || p == Matching {
+					// 	if v, err := t.storage.Fetch(e.ID()); err == nil {
+					// 		frontier.AppendEdgeAndVertex(queue, e, v, variable, e.Weight)
+					// 	}
+					// }
 				}
 			}
 		}
