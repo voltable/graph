@@ -9,9 +9,7 @@ import (
 
 func init() {
 	cypher.RegisterQueryBuilder(QueryBuilderType, cypher.QueryBuilderRegistry{
-		NewFunc: func() cypher.QueryBuilder {
-			return &KeyValueCyperQueryBuilder{}
-		},
+		NewFunc: NewKeyValueCyperQueryBuilder,
 	})
 }
 
@@ -21,32 +19,39 @@ const (
 )
 
 type KeyValueCyperQueryBuilder struct {
+	storage query.Storage
+}
+
+func NewKeyValueCyperQueryBuilder(storage query.Storage) cypher.QueryBuilder {
+	return &KeyValueCyperQueryBuilder{
+		storage: storage,
+	}
 }
 
 func (s *KeyValueCyperQueryBuilder) Predicate(patterns []ast.Patn) []query.Predicate {
 	result := make([]query.Predicate, 0)
 	for _, patn := range patterns {
-		result = append(result, ToPredicatePath(patn))
+		result = append(result, s.toPredicatePath(patn))
 	}
 
 	return result
 }
 
 // ToPredicatePath creates a PredicatePath out of the Patn
-func ToPredicatePath(patn ast.Patn) query.Predicate {
+func (s *KeyValueCyperQueryBuilder) toPredicatePath(patn ast.Patn) query.Predicate {
 	if vertex, ok := patn.(*ast.VertexPatn); ok {
-		return ToPredicateVertexPath(vertex)
+		return s.toPredicateVertexPath(vertex)
 	}
 
 	if edge, ok := patn.(*ast.EdgePatn); ok {
-		return ToPredicateEdgePath(edge)
+		return s.toPredicateEdgePath(edge)
 	}
 
 	return nil
 }
 
 // ToPredicateVertexPath creates a PredicateVertexPath out of the VertexPatn
-func ToPredicateVertexPath(patn *ast.VertexPatn) query.Predicate {
+func (s *KeyValueCyperQueryBuilder) toPredicateVertexPath(patn *ast.VertexPatn) query.Predicate {
 	//label := strings.ToLower(patn.Label)
 	return func(uuid uuid.UUID, depth int) (string, query.Traverse) {
 		// split := bytes.Split(kv.Key, US)
@@ -78,7 +83,7 @@ func ToPredicateVertexPath(patn *ast.VertexPatn) query.Predicate {
 }
 
 // ToPredicateEdgePath creates a PredicateEdgePath out of the EdgePatn
-func ToPredicateEdgePath(patn *ast.EdgePatn) query.Predicate {
+func (s *KeyValueCyperQueryBuilder) toPredicateEdgePath(patn *ast.EdgePatn) query.Predicate {
 	//label := strings.ToLower(patn.Body.Type)
 	return func(uuid uuid.UUID, depth int) (string, query.Traverse) {
 		// split := bytes.Split(kv.Key, US)

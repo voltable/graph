@@ -19,7 +19,7 @@ type QueryBuilder interface {
 	Predicate([]ast.Patn) []query.Predicate
 }
 
-type NewQueryBuilderFunc func() QueryBuilder
+type NewQueryBuilderFunc func(query.Storage) QueryBuilder
 
 type QueryBuilderRegistry struct {
 	NewFunc NewQueryBuilderFunc
@@ -36,23 +36,23 @@ func RegisterQueryBuilder(name string, register QueryBuilderRegistry) {
 	queryBuilderRegistry[name] = register
 }
 
-func NewQueryBuilder(name string) (QueryBuilder, error) {
+func NewQueryBuilder(name string, storage query.Storage) (QueryBuilder, error) {
 	r, registered := queryBuilderRegistry[name]
 	if !registered {
 		return nil, errQueryBuilderNotRegistred
 	}
 
-	return r.NewFunc(), nil
+	return r.NewFunc(storage), nil
 }
 
-func FristQueryBuilder() (QueryBuilder, error) {
+func FristQueryBuilder(storage query.Storage) (QueryBuilder, error) {
 	for name := range queryBuilderRegistry {
 		r, registered := queryBuilderRegistry[name]
 		if !registered {
 			return nil, errQueryBuilderNotRegistred
 		}
 
-		return r.NewFunc(), nil
+		return r.NewFunc(storage), nil
 	}
 	return nil, errQueryBuilderNotRegistred
 }
