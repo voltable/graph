@@ -1,7 +1,6 @@
 package query_test
 
 import (
-	"bytes"
 	"container/list"
 	"errors"
 	"reflect"
@@ -11,6 +10,7 @@ import (
 	"github.com/RossMerr/Caudex.Graph/expressions"
 	"github.com/RossMerr/Caudex.Graph/keyvalue"
 	"github.com/RossMerr/Caudex.Graph/query"
+	"github.com/RossMerr/Caudex.Graph/uuid"
 )
 
 var (
@@ -128,14 +128,14 @@ func Test_UniformCostSearch(t *testing.T) {
 }
 
 func AustraliaGraph() *StorageEngine {
-	g := &StorageEngine{vertices: make(map[string]graph.Vertex)}
+	g := &StorageEngine{vertices: make(map[uuid.UUID]graph.Vertex)}
 	g.Create(drw, cns, asp, bne, syd, cbr, mel, adl, per)
 	return g
 }
 
 type StorageEngine struct {
-	vertices  map[string]graph.Vertex
-	keys      []string
+	vertices  map[uuid.UUID]graph.Vertex
+	keys      []uuid.UUID
 	traversal query.Traversal
 }
 
@@ -164,7 +164,7 @@ func (se *StorageEngine) Query(str string) (*graph.Query, error) {
 	return nil, nil
 }
 
-func (se *StorageEngine) Fetch(id string) (*graph.Vertex, error) {
+func (se *StorageEngine) Fetch(id uuid.UUID) (*graph.Vertex, error) {
 	if v, ok := se.vertices[id]; ok {
 		return &v, nil
 	} else {
@@ -195,7 +195,7 @@ func (se *StorageEngine) ForEachTest() query.IteratorFrontier {
 	return func() (*query.Frontier, bool) {
 		ok = expressions.XORSwap(ok)
 		if ok {
-			kv := syd.MarshalKeyValue()
+			kv := keyvalue.MarshalKeyValue(syd)
 			f := query.NewFrontier(kv[0], "")
 			return &f, ok
 		}
@@ -210,7 +210,7 @@ func ToIterator(i query.IteratorFrontier) []*keyvalue.KeyValue {
 		if frontier.Len() > 0 {
 			parts := frontier.OptimalPath()
 			for _, i := range parts {
-				results = append(results, i.Object)
+				results = append(results, i.KeyValue)
 			}
 		}
 	}
@@ -219,11 +219,8 @@ func ToIterator(i query.IteratorFrontier) []*keyvalue.KeyValue {
 
 func toPredicateVertex() *query.PredicatePath {
 	pvp := query.PredicatePath{Predicate: func(kv *keyvalue.KeyValue) (string, query.Traverse) {
-		split := bytes.Split(kv.Key, keyvalue.US)
-		if bytes.Equal(split[1], keyvalue.Vertex) {
-			if string(split[0]) == per.ID() {
-				return "", query.Matched
-			}
+		if kv.UUID() == per.ID() {
+			return "", query.Matched
 		}
 
 		return "", query.Failed
@@ -234,11 +231,8 @@ func toPredicateVertex() *query.PredicatePath {
 
 func toPredicateEdge() *query.PredicatePath {
 	pvp := query.PredicatePath{Predicate: func(kv *keyvalue.KeyValue) (string, query.Traverse) {
-		split := bytes.Split(kv.Key, keyvalue.US)
-		if bytes.Equal(split[1], keyvalue.Relationship) {
-			if string(split[0]) != per.ID() {
-				return "", query.Visiting
-			}
+		if kv.UUID() != per.ID() {
+			return "", query.Visiting
 		}
 
 		return "", query.Matching

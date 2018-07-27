@@ -2,7 +2,6 @@ package keyvalue
 
 var (
 	Vertex                 = []byte("v")
-	Label                  = []byte("l")
 	Properties             = []byte("p")
 	Relationship           = []byte("r")
 	Relationshipproperties = []byte("k")

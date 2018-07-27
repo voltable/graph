@@ -55,7 +55,7 @@ func (f *Frontier) append(vertices []FrontierProperties, cost float64) {
 }
 
 func (f *Frontier) AppendKeyValue(queue *FrontierQueue, v *keyvalue.KeyValue, variable string) {
-	fv := FrontierProperties{KeyValue: v, Variable: variable}
+	fv := FrontierProperties{KeyValue: v, Variable: variable, UUID: v.UUID()}
 	f.append(append(queue.Parts, fv), queue.Cost)
 }
 

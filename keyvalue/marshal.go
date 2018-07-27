@@ -30,7 +30,7 @@ func MarshalKeyValueTranspose(v *graph.Vertex) []*KeyValue {
 	tt := []*KeyValue{}
 
 	id := v.ID()
-	tt = append(tt, NewKeyValue(id[:], Label, US, []byte(v.Label()), US, id[:]))
+	tt = append(tt, NewKeyValue(id[:], Vertex, US, []byte(v.Label()), US, id[:]))
 
 	for k, p := range v.Properties() {
 		tt = append(tt, NewKeyValue(p, Properties, US, []byte(k), US, id[:]))
@@ -62,18 +62,18 @@ func UnmarshalKeyValue(v *graph.Vertex, c []*KeyValue) {
 		}
 		if bytes.Equal(split[1], Relationship) {
 			relationshipType := split[2]
+
 			value, ok := kv.Value.Unmarshal().([]byte)
 			if ok {
 				edgeID := uuid.SliceToUUID(value)
-
 				edge, ok := v.Edges()[edgeID]
 				if !ok {
 					edge = graph.NewEdgeFromID(v.ID(), edgeID)
 					v.AddEdge(edge)
 				}
-
 				edge.SetRelationshipType(string(relationshipType))
 			}
+
 			continue
 		}
 
@@ -94,11 +94,10 @@ func UnmarshalKeyValue(v *graph.Vertex, c []*KeyValue) {
 
 // UnmarshalKeyValueTranspose a KeyValue into Vertex
 func UnmarshalKeyValueTranspose(v *graph.Vertex, c []*KeyValue) {
-
 	for _, kv := range c {
 		split := bytes.Split(kv.Key, US)
 
-		if bytes.Equal(split[0], Label) {
+		if bytes.Equal(split[0], Vertex) {
 			if s, ok := kv.Value.Unmarshal().([]byte); ok {
 				id := uuid.SliceToUUID(s)
 				v.SetID(id)
@@ -162,7 +161,7 @@ func MarshalEdgeKeyValueTranspose(e *graph.Edge) []*KeyValue {
 
 	from := e.From()
 	to := e.To()
-	tt = append(tt, NewKeyValue(to[:], Relationship, US, []byte(e.RelationshipType()), US, from[:]))
+	tt = append(tt, NewKeyValue(to[:], Relationship, US, []byte(e.RelationshipType()), US, to[:], US, from[:]))
 
 	for k, p := range e.Properties() {
 		tt = append(tt, NewKeyValue(p, Relationshipproperties, US, []byte(k), US, to[:], US, from[:]))
