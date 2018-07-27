@@ -1,12 +1,25 @@
-package keyvalue
+package cypher
 
 import (
+	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/uuid"
 )
 
+type KeyValueCyperQueryBuilder struct {
+}
+
+func (s *KeyValueCyperQueryBuilder) Predicate(patterns []ast.Patn) []query.Predicate {
+	result := make([]query.Predicate, 0)
+	for _, patn := range patterns {
+		result = append(result, ToPredicatePath(patn))
+	}
+
+	return result
+}
+
 // ToPredicatePath creates a PredicatePath out of the Patn
-func ToPredicatePath(patn ast.Patn) *PredicatePath {
+func ToPredicatePath(patn ast.Patn) query.Predicate {
 	if vertex, ok := patn.(*ast.VertexPatn); ok {
 		return ToPredicateVertexPath(vertex)
 	}
@@ -19,9 +32,9 @@ func ToPredicatePath(patn ast.Patn) *PredicatePath {
 }
 
 // ToPredicateVertexPath creates a PredicateVertexPath out of the VertexPatn
-func ToPredicateVertexPath(patn *ast.VertexPatn) *PredicatePath {
+func ToPredicateVertexPath(patn *ast.VertexPatn) query.Predicate {
 	//label := strings.ToLower(patn.Label)
-	pvp := PredicatePath{Predicate: func(uuid uuid.UUID, depth int) (string, Traverse) {
+	return func(uuid uuid.UUID, depth int) (string, query.Traverse) {
 		// split := bytes.Split(kv.Key, US)
 
 		// if bytes.Equal(split[1], Vertex) {
@@ -45,17 +58,15 @@ func ToPredicateVertexPath(patn *ast.VertexPatn) *PredicatePath {
 		// 	return patn.Variable, Matched
 		// }
 
-		return patn.Variable, Failed
+		return patn.Variable, query.Failed
 
-	}, Variable: patn.Variable}
-
-	return &pvp
+	}
 }
 
 // ToPredicateEdgePath creates a PredicateEdgePath out of the EdgePatn
-func ToPredicateEdgePath(patn *ast.EdgePatn) *PredicatePath {
+func ToPredicateEdgePath(patn *ast.EdgePatn) query.Predicate {
 	//label := strings.ToLower(patn.Body.Type)
-	pvp := PredicatePath{Predicate: func(uuid uuid.UUID, depth int) (string, Traverse) {
+	return func(uuid uuid.UUID, depth int) (string, query.Traverse) {
 		// split := bytes.Split(kv.Key, US)
 
 		// if bytes.Equal(split[1], Vertex) {
@@ -79,11 +90,9 @@ func ToPredicateEdgePath(patn *ast.EdgePatn) *PredicatePath {
 		// 	return patn.Variable, Matched
 		// }
 
-		return patn.Variable, Failed
+		return patn.Variable, query.Failed
 
-	}, Variable: patn.Variable}
-
-	return &pvp
+	}
 
 	// relationshipType := strings.ToLower(patn.Body.Type)
 	// pvp := query.PredicateEdgePath{PredicateEdge: func(v *graph.Edge, depth uint) (string, query.Traverse) {

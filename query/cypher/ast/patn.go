@@ -4,6 +4,7 @@ package ast
 type Patn interface {
 	patnNode()
 	Next() Patn
+	V() string
 }
 
 type EdgePatn struct {
@@ -17,6 +18,10 @@ type EdgePatn struct {
 func (*EdgePatn) patnNode() {}
 func (s *EdgePatn) Next() Patn {
 	return s.Vertex
+}
+
+func (s *EdgePatn) V() string {
+	return s.Variable
 }
 
 type EdgeBodyStmt struct {
@@ -38,4 +43,8 @@ type VertexPatn struct {
 func (*VertexPatn) patnNode() {}
 func (s *VertexPatn) Next() Patn {
 	return s.Edge
+}
+
+func (s *VertexPatn) V() string {
+	return s.Variable
 }

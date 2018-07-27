@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/RossMerr/Caudex.Graph/keyvalue"
+	"github.com/RossMerr/Caudex.Graph/uuid"
 
 	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/query"
@@ -34,7 +35,7 @@ type StorageEngine struct {
 
 var _ graph.Graph = (*StorageEngine)(nil)
 
-var _ keyvalue.Storage = (*StorageEngine)(nil)
+var _ query.Storage = (*StorageEngine)(nil)
 
 func (se *StorageEngine) Close() {
 
@@ -127,26 +128,25 @@ func (se *StorageEngine) Query(str string) (*graph.Query, error) {
 	return se.engine.Parse(str)
 }
 
-func (se *StorageEngine) ForEach() keyvalue.Iterator {
+func (se *StorageEngine) ForEach() query.IteratorUUID {
 	position := 0
 	length := len(se.tKey)
-	return func() (*keyvalue.KeyValue, bool) {
+	return func() (uuid.UUID, bool) {
 		for position < length {
 			key := se.tKeyIndex[position]
-			v := se.tKey[key]
+			id, _ := uuid.ParseUUID(key)
 			position = position + 1
-			kv := &keyvalue.KeyValue{Key: []byte(key), Value: v}
-			return kv, true
+			return id, true
 		}
-		return nil, false
+		return uuid.UUID{}, false
 	}
 }
 
-func (se *StorageEngine) HasPrefix(prefix []byte) keyvalue.Iterator {
+func (se *StorageEngine) HasPrefix(prefix []byte) query.Iterator {
 	position := 0
 	length := len(se.tKey)
 	p := string(prefix)
-	return func() (*keyvalue.KeyValue, bool) {
+	return func() (interface{}, bool) {
 		for position < length {
 			key := se.tKeyIndex[position]
 			position = position + 1
@@ -159,5 +159,26 @@ func (se *StorageEngine) HasPrefix(prefix []byte) keyvalue.Iterator {
 		}
 
 		return nil, false
+	}
+}
+
+func (se *StorageEngine) Edges(id uuid.UUID) query.IteratorUUID {
+	position := 0
+	length := len(se.tKey)
+	p := string(keyvalue.RelationshipPrefix(id))
+	return func() (uuid.UUID, bool) {
+		for position < length {
+			key := se.tKeyIndex[position]
+			position = position + 1
+
+			if strings.HasPrefix(key, p) {
+				id, _ := uuid.ParseUUID(key)
+				return id, true
+
+			}
+
+		}
+
+		return uuid.UUID{}, false
 	}
 }

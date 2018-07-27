@@ -2,7 +2,6 @@ package cypher
 
 import (
 	"github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/keyvalue"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
 )
@@ -20,12 +19,12 @@ func RegisterEngine() {
 
 const queryType = "Cypher"
 
-func newEngine(i keyvalue.Storage) (query.Engine, error) {
+func newEngine(i query.Storage) (query.Engine, error) {
 	e := NewEngine(i)
 	return e, nil
 }
 
-func NewEngine(i keyvalue.Storage) *Engine {
+func NewEngine(i query.Storage) *Engine {
 	return &Engine{
 		Parser:  parser.NewParser(),
 		Storage: i,
@@ -38,9 +37,10 @@ func NewEngine(i keyvalue.Storage) *Engine {
 type Engine struct {
 	Parser parser.Parser
 	//Filter  CypherFilter
-	Storage keyvalue.Storage
+	Storage query.Storage
 	Parts   Parts
 	//Projection Projection
+	Builder QueryBuilder
 }
 
 var _ query.Engine = (*Engine)(nil)
@@ -56,13 +56,11 @@ func (qe Engine) Parse(q string) (*graph.Query, error) {
 	if err != nil {
 		return nil, err
 	}
-	plan := query.NewPlan()
+	plan := NewPlan(qe.Builder, qe.Storage)
 	results := make([]interface{}, 0)
 	for _, part := range queryPart {
-		// todo need to build up the hasprefix
-		// qe.Storage.HasPrefix([]byte(""))
 		frontier := qe.toFrontier(qe.Storage.ForEach(), part, variableVertex(queryPart))
-		f, err := plan.SearchPlan(frontier, part.Predicates)
+		f, err := plan.SearchPlan(frontier, part.Patterns)
 		if err != nil {
 			return nil, err
 		}
@@ -79,9 +77,9 @@ func (qe Engine) Parse(q string) (*graph.Query, error) {
 
 func variableVertex(queryPart []*QueryPart) string {
 	if len(queryPart) > 0 {
-		if len(queryPart[0].Predicates) > 0 {
-			e := queryPart[0].Predicates[0]
-			return e.Variable
+		if len(queryPart[0].Patterns) > 0 {
+			e := queryPart[0].Patterns[0]
+			return e.V()
 		}
 	}
 	return ""
@@ -98,11 +96,11 @@ func (qe Engine) toVertices(i query.IteratorFrontier) []interface{} {
 	return results
 }
 
-func (qe Engine) toFrontier(i keyvalue.Iterator, part *QueryPart, variable string) query.IteratorFrontier {
+func (qe Engine) toFrontier(i query.IteratorUUID, part *QueryPart, variable string) query.IteratorFrontier {
 	return func() (*query.Frontier, bool) {
-		kv, ok := i()
+		id, ok := i()
 		if ok {
-			f := query.NewFrontier(kv.UUID(), variable)
+			f := query.NewFrontier(id, variable)
 			return &f, true
 		}
 
