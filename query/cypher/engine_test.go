@@ -55,6 +55,12 @@ func (s FakeStorage) Edges(uuid.UUID) query.IteratorUUID {
 	}
 }
 
+func (s FakeStorage) HasPrefixRange([][]byte) query.Iterator {
+	return func() (interface{}, bool) {
+		return nil, false
+	}
+}
+
 func NewFakeStorage() query.Storage {
 	return &FakeStorage{}
 }

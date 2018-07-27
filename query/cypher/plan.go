@@ -6,6 +6,7 @@ import (
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/query/traversal"
+	"github.com/pkg/errors"
 )
 
 type Plan struct {
@@ -25,8 +26,13 @@ func NewPlan(builder QueryBuilder, storage query.Storage) *Plan {
 	return plan
 }
 
-func (t *Plan) SearchPlan(iterator query.IteratorFrontier, patterns []ast.Patn) (iteratorFrontier query.IteratorFrontier, err error) {
-	t.predicates = t.builder.Predicate(patterns)
+func (t *Plan) SearchPlan(iterator query.IteratorFrontier, patterns []ast.Patn) (query.IteratorFrontier, error) {
+	predicates, err := t.builder.Predicate(patterns)
+	if err != nil {
+		return nil, errors.Wrap(err, "Plan SearchPlan")
+	}
+
+	t.predicates = predicates
 	results := make(chan *query.Frontier)
 
 	t.forEach(iterator, results)

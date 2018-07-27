@@ -16,10 +16,10 @@ var (
 
 // QueryBuilder is the interface that a QueryBuilder must implement
 type QueryBuilder interface {
-	Predicate([]ast.Patn) []query.Predicate
+	Predicate([]ast.Patn) ([]query.Predicate, error)
 }
 
-type NewQueryBuilderFunc func(query.Storage) QueryBuilder
+type NewQueryBuilderFunc func(query.Storage) (QueryBuilder, error)
 
 type QueryBuilderRegistry struct {
 	NewFunc NewQueryBuilderFunc
@@ -42,7 +42,7 @@ func NewQueryBuilder(name string, storage query.Storage) (QueryBuilder, error) {
 		return nil, errQueryBuilderNotRegistred
 	}
 
-	return r.NewFunc(storage), nil
+	return r.NewFunc(storage)
 }
 
 func FristQueryBuilder(storage query.Storage) (QueryBuilder, error) {
@@ -52,7 +52,7 @@ func FristQueryBuilder(storage query.Storage) (QueryBuilder, error) {
 			return nil, errQueryBuilderNotRegistred
 		}
 
-		return r.NewFunc(storage), nil
+		return r.NewFunc(storage)
 	}
 	return nil, errQueryBuilderNotRegistred
 }

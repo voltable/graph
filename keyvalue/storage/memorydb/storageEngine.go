@@ -69,12 +69,12 @@ func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 
 		for i := 0; i < len(triples); i++ {
 			triple := triples[i]
-			se.tKey[string(triple.Key)] = triple.Value
 			se.tKeyIndex[len(se.tKey)] = string(triple.Key)
+			se.tKey[string(triple.Key)] = triple.Value
 
 			transpose := transposes[i]
-			se.tKeyT[string(transpose.Key)] = transpose.Value
 			se.tKeyTIndex[len(se.tKeyT)] = string(transpose.Key)
+			se.tKeyT[string(transpose.Key)] = transpose.Value
 		}
 
 		if len(errstrings) > 0 {
@@ -156,6 +156,32 @@ func (se *StorageEngine) HasPrefix(prefix []byte) query.Iterator {
 				kv := &keyvalue.KeyValue{Key: []byte(key), Value: v}
 				return kv, true
 			}
+		}
+
+		return nil, false
+	}
+}
+
+func (se *StorageEngine) HasPrefixRange(prefixes [][]byte) query.Iterator {
+	position := 0
+	length := len(se.tKey)
+	pp := make([]string, len(prefixes))
+	for i := 0; i < len(prefixes); i++ {
+		pp[i] = string(prefixes[i])
+	}
+	return func() (interface{}, bool) {
+		for position < length {
+			key := se.tKeyIndex[position]
+			position = position + 1
+
+			for _, p := range pp {
+				if strings.HasPrefix(key, p) {
+					v := se.tKey[key]
+					kv := &keyvalue.KeyValue{Key: []byte(key), Value: v}
+					return kv, true
+				}
+			}
+
 		}
 
 		return nil, false

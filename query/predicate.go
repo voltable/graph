@@ -3,6 +3,10 @@ package query
 import "github.com/RossMerr/Caudex.Graph/uuid"
 
 // Predicate apply the predicate over the key/value
+//
+// string Variable
+// Traverse Traverse
+// float64 Weight
 type Predicate func(uuid uuid.UUID, depth int) (string, Traverse, float64)
 
 // Traverse is used to indicate the current state of the Traversal
