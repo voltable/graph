@@ -1,7 +1,5 @@
 package ast
 
-import "github.com/RossMerr/Caudex.Graph/keyvalue"
-
 // NotExpr a bitwise complement or logical negation operation (Not a).
 type NotExpr struct {
 	value InterpretExpr // left operand
@@ -21,7 +19,7 @@ func (b *NotExpr) GetValue() InterpretExpr {
 }
 
 // Interpret runs the NotExpr over a Vertex to check for a match
-func (b *NotExpr) Interpret(variable string, prop *keyvalue.KeyValue) interface{} {
+func (b *NotExpr) Interpret(variable string, prop Interpret) interface{} {
 	return false
 }
 

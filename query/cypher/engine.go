@@ -30,17 +30,17 @@ func NewEngine(i keyvalue.Storage) *Engine {
 		Parser:  parser.NewParser(),
 		Storage: i,
 		Parts:   NewParts(),
-		Filter:  NewFilter(),
+		//Filter:  NewFilter(),
 	}
 }
 
 // Engine is a implementation of the Query interface used to pass cypher queries
 type Engine struct {
-	Parser     parser.Parser
-	Filter     CypherFilter
-	Storage    keyvalue.Storage
-	Parts      Parts
-	Projection Projection
+	Parser parser.Parser
+	//Filter  CypherFilter
+	Storage keyvalue.Storage
+	Parts   Parts
+	//Projection Projection
 }
 
 var _ query.Engine = (*Engine)(nil)
@@ -66,8 +66,9 @@ func (qe Engine) Parse(q string) (*graph.Query, error) {
 		if err != nil {
 			return nil, err
 		}
-		f = qe.Filter.Filter(f, part.Predicate())
-		results = append(results, qe.Projection.Transform(f, part.Maps())...)
+		results = append(results, Transform(f)...)
+		//f = qe.Filter.Filter(f, part.Predicate())
+		//results = append(results, qe.Projection.Transform(f, part.Maps())...)
 	}
 
 	query := graph.NewQuery(q, results)
@@ -90,7 +91,7 @@ func (qe Engine) toVertices(i query.IteratorFrontier) []interface{} {
 	results := make([]interface{}, 0)
 	for item, ok := i(); ok; item, ok = i() {
 		for _, i := range item.OptimalPath() {
-			results = append(results, i.KeyValue)
+			results = append(results, i.UUID)
 		}
 
 	}
@@ -101,10 +102,21 @@ func (qe Engine) toFrontier(i keyvalue.Iterator, part *QueryPart, variable strin
 	return func() (*query.Frontier, bool) {
 		kv, ok := i()
 		if ok {
-			f := query.NewFrontier(kv, variable)
+			f := query.NewFrontier(kv.UUID(), variable)
 			return &f, true
 		}
 
 		return nil, false
 	}
+}
+
+func Transform(i query.IteratorFrontier) []interface{} {
+	results := make([]interface{}, 0)
+	for item, ok := i(); ok; item, ok = i() {
+		for _, part := range item.OptimalPath() {
+			results = append(results, part.UUID)
+		}
+
+	}
+	return results
 }

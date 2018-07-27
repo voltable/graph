@@ -1,9 +1,5 @@
 package ast
 
-import (
-	"github.com/RossMerr/Caudex.Graph/keyvalue"
-)
-
 // ProjectionMapStmt begins with the variable bound to the graph entity to be projected from, and contains a body of comma-separated map elements, enclosed by { and }.
 type ProjectionMapStmt struct {
 	Variable string
@@ -15,7 +11,7 @@ func NewProjectionMapStmt(v string, e ...ProjectionMapElementStmt) *ProjectionMa
 	return &ProjectionMapStmt{Variable: v, Elements: e}
 }
 
-func (m *ProjectionMapStmt) Interpret(variable string, prop *keyvalue.KeyValue) []interface{} {
+func (m *ProjectionMapStmt) Interpret(variable string, prop Interpret) []interface{} {
 	arr := make([]interface{}, 0)
 	if variable == m.Variable || m.Variable == "*" {
 		for _, e := range m.Elements {
@@ -28,7 +24,7 @@ func (m *ProjectionMapStmt) Interpret(variable string, prop *keyvalue.KeyValue) 
 // ProjectionMapElementStmt projects one or more key-value pairs to the map projection.
 type ProjectionMapElementStmt interface {
 	mapElement()
-	Interpret(string, *keyvalue.KeyValue) interface{}
+	Interpret(string, Interpret) interface{}
 }
 
 // ProjectionMapProperty selector - Projects the property name as the key, and the value from the map_variable as the value for the projection.
@@ -40,7 +36,7 @@ type ProjectionMapProperty struct {
 
 func (*ProjectionMapProperty) mapElement() {}
 
-func (m *ProjectionMapProperty) Interpret(variable string, prop *keyvalue.KeyValue) interface{} {
+func (m *ProjectionMapProperty) Interpret(variable string, prop Interpret) interface{} {
 	key := m.Key
 	if m.Alias != StringEmpty {
 		key = m.Alias
@@ -48,7 +44,7 @@ func (m *ProjectionMapProperty) Interpret(variable string, prop *keyvalue.KeyVal
 
 	return KeyValueStmt{
 		Key:   key,
-		Value: prop.Value.Unmarshal(),
+		Value: "",
 	}
 }
 
@@ -62,7 +58,7 @@ type ProjectionMapLiteral struct {
 
 func (*ProjectionMapLiteral) mapElement() {}
 
-func (m *ProjectionMapLiteral) Interpret(variable string, prop *keyvalue.KeyValue) interface{} {
+func (m *ProjectionMapLiteral) Interpret(variable string, prop Interpret) interface{} {
 
 	key := m.Key
 	if m.Alias != StringEmpty {
@@ -89,7 +85,7 @@ type ProjectionMapVariable struct {
 
 func (*ProjectionMapVariable) mapElement() {}
 
-func (m *ProjectionMapVariable) Interpret(variable string, prop *keyvalue.KeyValue) interface{} {
+func (m *ProjectionMapVariable) Interpret(variable string, prop Interpret) interface{} {
 	// todo
 	return nil
 }
@@ -100,6 +96,6 @@ type ProjectionMapAll struct {
 
 func (*ProjectionMapAll) mapElement() {}
 
-func (m *ProjectionMapAll) Interpret(variable string, prop *keyvalue.KeyValue) interface{} {
+func (m *ProjectionMapAll) Interpret(variable string, prop Interpret) interface{} {
 	return prop
 }

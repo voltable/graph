@@ -1,11 +1,5 @@
 package ast
 
-import (
-	"bytes"
-
-	"github.com/RossMerr/Caudex.Graph/keyvalue"
-)
-
 var _ TerminalExpr = (*PropertyStmt)(nil)
 var _ InterpretExpr = (*PropertyStmt)(nil)
 
@@ -28,16 +22,10 @@ func (p *PropertyStmt) SetValue(x interface{}) {
 	}
 }
 
-func (p *PropertyStmt) Interpret(variable string, prop *keyvalue.KeyValue) interface{} {
+func (p *PropertyStmt) Interpret(variable string, prop Interpret) interface{} {
 	if p.Variable == variable {
-		split := bytes.Split(prop.Key, keyvalue.US)
-		if len(split) > 1 {
-			if bytes.Equal(split[1], keyvalue.Properties) {
-				if p.Value == string(split[2]) {
-					return prop.Value.Unmarshal()
-				}
-			}
-		}
+		return prop.Interpret(p.Value)
 	}
+
 	return nil
 }

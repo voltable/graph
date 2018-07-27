@@ -1,7 +1,5 @@
 package ast
 
-import "github.com/RossMerr/Caudex.Graph/keyvalue"
-
 var _ TerminalExpr = (*Ident)(nil)
 
 // Ident used to hold anu object or nil
@@ -20,6 +18,6 @@ func (p *Ident) SetValue(x interface{}) {
 	p.Data = x
 }
 
-func (p *Ident) Interpret(variable string, prop *keyvalue.KeyValue) interface{} {
+func (p *Ident) Interpret(variable string, prop Interpret) interface{} {
 	return p.Data
 }

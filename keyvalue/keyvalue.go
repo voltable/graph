@@ -56,3 +56,16 @@ func (s *KeyValue) UUID() uuid.UUID {
 
 	return uuid.UUID{}
 }
+
+func (s *KeyValue) Interpret(value string) interface{} {
+	split := bytes.Split(s.Key, US)
+	if len(split) > 1 {
+		if bytes.Equal(split[1], Properties) {
+			if value == string(split[2]) {
+				return s.Value.Unmarshal()
+			}
+		}
+	}
+
+	return nil
+}

@@ -1,8 +1,7 @@
 package cypher
 
 import (
-	"github.com/RossMerr/Caudex.Graph/keyvalue/ir"
-	"github.com/RossMerr/Caudex.Graph/query"
+	"github.com/RossMerr/Caudex.Graph/keyvalue"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 )
 
@@ -14,7 +13,7 @@ type Parts interface {
 type QueryPart struct {
 	Return     *ast.ReturnStmt
 	Where      *ast.WhereStmt
-	Predicates []*query.PredicatePath
+	Predicates []*keyvalue.PredicatePath
 }
 
 // Predicate gets the Predicate from the query where statment
@@ -52,11 +51,11 @@ func NewParts() Parts {
 // ToQueryPath converts a cypher.Stmt to a QueryPath the queryPath is used to walk the graph
 func (qq cypherParts) ToQueryPart(stmt ast.Clauses) ([]*QueryPart, error) {
 	arr := make([]*QueryPart, 0)
-	qp := QueryPart{Predicates: make([]*query.PredicatePath, 0)}
+	qp := QueryPart{Predicates: make([]*keyvalue.PredicatePath, 0)}
 	arr = append(arr, &qp)
 	if pattern, ok := IsPattern(stmt); ok {
 		for pattern != nil {
-			qp.Predicates = append(qp.Predicates, ir.ToPredicatePath(pattern))
+			qp.Predicates = append(qp.Predicates, keyvalue.ToPredicatePath(pattern))
 			pattern = pattern.Next()
 		}
 	}

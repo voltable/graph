@@ -15,18 +15,6 @@ type (
 		storage    keyvalue.Storage
 		predicates *list.List
 	}
-
-	// PredicatePath is the implementation part of the QueryPath sequence
-	PredicatePath struct {
-		Predicate
-		Variable string
-	}
-
-	// IteratorFrontier is an alias for function to iterate over Frontier.
-	IteratorFrontier func() (item *Frontier, ok bool)
-
-	// Predicate apply the predicate over the key/value
-	Predicate func(kv *keyvalue.KeyValue, depth int) (string, Traverse)
 )
 
 var (

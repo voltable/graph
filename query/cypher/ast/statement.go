@@ -1,7 +1,5 @@
 package ast
 
-import "github.com/RossMerr/Caudex.Graph/keyvalue"
-
 // Stmt all statments implement the Stmt interface.
 type Stmt interface {
 }
@@ -49,7 +47,11 @@ type TerminalExpr interface {
 type InterpretExpr interface {
 	exprNode()
 	interpretNode()
-	Interpret(variable string, prop *keyvalue.KeyValue) interface{}
+	Interpret(variable string, prop Interpret) interface{}
+}
+
+type Interpret interface {
+	Interpret(value string) interface{}
 }
 
 type PatternStmt interface {

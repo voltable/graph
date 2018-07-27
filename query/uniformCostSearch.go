@@ -8,12 +8,12 @@ import (
 )
 
 type Traversal interface {
-	SearchPlan(iterator IteratorFrontier, predicates []*PredicatePath) (iteratorFrontier IteratorFrontier, err error)
+	SearchPlan(iterator IteratorFrontier, predicates []*keyvalue.PredicatePath) (iteratorFrontier IteratorFrontier, err error)
 }
 
 type Plan struct {
 	wg         *sync.WaitGroup
-	predicates []*PredicatePath
+	predicates []*keyvalue.PredicatePath
 	Depth      int
 	storage    keyvalue.Storage
 }
@@ -34,9 +34,9 @@ func (t *Plan) uniformCostSearch(frontier *Frontier) bool {
 		if _, ok := frontier.Explored[part.UUID]; !ok {
 			frontier.Explored[part.UUID] = true
 			pv := t.predicates[depth-1]
-			if variable, p := pv.Predicate(part.KeyValue, depth-1); p == Matched {
+			if variable, p := pv.Predicate(part.UUID, depth-1); p == keyvalue.Matched {
 				queue.Parts[depth-1].Variable = variable
-				frontier.AppendKeyValue(queue, part.KeyValue, part.Variable)
+				frontier.AppendKeyValue(queue, part.UUID, part.Variable)
 				sort.Sort(frontier)
 				return depth == t.Depth
 			}
@@ -73,7 +73,7 @@ func (t *Plan) uniformCostSearch(frontier *Frontier) bool {
 	return false
 }
 
-func (t *Plan) SearchPlan(iterator IteratorFrontier, predicates []*PredicatePath) (iteratorFrontier IteratorFrontier, err error) {
+func (t *Plan) SearchPlan(iterator IteratorFrontier, predicates []*keyvalue.PredicatePath) (iteratorFrontier IteratorFrontier, err error) {
 	t.predicates = predicates
 	t.Depth = len(predicates)
 	results := make(chan *Frontier)

@@ -1,9 +1,11 @@
 package query
 
 import (
-	"github.com/RossMerr/Caudex.Graph/keyvalue"
 	"github.com/RossMerr/Caudex.Graph/uuid"
 )
+
+// IteratorFrontier is an alias for function to iterate over Frontier.
+type IteratorFrontier func() (item *Frontier, ok bool)
 
 type FrontierQueue struct {
 	Parts []FrontierProperties
@@ -12,7 +14,6 @@ type FrontierQueue struct {
 
 // FrontierProperties containers a KeyValue (vertex or edge) and it's Variable used by a query
 type FrontierProperties struct {
-	KeyValue *keyvalue.KeyValue
 	Variable string
 	UUID     uuid.UUID
 }
@@ -54,14 +55,14 @@ func (f *Frontier) append(vertices []FrontierProperties, cost float64) {
 	f.Values = append(f.Values, fp)
 }
 
-func (f *Frontier) AppendKeyValue(queue *FrontierQueue, v *keyvalue.KeyValue, variable string) {
-	fv := FrontierProperties{KeyValue: v, Variable: variable, UUID: v.UUID()}
+func (f *Frontier) AppendKeyValue(queue *FrontierQueue, id uuid.UUID, variable string) {
+	fv := FrontierProperties{Variable: variable, UUID: id}
 	f.append(append(queue.Parts, fv), queue.Cost)
 }
 
-// NewFrontier create the Frontier using the inistal Vertex as the root of the graph
-func NewFrontier(v *keyvalue.KeyValue, variable string) Frontier {
-	fv := FrontierProperties{KeyValue: v, Variable: variable, UUID: v.UUID()}
+// NewFrontier create the Frontier using the inistal uuid as the root of the graph
+func NewFrontier(id uuid.UUID, variable string) Frontier {
+	fv := FrontierProperties{Variable: variable, UUID: id}
 	f := Frontier{Explored: make(map[uuid.UUID]bool)}
 	f.append([]FrontierProperties{fv}, 0)
 	return f
