@@ -53,7 +53,7 @@ func (s *KeyValueCyperQueryBuilder) toPredicatePath(patn ast.Patn) query.Predica
 // ToPredicateVertexPath creates a PredicateVertexPath out of the VertexPatn
 func (s *KeyValueCyperQueryBuilder) toPredicateVertexPath(patn *ast.VertexPatn) query.Predicate {
 	//label := strings.ToLower(patn.Label)
-	return func(uuid uuid.UUID, depth int) (string, query.Traverse) {
+	return func(uuid uuid.UUID, depth int) (string, query.Traverse, float64) {
 		// split := bytes.Split(kv.Key, US)
 
 		// if bytes.Equal(split[1], Vertex) {
@@ -77,7 +77,7 @@ func (s *KeyValueCyperQueryBuilder) toPredicateVertexPath(patn *ast.VertexPatn) 
 		// 	return patn.Variable, Matched
 		// }
 
-		return patn.Variable, query.Failed
+		return patn.Variable, query.Failed, 0
 
 	}
 }
@@ -85,7 +85,7 @@ func (s *KeyValueCyperQueryBuilder) toPredicateVertexPath(patn *ast.VertexPatn) 
 // ToPredicateEdgePath creates a PredicateEdgePath out of the EdgePatn
 func (s *KeyValueCyperQueryBuilder) toPredicateEdgePath(patn *ast.EdgePatn) query.Predicate {
 	//label := strings.ToLower(patn.Body.Type)
-	return func(uuid uuid.UUID, depth int) (string, query.Traverse) {
+	return func(uuid uuid.UUID, depth int) (string, query.Traverse, float64) {
 		// split := bytes.Split(kv.Key, US)
 
 		// if bytes.Equal(split[1], Vertex) {
@@ -109,7 +109,7 @@ func (s *KeyValueCyperQueryBuilder) toPredicateEdgePath(patn *ast.EdgePatn) quer
 		// 	return patn.Variable, Matched
 		// }
 
-		return patn.Variable, query.Failed
+		return patn.Variable, query.Failed, 0
 
 	}
 
