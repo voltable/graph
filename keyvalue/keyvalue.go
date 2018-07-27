@@ -2,13 +2,8 @@ package keyvalue
 
 import (
 	"bytes"
-	"errors"
 
 	"github.com/RossMerr/Caudex.Graph/uuid"
-)
-
-var (
-	errUUIDNotFound = errors.New("Failed to find UUID in KeyValue")
 )
 
 // NewKeyValue returns a new KeyValue

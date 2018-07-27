@@ -61,7 +61,7 @@ func (f *Frontier) AppendKeyValue(queue *FrontierQueue, v *keyvalue.KeyValue, va
 
 // NewFrontier create the Frontier using the inistal Vertex as the root of the graph
 func NewFrontier(v *keyvalue.KeyValue, variable string) Frontier {
-	fv := FrontierProperties{KeyValue: v, Variable: variable}
+	fv := FrontierProperties{KeyValue: v, Variable: variable, UUID: v.UUID()}
 	f := Frontier{Explored: make(map[uuid.UUID]bool)}
 	f.append([]FrontierProperties{fv}, 0)
 	return f

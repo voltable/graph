@@ -93,8 +93,11 @@ func Test_Filter(t *testing.T) {
 			setup: func(iterate int) query.IteratorFrontier {
 				count := 0
 				return func() (*query.Frontier, bool) {
-					x := &keyvalue.KeyValue{}
-					v := &keyvalue.KeyValue{}
+					xID, _ := uuid.GenerateRandomUUID()
+					x := keyvalue.NewKeyValue("", xID[:], keyvalue.US, keyvalue.Vertex)
+
+					yID, _ := uuid.GenerateRandomUUID()
+					v := keyvalue.NewKeyValue("", yID[:], keyvalue.US, keyvalue.Vertex)
 
 					f := query.NewFrontier(x, "")
 					fq := f.Values[0]
@@ -120,13 +123,13 @@ func Test_Filter(t *testing.T) {
 			setup: func(iterate int) query.IteratorFrontier {
 				count := 0
 				return func() (*query.Frontier, bool) {
-					x := &keyvalue.KeyValue{}
-					v := &keyvalue.KeyValue{}
+					xID, _ := uuid.GenerateRandomUUID()
+					x := keyvalue.NewKeyValue("", xID[:], keyvalue.US, keyvalue.Vertex)
 
-					to, _ := uuid.GenerateRandomUUID()
-					from, _ := uuid.GenerateRandomUUID()
+					yID, _ := uuid.GenerateRandomUUID()
+					v := keyvalue.NewKeyValue("", yID[:], keyvalue.US, keyvalue.Vertex)
 
-					e := keyvalue.NewKeyValue(string(to[:]), from[:], keyvalue.US, keyvalue.Relationship, keyvalue.US, []byte(""))
+					e := keyvalue.NewKeyValue(string(xID[:]), yID[:], keyvalue.US, keyvalue.Relationship, keyvalue.US, []byte(""))
 
 					f := query.NewFrontier(x, "")
 					fq := f.Values[0]
