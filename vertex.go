@@ -7,11 +7,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/RossMerr/Caudex.Graph/keyvalue"
 	"github.com/RossMerr/Caudex.Graph/uuid"
 )
-
-var _ keyvalue.MarshalKeyValue = (*Vertex)(nil)
 
 // Vertex .
 type Vertex struct {
@@ -87,8 +84,13 @@ func (v *Vertex) Properties() map[string]interface{} {
 }
 
 // ID returns the generate UUID
-func (v *Vertex) ID() string {
-	return uuid.FormatUUID(v.id)
+func (v *Vertex) ID() uuid.UUID {
+	return v.id
+}
+
+// SetID set's the vertex id
+func (v *Vertex) SetID(id uuid.UUID) {
+	v.id = id
 }
 
 // Label vertex label type
@@ -97,13 +99,8 @@ func (v *Vertex) Label() string {
 }
 
 // Edges a array of all edges against this vertex
-func (v *Vertex) Edges() Edges {
-	edges := make(Edges, 0, len(v.edges))
-	for _, value := range v.edges {
-		edges = append(edges, value)
-	}
-
-	return edges
+func (v *Vertex) Edges() map[uuid.UUID]*Edge {
+	return v.edges
 }
 
 func (v *Vertex) removeRelationshipOnLabel(label string) Digraph {
@@ -198,138 +195,4 @@ func (v Vertex) String() string {
 	w := bytes.NewBuffer(buffer.Bytes()[:buffer.Len()-2])
 	w.WriteString("}")
 	return fmt.Sprintf(w.String())
-}
-
-// MarshalKeyValue marshal a Vertex into KeyValue
-func (v *Vertex) MarshalKeyValue() []*keyvalue.KeyValue {
-	tt := []*keyvalue.KeyValue{}
-
-	tt = append(tt, keyvalue.NewKeyValue(v.Label(), v.id[:], keyvalue.US, keyvalue.Vertex))
-
-	for k, p := range v.Properties() {
-		tt = append(tt, keyvalue.NewKeyValue(p, v.id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte(k)))
-	}
-
-	for _, e := range v.edges {
-		tt = append(tt, e.MarshalKeyValue()...)
-	}
-
-	return tt
-}
-
-// MarshalKeyValueTranspose mashal a Vertex into a transposed KeyValue
-func (v *Vertex) MarshalKeyValueTranspose() []*keyvalue.KeyValue {
-	tt := []*keyvalue.KeyValue{}
-
-	tt = append(tt, keyvalue.NewKeyValue(v.ID(), keyvalue.Label, keyvalue.US, []byte(v.Label()), keyvalue.US, v.id[:]))
-
-	for k, p := range v.Properties() {
-		tt = append(tt, keyvalue.NewKeyValue(p, keyvalue.Properties, keyvalue.US, []byte(k), keyvalue.US, v.id[:]))
-	}
-
-	for _, e := range v.edges {
-		tt = append(tt, e.MarshalKeyValueTranspose()...)
-	}
-	return tt
-}
-
-// UnmarshalKeyValue a KeyValue into Vertex
-func (v *Vertex) UnmarshalKeyValue(c []*keyvalue.KeyValue) {
-	parts := bytes.Split(c[0].Key, keyvalue.US)
-	id := uuid.SliceToUUID(parts[0])
-	v.id = id
-
-	for _, kv := range c {
-		split := bytes.Split(kv.Key, keyvalue.US)
-		if bytes.Equal(split[1], keyvalue.Vertex) {
-			value, ok := kv.Value.Unmarshal().(string)
-			if ok {
-				v.SetLabel(value)
-			}
-			continue
-		}
-		if bytes.Equal(split[1], keyvalue.Properties) {
-			key := split[2]
-			v.SetProperty(string(key), kv.Value.Unmarshal())
-			continue
-		}
-		if bytes.Equal(split[1], keyvalue.Relationship) {
-			relationshipType := split[2]
-			value, ok := kv.Value.Unmarshal().(string)
-			if ok {
-				edgeID, _ := uuid.ParseUUID(value)
-
-				edge, ok := v.edges[edgeID]
-				if !ok {
-					edge = NewEdgeFromID(v.id, edgeID)
-					v.AddEdge(edge)
-				}
-
-				edge.SetRelationshipType(string(relationshipType))
-			}
-			continue
-		}
-
-		if bytes.Equal(split[1], keyvalue.Relationshipproperties) {
-			key := split[2]
-			edgeID := uuid.SliceToUUID(split[3])
-			edge, ok := v.edges[edgeID]
-			if !ok {
-				edge := NewEdgeFromID(v.id, edgeID)
-				v.AddEdge(edge)
-			}
-			edge.SetProperty(string(key), kv.Value.Unmarshal())
-			continue
-		}
-	}
-}
-
-// UnmarshalKeyValueTranspose a KeyValue into Vertex
-func (v *Vertex) UnmarshalKeyValueTranspose(c []*keyvalue.KeyValue) {
-
-	if s, ok := c[0].Value.Unmarshal().(string); ok {
-		id, _ := uuid.ParseUUID(s)
-		v.id = id
-	}
-
-	for _, kv := range c {
-		split := bytes.Split(kv.Key, keyvalue.US)
-
-		if bytes.Equal(split[0], keyvalue.Label) {
-			v.SetLabel(string(split[1]))
-			continue
-		}
-		if bytes.Equal(split[0], keyvalue.Properties) {
-			v.SetProperty(string(split[1]), kv.Value.Unmarshal())
-			continue
-		}
-		if bytes.Equal(split[0], keyvalue.Relationship) {
-			relationshipType := split[1]
-			value, ok := kv.Value.Unmarshal().(string)
-			if ok {
-				edgeID, _ := uuid.ParseUUID(value)
-
-				edge, ok := v.edges[edgeID]
-				if !ok {
-					edge = NewEdgeFromID(v.id, edgeID)
-					v.AddEdge(edge)
-				}
-
-				edge.SetRelationshipType(string(relationshipType))
-			}
-			continue
-		}
-
-		if bytes.Equal(split[0], keyvalue.Relationshipproperties) {
-			key := split[1]
-			edgeID := uuid.SliceToUUID(split[2])
-			edge, ok := v.edges[edgeID]
-			if !ok {
-				edge := NewEdgeFromID(v.id, edgeID)
-				v.AddEdge(edge)
-			}
-			edge.SetProperty(string(key), kv.Value.Unmarshal())
-			continue
-		}
-	}
 }

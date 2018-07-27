@@ -1,11 +1,10 @@
 package graph_test
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/keyvalue"
+	"github.com/RossMerr/Caudex.Graph/uuid"
 )
 
 func Test_VertexLabels(t *testing.T) {
@@ -24,7 +23,8 @@ func Test_NewVertex(t *testing.T) {
 		t.Fatalf("Expected err to be nil but was %s", err)
 	}
 
-	if v.ID() == "" {
+	empty := uuid.UUID{}
+	if v.ID() == empty {
 		t.Fatalf("Expected ID to be set but was %+v", v.ID())
 	}
 
@@ -63,70 +63,4 @@ func Test_Value(t *testing.T) {
 		t.Fatalf("Expected %d edge but was %v", 10, x.Property("Age"))
 	}
 
-}
-
-func TestMarshalKeyValue(t *testing.T) {
-	tests := []struct {
-		name   string
-		vertex *graph.Vertex
-		want   []*keyvalue.KeyValue
-	}{
-		{
-			name: "vertex",
-			vertex: func() *graph.Vertex {
-				v, _ := graph.NewVertex()
-				v.SetLabel("person")
-				v.SetProperty("name", "john smith")
-				t, _ := graph.NewVertex()
-				e := graph.NewEdge(v, t)
-				e.SetRelationshipType("friend")
-				e.SetProperty("years", 10)
-				v.AddEdge(e)
-				return v
-			}(),
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := tt.vertex.MarshalKeyValue()
-			v := graph.NewEmptyVertex()
-			v.UnmarshalKeyValue(got)
-			if !reflect.DeepEqual(v, tt.vertex) {
-				t.Errorf("Marshal() = %v, want %v", v, tt.vertex)
-			}
-		})
-	}
-}
-
-func TestMarshalKeyValueTranspose(t *testing.T) {
-	tests := []struct {
-		name   string
-		vertex *graph.Vertex
-		want   []*keyvalue.KeyValue
-	}{
-		{
-			name: "vertex",
-			vertex: func() *graph.Vertex {
-				v, _ := graph.NewVertex()
-				v.SetLabel("person")
-				v.SetProperty("name", "john smith")
-				t, _ := graph.NewVertex()
-				e := graph.NewEdge(v, t)
-				e.SetRelationshipType("friend")
-				e.SetProperty("years", 10)
-				v.AddEdge(e)
-				return v
-			}(),
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := tt.vertex.MarshalKeyValueTranspose()
-			v := graph.NewEmptyVertex()
-			v.UnmarshalKeyValueTranspose(got)
-			if !reflect.DeepEqual(v, tt.vertex) {
-				t.Errorf("Marshal() = %v, want %v", v, tt.vertex)
-			}
-		})
-	}
 }

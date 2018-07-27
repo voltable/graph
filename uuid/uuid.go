@@ -34,7 +34,7 @@ func FormatUUID(buf [16]byte) string {
 		buf[10:16])
 }
 
-func ParseUUID(uuid string) ([16]byte, error) {
+func ParseUUID(uuid string) (UUID, error) {
 	var arr [16]byte
 	if len(uuid) != 36 {
 		return arr, fmt.Errorf("uuid string is wrong length")

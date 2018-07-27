@@ -62,8 +62,8 @@ func NewStorageEngine(o *graph.Options) (graph.Graph, error) {
 // Create adds a array of vertices to the persistence
 func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 	for _, v := range c {
-		triples := v.MarshalKeyValue()
-		transposes := v.MarshalKeyValueTranspose()
+		triples := keyvalue.MarshalKeyValue(v)
+		transposes := keyvalue.MarshalKeyValueTranspose(v)
 		var errstrings []string
 
 		for i := 0; i < len(triples); i++ {
@@ -87,8 +87,8 @@ func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 // Delete the array of vertices from the persistence
 func (se *StorageEngine) Delete(c ...*graph.Vertex) error {
 	for _, v := range c {
-		triples := v.MarshalKeyValue()
-		transposes := v.MarshalKeyValueTranspose()
+		triples := keyvalue.MarshalKeyValue(v)
+		transposes := keyvalue.MarshalKeyValueTranspose(v)
 		var errstrings []string
 
 		for i := 0; i < len(triples); i++ {

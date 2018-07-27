@@ -100,8 +100,8 @@ func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 		var errstrings []string
 
 		for _, v := range c {
-			triples := v.MarshalKeyValue()
-			transposes := v.MarshalKeyValueTranspose()
+			triples := keyvalue.MarshalKeyValue(v)
+			transposes := keyvalue.MarshalKeyValueTranspose(v)
 			for i := 0; i < len(triples); i++ {
 				triple := triples[i]
 
@@ -132,8 +132,8 @@ func (se *StorageEngine) Delete(c ...*graph.Vertex) error {
 		var errstrings []string
 
 		for _, v := range c {
-			triples := v.MarshalKeyValue()
-			transposes := v.MarshalKeyValueTranspose()
+			triples := keyvalue.MarshalKeyValue(v)
+			transposes := keyvalue.MarshalKeyValueTranspose(v)
 			for i := 0; i < len(triples); i++ {
 				triple := triples[i]
 				if err := bucketTKey.Delete(triple.Key); err != nil {
@@ -172,7 +172,7 @@ func (se *StorageEngine) Find(ID string) (*graph.Vertex, error) {
 			kv = append(kv, &keyvalue.KeyValue{Key: k, Value: any})
 		}
 
-		v.UnmarshalKeyValue(kv)
+		keyvalue.UnmarshalKeyValue(v, kv)
 		return nil
 	})
 }
@@ -185,7 +185,8 @@ func (se *StorageEngine) Update(c ...*graph.Vertex) error {
 		b := tx.Bucket(TKey)
 		for _, vertex := range c {
 			if buf, err = json.Marshal(vertex); err != nil {
-				b.Put([]byte(vertex.ID()), buf)
+				id := vertex.ID()
+				b.Put(id[:], buf)
 			} else {
 				return err
 			}

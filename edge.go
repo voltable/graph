@@ -3,7 +3,6 @@ package graph
 import (
 	"strings"
 
-	"github.com/RossMerr/Caudex.Graph/keyvalue"
 	"github.com/RossMerr/Caudex.Graph/uuid"
 )
 
@@ -34,12 +33,12 @@ func NewEdgeFromID(from, to uuid.UUID) *Edge {
 	return &Edge{from: from, to: to, properties: make(map[string]interface{})}
 }
 
-func (e *Edge) From() string {
-	return uuid.FormatUUID(e.from)
+func (e *Edge) From() uuid.UUID {
+	return e.from
 }
 
-func (e *Edge) To() string {
-	return uuid.FormatUUID(e.to)
+func (e *Edge) To() uuid.UUID {
+	return e.to
 }
 
 // RelationshipType the type of relationship
@@ -77,29 +76,3 @@ func (e *Edge) Properties() map[string]interface{} {
 func (a Edges) Len() int           { return len(a) }
 func (a Edges) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a Edges) Less(i, j int) bool { return a[i].Weight > a[j].Weight }
-
-// MarshalKeyValue marshal a edge into KeyValue
-func (e *Edge) MarshalKeyValue() []*keyvalue.KeyValue {
-	tt := []*keyvalue.KeyValue{}
-
-	tt = append(tt, keyvalue.NewKeyValue(e.To(), e.from[:], keyvalue.US, keyvalue.Relationship, keyvalue.US, []byte(e.RelationshipType())))
-
-	for k, p := range e.Properties() {
-		tt = append(tt, keyvalue.NewKeyValue(p, e.from[:], keyvalue.US, keyvalue.Relationshipproperties, keyvalue.US, []byte(k), keyvalue.US, e.to[:]))
-	}
-
-	return tt
-}
-
-// MarshalTranspose mashal a Edge into a transposed KeyValue
-func (e *Edge) MarshalKeyValueTranspose() []*keyvalue.KeyValue {
-	tt := []*keyvalue.KeyValue{}
-
-	tt = append(tt, keyvalue.NewKeyValue(e.To(), keyvalue.Relationship, keyvalue.US, []byte(e.RelationshipType()), keyvalue.US, e.from[:]))
-
-	for k, p := range e.Properties() {
-		tt = append(tt, keyvalue.NewKeyValue(p, keyvalue.Relationshipproperties, keyvalue.US, []byte(k), keyvalue.US, e.to[:], keyvalue.US, e.from[:]))
-	}
-
-	return tt
-}
