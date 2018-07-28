@@ -72,11 +72,11 @@ func (s *KeyValueCyperQueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn) 
 	if patn == nil {
 		return nil, errNoPattern
 	}
-	return func(id uuid.UUID, depth int) (string, query.Traverse, float64) {
+	return func(from, to *uuid.UUID, depth int) (string, query.Traverse, float64) {
 		keyValues := make([]*keyvalue.KeyValue, 0)
 
 		for k, p := range patn.Properties {
-			kv := keyvalue.NewKeyValue(p, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte(k))
+			kv := keyvalue.NewKeyValueProperty(*from, k, p)
 
 			iterator := s.storage.HasPrefix(kv.Key)
 			for i, ok := iterator(); ok; i, ok = iterator() {
@@ -102,14 +102,14 @@ func (s *KeyValueCyperQueryBuilder) ToPredicateEdgePath(patn *ast.EdgePatn) (que
 	if patn == nil {
 		return nil, errNoPattern
 	}
-	return func(id uuid.UUID, depth int) (string, query.Traverse, float64) {
+	return func(from, to *uuid.UUID, depth int) (string, query.Traverse, float64) {
 
 		keyValues := make([]*keyvalue.KeyValue, 0)
 
 		if patn.Body != nil {
 			for k, p := range patn.Body.Properties {
-				kv := keyvalue.NewKeyValue(p, id[:], keyvalue.US, keyvalue.Relationshipproperties, keyvalue.US, []byte(k))
-
+				//kv := keyvalue.NewKeyValue(p, *from[:], keyvalue.US, keyvalue.Relationshipproperties, keyvalue.US, []byte(k))
+				kv := keyvalue.NewKeyValueRelationshipProperty(*from, *to, k, p)
 				iterator := s.storage.HasPrefix(kv.Key)
 				for i, ok := iterator(); ok; i, ok = iterator() {
 					if kv, ok := i.(*keyvalue.KeyValue); ok {

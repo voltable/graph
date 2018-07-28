@@ -97,7 +97,7 @@ func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 				return id
 			}(),
 			storage: func(id uuid.UUID) query.Storage {
-				kv := keyvalue.NewKeyValue("", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte(""))
+				kv := keyvalue.NewKeyValueProperty(id, "", "")
 				return NewFakeStorage(kv)
 			},
 		},
@@ -117,7 +117,7 @@ func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 				return id
 			}(),
 			storage: func(id uuid.UUID) query.Storage {
-				kv := keyvalue.NewKeyValue("John Smith", id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("name"))
+				kv := keyvalue.NewKeyValueProperty(id, "name", "John Smith")
 				return NewFakeStorage(kv)
 			},
 		},
@@ -131,7 +131,7 @@ func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 				return
 			}
 
-			r1, r2, r3 := predicate(tt.id, 0)
+			r1, r2, r3 := predicate(&tt.id, nil, 0)
 			if !reflect.DeepEqual(r1, tt.wantVariable) {
 				t.Errorf("KeyValueCyperQueryBuilder.ToPredicateVertexPath() = %v, want %v", r1, tt.wantVariable)
 			}
@@ -150,9 +150,10 @@ func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 func TestKeyValueCyperQueryBuilder_ToPredicateEdgePath(t *testing.T) {
 	tests := []struct {
 		name         string
-		storage      func(uuid.UUID) query.Storage
+		storage      func(*uuid.UUID, *uuid.UUID) query.Storage
 		patn         *ast.EdgePatn
-		id           uuid.UUID
+		from         *uuid.UUID
+		to           *uuid.UUID
 		wantVariable string
 		wantTraverse query.Traverse
 		wantWeight   float64
@@ -166,13 +167,16 @@ func TestKeyValueCyperQueryBuilder_ToPredicateEdgePath(t *testing.T) {
 				patn := &ast.EdgePatn{}
 				return patn
 			}(),
-			id: func() uuid.UUID {
+			from: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
-				return id
+				return &id
 			}(),
-			storage: func(id uuid.UUID) query.Storage {
-				to, _ := uuid.GenerateRandomUUID()
-				kv := keyvalue.NewKeyValue("", id[:], keyvalue.US, keyvalue.Relationshipproperties, keyvalue.US, []byte(""), keyvalue.US, to[:])
+			to: func() *uuid.UUID {
+				id, _ := uuid.GenerateRandomUUID()
+				return &id
+			}(),
+			storage: func(from, to *uuid.UUID) query.Storage {
+				kv := keyvalue.NewKeyValueRelationshipProperty(*from, *to, "", "")
 				return NewFakeStorage(kv)
 			},
 		},
@@ -189,27 +193,30 @@ func TestKeyValueCyperQueryBuilder_ToPredicateEdgePath(t *testing.T) {
 				}
 				return patn
 			}(),
-			id: func() uuid.UUID {
+			from: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
-				return id
+				return &id
 			}(),
-			storage: func(id uuid.UUID) query.Storage {
-				to, _ := uuid.GenerateRandomUUID()
-				kv := keyvalue.NewKeyValue("John Smith", id[:], keyvalue.US, keyvalue.Relationshipproperties, keyvalue.US, []byte("name"), keyvalue.US, to[:])
+			to: func() *uuid.UUID {
+				id, _ := uuid.GenerateRandomUUID()
+				return &id
+			}(),
+			storage: func(from, to *uuid.UUID) query.Storage {
+				kv := keyvalue.NewKeyValueRelationshipProperty(*from, *to, "name", "John Smith")
 				return NewFakeStorage(kv)
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := cypherquerybuilder.NewKeyValueCyperQueryBuilder(tt.storage(tt.id))
+			s := cypherquerybuilder.NewKeyValueCyperQueryBuilder(tt.storage(tt.from, tt.to))
 			predicate, err := s.ToPredicateEdgePath(tt.patn)
 			if err != nil {
 				t.Error(err)
 				return
 			}
 
-			r1, r2, r3 := predicate(tt.id, 0)
+			r1, r2, r3 := predicate(tt.from, tt.to, 0)
 			if !reflect.DeepEqual(r1, tt.wantVariable) {
 				t.Errorf("KeyValueCyperQueryBuilder.ToPredicateEdgePath() = %v, want %v", r1, tt.wantVariable)
 			}

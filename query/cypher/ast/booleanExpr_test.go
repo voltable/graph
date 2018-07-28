@@ -75,7 +75,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			),
 			v: func() *keyvalue.KeyValue {
 				id, _ := uuid.GenerateRandomUUID()
-				x := keyvalue.NewKeyValue(100, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
+				x := keyvalue.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
 			p:      "n",
@@ -88,7 +88,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			),
 			v: func() *keyvalue.KeyValue {
 				id, _ := uuid.GenerateRandomUUID()
-				x := keyvalue.NewKeyValue(100, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
+				x := keyvalue.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
 			p:      "n",
@@ -101,7 +101,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			),
 			v: func() *keyvalue.KeyValue {
 				id, _ := uuid.GenerateRandomUUID()
-				x := keyvalue.NewKeyValue(100, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
+				x := keyvalue.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
 			p:      "n",
@@ -114,7 +114,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			),
 			v: func() *keyvalue.KeyValue {
 				id, _ := uuid.GenerateRandomUUID()
-				x := keyvalue.NewKeyValue(100, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
+				x := keyvalue.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
 			p:      "n",
@@ -127,7 +127,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			),
 			v: func() *keyvalue.KeyValue {
 				id, _ := uuid.GenerateRandomUUID()
-				x := keyvalue.NewKeyValue(100, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
+				x := keyvalue.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
 			p:      "n",
@@ -140,7 +140,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			),
 			v: func() *keyvalue.KeyValue {
 				id, _ := uuid.GenerateRandomUUID()
-				x := keyvalue.NewKeyValue(100, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
+				x := keyvalue.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
 			p:      "n",
@@ -150,7 +150,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			c: ast.NewBooleanExpr(20, nil, nil),
 			v: func() *keyvalue.KeyValue {
 				id, _ := uuid.GenerateRandomUUID()
-				x := keyvalue.NewKeyValue(100, id[:], keyvalue.US, keyvalue.Properties, keyvalue.US, []byte("Age"))
+				x := keyvalue.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
 			p:      "n",

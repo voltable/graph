@@ -12,10 +12,10 @@ func MarshalKeyValue(v *graph.Vertex) []*KeyValue {
 	tt := []*KeyValue{}
 
 	id := v.ID()
-	tt = append(tt, NewKeyValue(v.Label(), id[:], US, Vertex))
+	tt = append(tt, NewKeyValueVertex(id, v.Label()))
 
 	for k, p := range v.Properties() {
-		tt = append(tt, NewKeyValue(p, id[:], US, Properties, US, []byte(k)))
+		tt = append(tt, NewKeyValueProperty(id, k, p))
 	}
 
 	for _, e := range v.Edges() {
@@ -30,10 +30,10 @@ func MarshalKeyValueTranspose(v *graph.Vertex) []*KeyValue {
 	tt := []*KeyValue{}
 
 	id := v.ID()
-	tt = append(tt, NewKeyValue(id[:], Vertex, US, []byte(v.Label()), US, id[:]))
+	tt = append(tt, NewKeyValueVertexTranspose(id, v.Label()))
 
 	for k, p := range v.Properties() {
-		tt = append(tt, NewKeyValue(p, Properties, US, []byte(k), US, id[:]))
+		tt = append(tt, NewKeyValuePropertyTranspose(id, k, p))
 	}
 
 	for _, e := range v.Edges() {
@@ -146,10 +146,10 @@ func MarshalEdgeKeyValue(e *graph.Edge) []*KeyValue {
 
 	from := e.From()
 	to := e.To()
-	tt = append(tt, NewKeyValue(to[:], from[:], US, Relationship, US, []byte(e.RelationshipType()), US, to[:]))
+	tt = append(tt, NewKeyValueRelationship(from, to, e.RelationshipType()))
 
 	for k, p := range e.Properties() {
-		tt = append(tt, NewKeyValue(p, from[:], US, Relationshipproperties, US, []byte(k), US, to[:]))
+		tt = append(tt, NewKeyValueRelationshipProperty(from, to, k, p))
 	}
 
 	return tt
@@ -161,10 +161,10 @@ func MarshalEdgeKeyValueTranspose(e *graph.Edge) []*KeyValue {
 
 	from := e.From()
 	to := e.To()
-	tt = append(tt, NewKeyValue(to[:], Relationship, US, []byte(e.RelationshipType()), US, to[:], US, from[:]))
+	tt = append(tt, NewKeyValueRelationshipTranspose(from, to, e.RelationshipType()))
 
 	for k, p := range e.Properties() {
-		tt = append(tt, NewKeyValue(p, Relationshipproperties, US, []byte(k), US, to[:], US, from[:]))
+		tt = append(tt, NewKeyValueRelationshipPropertyTranspose(from, to, k, p))
 	}
 
 	return tt
