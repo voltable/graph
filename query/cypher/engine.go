@@ -61,7 +61,7 @@ func (qe Engine) Parse(q string) (*graph.Query, error) {
 	plan := NewPlan(qe.Builder, qe.Storage)
 	results := make([]interface{}, 0)
 	for _, part := range queryPart {
-		frontier := qe.toFrontier(qe.Storage.ForEach(), part, variableVertex(queryPart))
+		frontier := qe.toFrontier(qe.Storage.ForEach(), part.Variable())
 		f, err := plan.SearchPlan(frontier, part.Patterns)
 		if err != nil {
 			return nil, err
@@ -77,16 +77,6 @@ func (qe Engine) Parse(q string) (*graph.Query, error) {
 
 }
 
-func variableVertex(queryPart []*QueryPart) string {
-	if len(queryPart) > 0 {
-		if len(queryPart[0].Patterns) > 0 {
-			e := queryPart[0].Patterns[0]
-			return e.V()
-		}
-	}
-	return ""
-}
-
 func (qe Engine) toVertices(i query.IteratorFrontier) []interface{} {
 	results := make([]interface{}, 0)
 	for item, ok := i(); ok; item, ok = i() {
@@ -98,7 +88,7 @@ func (qe Engine) toVertices(i query.IteratorFrontier) []interface{} {
 	return results
 }
 
-func (qe Engine) toFrontier(i query.IteratorUUID, part *QueryPart, variable string) query.IteratorFrontier {
+func (qe Engine) toFrontier(i query.IteratorUUID, variable string) query.IteratorFrontier {
 	return func() (*query.Frontier, bool) {
 		id, ok := i()
 		if ok {

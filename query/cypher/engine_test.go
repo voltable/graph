@@ -38,8 +38,8 @@ func (s FakeStorage) Fetch(string) (*keyvalue.KeyValue, error) {
 }
 
 func (s FakeStorage) ForEach() query.IteratorUUID {
-	return func() (uuid.UUID, bool) {
-		return uuid.UUID{}, false
+	return func() (*uuid.UUID, bool) {
+		return nil, false
 	}
 }
 
@@ -49,9 +49,9 @@ func (s FakeStorage) HasPrefix([]byte) query.Iterator {
 	}
 }
 
-func (s FakeStorage) Edges(uuid.UUID) query.IteratorUUID {
-	return func() (uuid.UUID, bool) {
-		return uuid.UUID{}, false
+func (s FakeStorage) Edges(*uuid.UUID) query.IteratorUUID {
+	return func() (*uuid.UUID, bool) {
+		return nil, false
 	}
 }
 

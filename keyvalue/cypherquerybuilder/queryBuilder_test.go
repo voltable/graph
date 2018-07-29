@@ -22,8 +22,8 @@ func (s FakeStorage) Fetch(string) (*keyvalue.KeyValue, error) {
 }
 
 func (s FakeStorage) ForEach() query.IteratorUUID {
-	return func() (uuid.UUID, bool) {
-		return uuid.UUID{}, false
+	return func() (*uuid.UUID, bool) {
+		return nil, false
 	}
 }
 
@@ -46,9 +46,9 @@ func (s FakeStorage) HasPrefix(prefix []byte) query.Iterator {
 	}
 }
 
-func (s FakeStorage) Edges(uuid.UUID) query.IteratorUUID {
-	return func() (uuid.UUID, bool) {
-		return uuid.UUID{}, false
+func (s FakeStorage) Edges(*uuid.UUID) query.IteratorUUID {
+	return func() (*uuid.UUID, bool) {
+		return nil, false
 	}
 }
 
@@ -76,9 +76,9 @@ func NewFakeStorage(triples ...*keyvalue.KeyValue) query.Storage {
 func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 	tests := []struct {
 		name         string
-		storage      func(uuid.UUID) query.Storage
+		storage      func(*uuid.UUID) query.Storage
 		patn         *ast.VertexPatn
-		id           uuid.UUID
+		id           *uuid.UUID
 		wantVariable string
 		wantTraverse query.Traverse
 		wantWeight   float64
@@ -92,11 +92,11 @@ func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 				patn := &ast.VertexPatn{}
 				return patn
 			}(),
-			id: func() uuid.UUID {
+			id: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
 				return id
 			}(),
-			storage: func(id uuid.UUID) query.Storage {
+			storage: func(id *uuid.UUID) query.Storage {
 				kv := keyvalue.NewKeyValueProperty(id, "", "")
 				return NewFakeStorage(kv)
 			},
@@ -112,11 +112,11 @@ func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 				}
 				return patn
 			}(),
-			id: func() uuid.UUID {
+			id: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
 				return id
 			}(),
-			storage: func(id uuid.UUID) query.Storage {
+			storage: func(id *uuid.UUID) query.Storage {
 				kv := keyvalue.NewKeyValueProperty(id, "name", "John Smith")
 				return NewFakeStorage(kv)
 			},
@@ -131,7 +131,7 @@ func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 				return
 			}
 
-			r1, r2, r3 := predicate(&tt.id, nil, 0)
+			r1, r2, r3 := predicate(tt.id, nil, 0)
 			if !reflect.DeepEqual(r1, tt.wantVariable) {
 				t.Errorf("KeyValueCyperQueryBuilder.ToPredicateVertexPath() = %v, want %v", r1, tt.wantVariable)
 			}
@@ -169,14 +169,14 @@ func TestKeyValueCyperQueryBuilder_ToPredicateEdgePath(t *testing.T) {
 			}(),
 			from: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
-				return &id
+				return id
 			}(),
 			to: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
-				return &id
+				return id
 			}(),
 			storage: func(from, to *uuid.UUID) query.Storage {
-				kv := keyvalue.NewKeyValueRelationshipProperty(*from, *to, "", "")
+				kv := keyvalue.NewKeyValueRelationshipProperty(from, to, "", "")
 				return NewFakeStorage(kv)
 			},
 		},
@@ -195,14 +195,14 @@ func TestKeyValueCyperQueryBuilder_ToPredicateEdgePath(t *testing.T) {
 			}(),
 			from: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
-				return &id
+				return id
 			}(),
 			to: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
-				return &id
+				return id
 			}(),
 			storage: func(from, to *uuid.UUID) query.Storage {
-				kv := keyvalue.NewKeyValueRelationshipProperty(*from, *to, "name", "John Smith")
+				kv := keyvalue.NewKeyValueRelationshipProperty(from, to, "name", "John Smith")
 				return NewFakeStorage(kv)
 			},
 		},

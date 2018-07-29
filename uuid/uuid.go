@@ -9,20 +9,20 @@ import (
 // UUID
 type UUID [16]byte
 
-func GenerateRandomUUID() (UUID, error) {
+func GenerateRandomUUID() (*UUID, error) {
 	buf := make([]byte, 16)
-	var arr [16]byte
+	var arr UUID
 	if _, err := rand.Read(buf); err != nil {
-		return arr, fmt.Errorf("failed to read random bytes: %v", err)
+		return &arr, fmt.Errorf("failed to read random bytes: %v", err)
 	}
 	copy(arr[:], buf)
-	return arr, nil
+	return &arr, nil
 }
 
-func SliceToUUID(buf []byte) UUID {
-	var arr [16]byte
+func SliceToUUID(buf []byte) *UUID {
+	var arr UUID
 	copy(arr[:], buf)
-	return arr
+	return &arr
 }
 
 func FormatUUID(buf [16]byte) string {
@@ -34,10 +34,10 @@ func FormatUUID(buf [16]byte) string {
 		buf[10:16])
 }
 
-func ParseUUID(uuid string) (UUID, error) {
-	var arr [16]byte
+func ParseUUID(uuid string) (*UUID, error) {
+	var arr UUID
 	if len(uuid) != 36 {
-		return arr, fmt.Errorf("uuid string is wrong length")
+		return &arr, fmt.Errorf("uuid string is wrong length")
 	}
 
 	hyph := []byte("-")
@@ -46,19 +46,19 @@ func ParseUUID(uuid string) (UUID, error) {
 		uuid[13] != hyph[0] ||
 		uuid[18] != hyph[0] ||
 		uuid[23] != hyph[0] {
-		return arr, fmt.Errorf("uuid is improperly formatted")
+		return &arr, fmt.Errorf("uuid is improperly formatted")
 	}
 
 	hexStr := uuid[0:8] + uuid[9:13] + uuid[14:18] + uuid[19:23] + uuid[24:36]
 
 	ret, err := hex.DecodeString(hexStr)
 	if err != nil {
-		return arr, err
+		return &arr, err
 	}
 	if len(ret) != 16 {
-		return arr, fmt.Errorf("decoded hex is the wrong length")
+		return &arr, fmt.Errorf("decoded hex is the wrong length")
 	}
 
 	copy(arr[:], ret)
-	return arr, nil
+	return &arr, nil
 }

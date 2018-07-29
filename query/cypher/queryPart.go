@@ -38,6 +38,14 @@ func (qp *QueryPart) Maps() []*ast.ProjectionMapStmt {
 	return nil
 }
 
+func (qp *QueryPart) Variable() string {
+	if len(qp.Patterns) > 0 {
+		e := qp.Patterns[0]
+		return e.V()
+	}
+	return ""
+}
+
 var _ Parts = (*cypherParts)(nil)
 
 type cypherParts struct {

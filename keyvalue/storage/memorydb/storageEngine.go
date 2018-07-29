@@ -131,14 +131,14 @@ func (se *StorageEngine) Query(str string) (*graph.Query, error) {
 func (se *StorageEngine) ForEach() query.IteratorUUID {
 	position := 0
 	length := len(se.tKey)
-	return func() (uuid.UUID, bool) {
+	return func() (*uuid.UUID, bool) {
 		for position < length {
 			key := se.tKeyIndex[position]
 			id, _ := uuid.ParseUUID(key)
 			position = position + 1
 			return id, true
 		}
-		return uuid.UUID{}, false
+		return nil, false
 	}
 }
 
@@ -188,11 +188,11 @@ func (se *StorageEngine) HasPrefixRange(prefixes [][]byte) query.Iterator {
 	}
 }
 
-func (se *StorageEngine) Edges(id uuid.UUID) query.IteratorUUID {
+func (se *StorageEngine) Edges(id *uuid.UUID) query.IteratorUUID {
 	position := 0
 	length := len(se.tKey)
 	p := string(keyvalue.RelationshipPrefix(id))
-	return func() (uuid.UUID, bool) {
+	return func() (*uuid.UUID, bool) {
 		for position < length {
 			key := se.tKeyIndex[position]
 			position = position + 1
@@ -205,6 +205,6 @@ func (se *StorageEngine) Edges(id uuid.UUID) query.IteratorUUID {
 
 		}
 
-		return uuid.UUID{}, false
+		return nil, false
 	}
 }

@@ -66,7 +66,7 @@ func UnmarshalKeyValue(v *graph.Vertex, c []*KeyValue) {
 			value, ok := kv.Value.Unmarshal().([]byte)
 			if ok {
 				edgeID := uuid.SliceToUUID(value)
-				edge, ok := v.Edges()[edgeID]
+				edge, ok := v.Edges()[*edgeID]
 				if !ok {
 					edge = graph.NewEdgeFromID(v.ID(), edgeID)
 					v.AddEdge(edge)
@@ -80,7 +80,7 @@ func UnmarshalKeyValue(v *graph.Vertex, c []*KeyValue) {
 		if bytes.Equal(split[1], Relationshipproperties) {
 			key := string(split[2])
 			edgeID := uuid.SliceToUUID(split[3])
-			edge, ok := v.Edges()[edgeID]
+			edge, ok := v.Edges()[*edgeID]
 			if !ok {
 				edge = graph.NewEdgeFromID(v.ID(), edgeID)
 				v.AddEdge(edge)
@@ -115,7 +115,7 @@ func UnmarshalKeyValueTranspose(v *graph.Vertex, c []*KeyValue) {
 			if ok {
 				edgeID := uuid.SliceToUUID(value)
 
-				edge, ok := v.Edges()[edgeID]
+				edge, ok := v.Edges()[*edgeID]
 				if !ok {
 					edge = graph.NewEdgeFromID(v.ID(), edgeID)
 					v.AddEdge(edge)
@@ -129,7 +129,7 @@ func UnmarshalKeyValueTranspose(v *graph.Vertex, c []*KeyValue) {
 		if bytes.Equal(split[0], Relationshipproperties) {
 			key := split[1]
 			edgeID := uuid.SliceToUUID(split[2])
-			edge, ok := v.Edges()[edgeID]
+			edge, ok := v.Edges()[*edgeID]
 			if !ok {
 				edge = graph.NewEdgeFromID(v.ID(), edgeID)
 				v.AddEdge(edge)

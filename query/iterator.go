@@ -6,4 +6,4 @@ import "github.com/RossMerr/Caudex.Graph/uuid"
 type Iterator func() (interface{}, bool)
 
 // IteratorUUID is an alias for function to iterate over uuid's.
-type IteratorUUID func() (uuid.UUID, bool)
+type IteratorUUID func() (*uuid.UUID, bool)

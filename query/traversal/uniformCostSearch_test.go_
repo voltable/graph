@@ -1,9 +1,11 @@
-package query_test
+package traversal_test
 
 import (
 	"container/list"
 	"errors"
+	"fmt"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph"
@@ -128,22 +130,39 @@ func Test_UniformCostSearch(t *testing.T) {
 }
 
 func AustraliaGraph() *StorageEngine {
-	g := &StorageEngine{vertices: make(map[uuid.UUID]*keyvalue.KeyValue)}
+	g := &StorageEngine{
+		tKeyIndex: make(map[int]string),
+		tKey:      make(map[string]*keyvalue.Any),
+	}
 	g.Create(drw, cns, asp, bne, syd, cbr, mel, adl, per)
 	return g
 }
 
 type StorageEngine struct {
-	kv        map[uuid.UUID]*keyvalue.KeyValue
-	keys      []uuid.UUID
-	traversal query.Traversal
+	tKeyIndex map[int]string
+	tKey      map[string]*keyvalue.Any
+
+	// kv   map[uuid.UUID]*keyvalue.KeyValue
+	// keys []uuid.UUID
+	// //	traversal query.Traversal
 }
 
 // Create adds a array of vertices to the persistence
 func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 	for _, v := range c {
-		se.vertices[v.ID()] = *v
-		se.keys = append(se.keys, v.ID())
+		triples := keyvalue.MarshalKeyValue(v)
+		transposes := keyvalue.MarshalKeyValueTranspose(v)
+		var errstrings []string
+
+		for i := 0; i < len(triples); i++ {
+			triple := triples[i]
+			se.tKeyIndex[len(se.tKey)] = string(triple.Key)
+			se.tKey[string(triple.Key)] = triple.Value
+		}
+
+		if len(errstrings) > 0 {
+			return fmt.Errorf(strings.Join(errstrings, "\n"))
+		}
 	}
 
 	return nil
@@ -176,17 +195,17 @@ func (se *StorageEngine) Close() {
 
 }
 
-func (se *StorageEngine) ForEach() keyvalue.Iterator {
+func (se *StorageEngine) ForEach() query.IteratorUUID {
 	position := 0
-	length := len(se.keys)
-	return func() (*keyvalue.KeyValue, bool) {
-		if position < length {
-			key := se.keys[position]
-			v := se.vertices[key]
+	length := len(se.tKey)
+	return func() (uuid.UUID, bool) {
+		for position < length {
+			key := se.tKeyIndex[position]
+			id, _ := uuid.ParseUUID(key)
 			position = position + 1
-			return &v, true
+			return id, true
 		}
-		return nil, false
+		return uuid.UUID{}, false
 	}
 }
 
@@ -196,49 +215,46 @@ func (se *StorageEngine) ForEachTest() query.IteratorFrontier {
 		ok = expressions.XORSwap(ok)
 		if ok {
 			kv := keyvalue.MarshalKeyValue(syd)
-			f := query.NewFrontier(kv[0], "")
+			f := query.NewFrontier(kv[0].UUID(), "")
 			return &f, ok
 		}
 		return nil, ok
 	}
 }
 
-func ToIterator(i query.IteratorFrontier) []*keyvalue.KeyValue {
-	results := make([]*keyvalue.KeyValue, 0)
+func ToIterator(i query.IteratorFrontier) []*uuid.UUID {
+	results := make([]*uuid.UUID, 0)
 
 	for frontier, ok := i(); ok; frontier, ok = i() {
 		if frontier.Len() > 0 {
 			parts := frontier.OptimalPath()
 			for _, i := range parts {
-				results = append(results, i.KeyValue)
+				results = append(results, i.UUID)
 			}
 		}
 	}
 	return results
 }
 
-func toPredicateVertex() *query.PredicatePath {
-	pvp := query.PredicatePath{Predicate: func(kv *keyvalue.KeyValue) (string, query.Traverse) {
-		if kv.UUID() == per.ID() {
-			return "", query.Matched
+func toPredicateVertex() *query.Predicate {
+	return func(from, to *uuid.UUID, depth int) (string, query.Traverse, float64) {
+		if from == per.ID() {
+			return "", query.Matched, 0
 		}
 
-		return "", query.Failed
-	}}
+		return "", query.Failed, 0
+	}
 
-	return &pvp
 }
 
-func toPredicateEdge() *query.PredicatePath {
-	pvp := query.PredicatePath{Predicate: func(kv *keyvalue.KeyValue) (string, query.Traverse) {
-		if kv.UUID() != per.ID() {
-			return "", query.Visiting
+func toPredicateEdge() *query.Predicate {
+	return func(from, to *uuid.UUID, depth int) (string, query.Traverse, float64) {
+		if to != per.ID() {
+			return "", query.Visiting, 0
 		}
 
-		return "", query.Matching
-	}}
-
-	return &pvp
+		return "", query.Matching, 0
+	}
 }
 
 func index(l *list.List, i int) interface{} {

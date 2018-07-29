@@ -23,7 +23,7 @@ func Test_NewVertex(t *testing.T) {
 		t.Fatalf("Expected err to be nil but was %s", err)
 	}
 
-	empty := uuid.UUID{}
+	var empty *uuid.UUID
 	if v.ID() == empty {
 		t.Fatalf("Expected ID to be set but was %+v", v.ID())
 	}

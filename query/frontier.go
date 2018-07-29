@@ -15,13 +15,13 @@ type FrontierQueue struct {
 // FrontierProperties containers a KeyValue (vertex or edge) and it's Variable used by a query
 type FrontierProperties struct {
 	Variable string
-	UUID     uuid.UUID
+	UUID     *uuid.UUID
 }
 
 // Frontier priority queue containing vertices to be explored and the cost for a Uniform Cost Search
 type Frontier struct {
 	Values   []*FrontierQueue
-	Explored map[uuid.UUID]bool
+	Explored map[*uuid.UUID]bool
 }
 
 // Sort interface
@@ -55,12 +55,12 @@ func (f *Frontier) append(vertices []FrontierProperties, cost float64) {
 	f.Values = append(f.Values, fp)
 }
 
-func (f *Frontier) AppendKeyValue(queue *FrontierQueue, id uuid.UUID, variable string) {
+func (f *Frontier) AppendKeyValue(queue *FrontierQueue, id *uuid.UUID, variable string) {
 	fv := FrontierProperties{Variable: variable, UUID: id}
 	f.append(append(queue.Parts, fv), queue.Cost)
 }
 
-func (f *Frontier) AppendEdgeKeyValue(queue *FrontierQueue, id uuid.UUID, variable string, weight float64) {
+func (f *Frontier) AppendEdgeKeyValue(queue *FrontierQueue, id *uuid.UUID, variable string, weight float64) {
 	fv := FrontierProperties{Variable: variable, UUID: id}
 	parts := append(queue.Parts, fv)
 	//	parts = append(parts, fv)
@@ -68,9 +68,9 @@ func (f *Frontier) AppendEdgeKeyValue(queue *FrontierQueue, id uuid.UUID, variab
 }
 
 // NewFrontier create the Frontier using the inistal uuid as the root of the graph
-func NewFrontier(id uuid.UUID, variable string) Frontier {
+func NewFrontier(id *uuid.UUID, variable string) Frontier {
 	fv := FrontierProperties{Variable: variable, UUID: id}
-	f := Frontier{Explored: make(map[uuid.UUID]bool)}
+	f := Frontier{Explored: make(map[*uuid.UUID]bool)}
 	f.append([]FrontierProperties{fv}, 0)
 	return f
 }

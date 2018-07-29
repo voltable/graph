@@ -11,47 +11,47 @@ import (
 func TestUUID(t *testing.T) {
 	tests := []struct {
 		name  string
-		setup func(id uuid.UUID) *keyvalue.KeyValue
-		want  uuid.UUID
+		setup func(id *uuid.UUID) *keyvalue.KeyValue
+		want  *uuid.UUID
 	}{
 		{
 			name: "Vertex",
-			setup: func(id uuid.UUID) *keyvalue.KeyValue {
+			setup: func(id *uuid.UUID) *keyvalue.KeyValue {
 				return keyvalue.NewKeyValueVertex(id, "person")
 			},
-			want: func() uuid.UUID {
+			want: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
 				return id
 			}(),
 		},
 		{
 			name: "Properties",
-			setup: func(id uuid.UUID) *keyvalue.KeyValue {
+			setup: func(id *uuid.UUID) *keyvalue.KeyValue {
 				return keyvalue.NewKeyValueProperty(id, "", "")
 			},
-			want: func() uuid.UUID {
+			want: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
 				return id
 			}(),
 		},
 		{
 			name: "Relationship",
-			setup: func(id uuid.UUID) *keyvalue.KeyValue {
+			setup: func(id *uuid.UUID) *keyvalue.KeyValue {
 				to, _ := uuid.GenerateRandomUUID()
 				return keyvalue.NewKeyValueRelationship(id, to, "")
 			},
-			want: func() uuid.UUID {
+			want: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
 				return id
 			}(),
 		},
 		{
 			name: "Relationshipproperties",
-			setup: func(id uuid.UUID) *keyvalue.KeyValue {
+			setup: func(id *uuid.UUID) *keyvalue.KeyValue {
 				to, _ := uuid.GenerateRandomUUID()
 				return keyvalue.NewKeyValueRelationshipProperty(id, to, "", "")
 			},
-			want: func() uuid.UUID {
+			want: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
 				return id
 			}(),
@@ -70,47 +70,47 @@ func TestUUID(t *testing.T) {
 func TestUUIDTranspose(t *testing.T) {
 	tests := []struct {
 		name  string
-		setup func(id uuid.UUID) *keyvalue.KeyValue
-		want  uuid.UUID
+		setup func(id *uuid.UUID) *keyvalue.KeyValue
+		want  *uuid.UUID
 	}{
 		{
 			name: "Vertex",
-			setup: func(id uuid.UUID) *keyvalue.KeyValue {
+			setup: func(id *uuid.UUID) *keyvalue.KeyValue {
 				return keyvalue.NewKeyValueVertexTranspose(id, "")
 			},
-			want: func() uuid.UUID {
+			want: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
 				return id
 			}(),
 		},
 		{
 			name: "Properties",
-			setup: func(id uuid.UUID) *keyvalue.KeyValue {
+			setup: func(id *uuid.UUID) *keyvalue.KeyValue {
 				return keyvalue.NewKeyValuePropertyTranspose(id, "", "")
 			},
-			want: func() uuid.UUID {
+			want: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
 				return id
 			}(),
 		},
 		{
 			name: "Relationship",
-			setup: func(id uuid.UUID) *keyvalue.KeyValue {
+			setup: func(id *uuid.UUID) *keyvalue.KeyValue {
 				to, _ := uuid.GenerateRandomUUID()
 				return keyvalue.NewKeyValueRelationshipTranspose(id, to, "")
 			},
-			want: func() uuid.UUID {
+			want: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
 				return id
 			}(),
 		},
 		{
 			name: "Relationshipproperties",
-			setup: func(id uuid.UUID) *keyvalue.KeyValue {
+			setup: func(id *uuid.UUID) *keyvalue.KeyValue {
 				to, _ := uuid.GenerateRandomUUID()
 				return keyvalue.NewKeyValueRelationshipPropertyTranspose(id, to, "", "")
 			},
-			want: func() uuid.UUID {
+			want: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
 				return id
 			}(),
