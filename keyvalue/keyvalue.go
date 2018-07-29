@@ -3,6 +3,7 @@ package keyvalue
 import (
 	"bytes"
 
+	"github.com/RossMerr/Caudex.Graph/arch"
 	"github.com/RossMerr/Caudex.Graph/uuid"
 )
 
@@ -28,8 +29,8 @@ func NewKeyValueProperty(id *uuid.UUID, key string, value interface{}) *KeyValue
 }
 
 // NewKeyValueRelationship creates a relationship KeyValue
-func NewKeyValueRelationship(from, to *uuid.UUID, relationshipType string) *KeyValue {
-	return newKeyValue(to[:], from[:], US, Relationship, US, []byte(relationshipType), US, to[:])
+func NewKeyValueRelationship(from, to *uuid.UUID, relationshipType string, weight float64) *KeyValue {
+	return newKeyValue(weight, from[:], US, Relationship, US, []byte(relationshipType), US, to[:])
 }
 
 // NewKeyValueRelationshipProperty creates a relationship property KeyValue
@@ -50,8 +51,8 @@ func NewKeyValuePropertyTranspose(id *uuid.UUID, key string, value interface{}) 
 }
 
 // NewKeyValueRelationshipTranspose creates a relationship KeyValue
-func NewKeyValueRelationshipTranspose(from, to *uuid.UUID, relationshipType string) *KeyValue {
-	return newKeyValue(to[:], Relationship, US, []byte(relationshipType), US, to[:], US, from[:])
+func NewKeyValueRelationshipTranspose(from, to *uuid.UUID, relationshipType string, weight float64) *KeyValue {
+	return newKeyValue(to[:], Relationship, US, []byte(relationshipType), US, arch.EncodeFloat64Bytes(weight), US, from[:])
 }
 
 // NewKeyValueRelationshipPropertyTranspose creates a relationship property KeyValue

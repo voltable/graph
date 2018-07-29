@@ -84,29 +84,10 @@ func init() {
 	per.AddDirectedEdgeWeight(drw, float64(48))
 }
 
-type queryBuilder struct {
-	Predicates []query.Predicate
-}
-
-func (qb *queryBuilder) Predicate([]ast.Patn) ([]query.Predicate, error) {
-	return qb.Predicates, nil
-}
-
 func Test_UniformCostSearch(t *testing.T) {
 	g := AustraliaGraph()
 
-	path := make([]query.Predicate, 0)
-	path = append(path, toPredicateVertex())
-	path = append(path, toPredicateEdge())
-	path = append(path, toPredicateVertex())
-	path = append(path, toPredicateEdge())
-	path = append(path, toPredicateVertex())
-	path = append(path, toPredicateEdge())
-	path = append(path, toPredicateVertex())
-	path = append(path, toPredicateEdge())
-	path = append(path, toPredicateVertex())
-
-	qb := &queryBuilder{Predicates: path}
+	qb := &queryBuilder{Storage: g}
 	patterns := []ast.Patn{}
 
 	plan := cypher.NewPlan(qb, g)
@@ -142,8 +123,8 @@ func Test_UniformCostSearch(t *testing.T) {
 	}
 }
 
-func AustraliaGraph() *StorageEngine {
-	g := &StorageEngine{
+func AustraliaGraph() *storageEngine {
+	g := &storageEngine{
 		tKeyIndex: make(map[int]string),
 		tKey:      make(map[string]*keyvalue.Any),
 	}
@@ -151,15 +132,15 @@ func AustraliaGraph() *StorageEngine {
 	return g
 }
 
-var _ query.Storage = (*StorageEngine)(nil)
+var _ query.Storage = (*storageEngine)(nil)
 
-type StorageEngine struct {
+type storageEngine struct {
 	tKeyIndex map[int]string
 	tKey      map[string]*keyvalue.Any
 }
 
 // Create adds a array of vertices to the persistence
-func (se *StorageEngine) Create(c ...*graph.Vertex) error {
+func (se *storageEngine) Create(c ...*graph.Vertex) error {
 	for _, v := range c {
 		triples := keyvalue.MarshalKeyValue(v)
 		var errstrings []string
@@ -179,25 +160,25 @@ func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 }
 
 // Delete the array of vertices from the persistence
-func (se *StorageEngine) Delete(c ...*graph.Vertex) error {
+func (se *storageEngine) Delete(c ...*graph.Vertex) error {
 	return nil
 }
 
 // Update the array of vertices from the persistence
-func (se *StorageEngine) Update(c ...*graph.Vertex) error {
+func (se *storageEngine) Update(c ...*graph.Vertex) error {
 	se.Create(c...)
 	return nil
 }
 
-func (se *StorageEngine) Query(str string) (*graph.Query, error) {
+func (se *storageEngine) Query(str string) (*graph.Query, error) {
 	return nil, nil
 }
 
-func (se *StorageEngine) Close() {
+func (se *storageEngine) Close() {
 
 }
 
-func (se *StorageEngine) ForEach() query.IteratorUUID {
+func (se *storageEngine) ForEach() query.IteratorUUID {
 	position := 0
 	length := len(se.tKey)
 	return func() (*uuid.UUID, bool) {
@@ -211,7 +192,7 @@ func (se *StorageEngine) ForEach() query.IteratorUUID {
 	}
 }
 
-func (se *StorageEngine) Edges(id *uuid.UUID) query.IteratorUUID {
+func (se *storageEngine) Edges(id *uuid.UUID) query.IteratorUUID {
 	position := 0
 	length := len(se.tKey)
 	p := string(keyvalue.RelationshipPrefix(id))
@@ -232,7 +213,7 @@ func (se *StorageEngine) Edges(id *uuid.UUID) query.IteratorUUID {
 	}
 }
 
-func (se *StorageEngine) HasPrefix(prefix []byte) query.Iterator {
+func (se *storageEngine) HasPrefix(prefix []byte) query.Iterator {
 	position := 0
 	length := len(se.tKey)
 	p := string(prefix)
@@ -252,7 +233,7 @@ func (se *StorageEngine) HasPrefix(prefix []byte) query.Iterator {
 	}
 }
 
-func (se *StorageEngine) ForEachTest() query.IteratorFrontier {
+func (se *storageEngine) ForEachTest() query.IteratorFrontier {
 	ok := false
 	return func() (*query.Frontier, bool) {
 		ok = expressions.XORSwap(ok)
@@ -279,7 +260,26 @@ func ToIterator(i query.IteratorFrontier) []*uuid.UUID {
 	return results
 }
 
-func toPredicateVertex() query.Predicate {
+type queryBuilder struct {
+	Storage query.Storage
+}
+
+func (qb *queryBuilder) Predicate([]ast.Patn) ([]query.Predicate, error) {
+	path := make([]query.Predicate, 0)
+	path = append(path, qb.toPredicateVertex())
+	path = append(path, qb.toPredicateEdge())
+	path = append(path, qb.toPredicateVertex())
+	path = append(path, qb.toPredicateEdge())
+	path = append(path, qb.toPredicateVertex())
+	path = append(path, qb.toPredicateEdge())
+	path = append(path, qb.toPredicateVertex())
+	path = append(path, qb.toPredicateEdge())
+	path = append(path, qb.toPredicateVertex())
+
+	return path, nil
+}
+
+func (qb *queryBuilder) toPredicateVertex() query.Predicate {
 	return func(from, to *uuid.UUID, depth int) (string, query.Traverse, float64) {
 		if from == per.ID() {
 			return "", query.Matched, 0
@@ -290,7 +290,7 @@ func toPredicateVertex() query.Predicate {
 
 }
 
-func toPredicateEdge() query.Predicate {
+func (qb *queryBuilder) toPredicateEdge() query.Predicate {
 	return func(from, to *uuid.UUID, depth int) (string, query.Traverse, float64) {
 		if to != per.ID() {
 			return "", query.Visiting, 0

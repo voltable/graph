@@ -3,6 +3,8 @@ package keyvalue
 import (
 	"bytes"
 
+	"github.com/RossMerr/Caudex.Graph/arch"
+
 	graph "github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/uuid"
 )
@@ -63,15 +65,18 @@ func UnmarshalKeyValue(v *graph.Vertex, c []*KeyValue) {
 		if bytes.Equal(split[1], Relationship) {
 			relationshipType := split[2]
 
-			value, ok := kv.Value.Unmarshal().([]byte)
+			to := split[3]
+			edgeID := uuid.SliceToUUID(to)
+			edge, ok := v.Edges()[*edgeID]
+			if !ok {
+				edge = graph.NewEdgeFromID(v.ID(), edgeID)
+				v.AddEdge(edge)
+			}
+			edge.SetRelationshipType(string(relationshipType))
+
+			value, ok := kv.Value.Unmarshal().(float64)
 			if ok {
-				edgeID := uuid.SliceToUUID(value)
-				edge, ok := v.Edges()[*edgeID]
-				if !ok {
-					edge = graph.NewEdgeFromID(v.ID(), edgeID)
-					v.AddEdge(edge)
-				}
-				edge.SetRelationshipType(string(relationshipType))
+				edge.Weight = value
 			}
 
 			continue
@@ -111,6 +116,7 @@ func UnmarshalKeyValueTranspose(v *graph.Vertex, c []*KeyValue) {
 		}
 		if bytes.Equal(split[0], Relationship) {
 			relationshipType := split[1]
+
 			value, ok := kv.Value.Unmarshal().([]byte)
 			if ok {
 				edgeID := uuid.SliceToUUID(value)
@@ -122,6 +128,9 @@ func UnmarshalKeyValueTranspose(v *graph.Vertex, c []*KeyValue) {
 				}
 
 				edge.SetRelationshipType(string(relationshipType))
+				if weight, ok := arch.DecodeFloat64Bytes(split[2]).(float64); ok {
+					edge.Weight = weight
+				}
 			}
 			continue
 		}
@@ -146,7 +155,7 @@ func MarshalEdgeKeyValue(e *graph.Edge) []*KeyValue {
 
 	from := e.From()
 	to := e.To()
-	tt = append(tt, NewKeyValueRelationship(from, to, e.RelationshipType()))
+	tt = append(tt, NewKeyValueRelationship(from, to, e.RelationshipType(), e.Weight))
 
 	for k, p := range e.Properties() {
 		tt = append(tt, NewKeyValueRelationshipProperty(from, to, k, p))
@@ -161,7 +170,7 @@ func MarshalEdgeKeyValueTranspose(e *graph.Edge) []*KeyValue {
 
 	from := e.From()
 	to := e.To()
-	tt = append(tt, NewKeyValueRelationshipTranspose(from, to, e.RelationshipType()))
+	tt = append(tt, NewKeyValueRelationshipTranspose(from, to, e.RelationshipType(), e.Weight))
 
 	for k, p := range e.Properties() {
 		tt = append(tt, NewKeyValueRelationshipPropertyTranspose(from, to, k, p))

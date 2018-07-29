@@ -24,6 +24,7 @@ func TestMarshalKeyValue(t *testing.T) {
 				e := graph.NewEdge(v, t)
 				e.SetRelationshipType("friend")
 				e.SetProperty("years", 10)
+				e.Weight = 5
 				v.AddEdge(e)
 				return v
 			}(),
@@ -57,6 +58,7 @@ func TestMarshalKeyValueTranspose(t *testing.T) {
 				e := graph.NewEdge(v, t)
 				e.SetRelationshipType("friend")
 				e.SetProperty("years", 10)
+				e.Weight = 5
 				v.AddEdge(e)
 				return v
 			}(),
