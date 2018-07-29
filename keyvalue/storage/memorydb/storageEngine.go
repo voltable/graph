@@ -162,32 +162,6 @@ func (se *StorageEngine) HasPrefix(prefix []byte) query.Iterator {
 	}
 }
 
-func (se *StorageEngine) HasPrefixRange(prefixes [][]byte) query.Iterator {
-	position := 0
-	length := len(se.tKey)
-	pp := make([]string, len(prefixes))
-	for i := 0; i < len(prefixes); i++ {
-		pp[i] = string(prefixes[i])
-	}
-	return func() (interface{}, bool) {
-		for position < length {
-			key := se.tKeyIndex[position]
-			position = position + 1
-
-			for _, p := range pp {
-				if strings.HasPrefix(key, p) {
-					v := se.tKey[key]
-					kv := &keyvalue.KeyValue{Key: []byte(key), Value: v}
-					return kv, true
-				}
-			}
-
-		}
-
-		return nil, false
-	}
-}
-
 func (se *StorageEngine) Edges(id *uuid.UUID) query.IteratorUUID {
 	position := 0
 	length := len(se.tKey)

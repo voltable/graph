@@ -6,5 +6,5 @@ type Storage interface {
 	ForEach() IteratorUUID
 	HasPrefix([]byte) Iterator
 	Edges(*uuid.UUID) IteratorUUID
-	HasPrefixRange([][]byte) Iterator
+	//	HasPrefixRange([][]byte) Iterator
 }
