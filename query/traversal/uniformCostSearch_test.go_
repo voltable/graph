@@ -1,6 +1,7 @@
 package traversal_test
 
 import (
+	"bytes"
 	"container/list"
 	"errors"
 	"fmt"
@@ -183,48 +184,50 @@ func (se *storageEngine) ForEach() query.IteratorUUID {
 	length := len(se.tKey)
 	return func() (*uuid.UUID, bool) {
 		for position < length {
-			key := se.tKeyIndex[position]
-			id, _ := uuid.ParseUUID(key)
+			key := []byte(se.tKeyIndex[position])
+			kv := &keyvalue.KeyValue{
+				Key: key,
+			}
 			position = position + 1
-			return id, true
+			return kv.UUID(), true
 		}
 		return nil, false
 	}
 }
 
-func (se *storageEngine) Edges(id *uuid.UUID) query.IteratorUUID {
+func (se *storageEngine) Edges(id *uuid.UUID) query.IteratorUUIDWeight {
 	position := 0
 	length := len(se.tKey)
-	p := string(keyvalue.RelationshipPrefix(id))
-	return func() (*uuid.UUID, bool) {
+	p := keyvalue.RelationshipPrefix(id)
+	return func() (*uuid.UUID, float64, bool) {
 		for position < length {
-			key := se.tKeyIndex[position]
+			key := []byte(se.tKeyIndex[position])
 			position = position + 1
 
-			if strings.HasPrefix(key, p) {
-				id, _ := uuid.ParseUUID(key)
-				return id, true
-
+			if bytes.HasPrefix(key, p) {
+				value := se.tKey[string(key)]
+				kv := &keyvalue.KeyValue{
+					Key:   key,
+					Value: value,
+				}
+				return kv.To(), kv.Weight(), true
 			}
-
 		}
-
-		return nil, false
+		return nil, 0, false
 	}
 }
 
 func (se *storageEngine) HasPrefix(prefix []byte) query.Iterator {
 	position := 0
 	length := len(se.tKey)
-	p := string(prefix)
 	return func() (interface{}, bool) {
 		for position < length {
-			key := se.tKeyIndex[position]
+			key := []byte(se.tKeyIndex[position])
 			position = position + 1
 
-			if strings.HasPrefix(key, p) {
-				v := se.tKey[key]
-				kv := &keyvalue.KeyValue{Key: []byte(key), Value: v}
+			if bytes.HasPrefix(key, prefix) {
+				v := se.tKey[string(key)]
+				kv := &keyvalue.KeyValue{Key: key, Value: v}
 				return kv, true
 			}
 		}
@@ -266,39 +269,48 @@ type queryBuilder struct {
 
 func (qb *queryBuilder) Predicate([]ast.Patn) ([]query.Predicate, error) {
 	path := make([]query.Predicate, 0)
-	path = append(path, qb.toPredicateVertex())
-	path = append(path, qb.toPredicateEdge())
-	path = append(path, qb.toPredicateVertex())
-	path = append(path, qb.toPredicateEdge())
-	path = append(path, qb.toPredicateVertex())
-	path = append(path, qb.toPredicateEdge())
-	path = append(path, qb.toPredicateVertex())
-	path = append(path, qb.toPredicateEdge())
-	path = append(path, qb.toPredicateVertex())
+	path = append(path, qb.toPredicate())
+	path = append(path, qb.toPredicate())
+	path = append(path, qb.toPredicate())
+	path = append(path, qb.toPredicate())
+	path = append(path, qb.toPredicate())
+	path = append(path, qb.toPredicate())
+	path = append(path, qb.toPredicate())
+	path = append(path, qb.toPredicate())
+	path = append(path, qb.toPredicate())
 
 	return path, nil
 }
 
-func (qb *queryBuilder) toPredicateVertex() query.Predicate {
-	return func(from, to *uuid.UUID, depth int) (string, query.Traverse, float64) {
-		if from == per.ID() {
-			return "", query.Matched, 0
+func (qb *queryBuilder) toPredicate() query.Predicate {
+	return func(from, to *uuid.UUID, depth int) (string, query.Traverse) {
+		if to == nil {
+			if from == per.ID() {
+
+				return "", query.Matched
+			}
+
+			return "", query.Failed
 		}
 
-		return "", query.Failed, 0
-	}
-
-}
-
-func (qb *queryBuilder) toPredicateEdge() query.Predicate {
-	return func(from, to *uuid.UUID, depth int) (string, query.Traverse, float64) {
 		if to != per.ID() {
-			return "", query.Visiting, 0
+			return "", query.Visiting
 		}
 
-		return "", query.Matching, 0
+		return "", query.Matching
 	}
+
 }
+
+// func (qb *queryBuilder) toPredicateEdge() query.Predicate {
+// 	return func(from, to *uuid.UUID, depth int) (string, query.Traverse) {
+// 		if to != per.ID() {
+// 			return "", query.Visiting
+// 		}
+
+// 		return "", query.Matching
+// 	}
+// }
 
 func index(l *list.List, i int) interface{} {
 	e := l.Front()

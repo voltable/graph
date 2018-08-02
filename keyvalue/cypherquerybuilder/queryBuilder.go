@@ -72,7 +72,7 @@ func (s *KeyValueCyperQueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn) 
 	if patn == nil {
 		return nil, errNoPattern
 	}
-	return func(from, to *uuid.UUID, depth int) (string, query.Traverse, float64) {
+	return func(from, to *uuid.UUID, depth int) (string, query.Traverse) {
 		keyValues := make([]*keyvalue.KeyValue, 0)
 
 		for k, p := range patn.Properties {
@@ -88,11 +88,11 @@ func (s *KeyValueCyperQueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn) 
 			}
 
 			if len(keyValues) > 0 {
-				return patn.Variable, query.Matched, 0
+				return patn.Variable, query.Matched
 			}
 		}
 
-		return patn.Variable, query.Failed, 0
+		return patn.Variable, query.Failed
 	}, nil
 }
 
@@ -102,7 +102,7 @@ func (s *KeyValueCyperQueryBuilder) ToPredicateEdgePath(patn *ast.EdgePatn) (que
 	if patn == nil {
 		return nil, errNoPattern
 	}
-	return func(from, to *uuid.UUID, depth int) (string, query.Traverse, float64) {
+	return func(from, to *uuid.UUID, depth int) (string, query.Traverse) {
 
 		keyValues := make([]*keyvalue.KeyValue, 0)
 
@@ -119,12 +119,12 @@ func (s *KeyValueCyperQueryBuilder) ToPredicateEdgePath(patn *ast.EdgePatn) (que
 				}
 
 				if len(keyValues) > 0 {
-					return patn.Variable, query.Visiting, 0
+					return patn.Variable, query.Visiting
 				}
 			}
 		}
 
-		return patn.Variable, query.Matching, 0
+		return patn.Variable, query.Matching
 
 		// split := bytes.Split(kv.Key, US)
 

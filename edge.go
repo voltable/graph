@@ -30,7 +30,7 @@ func NewEdge(from, to *Vertex) *Edge {
 
 // NewEdgeFromID creates a edge form the id
 func NewEdgeFromID(from, to *uuid.UUID) *Edge {
-	return &Edge{from: from, to: to, properties: make(map[string]interface{})}
+	return &Edge{from: from, to: to, properties: make(map[string]interface{}), Weight: 0}
 }
 
 func (e *Edge) From() *uuid.UUID {

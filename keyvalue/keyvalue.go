@@ -61,7 +61,34 @@ func NewKeyValueRelationshipPropertyTranspose(from, to *uuid.UUID, key string, v
 
 }
 
-//NewKeyValue(p, from[:], US, Relationshipproperties, US, []byte(k), US, to[:]))
+func (s *KeyValue) Weight() float64 {
+	split := bytes.Split(s.Key, US)
+	if bytes.Equal(split[1], Relationship) {
+		to := s.Value.Unmarshal()
+		return to.(float64)
+	}
+
+	if bytes.Equal(split[0], Relationship) {
+		return arch.DecodeFloat64Bytes(split[3]).(float64)
+	}
+
+	return 0
+}
+
+func (s *KeyValue) To() *uuid.UUID {
+	split := bytes.Split(s.Key, US)
+	if bytes.Equal(split[1], Relationship) {
+		return uuid.SliceToUUID(split[3])
+	}
+
+	if bytes.Equal(split[0], Relationship) {
+		to := s.Value.Unmarshal()
+		return to.(*uuid.UUID)
+	}
+
+	return nil
+}
+
 // UUID looks for the UUID in the KeyValue
 func (s *KeyValue) UUID() *uuid.UUID {
 	split := bytes.Split(s.Key, US)

@@ -1,6 +1,7 @@
 package memorydb
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"strings"
@@ -133,10 +134,12 @@ func (se *StorageEngine) ForEach() query.IteratorUUID {
 	length := len(se.tKey)
 	return func() (*uuid.UUID, bool) {
 		for position < length {
-			key := se.tKeyIndex[position]
-			id, _ := uuid.ParseUUID(key)
+			key := []byte(se.tKeyIndex[position])
+			kv := &keyvalue.KeyValue{
+				Key: key,
+			}
 			position = position + 1
-			return id, true
+			return kv.UUID(), true
 		}
 		return nil, false
 	}
@@ -145,15 +148,14 @@ func (se *StorageEngine) ForEach() query.IteratorUUID {
 func (se *StorageEngine) HasPrefix(prefix []byte) query.Iterator {
 	position := 0
 	length := len(se.tKey)
-	p := string(prefix)
 	return func() (interface{}, bool) {
 		for position < length {
-			key := se.tKeyIndex[position]
+			key := []byte(se.tKeyIndex[position])
 			position = position + 1
 
-			if strings.HasPrefix(key, p) {
-				v := se.tKey[key]
-				kv := &keyvalue.KeyValue{Key: []byte(key), Value: v}
+			if bytes.HasPrefix(key, prefix) {
+				v := se.tKey[string(key)]
+				kv := &keyvalue.KeyValue{Key: key, Value: v}
 				return kv, true
 			}
 		}
@@ -162,23 +164,22 @@ func (se *StorageEngine) HasPrefix(prefix []byte) query.Iterator {
 	}
 }
 
-func (se *StorageEngine) Edges(id *uuid.UUID) query.IteratorUUID {
+func (se *StorageEngine) Edges(id *uuid.UUID) query.IteratorUUIDWeight {
 	position := 0
 	length := len(se.tKey)
-	p := string(keyvalue.RelationshipPrefix(id))
-	return func() (*uuid.UUID, bool) {
+	p := keyvalue.RelationshipPrefix(id)
+	return func() (*uuid.UUID, float64, bool) {
 		for position < length {
-			key := se.tKeyIndex[position]
+			key := []byte(se.tKeyIndex[position])
 			position = position + 1
 
-			if strings.HasPrefix(key, p) {
-				id, _ := uuid.ParseUUID(key)
-				return id, true
-
+			if bytes.HasPrefix(key, p) {
+				kv := &keyvalue.KeyValue{
+					Key: key,
+				}
+				return kv.To(), 0, true
 			}
-
 		}
-
-		return nil, false
+		return nil, 0, false
 	}
 }

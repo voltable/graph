@@ -46,9 +46,9 @@ func (s FakeStorage) HasPrefix(prefix []byte) query.Iterator {
 	}
 }
 
-func (s FakeStorage) Edges(*uuid.UUID) query.IteratorUUID {
-	return func() (*uuid.UUID, bool) {
-		return nil, false
+func (s FakeStorage) Edges(*uuid.UUID) query.IteratorUUIDWeight {
+	return func() (*uuid.UUID, float64, bool) {
+		return nil, 0, false
 	}
 }
 
@@ -75,13 +75,11 @@ func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 		id           *uuid.UUID
 		wantVariable string
 		wantTraverse query.Traverse
-		wantWeight   float64
 	}{
 		{
 			name:         "Empty",
 			wantVariable: "",
 			wantTraverse: query.Failed,
-			wantWeight:   0,
 			patn: func() *ast.VertexPatn {
 				patn := &ast.VertexPatn{}
 				return patn
@@ -99,7 +97,6 @@ func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 			name:         "Name",
 			wantVariable: "",
 			wantTraverse: query.Matched,
-			wantWeight:   0,
 			patn: func() *ast.VertexPatn {
 				patn := &ast.VertexPatn{
 					Properties: map[string]interface{}{"name": "John Smith"},
@@ -125,17 +122,13 @@ func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 				return
 			}
 
-			r1, r2, r3 := predicate(tt.id, nil, 0)
+			r1, r2 := predicate(tt.id, nil, 0)
 			if !reflect.DeepEqual(r1, tt.wantVariable) {
 				t.Errorf("KeyValueCyperQueryBuilder.ToPredicateVertexPath() = %v, want %v", r1, tt.wantVariable)
 			}
 
 			if !reflect.DeepEqual(r2, tt.wantTraverse) {
 				t.Errorf("KeyValueCyperQueryBuilder.ToPredicateVertexPath() = %v, want %v", r2, tt.wantTraverse)
-			}
-
-			if !reflect.DeepEqual(r3, tt.wantWeight) {
-				t.Errorf("KeyValueCyperQueryBuilder.ToPredicateVertexPath() = %v, want %v", r3, tt.wantWeight)
 			}
 		})
 	}
@@ -150,13 +143,11 @@ func TestKeyValueCyperQueryBuilder_ToPredicateEdgePath(t *testing.T) {
 		to           *uuid.UUID
 		wantVariable string
 		wantTraverse query.Traverse
-		wantWeight   float64
 	}{
 		{
 			name:         "Empty",
 			wantVariable: "",
 			wantTraverse: query.Matching,
-			wantWeight:   0,
 			patn: func() *ast.EdgePatn {
 				patn := &ast.EdgePatn{}
 				return patn
@@ -178,7 +169,6 @@ func TestKeyValueCyperQueryBuilder_ToPredicateEdgePath(t *testing.T) {
 			name:         "Name",
 			wantVariable: "",
 			wantTraverse: query.Visiting,
-			wantWeight:   0,
 			patn: func() *ast.EdgePatn {
 				patn := &ast.EdgePatn{
 					Body: &ast.EdgeBodyStmt{
@@ -210,17 +200,13 @@ func TestKeyValueCyperQueryBuilder_ToPredicateEdgePath(t *testing.T) {
 				return
 			}
 
-			r1, r2, r3 := predicate(tt.from, tt.to, 0)
+			r1, r2 := predicate(tt.from, tt.to, 0)
 			if !reflect.DeepEqual(r1, tt.wantVariable) {
 				t.Errorf("KeyValueCyperQueryBuilder.ToPredicateEdgePath() = %v, want %v", r1, tt.wantVariable)
 			}
 
 			if !reflect.DeepEqual(r2, tt.wantTraverse) {
 				t.Errorf("KeyValueCyperQueryBuilder.ToPredicateEdgePath() = %v, want %v", r2, tt.wantTraverse)
-			}
-
-			if !reflect.DeepEqual(r3, tt.wantWeight) {
-				t.Errorf("KeyValueCyperQueryBuilder.ToPredicateEdgePath() = %v, want %v", r3, tt.wantWeight)
 			}
 		})
 	}

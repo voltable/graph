@@ -25,7 +25,7 @@ func SliceToUUID(buf []byte) *UUID {
 	return &arr
 }
 
-func FormatUUID(buf [16]byte) string {
+func FormatUUID(buf *UUID) string {
 	return fmt.Sprintf("%08x-%04x-%04x-%04x-%12x",
 		buf[0:4],
 		buf[4:6],
@@ -61,4 +61,9 @@ func ParseUUID(uuid string) (*UUID, error) {
 
 	copy(arr[:], ret)
 	return &arr, nil
+}
+
+// Equal a equal b
+func Equal(a, b *UUID) bool {
+	return FormatUUID(a) == FormatUUID(b)
 }

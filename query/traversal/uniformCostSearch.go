@@ -16,7 +16,7 @@ func UniformCostSearch(storage query.Storage, predicates []query.Predicate, fron
 		if _, ok := frontier.Explored[part.UUID]; !ok {
 			frontier.Explored[part.UUID] = true
 			pv := predicates[depth-1]
-			if variable, p, _ := pv(part.UUID, nil, depth-1); p == query.Matched {
+			if variable, p := pv(part.UUID, nil, depth-1); p == query.Matched {
 				queue.Parts[depth-1].Variable = variable
 				frontier.AppendKeyValue(queue, part.UUID, part.Variable)
 				sort.Sort(frontier)
@@ -27,9 +27,9 @@ func UniformCostSearch(storage query.Storage, predicates []query.Predicate, fron
 
 		if pe := predicates[depth]; pe != nil {
 			iterator := storage.Edges(part.UUID)
-			for kv, hasEdges := iterator(); hasEdges; kv, hasEdges = iterator() {
+			for kv, weight, hasEdges := iterator(); hasEdges; kv, weight, hasEdges = iterator() {
 				if _, ok := frontier.Explored[kv]; !ok {
-					if variable, p, weight := pe(part.UUID, kv, depth); p == query.Visiting || p == query.Matching {
+					if variable, p := pe(part.UUID, kv, depth); p == query.Visiting || p == query.Matching {
 						frontier.AppendEdgeKeyValue(queue, kv, variable, weight)
 					}
 				}

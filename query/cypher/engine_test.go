@@ -49,15 +49,9 @@ func (s FakeStorage) HasPrefix([]byte) query.Iterator {
 	}
 }
 
-func (s FakeStorage) Edges(*uuid.UUID) query.IteratorUUID {
-	return func() (*uuid.UUID, bool) {
-		return nil, false
-	}
-}
-
-func (s FakeStorage) HasPrefixRange([][]byte) query.Iterator {
-	return func() (interface{}, bool) {
-		return nil, false
+func (s FakeStorage) Edges(*uuid.UUID) query.IteratorUUIDWeight {
+	return func() (*uuid.UUID, float64, bool) {
+		return nil, 0, false
 	}
 }
 
