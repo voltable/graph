@@ -37,8 +37,6 @@ func (s *KeyValue) To() *uuid.UUID {
 
 // UUID looks for the UUID in the KeyValue
 func (s *KeyValue) UUID() *uuid.UUID {
-	//split := bytes.Split(s.Key, RS)
-
 	key := &Key{}
 	key.Unmarshal(s.Key)
 
