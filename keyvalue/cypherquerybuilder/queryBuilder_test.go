@@ -10,15 +10,22 @@ import (
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/uuid"
+	"github.com/golang/protobuf/ptypes/any"
 )
 
 type FakeStorage struct {
 	tKeyIndex map[int][]byte
-	tKey      map[string]*keyvalue.Any
+	tKey      map[string]*any.Any
 }
 
 func (s FakeStorage) Fetch(string) (*keyvalue.KeyValue, error) {
 	return nil, nil
+}
+
+func (s FakeStorage) Each() query.Iterator {
+	return func() (interface{}, bool) {
+		return nil, false
+	}
 }
 
 func (s FakeStorage) ForEach() query.IteratorUUID {
@@ -55,7 +62,7 @@ func (s FakeStorage) Edges(*uuid.UUID) query.IteratorUUIDWeight {
 func NewFakeStorage(triples ...*keyvalue.KeyValue) query.Storage {
 	s := &FakeStorage{
 		tKeyIndex: make(map[int][]byte),
-		tKey:      make(map[string]*keyvalue.Any),
+		tKey:      make(map[string]*any.Any),
 	}
 
 	for i := 0; i < len(triples); i++ {

@@ -9,6 +9,72 @@ import (
 	"github.com/RossMerr/Caudex.Graph/uuid"
 )
 
+// NewKeyValueVertex creates a vertex KeyValue
+func NewKeyValueVertex(id *uuid.UUID, label string) *KeyValue {
+	return &KeyValue{
+		Value: NewAny(label),
+		Key:   NewKey(id[:], &Column{Label, nil}).Marshal(),
+	}
+}
+
+// NewKeyValueProperty creates a property KeyValue
+func NewKeyValueProperty(id *uuid.UUID, key string, value interface{}) *KeyValue {
+	return &KeyValue{
+		Value: NewAny(value),
+		Key:   NewKey(id[:], &Column{Properties, []byte(key)}).Marshal(),
+	}
+}
+
+// NewKeyValueRelationship creates a relationship KeyValue
+func NewKeyValueRelationship(from, to *uuid.UUID, relationshipType string, weight float64) *KeyValue {
+	return &KeyValue{
+		Value: NewAny(weight),
+		Key:   NewKey(from[:], &Column{append(Relationship, append(US, []byte(relationshipType)...)...), to[:]}).Marshal(),
+	}
+}
+
+// NewKeyValueRelationshipProperty creates a relationship property KeyValue
+func NewKeyValueRelationshipProperty(from, to *uuid.UUID, key string, value interface{}) *KeyValue {
+	return &KeyValue{
+		Value: NewAny(value),
+		Key:   NewKey(from[:], &Column{append(Relationshipproperties, append(US, []byte(key)...)...), to[:]}).Marshal(),
+	}
+}
+
+// Transpose
+
+// NewKeyValueVertexTranspose creates a vertex KeyValue
+func NewKeyValueVertexTranspose(id *uuid.UUID, label string) *KeyValue {
+	return &KeyValue{
+		Value: NewAny(id[:]),
+		Key:   NewKey(TLabel, &Column{[]byte(label), id[:]}).Marshal(),
+	}
+}
+
+// NewKeyValuePropertyTranspose creates a property KeyValue
+func NewKeyValuePropertyTranspose(id *uuid.UUID, key string, value interface{}) *KeyValue {
+	return &KeyValue{
+		Value: NewAny(value),
+		Key:   NewKey(TProperties, &Column{[]byte(key), id[:]}).Marshal(),
+	}
+}
+
+// NewKeyValueRelationshipTranspose creates a relationship KeyValue
+func NewKeyValueRelationshipTranspose(from, to *uuid.UUID, relationshipType string, weight float64) *KeyValue {
+	return &KeyValue{
+		Value: NewAny(to[:]),
+		Key:   NewKey(append(TRelationship, append(US, []byte(relationshipType)...)...), &Column{arch.EncodeFloat64Bytes(weight), from[:]}).Marshal(),
+	}
+}
+
+// NewKeyValueRelationshipPropertyTranspose creates a relationship property KeyValue
+func NewKeyValueRelationshipPropertyTranspose(from, to *uuid.UUID, key string, value interface{}) *KeyValue {
+	return &KeyValue{
+		Value: NewAny(value),
+		Key:   NewKey(append(TRelationshipproperties, append(US, []byte(key)...)...), &Column{to[:], from[:]}).Marshal(),
+	}
+}
+
 // MarshalKeyValue marshal a Vertex into KeyValue
 func MarshalKeyValue(v *graph.Vertex) []*KeyValue {
 	tt := []*KeyValue{}
@@ -47,52 +113,55 @@ func MarshalKeyValueTranspose(v *graph.Vertex) []*KeyValue {
 // UnmarshalKeyValue a KeyValue into Vertex
 func UnmarshalKeyValue(v *graph.Vertex, c []*KeyValue) {
 	for _, kv := range c {
-		split := bytes.Split(kv.Key, US)
-		if bytes.Equal(split[1], Vertex) {
-			id := uuid.SliceToUUID(split[0])
+
+		key := &Key{}
+		key.Unmarshal(kv.Key)
+
+		if bytes.Equal(key.Column.Family, Label) {
+			id := uuid.SliceToUUID(key.ID)
 			v.SetID(id)
-			value, ok := kv.Value.Unmarshal().(string)
+			value, ok := Unmarshal(kv.Value).(string)
 			if ok {
 				v.SetLabel(value)
 			}
 			continue
 		}
-		if bytes.Equal(split[1], Properties) {
-			key := split[2]
-			v.SetProperty(string(key), kv.Value.Unmarshal())
-			continue
-		}
-		if bytes.Equal(split[1], Relationship) {
-			relationshipType := split[2]
 
-			to := split[3]
-			edgeID := uuid.SliceToUUID(to)
-			edge, ok := v.Edges()[*edgeID]
-			if !ok {
-				edge = graph.NewEdgeFromID(v.ID(), edgeID)
-				v.AddEdge(edge)
-			}
-			edge.SetRelationshipType(string(relationshipType))
-
-			value, ok := kv.Value.Unmarshal().(float64)
-			if ok {
-				edge.Weight = value
-			}
-
+		if bytes.Equal(key.Column.Family, Properties) {
+			v.SetProperty(string(key.Column.Qualifier), Unmarshal(kv.Value))
 			continue
 		}
 
-		if bytes.Equal(split[1], Relationshipproperties) {
-			key := string(split[2])
-			edgeID := uuid.SliceToUUID(split[3])
-			edge, ok := v.Edges()[*edgeID]
-			if !ok {
-				edge = graph.NewEdgeFromID(v.ID(), edgeID)
-				v.AddEdge(edge)
+		splitSub := bytes.Split(key.Column.Family, US)
+		if len(splitSub) > 0 {
+			if bytes.Equal(splitSub[0], Relationship) {
+				edgeID := uuid.SliceToUUID(key.Column.Qualifier)
+				edge, ok := v.Edges()[*edgeID]
+				if !ok {
+					edge = graph.NewEdgeFromID(v.ID(), edgeID)
+					v.AddEdge(edge)
+				}
+				edge.SetRelationshipType(string(splitSub[1]))
+
+				value, ok := Unmarshal(kv.Value).(float64)
+				if ok {
+					edge.Weight = value
+				}
+
+				continue
 			}
 
-			edge.SetProperty(key, kv.Value.Unmarshal())
-			continue
+			if bytes.Equal(splitSub[0], Relationshipproperties) {
+				edgeID := uuid.SliceToUUID(key.Column.Qualifier)
+				edge, ok := v.Edges()[*edgeID]
+				if !ok {
+					edge = graph.NewEdgeFromID(v.ID(), edgeID)
+					v.AddEdge(edge)
+				}
+
+				edge.SetProperty(string(splitSub[1]), Unmarshal(kv.Value))
+				continue
+			}
 		}
 	}
 }
@@ -100,51 +169,56 @@ func UnmarshalKeyValue(v *graph.Vertex, c []*KeyValue) {
 // UnmarshalKeyValueTranspose a KeyValue into Vertex
 func UnmarshalKeyValueTranspose(v *graph.Vertex, c []*KeyValue) {
 	for _, kv := range c {
-		split := bytes.Split(kv.Key, US)
 
-		if bytes.Equal(split[0], Vertex) {
-			if s, ok := kv.Value.Unmarshal().([]byte); ok {
+		key := &Key{}
+		key.Unmarshal(kv.Key)
+
+		if bytes.Equal(key.ID, TLabel) {
+			if s, ok := Unmarshal(kv.Value).([]byte); ok {
 				id := uuid.SliceToUUID(s)
 				v.SetID(id)
 			}
-			v.SetLabel(string(split[1]))
+			v.SetLabel(string(key.Column.Family))
 			continue
 		}
-		if bytes.Equal(split[0], Properties) {
-			v.SetProperty(string(split[1]), kv.Value.Unmarshal())
+		if bytes.Equal(key.ID, TProperties) {
+			v.SetProperty(string(key.Column.Family), Unmarshal(kv.Value))
 			continue
 		}
-		if bytes.Equal(split[0], Relationship) {
-			relationshipType := split[1]
+		splitSub := bytes.Split(key.ID, US)
 
-			value, ok := kv.Value.Unmarshal().([]byte)
-			if ok {
-				edgeID := uuid.SliceToUUID(value)
+		if len(splitSub) > 0 {
+			if bytes.Equal(splitSub[0], TRelationship) {
+				relationshipType := string(splitSub[1])
 
+				value, ok := Unmarshal(kv.Value).([]byte)
+				if ok {
+					edgeID := uuid.SliceToUUID(value)
+
+					edge, ok := v.Edges()[*edgeID]
+					if !ok {
+						edge = graph.NewEdgeFromID(v.ID(), edgeID)
+						v.AddEdge(edge)
+					}
+
+					edge.SetRelationshipType(relationshipType)
+					if weight, ok := arch.DecodeFloat64Bytes(key.Column.Family).(float64); ok {
+						edge.Weight = weight
+					}
+				}
+				continue
+			}
+
+			if bytes.Equal(splitSub[0], TRelationshipproperties) {
+				edgeID := uuid.SliceToUUID(key.Column.Family)
 				edge, ok := v.Edges()[*edgeID]
 				if !ok {
 					edge = graph.NewEdgeFromID(v.ID(), edgeID)
 					v.AddEdge(edge)
 				}
-
-				edge.SetRelationshipType(string(relationshipType))
-				if weight, ok := arch.DecodeFloat64Bytes(split[2]).(float64); ok {
-					edge.Weight = weight
-				}
+				edge.SetProperty(string(splitSub[1]), Unmarshal(kv.Value))
+				continue
 			}
-			continue
-		}
-
-		if bytes.Equal(split[0], Relationshipproperties) {
-			key := split[1]
-			edgeID := uuid.SliceToUUID(split[2])
-			edge, ok := v.Edges()[*edgeID]
-			if !ok {
-				edge = graph.NewEdgeFromID(v.ID(), edgeID)
-				v.AddEdge(edge)
-			}
-			edge.SetProperty(string(key), kv.Value.Unmarshal())
-			continue
 		}
 	}
 }

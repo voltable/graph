@@ -302,16 +302,6 @@ func (qb *queryBuilder) toPredicate() query.Predicate {
 
 }
 
-// func (qb *queryBuilder) toPredicateEdge() query.Predicate {
-// 	return func(from, to *uuid.UUID, depth int) (string, query.Traverse) {
-// 		if to != per.ID() {
-// 			return "", query.Visiting
-// 		}
-
-// 		return "", query.Matching
-// 	}
-// }
-
 func index(l *list.List, i int) interface{} {
 	e := l.Front()
 	for index := 1; index < i; index++ {

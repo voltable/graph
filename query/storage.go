@@ -1,8 +1,11 @@
 package query
 
-import "github.com/RossMerr/Caudex.Graph/uuid"
+import (
+	"github.com/RossMerr/Caudex.Graph/uuid"
+)
 
 type Storage interface {
+	Each() Iterator
 	ForEach() IteratorUUID
 	HasPrefix([]byte) Iterator
 	Edges(*uuid.UUID) IteratorUUIDWeight

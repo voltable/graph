@@ -8,6 +8,7 @@ import (
 
 	"github.com/RossMerr/Caudex.Graph/keyvalue"
 	"github.com/RossMerr/Caudex.Graph/uuid"
+	"github.com/golang/protobuf/ptypes/any"
 
 	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/query"
@@ -27,9 +28,9 @@ var (
 
 type StorageEngine struct {
 	tKeyIndex  map[int]string
-	tKey       map[string]*keyvalue.Any
+	tKey       map[string]*any.Any
 	tKeyTIndex map[int]string
-	tKeyT      map[string]*keyvalue.Any
+	tKeyT      map[string]*any.Any
 	Options    *graph.Options
 	engine     query.Engine
 }
@@ -47,8 +48,8 @@ func NewStorageEngine(o *graph.Options) (graph.Graph, error) {
 	se := StorageEngine{
 		Options:    o,
 		tKeyIndex:  make(map[int]string),
-		tKey:       make(map[string]*keyvalue.Any),
-		tKeyT:      make(map[string]*keyvalue.Any),
+		tKey:       make(map[string]*any.Any),
+		tKeyT:      make(map[string]*any.Any),
 		tKeyTIndex: make(map[int]string),
 	}
 
@@ -127,6 +128,22 @@ func (se *StorageEngine) Update(c ...*graph.Vertex) error {
 
 func (se *StorageEngine) Query(str string) (*graph.Query, error) {
 	return se.engine.Parse(str)
+}
+
+func (se *StorageEngine) Each() query.Iterator {
+	position := 0
+	length := len(se.tKey)
+	return func() (interface{}, bool) {
+		for position < length {
+			key := []byte(se.tKeyIndex[position])
+			position = position + 1
+			v := se.tKey[string(key)]
+			kv := &keyvalue.KeyValue{Key: key, Value: v}
+			return kv, true
+		}
+
+		return nil, false
+	}
 }
 
 func (se *StorageEngine) ForEach() query.IteratorUUID {

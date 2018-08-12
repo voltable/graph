@@ -1,12 +1,28 @@
 syntax = "proto3";
 package keyvalue;
 
+import  "google/protobuf/timestamp.proto";
+import  "google/protobuf/any.proto";
+
+
+
 message KeyValue {
     bytes key = 1;
-    Any value = 2;   
+    google.protobuf.Any value = 2;   
+    google.protobuf.Timestamp timestamp = 3;
 }
 
-message Any {
-    string TypeUrl = 1;
-    bytes value = 2;   
-}
+// message Key {
+//     bytes id = 1;
+//     Column column = 2;
+// }
+
+// message Column {
+//     bytes family = 1;
+//     bytes qualifier = 2;
+// }
+
+// message Any {
+//     string typeUrl = 1;
+//     bytes value = 2;   
+// }

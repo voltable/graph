@@ -25,6 +25,10 @@ func UniformCostSearch(storage query.Storage, predicates []query.Predicate, fron
 
 		}
 
+		if depth >= searchDepth {
+			return false
+		}
+
 		if pe := predicates[depth]; pe != nil {
 			iterator := storage.Edges(part.UUID)
 			for kv, weight, hasEdges := iterator(); hasEdges; kv, weight, hasEdges = iterator() {

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/RossMerr/Caudex.Graph/keyvalue"
+	"github.com/golang/protobuf/ptypes/any"
 
 	"github.com/RossMerr/Caudex.Graph"
 	"github.com/Sirupsen/logrus"
@@ -164,7 +165,7 @@ func (se *StorageEngine) Find(ID string) (*graph.Vertex, error) {
 		prefix := []byte(ID)
 		kv := []*keyvalue.KeyValue{}
 		for k, v := c.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, v = c.Next() {
-			var any *keyvalue.Any
+			var any *any.Any
 			err := proto.Unmarshal(v, any)
 			if err != nil {
 				return err

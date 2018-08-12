@@ -37,6 +37,12 @@ func (s FakeStorage) Fetch(string) (*keyvalue.KeyValue, error) {
 	return nil, nil
 }
 
+func (s FakeStorage) Each() query.Iterator {
+	return func() (interface{}, bool) {
+		return nil, false
+	}
+}
+
 func (s FakeStorage) ForEach() query.IteratorUUID {
 	return func() (*uuid.UUID, bool) {
 		return nil, false

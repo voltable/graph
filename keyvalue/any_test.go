@@ -21,7 +21,7 @@ func TestAny_Unmarshal(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := keyvalue.NewAny(tt.want)
-			if got := s.Unmarshal(); !reflect.DeepEqual(got, tt.want) {
+			if got := keyvalue.Unmarshal(s); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Any.Unmarshal() = %v, want %v", got, tt.want)
 			}
 		})

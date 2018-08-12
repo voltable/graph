@@ -81,7 +81,7 @@ func (s *KeyValueCyperQueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn) 
 			iterator := s.storage.HasPrefix(kv.Key)
 			for i, ok := iterator(); ok; i, ok = iterator() {
 				if kv, ok := i.(*keyvalue.KeyValue); ok {
-					if p != nil && p == kv.Value.Unmarshal() {
+					if p != nil && p == keyvalue.Unmarshal(kv.Value) {
 						keyValues = append(keyValues, kv)
 					}
 				}
@@ -112,7 +112,7 @@ func (s *KeyValueCyperQueryBuilder) ToPredicateEdgePath(patn *ast.EdgePatn) (que
 				iterator := s.storage.HasPrefix(kv.Key)
 				for i, ok := iterator(); ok; i, ok = iterator() {
 					if kv, ok := i.(*keyvalue.KeyValue); ok {
-						if p != nil && p == kv.Value.Unmarshal() {
+						if p != nil && p == keyvalue.Unmarshal(kv.Value) {
 							keyValues = append(keyValues, kv)
 						}
 					}
