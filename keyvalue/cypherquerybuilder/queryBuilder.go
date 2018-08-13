@@ -76,7 +76,7 @@ func (s *KeyValueCyperQueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn) 
 		keyValues := make([]*keyvalue.KeyValue, 0)
 
 		for k, p := range patn.Properties {
-			kv := keyvalue.NewKeyValueProperty(from, k, p)
+			kv, _ := keyvalue.NewKeyValueProperty(from, k, p)
 
 			iterator := s.storage.HasPrefix(kv.Key)
 			for i, ok := iterator(); ok; i, ok = iterator() {
@@ -108,7 +108,7 @@ func (s *KeyValueCyperQueryBuilder) ToPredicateEdgePath(patn *ast.EdgePatn) (que
 
 		if patn.Body != nil {
 			for k, p := range patn.Body.Properties {
-				kv := keyvalue.NewKeyValueRelationshipProperty(from, to, k, p)
+				kv, _ := keyvalue.NewKeyValueRelationshipProperty(from, to, k, p)
 				iterator := s.storage.HasPrefix(kv.Key)
 				for i, ok := iterator(); ok; i, ok = iterator() {
 					if kv, ok := i.(*keyvalue.KeyValue); ok {

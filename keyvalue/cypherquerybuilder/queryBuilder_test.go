@@ -96,7 +96,7 @@ func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 				return id
 			}(),
 			storage: func(id *uuid.UUID) query.Storage {
-				kv := keyvalue.NewKeyValueProperty(id, "", "")
+				kv, _ := keyvalue.NewKeyValueProperty(id, "", "")
 				return NewFakeStorage(kv)
 			},
 		},
@@ -115,7 +115,7 @@ func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 				return id
 			}(),
 			storage: func(id *uuid.UUID) query.Storage {
-				kv := keyvalue.NewKeyValueProperty(id, "name", "John Smith")
+				kv, _ := keyvalue.NewKeyValueProperty(id, "name", "John Smith")
 				return NewFakeStorage(kv)
 			},
 		},
@@ -168,7 +168,7 @@ func TestKeyValueCyperQueryBuilder_ToPredicateEdgePath(t *testing.T) {
 				return id
 			}(),
 			storage: func(from, to *uuid.UUID) query.Storage {
-				kv := keyvalue.NewKeyValueRelationshipProperty(from, to, "", "")
+				kv, _ := keyvalue.NewKeyValueRelationshipProperty(from, to, "", "")
 				return NewFakeStorage(kv)
 			},
 		},
@@ -193,7 +193,7 @@ func TestKeyValueCyperQueryBuilder_ToPredicateEdgePath(t *testing.T) {
 				return id
 			}(),
 			storage: func(from, to *uuid.UUID) query.Storage {
-				kv := keyvalue.NewKeyValueRelationshipProperty(from, to, "name", "John Smith")
+				kv, _ := keyvalue.NewKeyValueRelationshipProperty(from, to, "name", "John Smith")
 				return NewFakeStorage(kv)
 			},
 		},

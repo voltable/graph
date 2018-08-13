@@ -39,7 +39,7 @@ func Test_ComparisonExprInterpret(t *testing.T) {
 			c: ast.NewComparisonExpr(expressions.IS_NOT_NULL, &ast.PropertyStmt{Variable: "n", Value: "Person"}, &ast.Ident{}),
 			v: func() *keyvalue.KeyValue {
 				id, _ := uuid.GenerateRandomUUID()
-				x := keyvalue.NewKeyValueProperty(id, "Person", "John Smith")
+				x, _ := keyvalue.NewKeyValueProperty(id, "Person", "John Smith")
 				return x
 			}(),
 			p:      "n",
@@ -49,7 +49,7 @@ func Test_ComparisonExprInterpret(t *testing.T) {
 			c: ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: math.MaxInt32}),
 			v: func() *keyvalue.KeyValue {
 				id, _ := uuid.GenerateRandomUUID()
-				x := keyvalue.NewKeyValueProperty(id, "Age", math.MaxInt32-1)
+				x, _ := keyvalue.NewKeyValueProperty(id, "Age", math.MaxInt32-1)
 				return x
 			}(),
 			p: "n",

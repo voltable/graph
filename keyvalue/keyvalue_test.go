@@ -11,12 +11,12 @@ import (
 func TestUUID(t *testing.T) {
 	tests := []struct {
 		name  string
-		setup func(id *uuid.UUID) *keyvalue.KeyValue
+		setup func(id *uuid.UUID) (*keyvalue.KeyValue, *keyvalue.KeyValue)
 		want  *uuid.UUID
 	}{
 		{
 			name: "Vertex",
-			setup: func(id *uuid.UUID) *keyvalue.KeyValue {
+			setup: func(id *uuid.UUID) (*keyvalue.KeyValue, *keyvalue.KeyValue) {
 				return keyvalue.NewKeyValueVertex(id, "person")
 			},
 			want: func() *uuid.UUID {
@@ -26,7 +26,7 @@ func TestUUID(t *testing.T) {
 		},
 		{
 			name: "Properties",
-			setup: func(id *uuid.UUID) *keyvalue.KeyValue {
+			setup: func(id *uuid.UUID) (*keyvalue.KeyValue, *keyvalue.KeyValue) {
 				return keyvalue.NewKeyValueProperty(id, "", "")
 			},
 			want: func() *uuid.UUID {
@@ -36,7 +36,7 @@ func TestUUID(t *testing.T) {
 		},
 		{
 			name: "Relationship",
-			setup: func(id *uuid.UUID) *keyvalue.KeyValue {
+			setup: func(id *uuid.UUID) (*keyvalue.KeyValue, *keyvalue.KeyValue) {
 				to, _ := uuid.GenerateRandomUUID()
 				return keyvalue.NewKeyValueRelationship(id, to, "", 5)
 			},
@@ -47,7 +47,7 @@ func TestUUID(t *testing.T) {
 		},
 		{
 			name: "Relationshipproperties",
-			setup: func(id *uuid.UUID) *keyvalue.KeyValue {
+			setup: func(id *uuid.UUID) (*keyvalue.KeyValue, *keyvalue.KeyValue) {
 				to, _ := uuid.GenerateRandomUUID()
 				return keyvalue.NewKeyValueRelationshipProperty(id, to, "", "")
 			},
@@ -59,69 +59,74 @@ func TestUUID(t *testing.T) {
 	}
 	for i, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			kv := tt.setup(tt.want)
+			kv, tv := tt.setup(tt.want)
 			if !reflect.DeepEqual(kv.UUID(), tt.want) {
 				t.Errorf("%d. %q: UUID() = %v, want %v", i, tt.name, kv.UUID(), tt.want)
+			}
+
+			// The transpose
+			if !reflect.DeepEqual(tv.UUID(), tt.want) {
+				t.Errorf("%d. %q: UUID() = %v, want %v", i, tt.name, tv.UUID(), tt.want)
 			}
 		})
 	}
 }
 
-func TestUUIDTranspose(t *testing.T) {
-	tests := []struct {
-		name  string
-		setup func(id *uuid.UUID) *keyvalue.KeyValue
-		want  *uuid.UUID
-	}{
-		{
-			name: "Vertex",
-			setup: func(id *uuid.UUID) *keyvalue.KeyValue {
-				return keyvalue.NewKeyValueVertexTranspose(id, "")
-			},
-			want: func() *uuid.UUID {
-				id, _ := uuid.GenerateRandomUUID()
-				return id
-			}(),
-		},
-		{
-			name: "Properties",
-			setup: func(id *uuid.UUID) *keyvalue.KeyValue {
-				return keyvalue.NewKeyValuePropertyTranspose(id, "", "")
-			},
-			want: func() *uuid.UUID {
-				id, _ := uuid.GenerateRandomUUID()
-				return id
-			}(),
-		},
-		{
-			name: "Relationship",
-			setup: func(id *uuid.UUID) *keyvalue.KeyValue {
-				to, _ := uuid.GenerateRandomUUID()
-				return keyvalue.NewKeyValueRelationshipTranspose(id, to, "", 5)
-			},
-			want: func() *uuid.UUID {
-				id, _ := uuid.GenerateRandomUUID()
-				return id
-			}(),
-		},
-		{
-			name: "Relationshipproperties",
-			setup: func(id *uuid.UUID) *keyvalue.KeyValue {
-				to, _ := uuid.GenerateRandomUUID()
-				return keyvalue.NewKeyValueRelationshipPropertyTranspose(id, to, "", "")
-			},
-			want: func() *uuid.UUID {
-				id, _ := uuid.GenerateRandomUUID()
-				return id
-			}(),
-		},
-	}
-	for i, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			kv := tt.setup(tt.want)
-			if !reflect.DeepEqual(kv.UUID(), tt.want) {
-				t.Errorf("%d. %q: UUID() = %v, want %v", i, tt.name, kv.UUID(), tt.want)
-			}
-		})
-	}
-}
+// func TestUUIDTranspose(t *testing.T) {
+// 	tests := []struct {
+// 		name  string
+// 		setup func(id *uuid.UUID) *keyvalue.KeyValue
+// 		want  *uuid.UUID
+// 	}{
+// 		{
+// 			name: "Vertex",
+// 			setup: func(id *uuid.UUID) *keyvalue.KeyValue {
+// 				return keyvalue.NewKeyValueVertexTranspose(id, "")
+// 			},
+// 			want: func() *uuid.UUID {
+// 				id, _ := uuid.GenerateRandomUUID()
+// 				return id
+// 			}(),
+// 		},
+// 		{
+// 			name: "Properties",
+// 			setup: func(id *uuid.UUID) *keyvalue.KeyValue {
+// 				return keyvalue.NewKeyValuePropertyTranspose(id, "", "")
+// 			},
+// 			want: func() *uuid.UUID {
+// 				id, _ := uuid.GenerateRandomUUID()
+// 				return id
+// 			}(),
+// 		},
+// 		{
+// 			name: "Relationship",
+// 			setup: func(id *uuid.UUID) *keyvalue.KeyValue {
+// 				to, _ := uuid.GenerateRandomUUID()
+// 				return keyvalue.NewKeyValueRelationshipTranspose(id, to, "", 5)
+// 			},
+// 			want: func() *uuid.UUID {
+// 				id, _ := uuid.GenerateRandomUUID()
+// 				return id
+// 			}(),
+// 		},
+// 		{
+// 			name: "Relationshipproperties",
+// 			setup: func(id *uuid.UUID) *keyvalue.KeyValue {
+// 				to, _ := uuid.GenerateRandomUUID()
+// 				return keyvalue.NewKeyValueRelationshipPropertyTranspose(id, to, "", "")
+// 			},
+// 			want: func() *uuid.UUID {
+// 				id, _ := uuid.GenerateRandomUUID()
+// 				return id
+// 			}(),
+// 		},
+// 	}
+// 	for i, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			kv := tt.setup(tt.want)
+// 			if !reflect.DeepEqual(kv.UUID(), tt.want) {
+// 				t.Errorf("%d. %q: UUID() = %v, want %v", i, tt.name, kv.UUID(), tt.want)
+// 			}
+// 		})
+// 	}
+// }

@@ -101,8 +101,7 @@ func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 		var errstrings []string
 
 		for _, v := range c {
-			triples := keyvalue.MarshalKeyValue(v)
-			transposes := keyvalue.MarshalKeyValueTranspose(v)
+			triples, transposes := keyvalue.MarshalKeyValue(v)
 			for i := 0; i < len(triples); i++ {
 				triple := triples[i]
 
@@ -133,8 +132,7 @@ func (se *StorageEngine) Delete(c ...*graph.Vertex) error {
 		var errstrings []string
 
 		for _, v := range c {
-			triples := keyvalue.MarshalKeyValue(v)
-			transposes := keyvalue.MarshalKeyValueTranspose(v)
+			triples, transposes := keyvalue.MarshalKeyValue(v)
 			for i := 0; i < len(triples); i++ {
 				triple := triples[i]
 				if err := bucketTKey.Delete(triple.Key); err != nil {

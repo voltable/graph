@@ -10,104 +10,72 @@ import (
 )
 
 // NewKeyValueVertex creates a vertex KeyValue
-func NewKeyValueVertex(id *uuid.UUID, label string) *KeyValue {
+func NewKeyValueVertex(id *uuid.UUID, label string) (*KeyValue, *KeyValue) {
 	return &KeyValue{
-		Value: NewAny(label),
-		Key:   NewKey(id[:], &Column{Label, nil, nil}).Marshal(),
-	}
+			Value: NewAny(label),
+			Key:   NewKey(id[:], &Column{Label, nil, nil}).Marshal(),
+		}, &KeyValue{
+			Value: NewAny(id[:]),
+			Key:   NewKey(TLabel, &Column{[]byte(label), nil, id[:]}).Marshal(),
+		}
 }
 
 // NewKeyValueProperty creates a property KeyValue
-func NewKeyValueProperty(id *uuid.UUID, key string, value interface{}) *KeyValue {
+func NewKeyValueProperty(id *uuid.UUID, key string, value interface{}) (*KeyValue, *KeyValue) {
 	return &KeyValue{
-		Value: NewAny(value),
-		Key:   NewKey(id[:], &Column{Properties, nil, []byte(key)}).Marshal(),
-	}
+			Value: NewAny(value),
+			Key:   NewKey(id[:], &Column{Properties, nil, []byte(key)}).Marshal(),
+		}, &KeyValue{
+			Value: NewAny(value),
+			Key:   NewKey(TProperties, &Column{[]byte(key), nil, id[:]}).Marshal(),
+		}
 }
 
 // NewKeyValueRelationship creates a relationship KeyValue
-func NewKeyValueRelationship(from, to *uuid.UUID, relationshipType string, weight float64) *KeyValue {
+func NewKeyValueRelationship(from, to *uuid.UUID, relationshipType string, weight float64) (*KeyValue, *KeyValue) {
 	return &KeyValue{
-		Value: NewAny(weight),
-		Key:   NewKey(from[:], &Column{Relationship, []byte(relationshipType), to[:]}).Marshal(),
-	}
+			Value: NewAny(weight),
+			Key:   NewKey(from[:], &Column{Relationship, []byte(relationshipType), to[:]}).Marshal(),
+		}, &KeyValue{
+			Value: NewAny(to[:]),
+			Key:   NewKey(TRelationship, &Column{[]byte(relationshipType), arch.EncodeFloat64Bytes(weight), from[:]}).Marshal(),
+		}
 }
 
 // NewKeyValueRelationshipProperty creates a relationship property KeyValue
-func NewKeyValueRelationshipProperty(from, to *uuid.UUID, key string, value interface{}) *KeyValue {
+func NewKeyValueRelationshipProperty(from, to *uuid.UUID, key string, value interface{}) (*KeyValue, *KeyValue) {
 	return &KeyValue{
-		Value: NewAny(value),
-		Key:   NewKey(from[:], &Column{Relationshipproperties, []byte(key), to[:]}).Marshal(),
-	}
-}
-
-// Transpose
-
-// NewKeyValueVertexTranspose creates a vertex KeyValue
-func NewKeyValueVertexTranspose(id *uuid.UUID, label string) *KeyValue {
-	return &KeyValue{
-		Value: NewAny(id[:]),
-		Key:   NewKey(TLabel, &Column{[]byte(label), nil, id[:]}).Marshal(),
-	}
-}
-
-// NewKeyValuePropertyTranspose creates a property KeyValue
-func NewKeyValuePropertyTranspose(id *uuid.UUID, key string, value interface{}) *KeyValue {
-	return &KeyValue{
-		Value: NewAny(value),
-		Key:   NewKey(TProperties, &Column{[]byte(key), nil, id[:]}).Marshal(),
-	}
-}
-
-// NewKeyValueRelationshipTranspose creates a relationship KeyValue
-func NewKeyValueRelationshipTranspose(from, to *uuid.UUID, relationshipType string, weight float64) *KeyValue {
-	return &KeyValue{
-		Value: NewAny(to[:]),
-		Key:   NewKey(TRelationship, &Column{[]byte(relationshipType), arch.EncodeFloat64Bytes(weight), from[:]}).Marshal(),
-	}
-}
-
-// NewKeyValueRelationshipPropertyTranspose creates a relationship property KeyValue
-func NewKeyValueRelationshipPropertyTranspose(from, to *uuid.UUID, key string, value interface{}) *KeyValue {
-	return &KeyValue{
-		Value: NewAny(value),
-		Key:   NewKey(TRelationshipproperties, &Column{[]byte(key), to[:], from[:]}).Marshal(),
-	}
+			Value: NewAny(value),
+			Key:   NewKey(from[:], &Column{Relationshipproperties, []byte(key), to[:]}).Marshal(),
+		}, &KeyValue{
+			Value: NewAny(value),
+			Key:   NewKey(TRelationshipproperties, &Column{[]byte(key), to[:], from[:]}).Marshal(),
+		}
 }
 
 // MarshalKeyValue marshal a Vertex into KeyValue
-func MarshalKeyValue(v *graph.Vertex) []*KeyValue {
-	tt := []*KeyValue{}
-
+func MarshalKeyValue(v *graph.Vertex) ([]*KeyValue, []*KeyValue) {
+	keyvalues := []*KeyValue{}
+	transposed := []*KeyValue{}
 	id := v.ID()
-	tt = append(tt, NewKeyValueVertex(id, v.Label()))
+
+	k, t := NewKeyValueVertex(id, v.Label())
+	keyvalues = append(keyvalues, k)
+	transposed = append(transposed, t)
 
 	for k, p := range v.Properties() {
-		tt = append(tt, NewKeyValueProperty(id, k, p))
+		k, t := NewKeyValueProperty(id, k, p)
+		keyvalues = append(keyvalues, k)
+		transposed = append(transposed, t)
 	}
 
 	for _, e := range v.Edges() {
-		tt = append(tt, MarshalEdgeKeyValue(e)...)
+		k, t := MarshalEdgeKeyValue(e)
+		keyvalues = append(keyvalues, k...)
+		transposed = append(transposed, t...)
 	}
 
-	return tt
-}
-
-// MarshalKeyValueTranspose mashal a Vertex into a transposed KeyValue
-func MarshalKeyValueTranspose(v *graph.Vertex) []*KeyValue {
-	tt := []*KeyValue{}
-
-	id := v.ID()
-	tt = append(tt, NewKeyValueVertexTranspose(id, v.Label()))
-
-	for k, p := range v.Properties() {
-		tt = append(tt, NewKeyValuePropertyTranspose(id, k, p))
-	}
-
-	for _, e := range v.Edges() {
-		tt = append(tt, MarshalEdgeKeyValueTranspose(e)...)
-	}
-	return tt
+	return keyvalues, transposed
 }
 
 // UnmarshalKeyValue a KeyValue into Vertex
@@ -220,31 +188,21 @@ func UnmarshalKeyValueTranspose(v *graph.Vertex, c []*KeyValue) {
 }
 
 // MarshalEdgeKeyValue marshal a edge into KeyValue
-func MarshalEdgeKeyValue(e *graph.Edge) []*KeyValue {
-	tt := []*KeyValue{}
-
+func MarshalEdgeKeyValue(e *graph.Edge) ([]*KeyValue, []*KeyValue) {
+	keyvalues := []*KeyValue{}
+	transposed := []*KeyValue{}
 	from := e.From()
 	to := e.To()
-	tt = append(tt, NewKeyValueRelationship(from, to, e.RelationshipType(), e.Weight))
 
-	for k, p := range e.Properties() {
-		tt = append(tt, NewKeyValueRelationshipProperty(from, to, k, p))
+	k, t := NewKeyValueRelationship(from, to, e.RelationshipType(), e.Weight)
+	keyvalues = append(keyvalues, k)
+	transposed = append(transposed, t)
+
+	for key, value := range e.Properties() {
+		k, t := NewKeyValueRelationshipProperty(from, to, key, value)
+		keyvalues = append(keyvalues, k)
+		transposed = append(transposed, t)
 	}
 
-	return tt
-}
-
-// MarshalEdgeKeyValueTranspose mashal a Edge into a transposed KeyValue
-func MarshalEdgeKeyValueTranspose(e *graph.Edge) []*KeyValue {
-	tt := []*KeyValue{}
-
-	from := e.From()
-	to := e.To()
-	tt = append(tt, NewKeyValueRelationshipTranspose(from, to, e.RelationshipType(), e.Weight))
-
-	for k, p := range e.Properties() {
-		tt = append(tt, NewKeyValueRelationshipPropertyTranspose(from, to, k, p))
-	}
-
-	return tt
+	return keyvalues, transposed
 }
