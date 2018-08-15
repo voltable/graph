@@ -1,18 +1,18 @@
-package keyvalue_test
+package keyvaluestore_test
 
 import (
 	"reflect"
 	"testing"
 
 	graph "github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/keyvalue"
+	"github.com/RossMerr/Caudex.Graph/keyvaluestore"
 )
 
 func TestMarshalKeyValue(t *testing.T) {
 	tests := []struct {
 		name   string
 		vertex *graph.Vertex
-		want   []*keyvalue.KeyValue
+		want   []*keyvaluestore.KeyValue
 	}{
 		{
 			name: "vertex",
@@ -32,16 +32,16 @@ func TestMarshalKeyValue(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, transpose := keyvalue.MarshalKeyValue(tt.vertex)
+			got, transpose := keyvaluestore.MarshalKeyValue(tt.vertex)
 			v := graph.NewEmptyVertex()
-			keyvalue.UnmarshalKeyValue(v, got)
+			keyvaluestore.UnmarshalKeyValue(v, got)
 			if !reflect.DeepEqual(v, tt.vertex) {
 				t.Errorf("Marshal() = %v, want %v", v, tt.vertex)
 			}
 
 			// The transpose
 			v = graph.NewEmptyVertex()
-			keyvalue.UnmarshalKeyValueTranspose(v, transpose)
+			keyvaluestore.UnmarshalKeyValueTranspose(v, transpose)
 			if !reflect.DeepEqual(v, tt.vertex) {
 				t.Errorf("Marshal() = %v, want %v", v, tt.vertex)
 			}

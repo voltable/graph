@@ -1,4 +1,4 @@
-package keyvalue
+package keyvaluestore
 
 import "github.com/RossMerr/Caudex.Graph/uuid"
 

@@ -1,5 +1,5 @@
 syntax = "proto3";
-package keyvalue;
+package keyvaluestore;
 
 import  "google/protobuf/timestamp.proto";
 import  "google/protobuf/any.proto";

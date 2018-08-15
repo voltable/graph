@@ -1,23 +1,23 @@
-package keyvalue_test
+package keyvaluestore_test
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/keyvalue"
+	"github.com/RossMerr/Caudex.Graph/keyvaluestore"
 	"github.com/RossMerr/Caudex.Graph/uuid"
 )
 
 func TestUUID(t *testing.T) {
 	tests := []struct {
 		name  string
-		setup func(id *uuid.UUID) (*keyvalue.KeyValue, *keyvalue.KeyValue)
+		setup func(id *uuid.UUID) (*keyvaluestore.KeyValue, *keyvaluestore.KeyValue)
 		want  *uuid.UUID
 	}{
 		{
 			name: "Vertex",
-			setup: func(id *uuid.UUID) (*keyvalue.KeyValue, *keyvalue.KeyValue) {
-				return keyvalue.NewKeyValueVertex(id, "person")
+			setup: func(id *uuid.UUID) (*keyvaluestore.KeyValue, *keyvaluestore.KeyValue) {
+				return keyvaluestore.NewKeyValueVertex(id, "person")
 			},
 			want: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
@@ -26,8 +26,8 @@ func TestUUID(t *testing.T) {
 		},
 		{
 			name: "Properties",
-			setup: func(id *uuid.UUID) (*keyvalue.KeyValue, *keyvalue.KeyValue) {
-				return keyvalue.NewKeyValueProperty(id, "", "")
+			setup: func(id *uuid.UUID) (*keyvaluestore.KeyValue, *keyvaluestore.KeyValue) {
+				return keyvaluestore.NewKeyValueProperty(id, "", "")
 			},
 			want: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
@@ -36,9 +36,9 @@ func TestUUID(t *testing.T) {
 		},
 		{
 			name: "Relationship",
-			setup: func(id *uuid.UUID) (*keyvalue.KeyValue, *keyvalue.KeyValue) {
+			setup: func(id *uuid.UUID) (*keyvaluestore.KeyValue, *keyvaluestore.KeyValue) {
 				to, _ := uuid.GenerateRandomUUID()
-				return keyvalue.NewKeyValueRelationship(id, to, "", 5)
+				return keyvaluestore.NewKeyValueRelationship(id, to, "", 5)
 			},
 			want: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
@@ -47,9 +47,9 @@ func TestUUID(t *testing.T) {
 		},
 		{
 			name: "Relationshipproperties",
-			setup: func(id *uuid.UUID) (*keyvalue.KeyValue, *keyvalue.KeyValue) {
+			setup: func(id *uuid.UUID) (*keyvaluestore.KeyValue, *keyvaluestore.KeyValue) {
 				to, _ := uuid.GenerateRandomUUID()
-				return keyvalue.NewKeyValueRelationshipProperty(id, to, "", "")
+				return keyvaluestore.NewKeyValueRelationshipProperty(id, to, "", "")
 			},
 			want: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()

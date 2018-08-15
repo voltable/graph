@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/keyvalue"
+	"github.com/RossMerr/Caudex.Graph/keyvaluestore"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/uuid"
 
@@ -33,7 +33,7 @@ type FakeTraversal struct {
 type FakeStorage struct {
 }
 
-func (s FakeStorage) Fetch(string) (*keyvalue.KeyValue, error) {
+func (s FakeStorage) Fetch(string) (*keyvaluestore.KeyValue, error) {
 	return nil, nil
 }
 

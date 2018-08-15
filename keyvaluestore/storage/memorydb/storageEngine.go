@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/RossMerr/Caudex.Graph/keyvalue"
+	"github.com/RossMerr/Caudex.Graph/keyvaluestore"
 	"github.com/RossMerr/Caudex.Graph/uuid"
 	"github.com/golang/protobuf/ptypes/any"
 
@@ -65,7 +65,7 @@ func NewStorageEngine(o *graph.Options) (graph.Graph, error) {
 // Create adds a array of vertices to the persistence
 func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 	for _, v := range c {
-		triples, transposes := keyvalue.MarshalKeyValue(v)
+		triples, transposes := keyvaluestore.MarshalKeyValue(v)
 		var errstrings []string
 
 		for i := 0; i < len(triples); i++ {
@@ -89,7 +89,7 @@ func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 // Delete the array of vertices from the persistence
 func (se *StorageEngine) Delete(c ...*graph.Vertex) error {
 	for _, v := range c {
-		triples, transposes := keyvalue.MarshalKeyValue(v)
+		triples, transposes := keyvaluestore.MarshalKeyValue(v)
 		var errstrings []string
 
 		for i := 0; i < len(triples); i++ {
@@ -109,7 +109,7 @@ func (se *StorageEngine) Delete(c ...*graph.Vertex) error {
 }
 
 // Find a vertex from the persistence
-func (se *StorageEngine) Find(ID string) (*keyvalue.KeyValue, error) {
+func (se *StorageEngine) Find(ID string) (*keyvaluestore.KeyValue, error) {
 	// if v, ok := se.vertices[ID]; ok {
 	// 	return &v, nil
 	// } else {
@@ -136,7 +136,7 @@ func (se *StorageEngine) Each() query.Iterator {
 			key := []byte(se.tKeyIndex[position])
 			position = position + 1
 			v := se.tKey[string(key)]
-			kv := &keyvalue.KeyValue{Key: key, Value: v}
+			kv := &keyvaluestore.KeyValue{Key: key, Value: v}
 			return kv, true
 		}
 
@@ -150,7 +150,7 @@ func (se *StorageEngine) ForEach() query.IteratorUUID {
 	return func() (*uuid.UUID, bool) {
 		for position < length {
 			key := []byte(se.tKeyIndex[position])
-			kv := &keyvalue.KeyValue{
+			kv := &keyvaluestore.KeyValue{
 				Key: key,
 			}
 			position = position + 1
@@ -170,7 +170,7 @@ func (se *StorageEngine) HasPrefix(prefix []byte) query.Iterator {
 
 			if bytes.HasPrefix(key, prefix) {
 				v := se.tKey[string(key)]
-				kv := &keyvalue.KeyValue{Key: key, Value: v}
+				kv := &keyvaluestore.KeyValue{Key: key, Value: v}
 				return kv, true
 			}
 		}
@@ -182,14 +182,14 @@ func (se *StorageEngine) HasPrefix(prefix []byte) query.Iterator {
 func (se *StorageEngine) Edges(id *uuid.UUID) query.IteratorUUIDWeight {
 	position := 0
 	length := len(se.tKey)
-	p := keyvalue.RelationshipPrefix(id)
+	p := keyvaluestore.RelationshipPrefix(id)
 	return func() (*uuid.UUID, float64, bool) {
 		for position < length {
 			key := []byte(se.tKeyIndex[position])
 			position = position + 1
 
 			if bytes.HasPrefix(key, p) {
-				kv := &keyvalue.KeyValue{
+				kv := &keyvaluestore.KeyValue{
 					Key: key,
 				}
 				return kv.To(), 0, true
