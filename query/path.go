@@ -3,6 +3,8 @@ package query
 import (
 	"container/list"
 	"errors"
+
+	"github.com/RossMerr/Caudex.Graph/keyvaluestore"
 )
 
 type (
@@ -10,7 +12,7 @@ type (
 	Path struct {
 		Iterate    IteratorFrontier
 		explored   map[string]bool
-		storage    Storage
+		storage    keyvaluestore.Storage
 		predicates *list.List
 	}
 )

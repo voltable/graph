@@ -3,6 +3,7 @@ package cypher
 import (
 	"sync"
 
+	"github.com/RossMerr/Caudex.Graph/keyvaluestore"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/query/traversal"
@@ -12,11 +13,11 @@ import (
 type Plan struct {
 	wg         *sync.WaitGroup
 	builder    QueryBuilder
-	storage    query.Storage
+	storage    keyvaluestore.Storage
 	predicates []query.Predicate
 }
 
-func NewPlan(builder QueryBuilder, storage query.Storage) *Plan {
+func NewPlan(builder QueryBuilder, storage keyvaluestore.Storage) *Plan {
 
 	plan := &Plan{
 		wg:      &sync.WaitGroup{},

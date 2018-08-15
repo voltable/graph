@@ -37,7 +37,7 @@ type StorageEngine struct {
 
 var _ graph.Graph = (*StorageEngine)(nil)
 
-var _ query.Storage = (*StorageEngine)(nil)
+var _ keyvaluestore.Storage = (*StorageEngine)(nil)
 
 func (se *StorageEngine) Close() {
 
@@ -128,7 +128,7 @@ func (se *StorageEngine) Query(str string) (*graph.Query, error) {
 	return se.engine.Parse(str)
 }
 
-func (se *StorageEngine) Each() query.Iterator {
+func (se *StorageEngine) Each() keyvaluestore.Iterator {
 	position := 0
 	length := len(se.tKey)
 	return func() (interface{}, bool) {
@@ -144,7 +144,7 @@ func (se *StorageEngine) Each() query.Iterator {
 	}
 }
 
-func (se *StorageEngine) ForEach() query.IteratorUUID {
+func (se *StorageEngine) ForEach() keyvaluestore.IteratorUUID {
 	position := 0
 	length := len(se.tKey)
 	return func() (*uuid.UUID, bool) {
@@ -160,7 +160,7 @@ func (se *StorageEngine) ForEach() query.IteratorUUID {
 	}
 }
 
-func (se *StorageEngine) HasPrefix(prefix []byte) query.Iterator {
+func (se *StorageEngine) HasPrefix(prefix []byte) keyvaluestore.Iterator {
 	position := 0
 	length := len(se.tKey)
 	return func() (interface{}, bool) {
@@ -179,7 +179,7 @@ func (se *StorageEngine) HasPrefix(prefix []byte) query.Iterator {
 	}
 }
 
-func (se *StorageEngine) Edges(id *uuid.UUID) query.IteratorUUIDWeight {
+func (se *StorageEngine) Edges(id *uuid.UUID) keyvaluestore.IteratorUUIDWeight {
 	position := 0
 	length := len(se.tKey)
 	p := keyvaluestore.RelationshipPrefix(id)

@@ -1,4 +1,4 @@
-package query
+package keyvaluestore
 
 import (
 	"github.com/RossMerr/Caudex.Graph/uuid"

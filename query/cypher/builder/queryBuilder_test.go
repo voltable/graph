@@ -1,4 +1,4 @@
-package cypherquerybuilder_test
+package builder_test
 
 import (
 	"bytes"
@@ -6,9 +6,9 @@ import (
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph/keyvaluestore"
-	"github.com/RossMerr/Caudex.Graph/keyvaluestore/cypherquerybuilder"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
+	"github.com/RossMerr/Caudex.Graph/query/cypher/builder"
 	"github.com/RossMerr/Caudex.Graph/uuid"
 	"github.com/golang/protobuf/ptypes/any"
 )
@@ -22,19 +22,19 @@ func (s FakeStorage) Fetch(string) (*keyvaluestore.KeyValue, error) {
 	return nil, nil
 }
 
-func (s FakeStorage) Each() query.Iterator {
+func (s FakeStorage) Each() keyvaluestore.Iterator {
 	return func() (interface{}, bool) {
 		return nil, false
 	}
 }
 
-func (s FakeStorage) ForEach() query.IteratorUUID {
+func (s FakeStorage) ForEach() keyvaluestore.IteratorUUID {
 	return func() (*uuid.UUID, bool) {
 		return nil, false
 	}
 }
 
-func (s FakeStorage) HasPrefix(prefix []byte) query.Iterator {
+func (s FakeStorage) HasPrefix(prefix []byte) keyvaluestore.Iterator {
 	position := 0
 	length := len(s.tKey)
 	return func() (interface{}, bool) {
@@ -53,13 +53,13 @@ func (s FakeStorage) HasPrefix(prefix []byte) query.Iterator {
 	}
 }
 
-func (s FakeStorage) Edges(*uuid.UUID) query.IteratorUUIDWeight {
+func (s FakeStorage) Edges(*uuid.UUID) keyvaluestore.IteratorUUIDWeight {
 	return func() (*uuid.UUID, float64, bool) {
 		return nil, 0, false
 	}
 }
 
-func NewFakeStorage(triples ...*keyvaluestore.KeyValue) query.Storage {
+func NewFakeStorage(triples ...*keyvaluestore.KeyValue) keyvaluestore.Storage {
 	s := &FakeStorage{
 		tKeyIndex: make(map[int][]byte),
 		tKey:      make(map[string]*any.Any),
@@ -77,7 +77,7 @@ func NewFakeStorage(triples ...*keyvaluestore.KeyValue) query.Storage {
 func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 	tests := []struct {
 		name         string
-		storage      func(*uuid.UUID) query.Storage
+		storage      func(*uuid.UUID) keyvaluestore.Storage
 		patn         *ast.VertexPatn
 		id           *uuid.UUID
 		wantVariable string
@@ -95,7 +95,7 @@ func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 				id, _ := uuid.GenerateRandomUUID()
 				return id
 			}(),
-			storage: func(id *uuid.UUID) query.Storage {
+			storage: func(id *uuid.UUID) keyvaluestore.Storage {
 				kv, _ := keyvaluestore.NewKeyValueProperty(id, "", "")
 				return NewFakeStorage(kv)
 			},
@@ -114,7 +114,7 @@ func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 				id, _ := uuid.GenerateRandomUUID()
 				return id
 			}(),
-			storage: func(id *uuid.UUID) query.Storage {
+			storage: func(id *uuid.UUID) keyvaluestore.Storage {
 				kv, _ := keyvaluestore.NewKeyValueProperty(id, "name", "John Smith")
 				return NewFakeStorage(kv)
 			},
@@ -122,7 +122,7 @@ func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := cypherquerybuilder.NewKeyValueCyperQueryBuilder(tt.storage(tt.id))
+			s := builder.NewKeyValueCyperQueryBuilder(tt.storage(tt.id))
 			predicate, err := s.ToPredicateVertexPath(tt.patn)
 			if err != nil {
 				t.Error(err)
@@ -144,7 +144,7 @@ func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 func TestKeyValueCyperQueryBuilder_ToPredicateEdgePath(t *testing.T) {
 	tests := []struct {
 		name         string
-		storage      func(*uuid.UUID, *uuid.UUID) query.Storage
+		storage      func(*uuid.UUID, *uuid.UUID) keyvaluestore.Storage
 		patn         *ast.EdgePatn
 		from         *uuid.UUID
 		to           *uuid.UUID
@@ -167,7 +167,7 @@ func TestKeyValueCyperQueryBuilder_ToPredicateEdgePath(t *testing.T) {
 				id, _ := uuid.GenerateRandomUUID()
 				return id
 			}(),
-			storage: func(from, to *uuid.UUID) query.Storage {
+			storage: func(from, to *uuid.UUID) keyvaluestore.Storage {
 				kv, _ := keyvaluestore.NewKeyValueRelationshipProperty(from, to, "", "")
 				return NewFakeStorage(kv)
 			},
@@ -192,7 +192,7 @@ func TestKeyValueCyperQueryBuilder_ToPredicateEdgePath(t *testing.T) {
 				id, _ := uuid.GenerateRandomUUID()
 				return id
 			}(),
-			storage: func(from, to *uuid.UUID) query.Storage {
+			storage: func(from, to *uuid.UUID) keyvaluestore.Storage {
 				kv, _ := keyvaluestore.NewKeyValueRelationshipProperty(from, to, "name", "John Smith")
 				return NewFakeStorage(kv)
 			},
@@ -200,7 +200,7 @@ func TestKeyValueCyperQueryBuilder_ToPredicateEdgePath(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := cypherquerybuilder.NewKeyValueCyperQueryBuilder(tt.storage(tt.from, tt.to))
+			s := builder.NewKeyValueCyperQueryBuilder(tt.storage(tt.from, tt.to))
 			predicate, err := s.ToPredicateEdgePath(tt.patn)
 			if err != nil {
 				t.Error(err)

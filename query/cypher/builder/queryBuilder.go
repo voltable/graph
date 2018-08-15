@@ -1,4 +1,4 @@
-package cypherquerybuilder
+package builder
 
 import (
 	"errors"
@@ -27,14 +27,14 @@ var (
 )
 
 type KeyValueCyperQueryBuilder struct {
-	storage query.Storage
+	storage keyvaluestore.Storage
 }
 
-func newKeyValueCyperQueryBuilder(storage query.Storage) (cypher.QueryBuilder, error) {
+func newKeyValueCyperQueryBuilder(storage keyvaluestore.Storage) (cypher.QueryBuilder, error) {
 	return NewKeyValueCyperQueryBuilder(storage), nil
 }
 
-func NewKeyValueCyperQueryBuilder(storage query.Storage) *KeyValueCyperQueryBuilder {
+func NewKeyValueCyperQueryBuilder(storage keyvaluestore.Storage) *KeyValueCyperQueryBuilder {
 	return &KeyValueCyperQueryBuilder{
 		storage: storage,
 	}
