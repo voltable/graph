@@ -3,11 +3,11 @@ package traversal
 import (
 	"sort"
 
-	"github.com/RossMerr/Caudex.Graph/keyvaluestore"
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 	"github.com/RossMerr/Caudex.Graph/query"
 )
 
-func UniformCostSearch(storage keyvaluestore.Storage, predicates []query.Predicate, frontier *query.Frontier) bool {
+func UniformCostSearch(storage widecolumnstore.Storage, predicates []query.Predicate, frontier *query.Frontier) bool {
 	if frontier.Len() > 0 {
 		queue := frontier.Pop()
 		depth := len(queue.Parts)

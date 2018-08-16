@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/RossMerr/Caudex.Graph/keyvaluestore"
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 	"github.com/golang/protobuf/ptypes/any"
 
 	"github.com/RossMerr/Caudex.Graph"
@@ -101,7 +101,7 @@ func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 		var errstrings []string
 
 		for _, v := range c {
-			triples, transposes := keyvaluestore.MarshalKeyValue(v)
+			triples, transposes := widecolumnstore.MarshalKeyValue(v)
 			for i := 0; i < len(triples); i++ {
 				triple := triples[i]
 
@@ -132,7 +132,7 @@ func (se *StorageEngine) Delete(c ...*graph.Vertex) error {
 		var errstrings []string
 
 		for _, v := range c {
-			triples, transposes := keyvaluestore.MarshalKeyValue(v)
+			triples, transposes := widecolumnstore.MarshalKeyValue(v)
 			for i := 0; i < len(triples); i++ {
 				triple := triples[i]
 				if err := bucketTKey.Delete(triple.Key); err != nil {
@@ -161,17 +161,17 @@ func (se *StorageEngine) Find(ID string) (*graph.Vertex, error) {
 		c := bucketTKey.Cursor()
 
 		prefix := []byte(ID)
-		kv := []*keyvaluestore.KeyValue{}
+		kv := []*widecolumnstore.KeyValue{}
 		for k, v := c.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, v = c.Next() {
 			var any *any.Any
 			err := proto.Unmarshal(v, any)
 			if err != nil {
 				return err
 			}
-			kv = append(kv, &keyvaluestore.KeyValue{Key: k, Value: any})
+			kv = append(kv, &widecolumnstore.KeyValue{Key: k, Value: any})
 		}
 
-		keyvaluestore.UnmarshalKeyValue(v, kv)
+		widecolumnstore.UnmarshalKeyValue(v, kv)
 		return nil
 	})
 }

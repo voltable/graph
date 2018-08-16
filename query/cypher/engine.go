@@ -2,7 +2,7 @@ package cypher
 
 import (
 	"github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/keyvaluestore"
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
 )
@@ -20,12 +20,12 @@ func RegisterEngine() {
 
 const queryType = "Cypher"
 
-func newEngine(i keyvaluestore.Storage) (query.Engine, error) {
+func newEngine(i widecolumnstore.Storage) (query.Engine, error) {
 	e := NewEngine(i)
 	return e, nil
 }
 
-func NewEngine(i keyvaluestore.Storage) *Engine {
+func NewEngine(i widecolumnstore.Storage) *Engine {
 	builder, _ := FristQueryBuilder(i)
 	return &Engine{
 		Parser:  parser.NewParser(),
@@ -40,7 +40,7 @@ func NewEngine(i keyvaluestore.Storage) *Engine {
 type Engine struct {
 	Parser parser.Parser
 	//Filter  CypherFilter
-	Storage keyvaluestore.Storage
+	Storage widecolumnstore.Storage
 	Parts   Parts
 	//Projection Projection
 	Builder QueryBuilder
@@ -89,7 +89,7 @@ func (qe Engine) toVertices(i query.IteratorFrontier) []interface{} {
 	return results
 }
 
-func (qe Engine) toFrontier(i keyvaluestore.IteratorUUID, variable string) query.IteratorFrontier {
+func (qe Engine) toFrontier(i widecolumnstore.IteratorUUID, variable string) query.IteratorFrontier {
 	return func() (*query.Frontier, bool) {
 		id, ok := i()
 		if ok {

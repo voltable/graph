@@ -1,10 +1,10 @@
-package keyvaluestore_test
+package widecolumnstore_test
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/keyvaluestore"
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 )
 
 func TestAny_Unmarshal(t *testing.T) {
@@ -20,8 +20,8 @@ func TestAny_Unmarshal(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := keyvaluestore.NewAny(tt.want)
-			if got := keyvaluestore.Unmarshal(s); !reflect.DeepEqual(got, tt.want) {
+			s := widecolumnstore.NewAny(tt.want)
+			if got := widecolumnstore.Unmarshal(s); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Any.Unmarshal() = %v, want %v", got, tt.want)
 			}
 		})

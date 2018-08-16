@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph/expressions"
-	"github.com/RossMerr/Caudex.Graph/keyvaluestore"
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/uuid"
 )
@@ -14,32 +14,32 @@ func Test_ComparisonExprInterpret(t *testing.T) {
 
 	var tests = []struct {
 		c      *ast.ComparisonExpr
-		v      *keyvaluestore.KeyValue
+		v      *widecolumnstore.KeyValue
 		p      string
 		result bool
 		err    string
 	}{
 		{
 			c:      &ast.ComparisonExpr{Comparison: expressions.EQ},
-			v:      &keyvaluestore.KeyValue{},
+			v:      &widecolumnstore.KeyValue{},
 			result: true,
 		},
 		{
 			c:      ast.NewComparisonExpr(expressions.NEQ, &ast.PropertyStmt{}, &ast.Ident{}),
-			v:      &keyvaluestore.KeyValue{},
+			v:      &widecolumnstore.KeyValue{},
 			result: false,
 		},
 		{
 			c:      ast.NewComparisonExpr(expressions.IS_NULL, &ast.PropertyStmt{Variable: "n"}, &ast.Ident{}),
-			v:      &keyvaluestore.KeyValue{},
+			v:      &widecolumnstore.KeyValue{},
 			p:      "n",
 			result: true,
 		},
 		{
 			c: ast.NewComparisonExpr(expressions.IS_NOT_NULL, &ast.PropertyStmt{Variable: "n", Value: "Person"}, &ast.Ident{}),
-			v: func() *keyvaluestore.KeyValue {
+			v: func() *widecolumnstore.KeyValue {
 				id, _ := uuid.GenerateRandomUUID()
-				x, _ := keyvaluestore.NewKeyValueProperty(id, "Person", "John Smith")
+				x, _ := widecolumnstore.NewKeyValueProperty(id, "Person", "John Smith")
 				return x
 			}(),
 			p:      "n",
@@ -47,9 +47,9 @@ func Test_ComparisonExprInterpret(t *testing.T) {
 		},
 		{
 			c: ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: math.MaxInt32}),
-			v: func() *keyvaluestore.KeyValue {
+			v: func() *widecolumnstore.KeyValue {
 				id, _ := uuid.GenerateRandomUUID()
-				x, _ := keyvaluestore.NewKeyValueProperty(id, "Age", math.MaxInt32-1)
+				x, _ := widecolumnstore.NewKeyValueProperty(id, "Age", math.MaxInt32-1)
 				return x
 			}(),
 			p: "n",

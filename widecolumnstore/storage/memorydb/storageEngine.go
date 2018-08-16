@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/RossMerr/Caudex.Graph/keyvaluestore"
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 	"github.com/RossMerr/Caudex.Graph/uuid"
 	"github.com/golang/protobuf/ptypes/any"
 
@@ -37,7 +37,7 @@ type StorageEngine struct {
 
 var _ graph.Graph = (*StorageEngine)(nil)
 
-var _ keyvaluestore.Storage = (*StorageEngine)(nil)
+var _ widecolumnstore.Storage = (*StorageEngine)(nil)
 
 func (se *StorageEngine) Close() {
 
@@ -65,7 +65,7 @@ func NewStorageEngine(o *graph.Options) (graph.Graph, error) {
 // Create adds a array of vertices to the persistence
 func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 	for _, v := range c {
-		triples, transposes := keyvaluestore.MarshalKeyValue(v)
+		triples, transposes := widecolumnstore.MarshalKeyValue(v)
 		var errstrings []string
 
 		for i := 0; i < len(triples); i++ {
@@ -89,7 +89,7 @@ func (se *StorageEngine) Create(c ...*graph.Vertex) error {
 // Delete the array of vertices from the persistence
 func (se *StorageEngine) Delete(c ...*graph.Vertex) error {
 	for _, v := range c {
-		triples, transposes := keyvaluestore.MarshalKeyValue(v)
+		triples, transposes := widecolumnstore.MarshalKeyValue(v)
 		var errstrings []string
 
 		for i := 0; i < len(triples); i++ {
@@ -109,7 +109,7 @@ func (se *StorageEngine) Delete(c ...*graph.Vertex) error {
 }
 
 // Find a vertex from the persistence
-func (se *StorageEngine) Find(ID string) (*keyvaluestore.KeyValue, error) {
+func (se *StorageEngine) Find(ID string) (*widecolumnstore.KeyValue, error) {
 	// if v, ok := se.vertices[ID]; ok {
 	// 	return &v, nil
 	// } else {
@@ -128,7 +128,7 @@ func (se *StorageEngine) Query(str string) (*graph.Query, error) {
 	return se.engine.Parse(str)
 }
 
-func (se *StorageEngine) Each() keyvaluestore.Iterator {
+func (se *StorageEngine) Each() widecolumnstore.Iterator {
 	position := 0
 	length := len(se.tKey)
 	return func() (interface{}, bool) {
@@ -136,7 +136,7 @@ func (se *StorageEngine) Each() keyvaluestore.Iterator {
 			key := []byte(se.tKeyIndex[position])
 			position = position + 1
 			v := se.tKey[string(key)]
-			kv := &keyvaluestore.KeyValue{Key: key, Value: v}
+			kv := &widecolumnstore.KeyValue{Key: key, Value: v}
 			return kv, true
 		}
 
@@ -144,13 +144,13 @@ func (se *StorageEngine) Each() keyvaluestore.Iterator {
 	}
 }
 
-func (se *StorageEngine) ForEach() keyvaluestore.IteratorUUID {
+func (se *StorageEngine) ForEach() widecolumnstore.IteratorUUID {
 	position := 0
 	length := len(se.tKey)
 	return func() (*uuid.UUID, bool) {
 		for position < length {
 			key := []byte(se.tKeyIndex[position])
-			kv := &keyvaluestore.KeyValue{
+			kv := &widecolumnstore.KeyValue{
 				Key: key,
 			}
 			position = position + 1
@@ -160,7 +160,7 @@ func (se *StorageEngine) ForEach() keyvaluestore.IteratorUUID {
 	}
 }
 
-func (se *StorageEngine) HasPrefix(prefix []byte) keyvaluestore.Iterator {
+func (se *StorageEngine) HasPrefix(prefix []byte) widecolumnstore.Iterator {
 	position := 0
 	length := len(se.tKey)
 	return func() (interface{}, bool) {
@@ -170,7 +170,7 @@ func (se *StorageEngine) HasPrefix(prefix []byte) keyvaluestore.Iterator {
 
 			if bytes.HasPrefix(key, prefix) {
 				v := se.tKey[string(key)]
-				kv := &keyvaluestore.KeyValue{Key: key, Value: v}
+				kv := &widecolumnstore.KeyValue{Key: key, Value: v}
 				return kv, true
 			}
 		}
@@ -179,17 +179,17 @@ func (se *StorageEngine) HasPrefix(prefix []byte) keyvaluestore.Iterator {
 	}
 }
 
-func (se *StorageEngine) Edges(id *uuid.UUID) keyvaluestore.IteratorUUIDWeight {
+func (se *StorageEngine) Edges(id *uuid.UUID) widecolumnstore.IteratorUUIDWeight {
 	position := 0
 	length := len(se.tKey)
-	p := keyvaluestore.RelationshipPrefix(id)
+	p := widecolumnstore.RelationshipPrefix(id)
 	return func() (*uuid.UUID, float64, bool) {
 		for position < length {
 			key := []byte(se.tKeyIndex[position])
 			position = position + 1
 
 			if bytes.HasPrefix(key, p) {
-				kv := &keyvaluestore.KeyValue{
+				kv := &widecolumnstore.KeyValue{
 					Key: key,
 				}
 				return kv.To(), 0, true

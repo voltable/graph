@@ -4,7 +4,7 @@ import (
 	"container/list"
 	"errors"
 
-	"github.com/RossMerr/Caudex.Graph/keyvaluestore"
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 )
 
 type (
@@ -12,7 +12,7 @@ type (
 	Path struct {
 		Iterate    IteratorFrontier
 		explored   map[string]bool
-		storage    keyvaluestore.Storage
+		storage    widecolumnstore.Storage
 		predicates *list.List
 	}
 )

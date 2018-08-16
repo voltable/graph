@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/keyvaluestore"
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 	"github.com/Sirupsen/logrus"
 )
 
@@ -20,7 +20,7 @@ type Engine interface {
 	Parse(q string) (*graph.Query, error)
 }
 
-type NewQueryFunc func(i keyvaluestore.Storage) (Engine, error)
+type NewQueryFunc func(i widecolumnstore.Storage) (Engine, error)
 
 type EngineRegistration struct {
 	NewFunc NewQueryFunc
@@ -37,7 +37,7 @@ func RegisterEngine(name string, register EngineRegistration) {
 	engineRegistry[name] = register
 }
 
-func NewQueryEngine(name string, i keyvaluestore.Storage) (Engine, error) {
+func NewQueryEngine(name string, i widecolumnstore.Storage) (Engine, error) {
 	r, registered := engineRegistry[name]
 	if !registered {
 		return nil, errQueryNotRegistred

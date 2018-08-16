@@ -1,9 +1,7 @@
-package memorydb
+package widecolumnstore
 
 import (
 	"time"
-
-	"github.com/RossMerr/Caudex.Graph/keyvaluestore"
 )
 
 type crud int
@@ -17,11 +15,11 @@ type Mutation struct {
 }
 
 type action struct {
-	kv     *keyvaluestore.KeyValue
+	kv     *KeyValue
 	action crud
 }
 
-func (s *Mutation) Put(kv *keyvaluestore.KeyValue) {
+func (s *Mutation) Put(kv *KeyValue) {
 	s.operastion[time.Now()] = &action{
 		kv:     kv,
 		action: put,

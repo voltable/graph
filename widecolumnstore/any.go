@@ -1,4 +1,4 @@
-package keyvaluestore
+package widecolumnstore
 
 import "github.com/RossMerr/Caudex.Graph/arch"
 import any "github.com/golang/protobuf/ptypes/any"

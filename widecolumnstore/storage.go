@@ -1,4 +1,4 @@
-package keyvaluestore
+package widecolumnstore
 
 import (
 	"github.com/RossMerr/Caudex.Graph/uuid"

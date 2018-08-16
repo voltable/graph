@@ -1,4 +1,4 @@
-package keyvaluestore
+package widecolumnstore
 
 var (
 	Label                  = []byte("l")

@@ -3,7 +3,7 @@ package builder
 import (
 	"errors"
 
-	"github.com/RossMerr/Caudex.Graph/keyvaluestore"
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
@@ -27,14 +27,14 @@ var (
 )
 
 type KeyValueCyperQueryBuilder struct {
-	storage keyvaluestore.Storage
+	storage widecolumnstore.Storage
 }
 
-func newKeyValueCyperQueryBuilder(storage keyvaluestore.Storage) (cypher.QueryBuilder, error) {
+func newKeyValueCyperQueryBuilder(storage widecolumnstore.Storage) (cypher.QueryBuilder, error) {
 	return NewKeyValueCyperQueryBuilder(storage), nil
 }
 
-func NewKeyValueCyperQueryBuilder(storage keyvaluestore.Storage) *KeyValueCyperQueryBuilder {
+func NewKeyValueCyperQueryBuilder(storage widecolumnstore.Storage) *KeyValueCyperQueryBuilder {
 	return &KeyValueCyperQueryBuilder{
 		storage: storage,
 	}
@@ -73,15 +73,15 @@ func (s *KeyValueCyperQueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn) 
 		return nil, errNoPattern
 	}
 	return func(from, to *uuid.UUID, depth int) (string, query.Traverse) {
-		keyValues := make([]*keyvaluestore.KeyValue, 0)
+		keyValues := make([]*widecolumnstore.KeyValue, 0)
 
 		for k, p := range patn.Properties {
-			kv, _ := keyvaluestore.NewKeyValueProperty(from, k, p)
+			kv, _ := widecolumnstore.NewKeyValueProperty(from, k, p)
 
 			iterator := s.storage.HasPrefix(kv.Key)
 			for i, ok := iterator(); ok; i, ok = iterator() {
-				if kv, ok := i.(*keyvaluestore.KeyValue); ok {
-					if p != nil && p == keyvaluestore.Unmarshal(kv.Value) {
+				if kv, ok := i.(*widecolumnstore.KeyValue); ok {
+					if p != nil && p == widecolumnstore.Unmarshal(kv.Value) {
 						keyValues = append(keyValues, kv)
 					}
 				}
@@ -104,15 +104,15 @@ func (s *KeyValueCyperQueryBuilder) ToPredicateEdgePath(patn *ast.EdgePatn) (que
 	}
 	return func(from, to *uuid.UUID, depth int) (string, query.Traverse) {
 
-		keyValues := make([]*keyvaluestore.KeyValue, 0)
+		keyValues := make([]*widecolumnstore.KeyValue, 0)
 
 		if patn.Body != nil {
 			for k, p := range patn.Body.Properties {
-				kv, _ := keyvaluestore.NewKeyValueRelationshipProperty(from, to, k, p)
+				kv, _ := widecolumnstore.NewKeyValueRelationshipProperty(from, to, k, p)
 				iterator := s.storage.HasPrefix(kv.Key)
 				for i, ok := iterator(); ok; i, ok = iterator() {
-					if kv, ok := i.(*keyvaluestore.KeyValue); ok {
-						if p != nil && p == keyvaluestore.Unmarshal(kv.Value) {
+					if kv, ok := i.(*widecolumnstore.KeyValue); ok {
+						if p != nil && p == widecolumnstore.Unmarshal(kv.Value) {
 							keyValues = append(keyValues, kv)
 						}
 					}

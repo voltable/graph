@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/keyvaluestore"
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/builder"
@@ -18,23 +18,23 @@ type FakeStorage struct {
 	tKey      map[string]*any.Any
 }
 
-func (s FakeStorage) Fetch(string) (*keyvaluestore.KeyValue, error) {
+func (s FakeStorage) Fetch(string) (*widecolumnstore.KeyValue, error) {
 	return nil, nil
 }
 
-func (s FakeStorage) Each() keyvaluestore.Iterator {
+func (s FakeStorage) Each() widecolumnstore.Iterator {
 	return func() (interface{}, bool) {
 		return nil, false
 	}
 }
 
-func (s FakeStorage) ForEach() keyvaluestore.IteratorUUID {
+func (s FakeStorage) ForEach() widecolumnstore.IteratorUUID {
 	return func() (*uuid.UUID, bool) {
 		return nil, false
 	}
 }
 
-func (s FakeStorage) HasPrefix(prefix []byte) keyvaluestore.Iterator {
+func (s FakeStorage) HasPrefix(prefix []byte) widecolumnstore.Iterator {
 	position := 0
 	length := len(s.tKey)
 	return func() (interface{}, bool) {
@@ -44,7 +44,7 @@ func (s FakeStorage) HasPrefix(prefix []byte) keyvaluestore.Iterator {
 
 			if bytes.HasPrefix(key, prefix) {
 				v := s.tKey[string(key)]
-				kv := &keyvaluestore.KeyValue{Key: key, Value: v}
+				kv := &widecolumnstore.KeyValue{Key: key, Value: v}
 				return kv, true
 			}
 		}
@@ -53,13 +53,13 @@ func (s FakeStorage) HasPrefix(prefix []byte) keyvaluestore.Iterator {
 	}
 }
 
-func (s FakeStorage) Edges(*uuid.UUID) keyvaluestore.IteratorUUIDWeight {
+func (s FakeStorage) Edges(*uuid.UUID) widecolumnstore.IteratorUUIDWeight {
 	return func() (*uuid.UUID, float64, bool) {
 		return nil, 0, false
 	}
 }
 
-func NewFakeStorage(triples ...*keyvaluestore.KeyValue) keyvaluestore.Storage {
+func NewFakeStorage(triples ...*widecolumnstore.KeyValue) widecolumnstore.Storage {
 	s := &FakeStorage{
 		tKeyIndex: make(map[int][]byte),
 		tKey:      make(map[string]*any.Any),
@@ -77,7 +77,7 @@ func NewFakeStorage(triples ...*keyvaluestore.KeyValue) keyvaluestore.Storage {
 func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 	tests := []struct {
 		name         string
-		storage      func(*uuid.UUID) keyvaluestore.Storage
+		storage      func(*uuid.UUID) widecolumnstore.Storage
 		patn         *ast.VertexPatn
 		id           *uuid.UUID
 		wantVariable string
@@ -95,8 +95,8 @@ func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 				id, _ := uuid.GenerateRandomUUID()
 				return id
 			}(),
-			storage: func(id *uuid.UUID) keyvaluestore.Storage {
-				kv, _ := keyvaluestore.NewKeyValueProperty(id, "", "")
+			storage: func(id *uuid.UUID) widecolumnstore.Storage {
+				kv, _ := widecolumnstore.NewKeyValueProperty(id, "", "")
 				return NewFakeStorage(kv)
 			},
 		},
@@ -114,8 +114,8 @@ func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 				id, _ := uuid.GenerateRandomUUID()
 				return id
 			}(),
-			storage: func(id *uuid.UUID) keyvaluestore.Storage {
-				kv, _ := keyvaluestore.NewKeyValueProperty(id, "name", "John Smith")
+			storage: func(id *uuid.UUID) widecolumnstore.Storage {
+				kv, _ := widecolumnstore.NewKeyValueProperty(id, "name", "John Smith")
 				return NewFakeStorage(kv)
 			},
 		},
@@ -144,7 +144,7 @@ func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 func TestKeyValueCyperQueryBuilder_ToPredicateEdgePath(t *testing.T) {
 	tests := []struct {
 		name         string
-		storage      func(*uuid.UUID, *uuid.UUID) keyvaluestore.Storage
+		storage      func(*uuid.UUID, *uuid.UUID) widecolumnstore.Storage
 		patn         *ast.EdgePatn
 		from         *uuid.UUID
 		to           *uuid.UUID
@@ -167,8 +167,8 @@ func TestKeyValueCyperQueryBuilder_ToPredicateEdgePath(t *testing.T) {
 				id, _ := uuid.GenerateRandomUUID()
 				return id
 			}(),
-			storage: func(from, to *uuid.UUID) keyvaluestore.Storage {
-				kv, _ := keyvaluestore.NewKeyValueRelationshipProperty(from, to, "", "")
+			storage: func(from, to *uuid.UUID) widecolumnstore.Storage {
+				kv, _ := widecolumnstore.NewKeyValueRelationshipProperty(from, to, "", "")
 				return NewFakeStorage(kv)
 			},
 		},
@@ -192,8 +192,8 @@ func TestKeyValueCyperQueryBuilder_ToPredicateEdgePath(t *testing.T) {
 				id, _ := uuid.GenerateRandomUUID()
 				return id
 			}(),
-			storage: func(from, to *uuid.UUID) keyvaluestore.Storage {
-				kv, _ := keyvaluestore.NewKeyValueRelationshipProperty(from, to, "name", "John Smith")
+			storage: func(from, to *uuid.UUID) widecolumnstore.Storage {
+				kv, _ := widecolumnstore.NewKeyValueRelationshipProperty(from, to, "name", "John Smith")
 				return NewFakeStorage(kv)
 			},
 		},

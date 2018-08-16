@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/keyvaluestore"
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 	"github.com/RossMerr/Caudex.Graph/uuid"
 
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
@@ -32,35 +32,35 @@ type FakeTraversal struct {
 type FakeStorage struct {
 }
 
-func (s FakeStorage) Fetch(string) (*keyvaluestore.KeyValue, error) {
+func (s FakeStorage) Fetch(string) (*widecolumnstore.KeyValue, error) {
 	return nil, nil
 }
 
-func (s FakeStorage) Each() keyvaluestore.Iterator {
+func (s FakeStorage) Each() widecolumnstore.Iterator {
 	return func() (interface{}, bool) {
 		return nil, false
 	}
 }
 
-func (s FakeStorage) ForEach() keyvaluestore.IteratorUUID {
+func (s FakeStorage) ForEach() widecolumnstore.IteratorUUID {
 	return func() (*uuid.UUID, bool) {
 		return nil, false
 	}
 }
 
-func (s FakeStorage) HasPrefix([]byte) keyvaluestore.Iterator {
+func (s FakeStorage) HasPrefix([]byte) widecolumnstore.Iterator {
 	return func() (interface{}, bool) {
 		return nil, false
 	}
 }
 
-func (s FakeStorage) Edges(*uuid.UUID) keyvaluestore.IteratorUUIDWeight {
+func (s FakeStorage) Edges(*uuid.UUID) widecolumnstore.IteratorUUIDWeight {
 	return func() (*uuid.UUID, float64, bool) {
 		return nil, 0, false
 	}
 }
 
-func NewFakeStorage() keyvaluestore.Storage {
+func NewFakeStorage() widecolumnstore.Storage {
 	return &FakeStorage{}
 }
 
