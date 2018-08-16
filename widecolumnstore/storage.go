@@ -9,4 +9,5 @@ type Storage interface {
 	ForEach() IteratorUUID
 	HasPrefix([]byte) Iterator
 	Edges(*uuid.UUID) IteratorUUIDWeight
+	//Add(*Mutation)
 }
