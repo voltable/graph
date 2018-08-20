@@ -17,7 +17,7 @@ func RegisterEngine() {
 	// Forces the call of init
 }
 
-const queryType = "Cypher"
+const queryType = "cypher"
 
 func newEngine(i *query.Graph) (query.QueryEngine, error) {
 	e := NewQueryEngine(i)

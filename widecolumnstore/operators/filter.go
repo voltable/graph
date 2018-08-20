@@ -14,10 +14,10 @@ func NewFilter(predicate Predicate, iterator Iterator) *Filter {
 	}
 }
 
-func (s *Filter) Next() (interface{}, bool) {
-	for i, ok := s.iterator.Next(); ok; i, ok = s.iterator.Next() {
-		if s.predicate(i) {
-			return i, true
+func (s *Filter) Next(i Iterator) (interface{}, bool) {
+	for value, ok := s.iterator.Next(i); ok; value, ok = s.iterator.Next(i) {
+		if s.predicate(value) {
+			return value, true
 		}
 	}
 
