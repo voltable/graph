@@ -1,13 +1,9 @@
 package widecolumnstore
 
-import (
-	"github.com/RossMerr/Caudex.Graph/uuid"
-)
-
 type Storage interface {
 	Each() Iterator
-	ForEach() IteratorUUID
 	HasPrefix([]byte) Iterator
-	Edges(*uuid.UUID) IteratorUUIDWeight
+	// Count number of keys/value pairs
+	Count() int
 	//Add(*Mutation)
 }

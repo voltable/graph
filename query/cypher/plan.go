@@ -3,7 +3,6 @@ package cypher
 import (
 	"sync"
 
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/traversal"
@@ -12,12 +11,13 @@ import (
 
 type Plan struct {
 	wg         *sync.WaitGroup
-	builder    QueryBuilder
-	storage    widecolumnstore.Storage
+	builder    *QueryBuilder
+	storage    *query.Graph
 	predicates []query.Predicate
+	engine     query.Graph
 }
 
-func NewPlan(builder QueryBuilder, storage widecolumnstore.Storage) *Plan {
+func NewPlan(builder *QueryBuilder, storage *query.Graph) *Plan {
 
 	plan := &Plan{
 		wg:      &sync.WaitGroup{},
@@ -53,7 +53,7 @@ func (t *Plan) SearchPlan(iterator query.IteratorFrontier, patterns []ast.Patn) 
 }
 
 func (t *Plan) worker(f *query.Frontier, results chan *query.Frontier) {
-	if traversal.UniformCostSearch(t.storage, t.predicates, f) {
+	if traversal.UniformCostSearch(t.engine, t.predicates, f) {
 		results <- f
 		t.wg.Done()
 	} else if f.Len() > 0 {

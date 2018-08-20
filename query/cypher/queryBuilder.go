@@ -1,24 +1,12 @@
-package builder
+package cypher
 
 import (
 	"errors"
 
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/query/cypher"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/uuid"
-)
-
-func init() {
-	cypher.RegisterQueryBuilder(QueryBuilderType, cypher.QueryBuilderRegistry{
-		NewFunc: newKeyValueCyperQueryBuilder,
-	})
-}
-
-const (
-	// QueryBuilderType the underlying query builder cypher/keyvalue
-	QueryBuilderType = "cypherkeyvalue"
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 )
 
 var (
@@ -26,21 +14,17 @@ var (
 	errUnknownPattern = errors.New("Unknown pattern")
 )
 
-type KeyValueCyperQueryBuilder struct {
-	storage widecolumnstore.Storage
+type QueryBuilder struct {
+	storage *query.Graph
 }
 
-func newKeyValueCyperQueryBuilder(storage widecolumnstore.Storage) (cypher.QueryBuilder, error) {
-	return NewKeyValueCyperQueryBuilder(storage), nil
-}
-
-func NewKeyValueCyperQueryBuilder(storage widecolumnstore.Storage) *KeyValueCyperQueryBuilder {
-	return &KeyValueCyperQueryBuilder{
+func NewQueryBuilder(storage *query.Graph) *QueryBuilder {
+	return &QueryBuilder{
 		storage: storage,
 	}
 }
 
-func (s *KeyValueCyperQueryBuilder) Predicate(patterns []ast.Patn) ([]query.Predicate, error) {
+func (s *QueryBuilder) Predicate(patterns []ast.Patn) ([]query.Predicate, error) {
 	result := make([]query.Predicate, 0)
 	for _, patn := range patterns {
 		p, err := s.toPredicatePath(patn)
@@ -54,7 +38,7 @@ func (s *KeyValueCyperQueryBuilder) Predicate(patterns []ast.Patn) ([]query.Pred
 }
 
 // ToPredicatePath creates a PredicatePath out of the Patn
-func (s *KeyValueCyperQueryBuilder) toPredicatePath(patn ast.Patn) (query.Predicate, error) {
+func (s *QueryBuilder) toPredicatePath(patn ast.Patn) (query.Predicate, error) {
 	if vertex, ok := patn.(*ast.VertexPatn); ok {
 		return s.ToPredicateVertexPath(vertex)
 	}
@@ -67,7 +51,7 @@ func (s *KeyValueCyperQueryBuilder) toPredicatePath(patn ast.Patn) (query.Predic
 }
 
 // ToPredicateVertexPath creates a PredicateVertexPath out of the VertexPatn
-func (s *KeyValueCyperQueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn) (query.Predicate, error) {
+func (s *QueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn) (query.Predicate, error) {
 	//label := strings.ToLower(patn.Label)
 	if patn == nil {
 		return nil, errNoPattern
@@ -76,7 +60,7 @@ func (s *KeyValueCyperQueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn) 
 		keyValues := make([]*widecolumnstore.KeyValue, 0)
 
 		for k, p := range patn.Properties {
-			kv, _ := widecolumnstore.NewKeyValueProperty(from, k, p)
+			kv, _ := query.NewKeyValueProperty(from, k, p)
 
 			iterator := s.storage.HasPrefix(kv.Key)
 			for i, ok := iterator(); ok; i, ok = iterator() {
@@ -97,7 +81,7 @@ func (s *KeyValueCyperQueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn) 
 }
 
 // ToPredicateEdgePath creates a PredicateEdgePath out of the EdgePatn
-func (s *KeyValueCyperQueryBuilder) ToPredicateEdgePath(patn *ast.EdgePatn) (query.Predicate, error) {
+func (s *QueryBuilder) ToPredicateEdgePath(patn *ast.EdgePatn) (query.Predicate, error) {
 	//label := strings.ToLower(patn.Body.Type)
 	if patn == nil {
 		return nil, errNoPattern
@@ -108,7 +92,7 @@ func (s *KeyValueCyperQueryBuilder) ToPredicateEdgePath(patn *ast.EdgePatn) (que
 
 		if patn.Body != nil {
 			for k, p := range patn.Body.Properties {
-				kv, _ := widecolumnstore.NewKeyValueRelationshipProperty(from, to, k, p)
+				kv, _ := query.NewKeyValueRelationshipProperty(from, to, k, p)
 				iterator := s.storage.HasPrefix(kv.Key)
 				for i, ok := iterator(); ok; i, ok = iterator() {
 					if kv, ok := i.(*widecolumnstore.KeyValue); ok {

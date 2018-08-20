@@ -1,11 +1,12 @@
-package widecolumnstore_test
+package query_test
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
+	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/uuid"
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 )
 
 func TestUUID(t *testing.T) {
@@ -17,7 +18,7 @@ func TestUUID(t *testing.T) {
 		{
 			name: "Vertex",
 			setup: func(id *uuid.UUID) (*widecolumnstore.KeyValue, *widecolumnstore.KeyValue) {
-				return widecolumnstore.NewKeyValueVertex(id, "person")
+				return query.NewKeyValueVertex(id, "person")
 			},
 			want: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
@@ -27,7 +28,7 @@ func TestUUID(t *testing.T) {
 		{
 			name: "Properties",
 			setup: func(id *uuid.UUID) (*widecolumnstore.KeyValue, *widecolumnstore.KeyValue) {
-				return widecolumnstore.NewKeyValueProperty(id, "", "")
+				return query.NewKeyValueProperty(id, "", "")
 			},
 			want: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
@@ -38,7 +39,7 @@ func TestUUID(t *testing.T) {
 			name: "Relationship",
 			setup: func(id *uuid.UUID) (*widecolumnstore.KeyValue, *widecolumnstore.KeyValue) {
 				to, _ := uuid.GenerateRandomUUID()
-				return widecolumnstore.NewKeyValueRelationship(id, to, "", 5)
+				return query.NewKeyValueRelationship(id, to, "", 5)
 			},
 			want: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
@@ -49,7 +50,7 @@ func TestUUID(t *testing.T) {
 			name: "Relationshipproperties",
 			setup: func(id *uuid.UUID) (*widecolumnstore.KeyValue, *widecolumnstore.KeyValue) {
 				to, _ := uuid.GenerateRandomUUID()
-				return widecolumnstore.NewKeyValueRelationshipProperty(id, to, "", "")
+				return query.NewKeyValueRelationshipProperty(id, to, "", "")
 			},
 			want: func() *uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
@@ -60,13 +61,13 @@ func TestUUID(t *testing.T) {
 	for i, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			kv, tv := tt.setup(tt.want)
-			if !reflect.DeepEqual(kv.UUID(), tt.want) {
-				t.Errorf("%d. %q: UUID() = %v, want %v", i, tt.name, kv.UUID(), tt.want)
+			if !reflect.DeepEqual(query.UUID(kv), tt.want) {
+				t.Errorf("%d. %q: UUID() = %v, want %v", i, tt.name, query.UUID(kv), tt.want)
 			}
 
 			// The transpose
-			if !reflect.DeepEqual(tv.UUID(), tt.want) {
-				t.Errorf("%d. %q: UUID() = %v, want %v", i, tt.name, tv.UUID(), tt.want)
+			if !reflect.DeepEqual(query.UUID(tv), tt.want) {
+				t.Errorf("%d. %q: UUID() = %v, want %v", i, tt.name, query.UUID(tv), tt.want)
 			}
 		})
 	}

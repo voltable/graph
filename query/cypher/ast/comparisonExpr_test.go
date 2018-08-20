@@ -5,9 +5,10 @@ import (
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph/expressions"
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
+	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/uuid"
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 )
 
 func Test_ComparisonExprInterpret(t *testing.T) {
@@ -39,7 +40,7 @@ func Test_ComparisonExprInterpret(t *testing.T) {
 			c: ast.NewComparisonExpr(expressions.IS_NOT_NULL, &ast.PropertyStmt{Variable: "n", Value: "Person"}, &ast.Ident{}),
 			v: func() *widecolumnstore.KeyValue {
 				id, _ := uuid.GenerateRandomUUID()
-				x, _ := widecolumnstore.NewKeyValueProperty(id, "Person", "John Smith")
+				x, _ := query.NewKeyValueProperty(id, "Person", "John Smith")
 				return x
 			}(),
 			p:      "n",
@@ -49,7 +50,7 @@ func Test_ComparisonExprInterpret(t *testing.T) {
 			c: ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: math.MaxInt32}),
 			v: func() *widecolumnstore.KeyValue {
 				id, _ := uuid.GenerateRandomUUID()
-				x, _ := widecolumnstore.NewKeyValueProperty(id, "Age", math.MaxInt32-1)
+				x, _ := query.NewKeyValueProperty(id, "Age", math.MaxInt32-1)
 				return x
 			}(),
 			p: "n",
@@ -59,7 +60,8 @@ func Test_ComparisonExprInterpret(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		result := tt.c.Interpret(tt.p, tt.v)
+		v := query.NewKeyValueWrapper(tt.v)
+		result := tt.c.Interpret(tt.p, v)
 		if result != tt.result {
 			t.Errorf("%d. %q: comparison mismatch:\n  exp=%t\n  got=%t\n\n", i, tt.c, tt.result, result)
 		}

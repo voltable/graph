@@ -3,11 +3,10 @@ package traversal
 import (
 	"sort"
 
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 	"github.com/RossMerr/Caudex.Graph/query"
 )
 
-func UniformCostSearch(storage widecolumnstore.Storage, predicates []query.Predicate, frontier *query.Frontier) bool {
+func UniformCostSearch(graph query.Graph, predicates []query.Predicate, frontier *query.Frontier) bool {
 	if frontier.Len() > 0 {
 		queue := frontier.Pop()
 		depth := len(queue.Parts)
@@ -31,7 +30,7 @@ func UniformCostSearch(storage widecolumnstore.Storage, predicates []query.Predi
 		}
 
 		if pe := predicates[depth]; pe != nil {
-			iterator := storage.Edges(part.UUID)
+			iterator := graph.Edges(part.UUID)
 			for kv, weight, hasEdges := iterator(); hasEdges; kv, weight, hasEdges = iterator() {
 				if _, ok := frontier.Explored[kv]; !ok {
 					if variable, p := pe(part.UUID, kv, depth); p == query.Visiting || p == query.Matching {

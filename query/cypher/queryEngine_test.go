@@ -5,9 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
-	"github.com/RossMerr/Caudex.Graph/uuid"
-
+	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
@@ -29,41 +27,6 @@ func NewFakePaser(err error) parser.Parser {
 type FakeTraversal struct {
 }
 
-type FakeStorage struct {
-}
-
-func (s FakeStorage) Fetch(string) (*widecolumnstore.KeyValue, error) {
-	return nil, nil
-}
-
-func (s FakeStorage) Each() widecolumnstore.Iterator {
-	return func() (interface{}, bool) {
-		return nil, false
-	}
-}
-
-func (s FakeStorage) ForEach() widecolumnstore.IteratorUUID {
-	return func() (*uuid.UUID, bool) {
-		return nil, false
-	}
-}
-
-func (s FakeStorage) HasPrefix([]byte) widecolumnstore.Iterator {
-	return func() (interface{}, bool) {
-		return nil, false
-	}
-}
-
-func (s FakeStorage) Edges(*uuid.UUID) widecolumnstore.IteratorUUIDWeight {
-	return func() (*uuid.UUID, float64, bool) {
-		return nil, 0, false
-	}
-}
-
-func NewFakeStorage() widecolumnstore.Storage {
-	return &FakeStorage{}
-}
-
 type FakeParts struct {
 }
 
@@ -75,10 +38,13 @@ func NewFakeParts() cypher.Parts {
 	return &FakeParts{}
 }
 
+func NewGraph() *query.Graph {
+	return &query.Graph{}
+}
 func Test_Parser(t *testing.T) {
 
 	tests := []struct {
-		e     *cypher.Engine
+		e     *cypher.QueryEngine
 		p     parser.Parser
 		parts cypher.Parts
 		path  func(stmt ast.Stmt) ([]cypher.QueryPart, error)
@@ -86,13 +52,13 @@ func Test_Parser(t *testing.T) {
 		err   string
 	}{
 		{
-			e:     cypher.NewEngine(NewFakeStorage()),
+			e:     cypher.NewQueryEngine(NewGraph()),
 			p:     NewFakePaser(nil),
 			parts: NewFakeParts(),
 			s:     "str",
 		},
 		{
-			e:     cypher.NewEngine(NewFakeStorage()),
+			e:     cypher.NewQueryEngine(NewGraph()),
 			p:     NewFakePaser(fmt.Errorf("paser error")),
 			parts: NewFakeParts(),
 			s:     "str",

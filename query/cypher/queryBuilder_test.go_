@@ -5,11 +5,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/builder"
 	"github.com/RossMerr/Caudex.Graph/uuid"
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 	"github.com/golang/protobuf/ptypes/any"
 )
 
@@ -96,7 +96,7 @@ func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 				return id
 			}(),
 			storage: func(id *uuid.UUID) widecolumnstore.Storage {
-				kv, _ := widecolumnstore.NewKeyValueProperty(id, "", "")
+				kv, _ := query.NewKeyValueProperty(id, "", "")
 				return NewFakeStorage(kv)
 			},
 		},
@@ -115,7 +115,7 @@ func TestKeyValueCyperQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 				return id
 			}(),
 			storage: func(id *uuid.UUID) widecolumnstore.Storage {
-				kv, _ := widecolumnstore.NewKeyValueProperty(id, "name", "John Smith")
+				kv, _ := query.NewKeyValueProperty(id, "name", "John Smith")
 				return NewFakeStorage(kv)
 			},
 		},
@@ -168,7 +168,7 @@ func TestKeyValueCyperQueryBuilder_ToPredicateEdgePath(t *testing.T) {
 				return id
 			}(),
 			storage: func(from, to *uuid.UUID) widecolumnstore.Storage {
-				kv, _ := widecolumnstore.NewKeyValueRelationshipProperty(from, to, "", "")
+				kv, _ := query.NewKeyValueRelationshipProperty(from, to, "", "")
 				return NewFakeStorage(kv)
 			},
 		},
@@ -193,7 +193,7 @@ func TestKeyValueCyperQueryBuilder_ToPredicateEdgePath(t *testing.T) {
 				return id
 			}(),
 			storage: func(from, to *uuid.UUID) widecolumnstore.Storage {
-				kv, _ := widecolumnstore.NewKeyValueRelationshipProperty(from, to, "name", "John Smith")
+				kv, _ := query.NewKeyValueRelationshipProperty(from, to, "name", "John Smith")
 				return NewFakeStorage(kv)
 			},
 		},

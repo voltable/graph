@@ -1,18 +1,19 @@
-package widecolumnstore
+package query
 
 import (
 	"bytes"
 
 	"github.com/RossMerr/Caudex.Graph/arch"
 	"github.com/RossMerr/Caudex.Graph/uuid"
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 )
 
-func (s *KeyValue) Weight() float64 {
-	key := &Key{}
+func Weight(s *widecolumnstore.KeyValue) float64 {
+	key := &widecolumnstore.Key{}
 	key.Unmarshal(s.Key)
 
 	if bytes.Equal(key.Column.Family, Relationship) {
-		to := Unmarshal(s.Value)
+		to := widecolumnstore.Unmarshal(s.Value)
 		return to.(float64)
 	}
 
@@ -23,8 +24,8 @@ func (s *KeyValue) Weight() float64 {
 	return 0
 }
 
-func (s *KeyValue) To() *uuid.UUID {
-	key := &Key{}
+func To(s *widecolumnstore.KeyValue) *uuid.UUID {
+	key := &widecolumnstore.Key{}
 	key.Unmarshal(s.Key)
 
 	if bytes.Equal(key.Column.Family, Relationship) {
@@ -32,7 +33,7 @@ func (s *KeyValue) To() *uuid.UUID {
 	}
 
 	if bytes.Equal(key.ID, Relationship) {
-		to := Unmarshal(s.Value)
+		to := widecolumnstore.Unmarshal(s.Value)
 		return to.(*uuid.UUID)
 	}
 
@@ -40,8 +41,8 @@ func (s *KeyValue) To() *uuid.UUID {
 }
 
 // UUID looks for the UUID in the KeyValue
-func (s *KeyValue) UUID() *uuid.UUID {
-	key := &Key{}
+func UUID(s *widecolumnstore.KeyValue) *uuid.UUID {
+	key := &widecolumnstore.Key{}
 	key.Unmarshal(s.Key)
 
 	if bytes.Equal(key.Column.Family, Label) {
@@ -81,14 +82,22 @@ func (s *KeyValue) UUID() *uuid.UUID {
 	return nil
 }
 
-func (s *KeyValue) Interpret(value string) interface{} {
-	key := &Key{}
-	key.Unmarshal(s.Key)
+type KeyValueWrapper struct {
+	kv *widecolumnstore.KeyValue
+}
+
+func NewKeyValueWrapper(kv *widecolumnstore.KeyValue) *KeyValueWrapper {
+	return &KeyValueWrapper{kv}
+}
+
+func (s *KeyValueWrapper) Interpret(value string) interface{} {
+	key := &widecolumnstore.Key{}
+	key.Unmarshal(s.kv.Key)
 
 	if bytes.Equal(key.Column.Family, Properties) {
 
 		if value == string(key.Column.Qualifier) {
-			return Unmarshal(s.Value)
+			return widecolumnstore.Unmarshal(s.kv.Value)
 		}
 	}
 

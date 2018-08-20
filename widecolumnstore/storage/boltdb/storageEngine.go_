@@ -250,3 +250,9 @@ func (se *StorageEngine) backgroundTask(c chan os.Signal) {
 		close(c)
 	}()
 }
+
+	// Count number of keys/value pairs
+func (se *StorageEngine) Count() int {
+	stats :=  se.db.Stats()
+	return stats.KeyN
+}
