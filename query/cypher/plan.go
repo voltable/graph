@@ -6,34 +6,33 @@ import (
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/traversal"
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 	"github.com/pkg/errors"
 )
 
 type Plan struct {
-	wg         *sync.WaitGroup
-	builder    *QueryBuilder
-	storage    *query.Graph
-	predicates []query.Predicate
-	engine     query.Graph
+	wg       *sync.WaitGroup
+	builder  *QueryBuilder
+	operator widecolumnstore.Operator
+	engine   query.Graph
 }
 
-func NewPlan(builder *QueryBuilder, storage *query.Graph) *Plan {
+func NewPlan(builder *QueryBuilder) *Plan {
 
 	plan := &Plan{
 		wg:      &sync.WaitGroup{},
-		storage: storage,
 		builder: builder,
 	}
 	return plan
 }
 
 func (t *Plan) SearchPlan(iterator query.IteratorFrontier, patterns []ast.Patn) (query.IteratorFrontier, error) {
-	predicates, err := t.builder.Predicate(patterns)
+	operator, err := t.builder.Predicate(patterns)
 	if err != nil {
 		return nil, errors.Wrap(err, "Plan SearchPlan")
 	}
 
-	t.predicates = predicates
+	t.operator = operator
 	results := make(chan *query.Frontier)
 
 	t.forEach(iterator, results)
@@ -53,7 +52,7 @@ func (t *Plan) SearchPlan(iterator query.IteratorFrontier, patterns []ast.Patn) 
 }
 
 func (t *Plan) worker(f *query.Frontier, results chan *query.Frontier) {
-	if traversal.UniformCostSearch(t.engine, t.predicates, f) {
+	if traversal.UniformCostSearch(t.engine, t.operator, f) {
 		results <- f
 		t.wg.Done()
 	} else if f.Len() > 0 {

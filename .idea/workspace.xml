@@ -1,29 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9fb4067a-2d5a-4586-80ec-fcbc1bc760c2" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/query/cypher/ast/booleanExpr_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/query/cypher/ast/booleanExpr_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/query/cypher/ast/comparisonExpr_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/query/cypher/ast/comparisonExpr_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/query/cypher/builder/queryBuilder.go" beforeDir="false" afterPath="$PROJECT_DIR$/query/cypher/builder/queryBuilder.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/query/cypher/builder/queryBuilder_test.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/query/cypher/builder/vertexPatn_test.go_" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/query/cypher/engine.go" beforeDir="false" afterPath="$PROJECT_DIR$/query/cypher/engine.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/query/cypher/engine_test.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/query/cypher/plan.go" beforeDir="false" afterPath="$PROJECT_DIR$/query/cypher/plan.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/query/cypher/queryBuilderRegistry.go" beforeDir="false" afterPath="$PROJECT_DIR$/query/cypher/queryBuilderRegistry.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/query/cypher/traversal/uniformCostSearch.go" beforeDir="false" afterPath="$PROJECT_DIR$/query/cypher/traversal/uniformCostSearch.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/query/engineRegistry.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/widecolumnstore/const.go" beforeDir="false" afterPath="$PROJECT_DIR$/widecolumnstore/const.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/widecolumnstore/iterator.go" beforeDir="false" afterPath="$PROJECT_DIR$/widecolumnstore/iterator.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/widecolumnstore/keyvalue.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/widecolumnstore/keyvalue_test.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/widecolumnstore/marshal.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/widecolumnstore/marshal_test.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/widecolumnstore/prefix.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/widecolumnstore/storage.go" beforeDir="false" afterPath="$PROJECT_DIR$/widecolumnstore/storage.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/widecolumnstore/storage/boltdb/storageEngine.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/widecolumnstore/storage/memorydb/storageEngine.go" beforeDir="false" afterPath="$PROJECT_DIR$/widecolumnstore/storage/memorydb/storageEngine.go" afterDir="false" />
-    </list>
+    <list default="true" id="9fb4067a-2d5a-4586-80ec-fcbc1bc760c2" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,6 +12,7 @@
     <session id="-2108513867">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
+          <entry key="project.closed" value="1" />
           <entry key="project.open.time.5" value="1" />
           <entry key="project.open.time.6" value="1" />
           <entry key="project.opened" value="2" />
@@ -62,17 +41,7 @@
     </session>
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/query/cypher/engine.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="576">
-              <caret line="29" column="36" lean-forward="true" selection-start-line="29" selection-start-column="36" selection-end-line="29" selection-end-column="36" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf />
   </component>
   <component name="GOROOT" path="/snap/go/2130" />
   <component name="Git.Settings">
@@ -156,7 +125,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="24" width="3840" height="2136" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.22622246" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />

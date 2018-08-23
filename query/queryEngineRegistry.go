@@ -3,6 +3,7 @@ package query
 import (
 	"errors"
 
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 	"github.com/Sirupsen/logrus"
 )
 
@@ -12,7 +13,7 @@ var (
 	ErrGraphNotRegistred = errors.New("This QueryEngine is not registered.")
 )
 
-type NewGraphFunc func(*Graph) (QueryEngine, error)
+type NewGraphFunc func(widecolumnstore.Storage) (QueryEngine, error)
 
 type QueryEngineRegistry struct {
 	NewFunc NewGraphFunc
@@ -29,7 +30,7 @@ func RegisterQueryEngine(name string, register QueryEngineRegistry) {
 	queryRegistry[name] = register
 }
 
-func NewGraph(name string, i *Graph) (QueryEngine, error) {
+func NewGraph(name string, i widecolumnstore.Storage) (QueryEngine, error) {
 	r, registered := queryRegistry[name]
 	if !registered {
 		return nil, ErrGraphNotRegistred

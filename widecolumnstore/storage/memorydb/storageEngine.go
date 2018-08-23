@@ -94,3 +94,7 @@ func (se *StorageEngine) HasPrefix(prefix []byte) widecolumnstore.Iterator {
 func (se *StorageEngine) Count() int {
 	return len(se.tKey)
 }
+
+func (se *StorageEngine) Query(widecolumnstore.Operator) widecolumnstore.Iterator {
+	return nil
+}

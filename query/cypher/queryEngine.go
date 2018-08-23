@@ -4,6 +4,7 @@ import (
 	graph "github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 )
 
 func init() {
@@ -19,12 +20,12 @@ func RegisterEngine() {
 
 const queryType = "cypher"
 
-func newEngine(i *query.Graph) (query.QueryEngine, error) {
+func newEngine(i widecolumnstore.Storage) (query.QueryEngine, error) {
 	e := NewQueryEngine(i)
 	return e, nil
 }
 
-func NewQueryEngine(i *query.Graph) *QueryEngine {
+func NewQueryEngine(i widecolumnstore.Storage) *QueryEngine {
 	return &QueryEngine{
 		Parser:  parser.NewParser(),
 		Storage: i,
@@ -38,7 +39,7 @@ func NewQueryEngine(i *query.Graph) *QueryEngine {
 type QueryEngine struct {
 	Parser parser.Parser
 	//Filter  CypherFilter
-	Storage *query.Graph
+	Storage widecolumnstore.Storage
 	Parts   Parts
 	//Projection Projection
 	Builder *QueryBuilder
@@ -48,27 +49,27 @@ var _ query.QueryEngine = (*QueryEngine)(nil)
 
 // Parse in a cypher query as a string and get back Query that is abstracted from the cypher AST
 func (qe QueryEngine) Parse(q string) (*graph.Query, error) {
-	stmt, err := qe.Parser.Parse(q)
-	if err != nil {
-		return nil, err
-	}
+	// stmt, err := qe.Parser.Parse(q)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	queryPart, err := qe.Parts.ToQueryPart(stmt)
-	if err != nil {
-		return nil, err
-	}
-	plan := NewPlan(qe.Builder, qe.Storage)
+	//queryPart, err := qe.Parts.ToQueryPart(stmt)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// plan := NewPlan(qe.Builder)
 	results := make([]interface{}, 0)
-	for _, part := range queryPart {
-		frontier := qe.toFrontier(qe.Storage.ForEach(), part.Variable())
-		f, err := plan.SearchPlan(frontier, part.Patterns)
-		if err != nil {
-			return nil, err
-		}
-		results = append(results, Transform(f)...)
-		//f = qe.Filter.Filter(f, part.Predicate())
-		//results = append(results, qe.Projection.Transform(f, part.Maps())...)
-	}
+	//for _, part := range queryPart {
+	//frontier := qe.toFrontier(qe.Storage.ForEach(), part.Variable())
+	// f, err := plan.SearchPlan(frontier, part.Patterns)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// results = append(results, Transform(f)...)
+	//f = qe.Filter.Filter(f, part.Predicate())
+	//results = append(results, qe.Projection.Transform(f, part.Maps())...)
+	//}
 
 	query := graph.NewQuery(q, results)
 
