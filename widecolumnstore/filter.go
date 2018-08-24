@@ -14,8 +14,9 @@ func NewFilter(predicate Predicate, iterator Operator) *Filter {
 	}
 }
 
-func (s *Filter) Next(i Iterator) Iterator {
-	iterator := s.iterator.Next(i)
+func (s *Filter) Next(i ...Iterator) Iterator {
+	first := i[0]
+	iterator := s.iterator.Next(first)
 	return func() (interface{}, bool) {
 		for value, ok := iterator(); ok; value, ok = iterator() {
 			if s.predicate(value) {

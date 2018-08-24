@@ -1,8 +1,10 @@
 package cypher
 
 import (
+	"bytes"
 	"errors"
 
+	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 )
@@ -35,7 +37,7 @@ func (s *QueryBuilder) Predicate(patterns []ast.Patn) (widecolumnstore.Operator,
 	return last, nil
 }
 
-// ToPredicatePath creates a PredicatePath out of the Patn
+// ToPredicatePath creates a PredicatePath out of the Patn̦P
 func (s *QueryBuilder) toPredicatePath(patn ast.Patn, last widecolumnstore.Operator) (widecolumnstore.Operator, error) {
 	if vertex, ok := patn.(*ast.VertexPatn); ok {
 		return s.ToPredicateVertexPath(vertex, last)
@@ -54,7 +56,14 @@ func (s *QueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn, last widecolu
 	if patn == nil {
 		return nil, errNoPattern
 	}
-
+	for k := range patn.Properties {
+		p := func(i interface{}) bool {
+			prefix := widecolumnstore.NewKey(query.TProperties, &widecolumnstore.Column{[]byte(k), nil, nil}).Marshal()
+			kv, _ := i.(*widecolumnstore.KeyValue)
+			return bytes.HasPrefix(prefix, kv.Key)
+		}
+		last = widecolumnstore.NewFilter(p, last)
+	}
 	return last, nil
 
 	// return func(from, to *uuid.UUID, depth int) (string, query.Traverse) {
