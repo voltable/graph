@@ -2,6 +2,7 @@ package widecolumnstore
 
 import (
 	"bytes"
+	"time"
 )
 
 // NewKey returns a new Key
@@ -18,6 +19,8 @@ type Key struct {
 	ID []byte
 	// Column Logical grouping of the key
 	Column *Column
+	// Timestamp for serializability
+	Timestamp time.Time
 }
 
 // Column Logical grouping of the key

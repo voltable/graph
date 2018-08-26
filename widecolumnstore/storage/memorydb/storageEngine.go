@@ -58,35 +58,35 @@ func (se *StorageEngine) Find(ID string) (*widecolumnstore.KeyValue, error) {
 func (se *StorageEngine) Each() widecolumnstore.Iterator {
 	position := 0
 	length := len(se.tKey)
-	return func() (interface{}, bool) {
+	return func() (widecolumnstore.KeyValue, bool) {
 		for position < length {
 			key := []byte(se.tKeyIndex[position])
 			position = position + 1
 			v := se.tKey[string(key)]
-			kv := &widecolumnstore.KeyValue{Key: key, Value: v}
+			kv := widecolumnstore.KeyValue{Key: key, Value: v}
 			return kv, true
 		}
 
-		return nil, false
+		return widecolumnstore.KeyValue{}, false
 	}
 }
 
 func (se *StorageEngine) HasPrefix(prefix []byte) widecolumnstore.Iterator {
 	position := 0
 	length := len(se.tKey)
-	return func() (interface{}, bool) {
+	return func() (widecolumnstore.KeyValue, bool) {
 		for position < length {
 			key := []byte(se.tKeyIndex[position])
 			position = position + 1
 
 			if bytes.HasPrefix(key, prefix) {
 				v := se.tKey[string(key)]
-				kv := &widecolumnstore.KeyValue{Key: key, Value: v}
+				kv := widecolumnstore.KeyValue{Key: key, Value: v}
 				return kv, true
 			}
 		}
 
-		return nil, false
+		return widecolumnstore.KeyValue{}, false
 	}
 }
 

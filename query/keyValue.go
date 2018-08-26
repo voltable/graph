@@ -8,7 +8,7 @@ import (
 	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 )
 
-func Weight(s *widecolumnstore.KeyValue) float64 {
+func Weight(s widecolumnstore.KeyValue) float64 {
 	key := &widecolumnstore.Key{}
 	key.Unmarshal(s.Key)
 
@@ -24,7 +24,7 @@ func Weight(s *widecolumnstore.KeyValue) float64 {
 	return 0
 }
 
-func To(s *widecolumnstore.KeyValue) *uuid.UUID {
+func To(s widecolumnstore.KeyValue) *uuid.UUID {
 	key := &widecolumnstore.Key{}
 	key.Unmarshal(s.Key)
 

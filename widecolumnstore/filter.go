@@ -17,13 +17,13 @@ func NewFilter(predicate Predicate, iterator Operator) *Filter {
 func (s *Filter) Next(i ...Iterator) Iterator {
 	first := i[0]
 	iterator := s.iterator.Next(first)
-	return func() (interface{}, bool) {
+	return func() (KeyValue, bool) {
 		for value, ok := iterator(); ok; value, ok = iterator() {
 			if s.predicate(value) {
 				return value, true
 			}
 		}
-		return nil, false
+		return KeyValue{}, false
 	}
 }
 

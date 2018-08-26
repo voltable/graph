@@ -108,8 +108,7 @@ func (s *Graph) Edges(id *uuid.UUID) IteratorUUIDWeight {
 	iterator := s.storage.HasPrefix(p)
 	return func() (*uuid.UUID, float64, bool) {
 		for i, ok := iterator(); ok; i, ok = iterator() {
-			kv := i.(*widecolumnstore.KeyValue)
-			return To(kv), Weight(kv), true
+			return To(i), Weight(i), true
 		}
 
 		return nil, 0, false
@@ -120,8 +119,7 @@ func (s *Graph) ForEach() IteratorUUID {
 	iterator := s.storage.Each()
 	return func() (*uuid.UUID, bool) {
 		for i, ok := iterator(); ok; i, ok = iterator() {
-			kv := i.(*widecolumnstore.KeyValue)
-			return To(kv), true
+			return To(i), true
 		}
 
 		return nil, false
