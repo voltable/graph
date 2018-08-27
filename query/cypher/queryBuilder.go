@@ -1,7 +1,6 @@
 package cypher
 
 import (
-	"bytes"
 	"errors"
 
 	"github.com/RossMerr/Caudex.Graph/query"
@@ -57,12 +56,13 @@ func (s *QueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn, last widecolu
 		return nil, errNoPattern
 	}
 	for k := range patn.Properties {
-		p := func(i interface{}) bool {
-			prefix := widecolumnstore.NewKey(query.TProperties, &widecolumnstore.Column{[]byte(k), nil, nil}).Marshal()
-			kv, _ := i.(*widecolumnstore.KeyValue)
-			return bytes.HasPrefix(prefix, kv.Key)
+		p := func(kv widecolumnstore.KeyValue) []byte {
+			key := widecolumnstore.Key{}
+			key.Unmarshal(kv.Key)
+			return widecolumnstore.NewKey(query.TProperties, &widecolumnstore.Column{[]byte(k), nil, key.ID}).Marshal()
+
 		}
-		last = widecolumnstore.NewFilter(p, last)
+		last = widecolumnstore.NewFilter(s.storage, last, p)
 	}
 	return last, nil
 
