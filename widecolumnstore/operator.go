@@ -1,6 +1,15 @@
 package widecolumnstore
 
 type Operator interface {
-	op()
-	Next(i ...Iterator) Iterator
+	Op()
+}
+
+type Binary interface {
+	Operator
+	Next(x, y Iterator) Iterator
+}
+
+type Unary interface {
+	Operator
+	Next(i Iterator) Iterator
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore/operators"
 )
 
 var (
@@ -24,7 +25,7 @@ func NewQueryBuilder(storage widecolumnstore.Storage) *QueryBuilder {
 }
 
 func (s *QueryBuilder) Predicate(patterns []ast.Patn) (widecolumnstore.Operator, error) {
-	var last widecolumnstore.Operator = widecolumnstore.NewScan(s.storage)
+	var last widecolumnstore.Operator = operators.NewScan(s.storage)
 	var err error
 	for _, patn := range patterns {
 		last, err = s.toPredicatePath(patn, last)
@@ -62,7 +63,7 @@ func (s *QueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn, last widecolu
 			return widecolumnstore.NewKey(query.TProperties, &widecolumnstore.Column{[]byte(k), nil, key.ID}).Marshal()
 
 		}
-		last = widecolumnstore.NewFilter(s.storage, last, p)
+		last = operators.NewFilter(s.storage, last, p)
 	}
 	return last, nil
 
