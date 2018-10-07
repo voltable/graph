@@ -30,7 +30,7 @@ func NewQueryEngine(i widecolumnstore.Storage) *QueryEngine {
 		Parser:  parser.NewParser(),
 		Storage: i,
 		Parts:   NewParts(),
-		Builder: NewQueryBuilder(i),
+		Builder: NewQueryBuilderDefault(i),
 		//Filter:  NewFilter(),
 	}
 }

@@ -16,11 +16,18 @@ var (
 
 type QueryBuilder struct {
 	storage widecolumnstore.Storage
+	filter  func(storage widecolumnstore.HasPrefix, operator widecolumnstore.Operator, prefix widecolumnstore.Prefix) *operators.Filter
 }
 
-func NewQueryBuilder(storage widecolumnstore.Storage) *QueryBuilder {
+func NewQueryBuilderDefault(storage widecolumnstore.Storage) *QueryBuilder {
+	return NewQueryBuilder(storage, operators.NewFilter)
+}
+
+func NewQueryBuilder(storage widecolumnstore.Storage,
+	filter func(storage widecolumnstore.HasPrefix, operator widecolumnstore.Operator, prefix widecolumnstore.Prefix) *operators.Filter) *QueryBuilder {
 	return &QueryBuilder{
 		storage: storage,
+		filter:  filter,
 	}
 }
 
@@ -61,9 +68,9 @@ func (s *QueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn, last widecolu
 			key := widecolumnstore.Key{}
 			key.Unmarshal(kv.Key)
 			return widecolumnstore.NewKey(query.TProperties, &widecolumnstore.Column{[]byte(k), nil, key.ID}).Marshal()
-
 		}
-		last = operators.NewFilter(s.storage, last, p)
+		last = s.filter(s.storage, last, p)
+		//last = operators.NewFilter(s.storage, last, p)
 	}
 	return last, nil
 
