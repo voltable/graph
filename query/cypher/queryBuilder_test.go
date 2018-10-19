@@ -8,43 +8,49 @@ import (
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore/operators"
 	"github.com/RossMerr/Caudex.Graph/widecolumnstore/storage/memorydb"
 )
 
-type unaryTest struct {
+type unaryMock struct {
 }
 
-func (s *unaryTest) Next(i widecolumnstore.Iterator) widecolumnstore.Iterator {
+func (s *unaryMock) Next(i widecolumnstore.Iterator) widecolumnstore.Iterator {
 	return i
 }
 
-func (s *unaryTest) Op() {
+func (s *unaryMock) Op() {
 
+}
+
+type filterMock struct {
+	bytes []byte
+}
+
+func (s *filterMock) Op() {}
+
+func (s *filterMock) Next(i widecolumnstore.Iterator) widecolumnstore.Iterator {
+	return i
 }
 
 func TestQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 	storage, _ := memorydb.NewStorageEngine()
-	last := &unaryTest{}
+	last := &unaryMock{}
 
-	prefix := func(kv widecolumnstore.KeyValue) []byte {
-		key := widecolumnstore.Key{}
-		key.Unmarshal(kv.Key)
-		return widecolumnstore.NewKey(query.TProperties, &widecolumnstore.Column{[]byte("test"), nil, []byte("test")}).Marshal()
+	want := &filterMock{widecolumnstore.NewKey(query.TProperties, &widecolumnstore.Column{[]byte("key"), nil, []byte("id")}).Marshal()}
 
-	}
-
-	want := operators.NewFilter(storage, last, prefix)
 	patn := &ast.VertexPatn{
 		Properties: func() map[string]interface{} {
 			prop := make(map[string]interface{}, 0)
-			prop["test"] = "test"
+			prop["key"] = "value"
 			return prop
 		}(),
 	}
 
-	newFilter := func(widecolumnstore.HasPrefix, widecolumnstore.Operator, widecolumnstore.Prefix) *operators.Filter {
-		return want
+	newFilter := func(h widecolumnstore.HasPrefix, o widecolumnstore.Operator, p widecolumnstore.Prefix) widecolumnstore.Unary {
+		bytes := p(widecolumnstore.KeyValue{Key: []byte("id")})
+		return &filterMock{
+			bytes: bytes,
+		}
 	}
 
 	t.Run("", func(t *testing.T) {

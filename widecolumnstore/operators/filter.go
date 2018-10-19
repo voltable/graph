@@ -12,7 +12,7 @@ type Filter struct {
 }
 
 // NewFilter returns a Filter
-func NewFilter(storage widecolumnstore.HasPrefix, operator widecolumnstore.Operator, prefix widecolumnstore.Prefix) *Filter {
+func NewFilter(storage widecolumnstore.HasPrefix, operator widecolumnstore.Operator, prefix widecolumnstore.Prefix) widecolumnstore.Unary {
 	return &Filter{
 		prefix:   prefix,
 		operator: operator,
