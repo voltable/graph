@@ -38,7 +38,7 @@ func TestFilter_Next(t *testing.T) {
 				fields := fields{
 					storage:  storage,
 					operator: unary,
-					prefix: func(widecolumnstore.KeyValue) []byte {
+					prefix: func(widecolumnstore.Key) []byte {
 						arr := []byte{}
 						return arr
 					},

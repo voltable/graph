@@ -45,7 +45,10 @@ func TestQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 		{
 			name: "Properties filter pattern",
 			filter: func(h widecolumnstore.HasPrefix, o widecolumnstore.Operator, p widecolumnstore.Prefix) widecolumnstore.Unary {
-				bytes := p(widecolumnstore.KeyValue{Key: []byte("id")})
+				key := widecolumnstore.Key{
+					ID: []byte("id"),
+				}
+				bytes := p(key)
 				return &filterMock{
 					bytes: bytes,
 				}

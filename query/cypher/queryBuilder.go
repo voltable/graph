@@ -70,37 +70,12 @@ func (s *QueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn, last widecolu
 	}
 
 	for k := range patn.Properties {
-		p := func(kv widecolumnstore.KeyValue) []byte {
-			key := widecolumnstore.Key{}
-			key.Unmarshal(kv.Key)
+		operator := func(key widecolumnstore.Key) []byte {
 			return widecolumnstore.NewKey(query.TProperties, &widecolumnstore.Column{[]byte(k), nil, key.ID}).Marshal()
 		}
-		last = s.filter(s.storage, last, p)
+		last = s.filter(s.storage, last, operator)
 	}
 	return last, nil
-
-	// return func(from, to *uuid.UUID, depth int) (string, query.Traverse) {
-	// 	keyValues := make([]*widecolumnstore.KeyValue, 0)
-
-	// 	for k, p := range patn.Properties {
-	// 		kv, _ := query.NewKeyValueProperty(from, k, p)
-
-	// 		iterator := s.storage.HasPrefix(kv.Key)
-	// 		for i, ok := iterator(); ok; i, ok = iterator() {
-	// 			if kv, ok := i.(*widecolumnstore.KeyValue); ok {
-	// 				if p != nil && p == widecolumnstore.Unmarshal(kv.Value) {
-	// 					keyValues = append(keyValues, kv)
-	// 				}
-	// 			}
-	// 		}
-
-	// 		if len(keyValues) > 0 {
-	// 			return patn.Variable, query.Matched
-	// 		}
-	// 	}
-
-	// 	return patn.Variable, query.Failed
-	// }, nil
 }
 
 // ToPredicateEdgePath creates a PredicateEdgePath out of the EdgePatn
@@ -110,57 +85,20 @@ func (s *QueryBuilder) ToPredicateEdgePath(patn *ast.EdgePatn, last widecolumnst
 		return nil, ErrNoPattern
 	}
 
+	if last == nil {
+		return nil, ErrNoLastOperator
+	}
+
+	if patn.Body != nil {
+		for k := range patn.Body.Properties {
+			operator := func(key widecolumnstore.Key) []byte {
+				return widecolumnstore.NewKey(key.ID, &widecolumnstore.Column{query.Relationshipproperties, []byte(k), nil}).Marshal()
+			}
+			last = s.filter(s.storage, last, operator)
+		}
+	}
+
 	return last, nil
-
-	// return func(from, to *uuid.UUID, depth int) (string, query.Traverse) {
-
-	// 	keyValues := make([]*widecolumnstore.KeyValue, 0)
-
-	// 	if patn.Body != nil {
-	// 		for k, p := range patn.Body.Properties {
-	// 			kv, _ := query.NewKeyValueRelationshipProperty(from, to, k, p)
-	// 			iterator := s.storage.HasPrefix(kv.Key)
-	// 			for i, ok := iterator(); ok; i, ok = iterator() {
-	// 				if kv, ok := i.(*widecolumnstore.KeyValue); ok {
-	// 					if p != nil && p == widecolumnstore.Unmarshal(kv.Value) {
-	// 						keyValues = append(keyValues, kv)
-	// 					}
-	// 				}
-	// 			}
-
-	// 			if len(keyValues) > 0 {
-	// 				return patn.Variable, query.Visiting
-	// 			}
-	// 		}
-	// 	}
-
-	// 	return patn.Variable, query.Matching
-
-	// split := bytes.Split(kv.Key, US)
-
-	// if bytes.Equal(split[1], Vertex) {
-	// 	value, ok := kv.Value.Unmarshal().(string)
-	// 	if ok && label != value {
-	// 		return patn.Variable, Failed
-	// 	}
-
-	// 	return patn.Variable, Matched
-	// }
-
-	// if bytes.Equal(split[1], Properties) {
-	// 	key := split[2]
-	// 	property := string(key)
-	// 	if value, ok := patn.Body.Properties[property]; ok {
-	// 		if value != kv.Value.Unmarshal() {
-	// 			return patn.Variable, Failed
-	// 		}
-	// 	}
-
-	// 	return patn.Variable, Matched
-	// }
-
-	//}, nil
-
 	// relationshipType := strings.ToLower(patn.Body.Type)
 	// pvp := query.PredicateEdgePath{PredicateEdge: func(v *graph.Edge, depth uint) (string, query.Traverse) {
 

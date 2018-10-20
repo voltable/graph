@@ -6,6 +6,7 @@ var (
 	Relationship           = []byte("r")
 	Relationshipproperties = []byte("k")
 
+	// T = transpose
 	TLabel                  = []byte("tl")
 	TProperties             = []byte("tp")
 	TRelationship           = []byte("tr")

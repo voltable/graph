@@ -31,7 +31,10 @@ func (s *Filter) Next(i widecolumnstore.Iterator) widecolumnstore.Iterator {
 			}
 		}
 		for value, ok := iterator(); ok; value, ok = iterator() {
-			prefix := s.prefix(value)
+			key := widecolumnstore.Key{}
+			key.Unmarshal(value.Key)
+
+			prefix := s.prefix(key)
 
 			prefixIterator = s.storage.HasPrefix(prefix)
 			value, ok := prefixIterator()
