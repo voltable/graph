@@ -33,35 +33,65 @@ func (s *filterMock) Next(i widecolumnstore.Iterator) widecolumnstore.Iterator {
 }
 
 func TestQueryBuilder_ToPredicateVertexPath(t *testing.T) {
-	storage, _ := memorydb.NewStorageEngine()
-	last := &unaryMock{}
-
-	want := &filterMock{widecolumnstore.NewKey(query.TProperties, &widecolumnstore.Column{[]byte("key"), nil, []byte("id")}).Marshal()}
-
-	patn := &ast.VertexPatn{
-		Properties: func() map[string]interface{} {
-			prop := make(map[string]interface{}, 0)
-			prop["key"] = "value"
-			return prop
-		}(),
+	tests := []struct {
+		name    string
+		storage widecolumnstore.Storage
+		filter  func(storage widecolumnstore.HasPrefix, operator widecolumnstore.Operator, prefix widecolumnstore.Prefix) widecolumnstore.Unary
+		patn    *ast.VertexPatn
+		last    widecolumnstore.Operator
+		want    widecolumnstore.Operator
+		err     error
+	}{
+		{
+			name: "Properties filter pattern",
+			filter: func(h widecolumnstore.HasPrefix, o widecolumnstore.Operator, p widecolumnstore.Prefix) widecolumnstore.Unary {
+				bytes := p(widecolumnstore.KeyValue{Key: []byte("id")})
+				return &filterMock{
+					bytes: bytes,
+				}
+			},
+			storage: func() widecolumnstore.Storage {
+				storage, _ := memorydb.NewStorageEngine()
+				return storage
+			}(),
+			patn: &ast.VertexPatn{
+				Properties: func() map[string]interface{} {
+					prop := make(map[string]interface{}, 0)
+					prop["key"] = "value"
+					return prop
+				}(),
+			},
+			last: &unaryMock{},
+			want: &filterMock{widecolumnstore.NewKey(query.TProperties, &widecolumnstore.Column{[]byte("key"), nil, []byte("id")}).Marshal()},
+		},
+		{
+			name: "No Pattern",
+			err:  cypher.ErrNoPattern,
+		},
+		{
+			name: "No Operator",
+			patn: &ast.VertexPatn{
+				Properties: func() map[string]interface{} {
+					prop := make(map[string]interface{}, 0)
+					prop["key"] = "value"
+					return prop
+				}(),
+			},
+			err: cypher.ErrNoLastOperator,
+		},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := cypher.NewQueryBuilder(tt.storage, tt.filter)
+			got, err := s.ToPredicateVertexPath(tt.patn, tt.last)
 
-	newFilter := func(h widecolumnstore.HasPrefix, o widecolumnstore.Operator, p widecolumnstore.Prefix) widecolumnstore.Unary {
-		bytes := p(widecolumnstore.KeyValue{Key: []byte("id")})
-		return &filterMock{
-			bytes: bytes,
-		}
+			if err != tt.err {
+				t.Errorf("QueryBuilder.ToPredicateVertexPath() error = %v, wantErr %v", err, tt.err)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("QueryBuilder.ToPredicateVertexPath() = %v, want %v", got, tt.want)
+			}
+		})
 	}
-
-	t.Run("", func(t *testing.T) {
-		s := cypher.NewQueryBuilder(storage, newFilter)
-		got, err := s.ToPredicateVertexPath(patn, last)
-		if err != nil {
-			t.Errorf("QueryBuilder.ToPredicateVertexPath() error = %v", err)
-			return
-		}
-		if !reflect.DeepEqual(got, want) {
-			t.Errorf("QueryBuilder.ToPredicateVertexPath() = got \n%#v, want \n%#v", got, want)
-		}
-	})
 }

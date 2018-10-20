@@ -10,8 +10,9 @@ import (
 )
 
 var (
-	errNoPattern      = errors.New("No pattern provided")
-	errUnknownPattern = errors.New("Unknown pattern")
+	ErrNoPattern      = errors.New("No pattern provided")
+	ErrNoLastOperator = errors.New("No last operator provided")
+	ErrUnknownPattern = errors.New("Unknown pattern")
 )
 
 type QueryBuilder struct {
@@ -54,15 +55,20 @@ func (s *QueryBuilder) toPredicatePath(patn ast.Patn, last widecolumnstore.Opera
 		return s.ToPredicateEdgePath(edge, last)
 	}
 
-	return nil, errUnknownPattern
+	return nil, ErrUnknownPattern
 }
 
 // ToPredicateVertexPath creates a PredicateVertexPath out of the VertexPatn
 func (s *QueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn, last widecolumnstore.Operator) (widecolumnstore.Operator, error) {
 	//label := strings.ToLower(patn.Label)
 	if patn == nil {
-		return nil, errNoPattern
+		return nil, ErrNoPattern
 	}
+
+	if last == nil {
+		return nil, ErrNoLastOperator
+	}
+
 	for k := range patn.Properties {
 		p := func(kv widecolumnstore.KeyValue) []byte {
 			key := widecolumnstore.Key{}
@@ -101,7 +107,7 @@ func (s *QueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn, last widecolu
 func (s *QueryBuilder) ToPredicateEdgePath(patn *ast.EdgePatn, last widecolumnstore.Operator) (widecolumnstore.Operator, error) {
 	//label := strings.ToLower(patn.Body.Type)
 	if patn == nil {
-		return nil, errNoPattern
+		return nil, ErrNoPattern
 	}
 
 	return last, nil
