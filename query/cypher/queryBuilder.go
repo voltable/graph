@@ -45,7 +45,7 @@ func (s *QueryBuilder) Predicate(patterns []ast.Patn) (widecolumnstore.Operator,
 	return last, nil
 }
 
-// ToPredicatePath creates a PredicatePath out of the Patn̦P
+// ToPredicatePath creates a PredicatePath out of the Patn̦
 func (s *QueryBuilder) toPredicatePath(patn ast.Patn, last widecolumnstore.Operator) (widecolumnstore.Operator, error) {
 	if vertex, ok := patn.(*ast.VertexPatn); ok {
 		return s.ToPredicateVertexPath(vertex, last)
