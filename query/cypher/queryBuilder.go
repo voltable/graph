@@ -33,6 +33,10 @@ func NewQueryBuilder(storage widecolumnstore.Storage,
 }
 
 func (s *QueryBuilder) Predicate(patterns []ast.Patn) (widecolumnstore.Operator, error) {
+	if patterns == nil {
+		return nil, ErrNoPattern
+	}
+
 	var last widecolumnstore.Operator = operators.NewScan(s.storage)
 	var err error
 	for _, patn := range patterns {

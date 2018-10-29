@@ -162,3 +162,94 @@ func TestQueryBuilder_ToPredicateEdgePath(t *testing.T) {
 		})
 	}
 }
+
+func TestQueryBuilder_Predicate(t *testing.T) {
+	tests := []struct {
+		name     string
+		storage  widecolumnstore.Storage
+		filter   func(storage widecolumnstore.HasPrefix, operator widecolumnstore.Operator, prefix widecolumnstore.Prefix) widecolumnstore.Unary
+		patterns []ast.Patn
+		want     widecolumnstore.Operator
+		err      error
+	}{
+		{
+			name: "No Pattern",
+			err:  cypher.ErrNoPattern,
+		},
+		{
+			name: "Edge Pattern",
+			patterns: func() []ast.Patn {
+				patterns := make([]ast.Patn, 0)
+				edge := &ast.EdgePatn{
+					Body: &ast.EdgeBodyStmt{
+						Properties: func() map[string]interface{} {
+							prop := make(map[string]interface{}, 0)
+							prop["key"] = "value"
+							return prop
+						}(),
+					},
+				}
+				patterns = append(patterns, edge)
+				return patterns
+			}(),
+			filter: func(h widecolumnstore.HasPrefix, o widecolumnstore.Operator, p widecolumnstore.Prefix) widecolumnstore.Unary {
+				key := widecolumnstore.Key{
+					ID: []byte("id"),
+				}
+				bytes := p(key)
+				return &filterMock{
+					bytes: bytes,
+				}
+			},
+			storage: func() widecolumnstore.Storage {
+				storage, _ := memorydb.NewStorageEngine()
+				return storage
+			}(),
+			want: &filterMock{widecolumnstore.NewKey([]byte("id"), &widecolumnstore.Column{query.Relationshipproperties, []byte("key"), nil}).Marshal()},
+		},
+
+		{
+			name: "Vertex Pattern",
+			patterns: func() []ast.Patn {
+				patterns := make([]ast.Patn, 0)
+				vertex := &ast.VertexPatn{
+					Properties: func() map[string]interface{} {
+						prop := make(map[string]interface{}, 0)
+						prop["key"] = "value"
+						return prop
+					}(),
+				}
+				patterns = append(patterns, vertex)
+				return patterns
+			}(),
+			filter: func(h widecolumnstore.HasPrefix, o widecolumnstore.Operator, p widecolumnstore.Prefix) widecolumnstore.Unary {
+				key := widecolumnstore.Key{
+					ID: []byte("id"),
+				}
+				bytes := p(key)
+				return &filterMock{
+					bytes: bytes,
+				}
+			},
+			storage: func() widecolumnstore.Storage {
+				storage, _ := memorydb.NewStorageEngine()
+				return storage
+			}(),
+			want: &filterMock{widecolumnstore.NewKey(query.TProperties, &widecolumnstore.Column{[]byte("key"), nil, []byte("id")}).Marshal()},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := cypher.NewQueryBuilder(tt.storage, tt.filter)
+
+			got, err := s.Predicate(tt.patterns)
+			if err != tt.err {
+				t.Errorf("QueryBuilder.Predicate() error = %v, wantErr %v", err, tt.err)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("QueryBuilder.Predicate() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
