@@ -30,7 +30,7 @@ func RegisterQueryEngine(name string, register QueryEngineRegistry) {
 	queryRegistry[name] = register
 }
 
-func NewGraph(name string, i widecolumnstore.Storage) (QueryEngine, error) {
+func NewQueryEngine(name string, i widecolumnstore.Storage) (QueryEngine, error) {
 	r, registered := queryRegistry[name]
 	if !registered {
 		return nil, ErrGraphNotRegistred

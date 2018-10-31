@@ -10,6 +10,17 @@ import (
 	"github.com/RossMerr/Caudex.Graph/uuid"
 )
 
+// NewKeyValueID creates a ID KeyValue
+func NewKeyValueID(id *uuid.UUID, label string) (*widecolumnstore.KeyValue, *widecolumnstore.KeyValue) {
+	return &widecolumnstore.KeyValue{
+			Value: widecolumnstore.NewAny(TID),
+			Key:   widecolumnstore.NewKey(id[:], &widecolumnstore.Column{nil, nil, nil}).Marshal(),
+		}, &widecolumnstore.KeyValue{
+			Value: widecolumnstore.NewAny(id[:]),
+			Key:   widecolumnstore.NewKey(TID, &widecolumnstore.Column{id[:], nil, nil}).Marshal(),
+		}
+}
+
 // NewKeyValueVertex creates a vertex KeyValue
 func NewKeyValueVertex(id *uuid.UUID, label string) (*widecolumnstore.KeyValue, *widecolumnstore.KeyValue) {
 	return &widecolumnstore.KeyValue{

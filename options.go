@@ -9,17 +9,25 @@ const (
 	QueryTimeout time.Duration = time.Second * 30
 
 	// QueryEngine default query engine to use
-	QueryEngine string = "Cypher"
+	QueryEngine string = "cypher"
+
+	// StorageEngine default storage engine to use
+	StorageEngine string = "memorydb"
 )
 
 // Options for the graph
 type Options struct {
-	Name        string
-	QueryEngine string
-	Timeout     time.Duration
+	Name          string
+	QueryEngine   string
+	StorageEngine string
+	Timeout       time.Duration
 }
 
 // NewOptions creates the default graph options
 func NewOptions() *Options {
-	return &Options{QueryEngine: QueryEngine, Timeout: QueryTimeout}
+	return &Options{
+		QueryEngine:   QueryEngine,
+		Timeout:       QueryTimeout,
+		StorageEngine: StorageEngine,
+	}
 }

@@ -49,27 +49,28 @@ var _ query.QueryEngine = (*QueryEngine)(nil)
 
 // Parse in a cypher query as a string and get back Query that is abstracted from the cypher AST
 func (qe QueryEngine) Parse(q string) (*graph.Query, error) {
-	// stmt, err := qe.Parser.Parse(q)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	stmt, err := qe.Parser.Parse(q)
+	if err != nil {
+		return nil, err
+	}
 
-	//queryPart, err := qe.Parts.ToQueryPart(stmt)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// plan := NewPlan(qe.Builder)
+	queryPart, err := qe.Parts.ToQueryPart(stmt)
+	if err != nil {
+		return nil, err
+	}
+	plan := NewPlan(qe.Builder)
 	results := make([]interface{}, 0)
-	//for _, part := range queryPart {
-	//frontier := qe.toFrontier(qe.Storage.ForEach(), part.Variable())
-	// f, err := plan.SearchPlan(frontier, part.Patterns)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// results = append(results, Transform(f)...)
-	//f = qe.Filter.Filter(f, part.Predicate())
-	//results = append(results, qe.Projection.Transform(f, part.Maps())...)
-	//}
+	for _, part := range queryPart {
+		prefix := widecolumnstore.NewKey(query.TID, &widecolumnstore.Column{nil, nil, nil}).Marshal()
+		frontier := qe.toFrontier(qe.Storage.HasPrefix(prefix), part.Variable())
+		f, err := plan.SearchPlan(frontier, part.Patterns)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, Transform(f)...)
+		//	f = qe.Filter.Filter(f, part.Predicate())
+		//results = append(results, qe.Projection.Transform(f, part.Maps())...)
+	}
 
 	query := graph.NewQuery(q, results)
 
@@ -88,9 +89,10 @@ func (qe QueryEngine) toVertices(i query.IteratorFrontier) []interface{} {
 	return results
 }
 
-func (qe QueryEngine) toFrontier(i query.IteratorUUID, variable string) query.IteratorFrontier {
+func (qe QueryEngine) toFrontier(i widecolumnstore.Iterator, variable string) query.IteratorFrontier {
 	return func() (*query.Frontier, bool) {
-		id, ok := i()
+		kv, ok := i()
+		id := query.UUID(&kv)
 		if ok {
 			f := query.NewFrontier(id, variable)
 			return &f, true

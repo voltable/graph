@@ -34,8 +34,20 @@ func (s *Graph) Close() {
 
 // NewGraphEngine creates anew in memory storage engine
 func NewGraphEngine(o *graph.Options) (graph.Graph, error) {
+	s, err := widecolumnstore.NewStorage(o.StorageEngine)
+	if err != nil {
+		return nil, err
+	}
+
+	q, err := NewQueryEngine(o.QueryEngine, s)
+	if err != nil {
+		return nil, err
+	}
+
 	se := Graph{
 		Options: o,
+		storage: s,
+		query:   q,
 	}
 
 	// queryEngine, err := NewQueryEngine(o.QueryEngine, se.storage)
