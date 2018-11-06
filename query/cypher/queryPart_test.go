@@ -22,6 +22,18 @@ func Test_ToQueryPath(t *testing.T) {
 	}
 }
 
+func Test_ToQueryPath_Nil(t *testing.T) {
+	match := &ast.MatchStmt{Next: nil}
+
+	parts, _ := cypher.NewParts().ToQueryPart(match)
+	partOne := parts[0]
+
+	if partOne.Return != nil {
+		t.Errorf("Nil not matched")
+	}
+}
+
+
 func Test_ToQueryPath_Return(t *testing.T) {
 	returnPatn := &ast.ReturnStmt{}
 	match := &ast.MatchStmt{Next: returnPatn}

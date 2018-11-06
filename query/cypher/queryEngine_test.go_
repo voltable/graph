@@ -1,7 +1,6 @@
 package cypher_test
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -57,13 +56,13 @@ func Test_Parser(t *testing.T) {
 			parts: NewFakeParts(),
 			s:     "str",
 		},
-		{
-			e:     cypher.NewQueryEngine(NewGraph()),
-			p:     NewFakePaser(fmt.Errorf("paser error")),
-			parts: NewFakeParts(),
-			s:     "str",
-			err:   "paser error",
-		},
+		// {
+		// 	e:     cypher.NewQueryEngine(NewGraph()),
+		// 	p:     NewFakePaser(fmt.Errorf("paser error")),
+		// 	parts: NewFakeParts(),
+		// 	s:     "str",
+		// 	err:   "paser error",
+		// },
 	}
 
 	for i, tt := range tests {
