@@ -62,10 +62,11 @@ func (qq cypherParts) ToQueryPart(stmt ast.Clauses) ([]*QueryPart, error) {
 	arr = append(arr, &qp)
 	if pattern, ok := IsPattern(stmt); ok {
 		for pattern != nil {
-			qp.Patterns = append(qp.Patterns, pattern)
 			if edge, ok := pattern.(*ast.EdgePatn); ok && edge != nil {
+				qp.Patterns = append(qp.Patterns, pattern)
 				pattern = edge.Next()
 			} else if vertex, ok := pattern.(*ast.VertexPatn); ok && vertex != nil {
+				qp.Patterns = append(qp.Patterns, pattern)
 				pattern = vertex.Next()
 			} else {
 				break
