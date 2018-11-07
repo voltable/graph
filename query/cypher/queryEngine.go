@@ -5,6 +5,7 @@ import (
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
 	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
+	"github.com/pkg/errors"
 )
 
 func init() {
@@ -25,6 +26,7 @@ func newEngine(i widecolumnstore.Storage) (query.QueryEngine, error) {
 	return e, nil
 }
 
+// NewQueryEngine creates a new QueryEngine
 func NewQueryEngine(i widecolumnstore.Storage) *QueryEngine {
 	return &QueryEngine{
 		Parser:  parser.NewParser(),
@@ -61,11 +63,11 @@ func (qe QueryEngine) Parse(q string) (*graph.Query, error) {
 	plan := NewPlan(qe.Builder)
 	results := make([]interface{}, 0)
 	for _, part := range queryPart {
-		prefix := widecolumnstore.NewKey(query.TID, &widecolumnstore.Column{nil, nil, nil}).Marshal()
+		prefix := widecolumnstore.NewKey(query.TID, &widecolumnstore.Column{}).Marshal()
 		frontier := qe.toFrontier(qe.Storage.HasPrefix(prefix), part.Variable())
 		f, err := plan.SearchPlan(frontier, part.Patterns)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "QueryEngine Parse")
 		}
 		results = append(results, Transform(f)...)
 		//	f = qe.Filter.Filter(f, part.Predicate())

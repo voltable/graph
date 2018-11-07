@@ -22,17 +22,18 @@ func Test_ToQueryPath(t *testing.T) {
 	}
 }
 
-func Test_ToQueryPath_Nil(t *testing.T) {
-	match := &ast.MatchStmt{Next: nil}
+func Test_ToQueryPath_Pattern(t *testing.T) {
+	v := &ast.VertexPatn{Edge: &ast.EdgePatn{}}
+	wherePatn := &ast.WhereStmt{Predicate: ast.NewComparisonExpr(expressions.EQ, &ast.PropertyStmt{Variable: "n", Value: "name"}, &ast.Ident{Data: "foo"})}
+	match := &ast.MatchStmt{Pattern: v, Next: wherePatn}
 
 	parts, _ := cypher.NewParts().ToQueryPart(match)
 	partOne := parts[0]
 
-	if partOne.Return != nil {
-		t.Errorf("Nil not matched")
+	if partOne.Where == nil {
+		t.Errorf("Where statment not matched")
 	}
 }
-
 
 func Test_ToQueryPath_Return(t *testing.T) {
 	returnPatn := &ast.ReturnStmt{}

@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/uuid"
 	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 )
 
@@ -113,29 +112,6 @@ func (s *Graph) Update(c ...*graph.Vertex) error {
 
 func (s *Graph) Query(str string) (*graph.Query, error) {
 	return s.query.Parse(str)
-}
-
-func (s *Graph) Edges(id *uuid.UUID) IteratorUUIDWeight {
-	p := RelationshipPrefix(id)
-	iterator := s.storage.HasPrefix(p)
-	return func() (*uuid.UUID, float64, bool) {
-		for i, ok := iterator(); ok; i, ok = iterator() {
-			return To(i), Weight(i), true
-		}
-
-		return nil, 0, false
-	}
-}
-
-func (s *Graph) ForEach() IteratorUUID {
-	iterator := s.storage.Each()
-	return func() (*uuid.UUID, bool) {
-		for i, ok := iterator(); ok; i, ok = iterator() {
-			return To(i), true
-		}
-
-		return nil, false
-	}
 }
 
 func (s *Graph) HasPrefix(prefix []byte) widecolumnstore.Iterator {
