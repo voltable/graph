@@ -44,7 +44,7 @@ type QueryEngine struct {
 	Storage widecolumnstore.Storage
 	Parts   Parts
 	//Projection Projection
-	Builder *QueryBuilder
+	Builder *CypherQueryBuilder
 }
 
 var _ query.QueryEngine = (*QueryEngine)(nil)

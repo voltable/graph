@@ -8,10 +8,12 @@ import (
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph"
+	"github.com/RossMerr/Caudex.Graph/expressions"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/uuid"
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 	"github.com/RossMerr/Caudex.Graph/widecolumnstore/storage/memorydb"
 )
 
@@ -88,8 +90,8 @@ func Test_UniformCostSearch(t *testing.T) {
 	qb := &queryBuilder{Storage: g}
 	patterns := []ast.Patn{}
 
-	plan := cypher.NewPlan(qb, g)
-	it, err := plan.SearchPlan(g.ForEachTest(), patterns)
+	plan := cypher.NewPlan(qb)
+	it, err := plan.SearchPlan(ForEachTest(g), patterns)
 	if err != nil {
 		t.Fatalf("Travers failed %+v", err)
 	}
@@ -136,6 +138,19 @@ func AustraliaGraph() graph.Graph {
 	return g
 }
 
+func ForEachTest(se graph.Graph) query.IteratorFrontier {
+	ok := false
+	return func() (*query.Frontier, bool) {
+		ok = expressions.XORSwap(ok)
+		if ok {
+			kv, _ := query.MarshalKeyValue(syd)
+			f := query.NewFrontier(query.UUID(kv[0]), "")
+			return &f, ok
+		}
+		return nil, ok
+	}
+}
+
 func ToIterator(i query.IteratorFrontier) []*uuid.UUID {
 	results := make([]*uuid.UUID, 0)
 
@@ -150,19 +165,24 @@ func ToIterator(i query.IteratorFrontier) []*uuid.UUID {
 	return results
 }
 
-func (qb *queryBuilder) Predicate([]ast.Patn) ([]query.Predicate, error) {
-	path := make([]query.Predicate, 0)
-	path = append(path, qb.toPredicate())
-	path = append(path, qb.toPredicate())
-	path = append(path, qb.toPredicate())
-	path = append(path, qb.toPredicate())
-	path = append(path, qb.toPredicate())
-	path = append(path, qb.toPredicate())
-	path = append(path, qb.toPredicate())
-	path = append(path, qb.toPredicate())
-	path = append(path, qb.toPredicate())
+type queryBuilder struct {
+	Storage graph.Graph
+}
 
-	return path, nil
+// Predicate(patterns []ast.Patn) (widecolumnstore.Operator, error)
+func (qb *queryBuilder) Predicate([]ast.Patn) (widecolumnstore.Operator, error) {
+	// path := make([]query.Predicate, 0)
+	// path = append(path, qb.toPredicate())
+	// path = append(path, qb.toPredicate())
+	// path = append(path, qb.toPredicate())
+	// path = append(path, qb.toPredicate())
+	// path = append(path, qb.toPredicate())
+	// path = append(path, qb.toPredicate())
+	// path = append(path, qb.toPredicate())
+	// path = append(path, qb.toPredicate())
+	// path = append(path, qb.toPredicate())
+
+	return nil, nil
 }
 
 func (qb *queryBuilder) toPredicate() query.Predicate {

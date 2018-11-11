@@ -12,12 +12,12 @@ import (
 
 type Plan struct {
 	wg       *sync.WaitGroup
-	builder  *QueryBuilder
+	builder  QueryBuilder
 	operator widecolumnstore.Operator
 	engine   query.Graph
 }
 
-func NewPlan(builder *QueryBuilder) *Plan {
+func NewPlan(builder QueryBuilder) *Plan {
 
 	plan := &Plan{
 		wg:      &sync.WaitGroup{},

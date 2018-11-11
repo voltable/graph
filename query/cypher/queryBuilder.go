@@ -15,24 +15,28 @@ var (
 	ErrUnknownPattern = errors.New("Unknown pattern")
 )
 
-type QueryBuilder struct {
+type QueryBuilder interface {
+	Predicate(patterns []ast.Patn) (widecolumnstore.Operator, error)
+}
+
+type CypherQueryBuilder struct {
 	storage widecolumnstore.Storage
 	filter  func(storage widecolumnstore.HasPrefix, operator widecolumnstore.Operator, prefix widecolumnstore.Prefix) widecolumnstore.Unary
 }
 
-func NewQueryBuilderDefault(storage widecolumnstore.Storage) *QueryBuilder {
+func NewQueryBuilderDefault(storage widecolumnstore.Storage) *CypherQueryBuilder {
 	return NewQueryBuilder(storage, operators.NewFilter)
 }
 
 func NewQueryBuilder(storage widecolumnstore.Storage,
-	filter func(storage widecolumnstore.HasPrefix, operator widecolumnstore.Operator, prefix widecolumnstore.Prefix) widecolumnstore.Unary) *QueryBuilder {
-	return &QueryBuilder{
+	filter func(storage widecolumnstore.HasPrefix, operator widecolumnstore.Operator, prefix widecolumnstore.Prefix) widecolumnstore.Unary) *CypherQueryBuilder {
+	return &CypherQueryBuilder{
 		storage: storage,
 		filter:  filter,
 	}
 }
 
-func (s *QueryBuilder) Predicate(patterns []ast.Patn) (widecolumnstore.Operator, error) {
+func (s *CypherQueryBuilder) Predicate(patterns []ast.Patn) (widecolumnstore.Operator, error) {
 	if patterns == nil {
 		return nil, ErrNoPattern
 	}
@@ -50,7 +54,7 @@ func (s *QueryBuilder) Predicate(patterns []ast.Patn) (widecolumnstore.Operator,
 }
 
 // ToPredicatePath creates a PredicatePath out of the Patn̦
-func (s *QueryBuilder) toPredicatePath(patn ast.Patn, last widecolumnstore.Operator) (widecolumnstore.Operator, error) {
+func (s *CypherQueryBuilder) toPredicatePath(patn ast.Patn, last widecolumnstore.Operator) (widecolumnstore.Operator, error) {
 	if vertex, ok := patn.(*ast.VertexPatn); ok {
 		return s.ToPredicateVertexPath(vertex, last)
 	}
@@ -63,7 +67,7 @@ func (s *QueryBuilder) toPredicatePath(patn ast.Patn, last widecolumnstore.Opera
 }
 
 // ToPredicateVertexPath creates a PredicateVertexPath out of the VertexPatn
-func (s *QueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn, last widecolumnstore.Operator) (widecolumnstore.Operator, error) {
+func (s *CypherQueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn, last widecolumnstore.Operator) (widecolumnstore.Operator, error) {
 	//label := strings.ToLower(patn.Label)
 	if patn == nil {
 		return nil, ErrNoPattern
@@ -83,7 +87,7 @@ func (s *QueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn, last widecolu
 }
 
 // ToPredicateEdgePath creates a PredicateEdgePath out of the EdgePatn
-func (s *QueryBuilder) ToPredicateEdgePath(patn *ast.EdgePatn, last widecolumnstore.Operator) (widecolumnstore.Operator, error) {
+func (s *CypherQueryBuilder) ToPredicateEdgePath(patn *ast.EdgePatn, last widecolumnstore.Operator) (widecolumnstore.Operator, error) {
 	//label := strings.ToLower(patn.Body.Type)
 	if patn == nil {
 		return nil, ErrNoPattern
