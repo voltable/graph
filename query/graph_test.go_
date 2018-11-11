@@ -17,7 +17,7 @@ func Test_Query(t *testing.T) {
 	options.StorageEngine = memorydb.StorageType
 
 	var tests = []struct {
-		expecting    []interface{}
+		expecting    []*graph.Vertex
 		uninterested []*graph.Vertex
 		query        string
 	}{
@@ -39,8 +39,8 @@ func Test_Query(t *testing.T) {
 		// },
 		// 1
 		{
-			expecting: func() []interface{} {
-				arr := make([]interface{}, 0, 0)
+			expecting: func() []*graph.Vertex {
+				arr := make([]*graph.Vertex, 0, 0)
 				v1, _ := graph.NewVertex()
 				v1.SetLabel("person")
 				v1.SetProperty("name", "john smith")
@@ -265,11 +265,7 @@ func Test_Query(t *testing.T) {
 			t.Errorf("Failed to create the storageEngine %v", err)
 		}
 
-		for _, i := range tt.expecting {
-			if v, ok := i.(*graph.Vertex); ok {
-				g.Create(v)
-			}
-		}
+		g.Create(tt.expecting...)
 		g.Create(tt.uninterested...)
 		q, err := g.Query(tt.query)
 

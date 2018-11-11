@@ -1,21 +1,18 @@
 package traversal_test
 
 import (
-	"bytes"
 	"container/list"
 	"errors"
-	"fmt"
 	"reflect"
-	"strings"
 	"testing"
 
 	"github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/expressions"
-	"github.com/RossMerr/Caudex.Graph/keyvalue"
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/uuid"
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore/storage/memorydb"
 )
 
 var (
@@ -124,129 +121,31 @@ func Test_UniformCostSearch(t *testing.T) {
 	}
 }
 
-func AustraliaGraph() *storageEngine {
-	g := &storageEngine{
-		tKeyIndex: make(map[int]string),
-		tKey:      make(map[string]*keyvalue.Any),
+func AustraliaGraph() query.QueryEngine {
+
+	cypher.RegisterEngine()
+	options := graph.NewOptions()
+	options.StorageEngine = memorydb.StorageType
+
+	s, err := widecolumnstore.NewStorage(options.StorageEngine)
+	if err != nil {
+		return nil, err
 	}
+
+	q, err := query.NewQueryEngine(options.QueryEngine, s)
+	if err != nil {
+		return nil, err
+	}
+
+	// g, err := query.NewGraphEngine(options)
+	// if err != nil {
+	// 	t.Errorf("Failed to create the storageEngine %v", err)
+	// }
+
+	g.Create(tt.expecting...)
 	g.Create(drw, cns, asp, bne, syd, cbr, mel, adl, per)
+
 	return g
-}
-
-var _ query.Storage = (*storageEngine)(nil)
-
-type storageEngine struct {
-	tKeyIndex map[int]string
-	tKey      map[string]*keyvalue.Any
-}
-
-// Create adds a array of vertices to the persistence
-func (se *storageEngine) Create(c ...*graph.Vertex) error {
-	for _, v := range c {
-		triples := keyvalue.MarshalKeyValue(v)
-		var errstrings []string
-
-		for i := 0; i < len(triples); i++ {
-			triple := triples[i]
-			se.tKeyIndex[len(se.tKey)] = string(triple.Key)
-			se.tKey[string(triple.Key)] = triple.Value
-		}
-
-		if len(errstrings) > 0 {
-			return fmt.Errorf(strings.Join(errstrings, "\n"))
-		}
-	}
-
-	return nil
-}
-
-// Delete the array of vertices from the persistence
-func (se *storageEngine) Delete(c ...*graph.Vertex) error {
-	return nil
-}
-
-// Update the array of vertices from the persistence
-func (se *storageEngine) Update(c ...*graph.Vertex) error {
-	se.Create(c...)
-	return nil
-}
-
-func (se *storageEngine) Query(str string) (*graph.Query, error) {
-	return nil, nil
-}
-
-func (se *storageEngine) Close() {
-
-}
-
-func (se *storageEngine) ForEach() query.IteratorUUID {
-	position := 0
-	length := len(se.tKey)
-	return func() (*uuid.UUID, bool) {
-		for position < length {
-			key := []byte(se.tKeyIndex[position])
-			kv := &keyvalue.KeyValue{
-				Key: key,
-			}
-			position = position + 1
-			return kv.UUID(), true
-		}
-		return nil, false
-	}
-}
-
-func (se *storageEngine) Edges(id *uuid.UUID) query.IteratorUUIDWeight {
-	position := 0
-	length := len(se.tKey)
-	p := keyvalue.RelationshipPrefix(id)
-	return func() (*uuid.UUID, float64, bool) {
-		for position < length {
-			key := []byte(se.tKeyIndex[position])
-			position = position + 1
-
-			if bytes.HasPrefix(key, p) {
-				value := se.tKey[string(key)]
-				kv := &keyvalue.KeyValue{
-					Key:   key,
-					Value: value,
-				}
-				return kv.To(), kv.Weight(), true
-			}
-		}
-		return nil, 0, false
-	}
-}
-
-func (se *storageEngine) HasPrefix(prefix []byte) query.Iterator {
-	position := 0
-	length := len(se.tKey)
-	return func() (interface{}, bool) {
-		for position < length {
-			key := []byte(se.tKeyIndex[position])
-			position = position + 1
-
-			if bytes.HasPrefix(key, prefix) {
-				v := se.tKey[string(key)]
-				kv := &keyvalue.KeyValue{Key: key, Value: v}
-				return kv, true
-			}
-		}
-
-		return nil, false
-	}
-}
-
-func (se *storageEngine) ForEachTest() query.IteratorFrontier {
-	ok := false
-	return func() (*query.Frontier, bool) {
-		ok = expressions.XORSwap(ok)
-		if ok {
-			kv := keyvalue.MarshalKeyValue(syd)
-			f := query.NewFrontier(kv[0].UUID(), "")
-			return &f, ok
-		}
-		return nil, ok
-	}
 }
 
 func ToIterator(i query.IteratorFrontier) []*uuid.UUID {

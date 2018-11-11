@@ -4,22 +4,25 @@ import (
 	"time"
 )
 
+type StorageType string
+type QueryType string
+
 const (
 	// QueryTimeout default duration for how long to run a query
 	QueryTimeout time.Duration = time.Second * 30
 
 	// QueryEngine default query engine to use
-	QueryEngine string = "cypher"
+	QueryEngine QueryType = "cypher"
 
 	// StorageEngine default storage engine to use
-	StorageEngine string = "memorydb"
+	StorageEngine StorageType = "memorydb"
 )
 
 // Options for the graph
 type Options struct {
 	Name          string
-	QueryEngine   string
-	StorageEngine string
+	QueryEngine   QueryType
+	StorageEngine StorageType
 	Timeout       time.Duration
 }
 

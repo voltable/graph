@@ -31,7 +31,7 @@ func (s *Graph) Close() {
 
 }
 
-// NewGraphEngine creates anew in memory storage engine
+// NewGraphEngine creates a new in memory storage engine
 func NewGraphEngine(o *graph.Options) (graph.Graph, error) {
 	s, err := widecolumnstore.NewStorage(o.StorageEngine)
 	if err != nil {

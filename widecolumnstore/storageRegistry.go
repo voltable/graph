@@ -3,10 +3,11 @@ package widecolumnstore
 import (
 	"errors"
 
+	graph "github.com/RossMerr/Caudex.Graph"
 	"github.com/Sirupsen/logrus"
 )
 
-var storeRegistry = make(map[string]StoreRegistration)
+var storeRegistry = make(map[graph.StorageType]StoreRegistration)
 
 var (
 	ErrStoreNotRegistred = errors.New("This Store is not registered.")
@@ -18,7 +19,7 @@ type StoreRegistration struct {
 	NewFunc NewStoreFunc
 }
 
-func RegisterStorage(name string, register StoreRegistration) {
+func RegisterStorage(name graph.StorageType, register StoreRegistration) {
 	if register.NewFunc == nil {
 		logrus.Panic("NewFunc must not be nil")
 	}
@@ -29,7 +30,7 @@ func RegisterStorage(name string, register StoreRegistration) {
 	storeRegistry[name] = register
 }
 
-func NewStorage(name string) (Storage, error) {
+func NewStorage(name graph.StorageType) (Storage, error) {
 	r, registered := storeRegistry[name]
 	if !registered {
 		return nil, ErrStoreNotRegistred
