@@ -27,10 +27,10 @@ type Options struct {
 }
 
 // NewOptions creates the default graph options
-func NewOptions() *Options {
+func NewOptions(queryEngine QueryType, storageEngine StorageType) *Options {
 	return &Options{
-		QueryEngine:   QueryEngine,
+		QueryEngine:   queryEngine,
 		Timeout:       QueryTimeout,
-		StorageEngine: StorageEngine,
+		StorageEngine: storageEngine,
 	}
 }

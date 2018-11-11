@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	query.RegisterQueryEngine(queryType, query.QueryEngineRegistry{
+	query.RegisterQueryEngine(QueryType, query.QueryEngineRegistry{
 		NewFunc: newEngine,
 	})
 }
@@ -19,7 +19,7 @@ func RegisterEngine() {
 	// Forces the call of init
 }
 
-const queryType = graph.QueryType("cypher")
+const QueryType = graph.QueryType("cypher")
 
 func newEngine(i widecolumnstore.Storage) (query.QueryEngine, error) {
 	e := NewQueryEngine(i)

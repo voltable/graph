@@ -21,10 +21,8 @@ var (
 )
 
 type StorageEngine struct {
-	tKeyIndex  map[int]string
-	tKey       map[string]*any.Any
-	tKeyTIndex map[int]string
-	tKeyT      map[string]*any.Any
+	tKeyIndex map[int]string
+	tKey      map[string]*any.Any
 }
 
 var _ widecolumnstore.Storage = (*StorageEngine)(nil)
@@ -36,10 +34,8 @@ func (se *StorageEngine) Close() {
 // NewStorageEngine creates a new in memory storage engine
 func NewStorageEngine() (widecolumnstore.Storage, error) {
 	se := StorageEngine{
-		tKeyIndex:  make(map[int]string),
-		tKey:       make(map[string]*any.Any),
-		tKeyT:      make(map[string]*any.Any),
-		tKeyTIndex: make(map[int]string),
+		tKeyIndex: make(map[int]string),
+		tKey:      make(map[string]*any.Any),
 	}
 
 	return &se, nil
@@ -96,5 +92,16 @@ func (se *StorageEngine) Count() int {
 }
 
 func (se *StorageEngine) Query(widecolumnstore.Operator) widecolumnstore.Iterator {
+	return nil
+}
+
+func (se *StorageEngine) Create(triples ...*widecolumnstore.KeyValue) error {
+
+	for i := 0; i < len(triples); i++ {
+		triple := triples[i]
+		se.tKeyIndex[len(se.tKey)] = string(triple.Key)
+		se.tKey[string(triple.Key)] = triple.Value
+	}
+
 	return nil
 }

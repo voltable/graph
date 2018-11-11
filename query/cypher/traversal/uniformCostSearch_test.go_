@@ -3,6 +3,7 @@ package traversal_test
 import (
 	"container/list"
 	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -11,7 +12,6 @@ import (
 	"github.com/RossMerr/Caudex.Graph/query/cypher"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/uuid"
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 	"github.com/RossMerr/Caudex.Graph/widecolumnstore/storage/memorydb"
 )
 
@@ -121,28 +121,16 @@ func Test_UniformCostSearch(t *testing.T) {
 	}
 }
 
-func AustraliaGraph() query.QueryEngine {
+func AustraliaGraph() graph.Graph {
 
 	cypher.RegisterEngine()
-	options := graph.NewOptions()
-	options.StorageEngine = memorydb.StorageType
+	options := graph.NewOptions(cypher.QueryType, memorydb.StorageType)
 
-	s, err := widecolumnstore.NewStorage(options.StorageEngine)
+	g, err := query.NewGraphEngine(options)
 	if err != nil {
-		return nil, err
+		fmt.Errorf("Failed to create the storageEngine %v", err)
 	}
 
-	q, err := query.NewQueryEngine(options.QueryEngine, s)
-	if err != nil {
-		return nil, err
-	}
-
-	// g, err := query.NewGraphEngine(options)
-	// if err != nil {
-	// 	t.Errorf("Failed to create the storageEngine %v", err)
-	// }
-
-	g.Create(tt.expecting...)
 	g.Create(drw, cns, asp, bne, syd, cbr, mel, adl, per)
 
 	return g
@@ -160,10 +148,6 @@ func ToIterator(i query.IteratorFrontier) []*uuid.UUID {
 		}
 	}
 	return results
-}
-
-type queryBuilder struct {
-	Storage query.Storage
 }
 
 func (qb *queryBuilder) Predicate([]ast.Patn) ([]query.Predicate, error) {

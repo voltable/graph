@@ -2,6 +2,8 @@ package query
 
 import (
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
@@ -60,24 +62,17 @@ func NewGraphEngine(o *graph.Options) (graph.Graph, error) {
 
 // Create adds a array of vertices to the persistence
 func (s *Graph) Create(c ...*graph.Vertex) error {
-	// for _, v := range c {
-	// 	triples, transposes := MarshalKeyValue(v)
-	// 	var errstrings []string
+	for _, v := range c {
+		triples, transposes := MarshalKeyValue(v)
+		var errstrings []string
 
-	// 	for i := 0; i < len(triples); i++ {
-	// 		triple := triples[i]
-	// 		se.tKeyIndex[len(se.tKey)] = string(triple.Key)
-	// 		se.tKey[string(triple.Key)] = triple.Value
+		s.storage.Create(triples...)
+		s.storage.Create(transposes...)
 
-	// 		transpose := transposes[i]
-	// 		se.tKeyTIndex[len(se.tKeyT)] = string(transpose.Key)
-	// 		se.tKeyT[string(transpose.Key)] = transpose.Value
-	// 	}
-
-	// 	if len(errstrings) > 0 {
-	// 		return fmt.Errorf(strings.Join(errstrings, "\n"))
-	// 	}
-	// }
+		if len(errstrings) > 0 {
+			return fmt.Errorf(strings.Join(errstrings, "\n"))
+		}
+	}
 
 	return nil
 }
