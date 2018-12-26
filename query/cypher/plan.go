@@ -4,36 +4,27 @@ import (
 	"sync"
 
 	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/traversal"
 	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
-	"github.com/pkg/errors"
 )
 
 type Plan struct {
 	wg       *sync.WaitGroup
-	builder  QueryBuilder
 	operator widecolumnstore.Operator
 	engine   query.Graph
 }
 
-func NewPlan(builder QueryBuilder) *Plan {
+func NewPlan() *Plan {
 
 	plan := &Plan{
-		wg:      &sync.WaitGroup{},
-		builder: builder,
+		wg: &sync.WaitGroup{},
 	}
 	return plan
 }
 
-func (t *Plan) SearchPlan(iterator query.IteratorFrontier, patterns []ast.Patn) (query.IteratorFrontier, error) {
-	operator, err := t.builder.Predicate(patterns)
-	if err != nil {
-		return nil, errors.Wrap(err, "Plan SearchPlan")
-	}
-
-	t.operator = operator
+func (t *Plan) SearchPlan(iterator query.IteratorFrontier, operator widecolumnstore.Operator) (query.IteratorFrontier, error) {
 	results := make(chan *query.Frontier)
+	t.operator = operator
 
 	t.forEach(iterator, results)
 

@@ -5,7 +5,9 @@ import (
 	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 )
 
+// TODO fix this next to get the queryEngine_test's working
 func UniformCostSearch(graph query.Graph, operator widecolumnstore.Operator, frontier *query.Frontier) bool {
+
 	// if frontier.Len() > 0 {
 	// 	queue := frontier.Pop()
 	// 	depth := len(queue.Parts)

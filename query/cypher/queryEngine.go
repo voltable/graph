@@ -29,22 +29,22 @@ func newEngine(i widecolumnstore.Storage) (query.QueryEngine, error) {
 // NewQueryEngine creates a new QueryEngine
 func NewQueryEngine(i widecolumnstore.Storage) *QueryEngine {
 	return &QueryEngine{
-		Parser:  parser.NewParser(),
-		Storage: i,
-		Parts:   NewParts(),
-		Builder: NewQueryBuilderDefault(i),
+		Parser:             parser.NewParser(),
+		Storage:            i,
+		Parts:              NewParts(),
+		CypherQueryBuilder: NewQueryBuilderDefault(i),
 		//Filter:  NewFilter(),
 	}
 }
 
 // QueryEngine is a implementation of the Query interface used to pass cypher queries
 type QueryEngine struct {
-	Parser parser.Parser
+	parser.Parser
 	//Filter  CypherFilter
-	Storage widecolumnstore.Storage
-	Parts   Parts
+	widecolumnstore.Storage
+	Parts
 	//Projection Projection
-	Builder *CypherQueryBuilder
+	*CypherQueryBuilder
 }
 
 var _ query.QueryEngine = (*QueryEngine)(nil)
@@ -53,22 +53,29 @@ var _ query.QueryEngine = (*QueryEngine)(nil)
 func (qe QueryEngine) Parse(q string) (*graph.Query, error) {
 	stmt, err := qe.Parser.Parse(q)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Parse failed")
 	}
 
-	queryPart, err := qe.Parts.ToQueryPart(stmt)
+	queryPart, err := qe.ToQueryPart(stmt)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "ToQueryPart failed")
 	}
-	plan := NewPlan(qe.Builder)
+
+	plan := NewPlan()
 	results := make([]interface{}, 0)
 	for _, part := range queryPart {
-		prefix := widecolumnstore.NewKey(query.TID, &widecolumnstore.Column{}).Marshal()
-		frontier := qe.toFrontier(qe.Storage.HasPrefix(prefix), part.Variable())
-		f, err := plan.SearchPlan(frontier, part.Patterns)
+		frontier := qe.toFrontier(qe.HasPrefix(query.AllNodesKey), part.Variable())
+
+		operator, err := qe.Predicate(part.Patterns)
+		if err != nil {
+			return nil, errors.Wrap(err, "Predicate failed")
+		}
+
+		f, err := plan.SearchPlan(frontier, operator)
 		if err != nil {
 			return nil, errors.Wrap(err, "QueryEngine Parse")
 		}
+
 		results = append(results, Transform(f)...)
 		//	f = qe.Filter.Filter(f, part.Predicate())
 		//results = append(results, qe.Projection.Transform(f, part.Maps())...)

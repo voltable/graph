@@ -3,5 +3,10 @@
         "caudex",
         "memorydb",
         "patn"
-    ]
+    ],
+    "todo-tree.showInExplorer": false,
+    "breadcrumbs.enabled": true,
+    "workbench.statusBar.feedback.visible": false,
+    "workbench.statusBar.visible": false,
+    "workbench.tips.enabled": false
 }
