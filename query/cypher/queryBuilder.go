@@ -21,15 +21,14 @@ type QueryBuilder interface {
 
 type CypherQueryBuilder struct {
 	storage widecolumnstore.Storage
-	filter  func(storage widecolumnstore.HasPrefix, operator widecolumnstore.Operator, prefix widecolumnstore.Prefix) widecolumnstore.Unary
+	filter  func(storage widecolumnstore.HasPrefix, operator widecolumnstore.Operator, prefix widecolumnstore.Prefix) (widecolumnstore.Unary, error)
 }
 
 func NewQueryBuilderDefault(storage widecolumnstore.Storage) *CypherQueryBuilder {
 	return NewQueryBuilder(storage, operators.NewFilter)
 }
 
-func NewQueryBuilder(storage widecolumnstore.Storage,
-	filter func(storage widecolumnstore.HasPrefix, operator widecolumnstore.Operator, prefix widecolumnstore.Prefix) widecolumnstore.Unary) *CypherQueryBuilder {
+func NewQueryBuilder(storage widecolumnstore.Storage, filter func(storage widecolumnstore.HasPrefix, operator widecolumnstore.Operator, prefix widecolumnstore.Prefix) (widecolumnstore.Unary, error)) *CypherQueryBuilder {
 	return &CypherQueryBuilder{
 		storage: storage,
 		filter:  filter,
@@ -77,11 +76,15 @@ func (s *CypherQueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn, last wi
 		return nil, ErrNoLastOperator
 	}
 
+	var err error
 	for k := range patn.Properties {
 		operator := func(key widecolumnstore.Key) []byte {
 			return widecolumnstore.NewKey(query.TProperties, &widecolumnstore.Column{[]byte(k), nil, key.ID}).Marshal()
 		}
-		last = s.filter(s.storage, last, operator)
+		last, err = s.filter(s.storage, last, operator)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return last, nil
 }
@@ -97,12 +100,16 @@ func (s *CypherQueryBuilder) ToPredicateEdgePath(patn *ast.EdgePatn, last wideco
 		return nil, ErrNoLastOperator
 	}
 
+	var err error
 	if patn.Body != nil {
 		for k := range patn.Body.Properties {
 			operator := func(key widecolumnstore.Key) []byte {
 				return widecolumnstore.NewKey(key.ID, &widecolumnstore.Column{query.Relationshipproperties, []byte(k), nil}).Marshal()
 			}
-			last = s.filter(s.storage, last, operator)
+			last, err = s.filter(s.storage, last, operator)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 

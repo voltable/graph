@@ -36,7 +36,7 @@ func TestQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 	tests := []struct {
 		name    string
 		storage widecolumnstore.Storage
-		filter  func(storage widecolumnstore.HasPrefix, operator widecolumnstore.Operator, prefix widecolumnstore.Prefix) widecolumnstore.Unary
+		filter  func(storage widecolumnstore.HasPrefix, operator widecolumnstore.Operator, prefix widecolumnstore.Prefix) (widecolumnstore.Unary, error)
 		patn    *ast.VertexPatn
 		last    widecolumnstore.Operator
 		want    widecolumnstore.Operator
@@ -59,14 +59,14 @@ func TestQueryBuilder_ToPredicateVertexPath(t *testing.T) {
 		},
 		{
 			name: "Properties filter pattern",
-			filter: func(h widecolumnstore.HasPrefix, o widecolumnstore.Operator, p widecolumnstore.Prefix) widecolumnstore.Unary {
+			filter: func(h widecolumnstore.HasPrefix, o widecolumnstore.Operator, p widecolumnstore.Prefix) (widecolumnstore.Unary, error) {
 				key := widecolumnstore.Key{
 					ID: []byte("id"),
 				}
 				bytes := p(key)
 				return &filterMock{
 					bytes: bytes,
-				}
+				}, nil
 			},
 			storage: func() widecolumnstore.Storage {
 				storage, _ := memorydb.NewStorageEngine()
@@ -104,7 +104,7 @@ func TestQueryBuilder_ToPredicateEdgePath(t *testing.T) {
 	tests := []struct {
 		name    string
 		storage widecolumnstore.Storage
-		filter  func(storage widecolumnstore.HasPrefix, operator widecolumnstore.Operator, prefix widecolumnstore.Prefix) widecolumnstore.Unary
+		filter  func(storage widecolumnstore.HasPrefix, operator widecolumnstore.Operator, prefix widecolumnstore.Prefix) (widecolumnstore.Unary, error)
 		patn    *ast.EdgePatn
 		last    widecolumnstore.Operator
 		want    widecolumnstore.Operator
@@ -121,14 +121,14 @@ func TestQueryBuilder_ToPredicateEdgePath(t *testing.T) {
 		},
 		{
 			name: "Properties filter pattern",
-			filter: func(h widecolumnstore.HasPrefix, o widecolumnstore.Operator, p widecolumnstore.Prefix) widecolumnstore.Unary {
+			filter: func(h widecolumnstore.HasPrefix, o widecolumnstore.Operator, p widecolumnstore.Prefix) (widecolumnstore.Unary, error) {
 				key := widecolumnstore.Key{
 					ID: []byte("id"),
 				}
 				bytes := p(key)
 				return &filterMock{
 					bytes: bytes,
-				}
+				}, nil
 			},
 			storage: func() widecolumnstore.Storage {
 				storage, _ := memorydb.NewStorageEngine()
@@ -167,7 +167,7 @@ func TestQueryBuilder_Predicate(t *testing.T) {
 	tests := []struct {
 		name     string
 		storage  widecolumnstore.Storage
-		filter   func(storage widecolumnstore.HasPrefix, operator widecolumnstore.Operator, prefix widecolumnstore.Prefix) widecolumnstore.Unary
+		filter   func(storage widecolumnstore.HasPrefix, operator widecolumnstore.Operator, prefix widecolumnstore.Prefix) (widecolumnstore.Unary, error)
 		patterns []ast.Patn
 		want     widecolumnstore.Operator
 		err      error
@@ -192,14 +192,14 @@ func TestQueryBuilder_Predicate(t *testing.T) {
 				patterns = append(patterns, edge)
 				return patterns
 			}(),
-			filter: func(h widecolumnstore.HasPrefix, o widecolumnstore.Operator, p widecolumnstore.Prefix) widecolumnstore.Unary {
+			filter: func(h widecolumnstore.HasPrefix, o widecolumnstore.Operator, p widecolumnstore.Prefix) (widecolumnstore.Unary, error) {
 				key := widecolumnstore.Key{
 					ID: []byte("id"),
 				}
 				bytes := p(key)
 				return &filterMock{
 					bytes: bytes,
-				}
+				}, nil
 			},
 			storage: func() widecolumnstore.Storage {
 				storage, _ := memorydb.NewStorageEngine()
@@ -222,14 +222,14 @@ func TestQueryBuilder_Predicate(t *testing.T) {
 				patterns = append(patterns, vertex)
 				return patterns
 			}(),
-			filter: func(h widecolumnstore.HasPrefix, o widecolumnstore.Operator, p widecolumnstore.Prefix) widecolumnstore.Unary {
+			filter: func(h widecolumnstore.HasPrefix, o widecolumnstore.Operator, p widecolumnstore.Prefix) (widecolumnstore.Unary, error) {
 				key := widecolumnstore.Key{
 					ID: []byte("id"),
 				}
 				bytes := p(key)
 				return &filterMock{
 					bytes: bytes,
-				}
+				}, nil
 			},
 			storage: func() widecolumnstore.Storage {
 				storage, _ := memorydb.NewStorageEngine()

@@ -1,28 +1,36 @@
 package operators
 
-import "github.com/RossMerr/Caudex.Graph/widecolumnstore"
+import (
+	"github.com/pkg/errors"
+
+	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
+)
 
 var _ widecolumnstore.Unary = (*Filter)(nil)
 
 // Filter is a set operator that returns the subset of those tuples satisfying the predicate
 type Filter struct {
 	storage  widecolumnstore.HasPrefix
-	operator widecolumnstore.Operator
+	operator widecolumnstore.Unary
 	prefix   widecolumnstore.Prefix
 }
 
 // NewFilter returns a Filter
-func NewFilter(storage widecolumnstore.HasPrefix, operator widecolumnstore.Operator, prefix widecolumnstore.Prefix) widecolumnstore.Unary {
+func NewFilter(storage widecolumnstore.HasPrefix, operator widecolumnstore.Operator, prefix widecolumnstore.Prefix) (widecolumnstore.Unary, error) {
+	unary, ok := operator.(widecolumnstore.Unary)
+	if !ok {
+		return nil, errors.Errorf("Filter: operator not unary found %+v", operator)
+	}
+
 	return &Filter{
 		prefix:   prefix,
-		operator: operator,
+		operator: unary,
 		storage:  storage,
-	}
+	}, nil
 }
 
 func (s *Filter) Next(i widecolumnstore.Iterator) widecolumnstore.Iterator {
-	unary := s.operator.(widecolumnstore.Unary)
-	iterator := unary.Next(i)
+	iterator := s.operator.Next(i)
 	var prefixIterator widecolumnstore.Iterator
 	return func() (widecolumnstore.KeyValue, bool) {
 		if prefixIterator != nil {

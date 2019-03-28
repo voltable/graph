@@ -67,7 +67,7 @@ func TestFilter_Next(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := NewFilter(tt.fields.storage,
+			s, _ := NewFilter(tt.fields.storage,
 				tt.fields.operator,
 				tt.fields.prefix,
 			)
