@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/RossMerr/Caudex.Graph"
+	graph "github.com/RossMerr/Caudex.Graph"
+	"github.com/RossMerr/Caudex.Graph/uuid"
 	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 )
 
@@ -29,7 +30,7 @@ type Graph struct {
 
 var _ graph.Graph = (*Graph)(nil)
 
-func (s *Graph) Close() {
+func (s Graph) Close() {
 
 }
 
@@ -61,7 +62,7 @@ func NewGraphEngine(o *graph.Options) (graph.Graph, error) {
 }
 
 // Create adds a array of vertices to the persistence
-func (s *Graph) Create(c ...*graph.Vertex) error {
+func (s Graph) Create(c ...*graph.Vertex) error {
 	for _, v := range c {
 		triples, transposes := MarshalKeyValue(v)
 		var errstrings []string
@@ -78,7 +79,7 @@ func (s *Graph) Create(c ...*graph.Vertex) error {
 }
 
 // Delete the array of vertices from the persistence
-func (s *Graph) Delete(c ...*graph.Vertex) error {
+func (s Graph) Delete(c ...*graph.Vertex) error {
 	// for _, v := range c {
 	// 	triples, transposes := MarshalKeyValue(v)
 	// 	var errstrings []string
@@ -100,15 +101,33 @@ func (s *Graph) Delete(c ...*graph.Vertex) error {
 }
 
 // Update the array of vertices from the persistence
-func (s *Graph) Update(c ...*graph.Vertex) error {
+func (s Graph) Update(c ...*graph.Vertex) error {
 	s.Create(c...)
 	return nil
 }
 
-func (s *Graph) Query(str string) (*graph.Query, error) {
+func (s Graph) Query(str string) (*graph.Query, error) {
 	return s.query.Parse(str)
 }
 
 func (s *Graph) HasPrefix(prefix []byte) widecolumnstore.Iterator {
 	return s.storage.HasPrefix(prefix)
+}
+
+func (s *Graph) Edges(id uuid.UUID) Iterator {
+	key := widecolumnstore.NewKey(id[:], &widecolumnstore.Column{Family: Relationship})
+	prefix := key.Marshal()
+
+	iterator := s.storage.HasPrefix(prefix)
+	var kv widecolumnstore.KeyValue
+	var ok bool
+	return func() (uuid.UUID, float64, bool) {
+		kv, ok = iterator()
+		if ok {
+			id, weight := UnmarshalKeyValueTransposeTRelationship(kv)
+			return *id, weight, true
+		}
+
+		return uuid.UUID{}, 0, false
+	}
 }

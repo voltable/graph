@@ -199,6 +199,20 @@ func UnmarshalKeyValueTranspose(v *graph.Vertex, c []*widecolumnstore.KeyValue) 
 	}
 }
 
+func UnmarshalKeyValueTransposeTRelationship(kv widecolumnstore.KeyValue) (id *uuid.UUID, weight float64) {
+	key := &widecolumnstore.Key{}
+	key.Unmarshal(kv.Key)
+
+	id = uuid.SliceToUUID(key.Column.Qualifier)
+
+	value, ok := widecolumnstore.Unmarshal(kv.Value).(float64)
+	if ok {
+		weight = value
+	}
+
+	return
+}
+
 // MarshalEdgeKeyValue marshal a edge into KeyValue
 func MarshalEdgeKeyValue(e *graph.Edge) ([]*widecolumnstore.KeyValue, []*widecolumnstore.KeyValue) {
 	keyvalues := []*widecolumnstore.KeyValue{}
