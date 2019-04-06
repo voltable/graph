@@ -114,20 +114,8 @@ func (s *Graph) HasPrefix(prefix []byte) widecolumnstore.Iterator {
 	return s.storage.HasPrefix(prefix)
 }
 
-func (s *Graph) Edges(id uuid.UUID) Iterator {
+func (s *Graph) Edges(id uuid.UUID) widecolumnstore.Iterator {
 	key := widecolumnstore.NewKey(id[:], &widecolumnstore.Column{Family: Relationship})
 	prefix := key.Marshal()
-
-	iterator := s.storage.HasPrefix(prefix)
-	var kv widecolumnstore.KeyValue
-	var ok bool
-	return func() (uuid.UUID, float64, bool) {
-		kv, ok = iterator()
-		if ok {
-			id, weight := UnmarshalKeyValueTransposeTRelationship(kv)
-			return *id, weight, true
-		}
-
-		return uuid.UUID{}, 0, false
-	}
+	return s.storage.HasPrefix(prefix)
 }

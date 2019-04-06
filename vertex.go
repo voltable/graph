@@ -36,7 +36,7 @@ func NewVertexFromID(ID *uuid.UUID) (*Vertex, error) {
 
 // NewVertexWithLabel create a vertex with the set label
 func NewVertexWithLabel(label string) (*Vertex, error) {
-	var id *uuid.UUID
+	var id uuid.UUID
 	var err error
 
 	if id, err = uuid.GenerateRandomUUID(); err != nil {
@@ -44,7 +44,7 @@ func NewVertexWithLabel(label string) (*Vertex, error) {
 	}
 
 	v := NewEmptyVertex()
-	v.id = id
+	v.id = &id
 	v.label = label
 	return v, nil
 }

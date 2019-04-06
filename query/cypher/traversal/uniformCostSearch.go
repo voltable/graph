@@ -26,10 +26,9 @@ func (f frontier) Less(i, j int) bool     { return f[i].Cost < f[j].Cost }
 func (f frontier) pop() (*path, frontier) { return f[0], f[1:] }
 
 // TODO fix this next to get the queryEngine_test's working
-func UniformCostSearch2(g *query.Graph, start *graph.Vertex, end *graph.Vertex) ([]uuid.UUID, error) {
+func UniformCostSearch2(g *query.Graph, start *graph.Vertex, goal func(uuid.UUID) bool) ([]uuid.UUID, error) {
 	frontier := frontier{&path{[]uuid.UUID{*start.ID()}, 0}}
 	explored := make(map[uuid.UUID]bool)
-	goal := *end.ID()
 	for {
 		if len(frontier) == 0 {
 			return nil, errGoalNoFound
@@ -41,18 +40,27 @@ func UniformCostSearch2(g *query.Graph, start *graph.Vertex, end *graph.Vertex) 
 		node := p.Vertices[len(p.Vertices)-1]
 		explored[node] = true
 
-		if node == goal {
+		if goal(node) {
 			return p.Vertices, nil
 		}
 
 		iterator := g.Edges(node)
-		for id, weight, ok := iterator(); ok; id, weight, ok = iterator() {
+		for kv, ok := iterator(); ok; kv, ok = iterator() {
+			id, weight := query.UnmarshalKeyValueTransposeTRelationship(kv)
 			if _, ok := explored[id]; !ok {
 				frontier = append(frontier, &path{append(p.Vertices, id), p.Cost + weight})
 			} else {
 				fmt.Printf("skip: %+v\n", id)
 			}
 		}
+
+		// for id, weight, ok := iterator(); ok; id, weight, ok = iterator() {
+		// 	if _, ok := explored[id]; !ok {
+		// 		frontier = append(frontier, &path{append(p.Vertices, id), p.Cost + weight})
+		// 	} else {
+		// 		fmt.Printf("skip: %+v\n", id)
+		// 	}
+		// }
 	}
 }
 

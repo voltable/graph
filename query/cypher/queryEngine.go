@@ -5,6 +5,7 @@ import (
 	"github.com/RossMerr/Caudex.Graph/query"
 	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
 	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
+	log "github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
 )
 
@@ -101,10 +102,14 @@ func (qe QueryEngine) toVertices(i query.IteratorFrontier) []interface{} {
 func (qe QueryEngine) toFrontier(i widecolumnstore.Iterator, variable string) query.IteratorFrontier {
 	return func() (*query.Frontier, bool) {
 		kv, ok := i()
-		id := query.UUID(&kv)
-		if ok {
-			f := query.NewFrontier(id, variable)
-			return &f, true
+		id, err := query.UUID(&kv)
+		if err != nil {
+			log.Error(errors.Wrap(err, "QueryEngine toFrontier"))
+		} else {
+			if ok {
+				f := query.NewFrontier(&id, variable)
+				return &f, true
+			}
 		}
 
 		return nil, false

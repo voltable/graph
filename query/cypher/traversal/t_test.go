@@ -2,7 +2,6 @@ package traversal_test
 
 import (
 	"container/list"
-	"errors"
 	"fmt"
 	"reflect"
 	"testing"
@@ -16,6 +15,8 @@ import (
 	"github.com/RossMerr/Caudex.Graph/uuid"
 	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 	"github.com/RossMerr/Caudex.Graph/widecolumnstore/storage/memorydb"
+	log "github.com/Sirupsen/logrus"
+	"github.com/pkg/errors"
 )
 
 var (
@@ -99,7 +100,12 @@ func Test_UniformCostSearch(t *testing.T) {
 	fmt.Printf("adl: %+v\n", adl.ID())
 	fmt.Printf("per: %+v\n", per.ID())
 
-	result, err := traversal.UniformCostSearch2(graph, syd, per)
+	target := *per.ID()
+	goal := func(id uuid.UUID) bool {
+		return target == id
+	}
+
+	result, err := traversal.UniformCostSearch2(graph, syd, goal)
 	if err != nil {
 		t.Fatalf("Expected err to be nil but was %s", err)
 	}
@@ -151,8 +157,13 @@ func ForEachTest(se graph.Graph) query.IteratorFrontier {
 		ok = expressions.XORSwap(ok)
 		if ok {
 			kv, _ := query.MarshalKeyValue(syd)
-			f := query.NewFrontier(query.UUID(kv[0]), "")
-			return &f, ok
+			id, err := query.UUID(kv[0])
+			if err != nil {
+				log.Error(errors.Wrap(err, "ForEachTest"))
+			} else {
+				f := query.NewFrontier(&id, "")
+				return &f, ok
+			}
 		}
 		return nil, ok
 	}
