@@ -10,7 +10,7 @@ import (
 
 // Vertex .
 type Vertex struct {
-	id         *uuid.UUID
+	id         uuid.UUID
 	edges      map[uuid.UUID]*Edge
 	label      string
 	properties map[string]interface{}
@@ -28,7 +28,7 @@ func NewVertex() (*Vertex, error) {
 }
 
 // NewVertexFromID creates a vertex using the id
-func NewVertexFromID(ID *uuid.UUID) (*Vertex, error) {
+func NewVertexFromID(ID uuid.UUID) (*Vertex, error) {
 	v, err := NewVertexWithLabel("")
 	v.id = ID
 	return v, err
@@ -44,7 +44,7 @@ func NewVertexWithLabel(label string) (*Vertex, error) {
 	}
 
 	v := NewEmptyVertex()
-	v.id = &id
+	v.id = id
 	v.label = label
 	return v, nil
 }
@@ -82,12 +82,12 @@ func (v *Vertex) Properties() map[string]interface{} {
 }
 
 // ID returns the generate UUID
-func (v *Vertex) ID() *uuid.UUID {
+func (v *Vertex) ID() uuid.UUID {
 	return v.id
 }
 
 // SetID set's the vertex id
-func (v *Vertex) SetID(id *uuid.UUID) {
+func (v *Vertex) SetID(id uuid.UUID) {
 	v.id = id
 }
 
@@ -102,27 +102,27 @@ func (v *Vertex) Edges() map[uuid.UUID]*Edge {
 }
 
 func (v *Vertex) removeRelationshipOnLabel(label string) Digraph {
-	return v.removeRelationshipsF(func(id *uuid.UUID, e *Edge) bool {
+	return v.removeRelationshipsF(func(id uuid.UUID, e *Edge) bool {
 		return e.relationshipType == label
 	})
 }
 
 func (v *Vertex) removeRelationships() {
-	v.removeRelationshipsF(func(id *uuid.UUID, e *Edge) bool {
+	v.removeRelationshipsF(func(id uuid.UUID, e *Edge) bool {
 		return true
 	})
 }
 
 func (v *Vertex) removeRelationshipsOnVertex(to *Vertex) Digraph {
-	return v.removeRelationshipsF(func(id *uuid.UUID, e *Edge) bool {
+	return v.removeRelationshipsF(func(id uuid.UUID, e *Edge) bool {
 		return id == to.id
 	})
 }
 
-func (v *Vertex) removeRelationshipsF(f func(id *uuid.UUID, e *Edge) bool) Digraph {
+func (v *Vertex) removeRelationshipsF(f func(id uuid.UUID, e *Edge) bool) Digraph {
 	for id, edge := range v.edges {
-		if f(&id, edge) {
-			delete(v.edges, *edge.to)
+		if f(id, edge) {
+			delete(v.edges, edge.to)
 			return edge.isDirected
 		}
 	}
@@ -142,14 +142,14 @@ func (v *Vertex) AddDirectedEdge(to *Vertex) (*Edge, error) {
 // AddDirectedEdgeWeight links two vertex's with a weight and returns the edge
 func (v *Vertex) AddDirectedEdgeWeight(to *Vertex, weight float64) (*Edge, error) {
 	edge := &Edge{from: v.id, to: to.id, isDirected: Directed, properties: make(map[string]interface{}), Weight: weight}
-	v.edges[*edge.to] = edge
+	v.edges[edge.to] = edge
 	return edge, nil
 }
 
 // AddEdge links two vertex's and returns the edge
 func (v *Vertex) AddEdge(to *Edge) {
 
-	v.edges[*to.to] = to
+	v.edges[to.to] = to
 }
 
 // RemoveEdgeByLabel remove a edge

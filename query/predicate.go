@@ -6,7 +6,7 @@ import "github.com/RossMerr/Caudex.Graph/uuid"
 //
 // string Variable
 // Traverse Traverse
-type Predicate func(from, to *uuid.UUID, depth int) (string, Traverse)
+type Predicate func(from, to uuid.UUID, depth int) (string, Traverse)
 
 // Traverse is used to indicate the current state of the Traversal
 type Traverse int

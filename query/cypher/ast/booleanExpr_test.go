@@ -76,7 +76,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			),
 			v: func() *widecolumnstore.KeyValue {
 				id, _ := uuid.GenerateRandomUUID()
-				x, _ := query.NewKeyValueProperty(&id, "Age", 100)
+				x, _ := query.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
 			p:      "n",
@@ -89,7 +89,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			),
 			v: func() *widecolumnstore.KeyValue {
 				id, _ := uuid.GenerateRandomUUID()
-				x, _ := query.NewKeyValueProperty(&id, "Age", 100)
+				x, _ := query.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
 			p:      "n",
@@ -102,7 +102,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			),
 			v: func() *widecolumnstore.KeyValue {
 				id, _ := uuid.GenerateRandomUUID()
-				x, _ := query.NewKeyValueProperty(&id, "Age", 100)
+				x, _ := query.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
 			p:      "n",
@@ -115,7 +115,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			),
 			v: func() *widecolumnstore.KeyValue {
 				id, _ := uuid.GenerateRandomUUID()
-				x, _ := query.NewKeyValueProperty(&id, "Age", 100)
+				x, _ := query.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
 			p:      "n",
@@ -128,7 +128,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			),
 			v: func() *widecolumnstore.KeyValue {
 				id, _ := uuid.GenerateRandomUUID()
-				x, _ := query.NewKeyValueProperty(&id, "Age", 100)
+				x, _ := query.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
 			p:      "n",
@@ -141,7 +141,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			),
 			v: func() *widecolumnstore.KeyValue {
 				id, _ := uuid.GenerateRandomUUID()
-				x, _ := query.NewKeyValueProperty(&id, "Age", 100)
+				x, _ := query.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
 			p:      "n",
@@ -151,7 +151,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			c: ast.NewBooleanExpr(20, nil, nil),
 			v: func() *widecolumnstore.KeyValue {
 				id, _ := uuid.GenerateRandomUUID()
-				x, _ := query.NewKeyValueProperty(&id, "Age", 100)
+				x, _ := query.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
 			p:      "n",

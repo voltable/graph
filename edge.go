@@ -9,8 +9,8 @@ import (
 type (
 	// An Edge connects two Vertex in a graph.
 	Edge struct {
-		from *uuid.UUID
-		to   *uuid.UUID
+		from uuid.UUID
+		to   uuid.UUID
 
 		isDirected Digraph
 		// Weight of a path in a weighted graph
@@ -29,15 +29,15 @@ func NewEdge(from, to *Vertex) *Edge {
 }
 
 // NewEdgeFromID creates a edge form the id
-func NewEdgeFromID(from, to *uuid.UUID) *Edge {
+func NewEdgeFromID(from, to uuid.UUID) *Edge {
 	return &Edge{from: from, to: to, properties: make(map[string]interface{}), Weight: 0}
 }
 
-func (e *Edge) From() *uuid.UUID {
+func (e *Edge) From() uuid.UUID {
 	return e.from
 }
 
-func (e *Edge) To() *uuid.UUID {
+func (e *Edge) To() uuid.UUID {
 	return e.to
 }
 

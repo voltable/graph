@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	graph "github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/uuid"
 	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 )
 
@@ -111,11 +110,5 @@ func (s Graph) Query(str string) (*graph.Query, error) {
 }
 
 func (s *Graph) HasPrefix(prefix []byte) widecolumnstore.Iterator {
-	return s.storage.HasPrefix(prefix)
-}
-
-func (s *Graph) Edges(id uuid.UUID) widecolumnstore.Iterator {
-	key := widecolumnstore.NewKey(id[:], &widecolumnstore.Column{Family: Relationship})
-	prefix := key.Marshal()
 	return s.storage.HasPrefix(prefix)
 }

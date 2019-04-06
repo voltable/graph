@@ -18,7 +18,7 @@ func TestUUID(t *testing.T) {
 		{
 			name: "Vertex",
 			setup: func(id uuid.UUID) (*widecolumnstore.KeyValue, *widecolumnstore.KeyValue) {
-				return query.NewKeyValueVertex(&id, "person")
+				return query.NewKeyValueVertex(id, "person")
 			},
 			want: func() uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
@@ -28,7 +28,7 @@ func TestUUID(t *testing.T) {
 		{
 			name: "Properties",
 			setup: func(id uuid.UUID) (*widecolumnstore.KeyValue, *widecolumnstore.KeyValue) {
-				return query.NewKeyValueProperty(&id, "", "")
+				return query.NewKeyValueProperty(id, "", "")
 			},
 			want: func() uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
@@ -39,7 +39,7 @@ func TestUUID(t *testing.T) {
 			name: "Relationship",
 			setup: func(id uuid.UUID) (*widecolumnstore.KeyValue, *widecolumnstore.KeyValue) {
 				to, _ := uuid.GenerateRandomUUID()
-				return query.NewKeyValueRelationship(&id, &to, "", 5)
+				return query.NewKeyValueRelationship(id, to, "", 5)
 			},
 			want: func() uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()
@@ -50,7 +50,7 @@ func TestUUID(t *testing.T) {
 			name: "Relationshipproperties",
 			setup: func(id uuid.UUID) (*widecolumnstore.KeyValue, *widecolumnstore.KeyValue) {
 				to, _ := uuid.GenerateRandomUUID()
-				return query.NewKeyValueRelationshipProperty(&id, &to, "", "")
+				return query.NewKeyValueRelationshipProperty(id, to, "", "")
 			},
 			want: func() uuid.UUID {
 				id, _ := uuid.GenerateRandomUUID()

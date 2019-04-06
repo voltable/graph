@@ -3,7 +3,7 @@ package graph_test
 import (
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph"
+	graph "github.com/RossMerr/Caudex.Graph"
 	"github.com/RossMerr/Caudex.Graph/uuid"
 )
 
@@ -23,8 +23,7 @@ func Test_NewVertex(t *testing.T) {
 		t.Fatalf("Expected err to be nil but was %s", err)
 	}
 
-	var empty *uuid.UUID
-	if v.ID() == empty {
+	if v.ID() == uuid.Nil {
 		t.Fatalf("Expected ID to be set but was %+v", v.ID())
 	}
 

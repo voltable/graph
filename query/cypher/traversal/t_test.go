@@ -86,6 +86,28 @@ func init() {
 	per.AddDirectedEdgeWeight(drw, float64(48))
 }
 
+type MockOperator struct {
+	iterator widecolumnstore.Iterator
+}
+
+func (s *MockOperator) Op() {
+
+}
+
+func (s *MockOperator) Next(i widecolumnstore.Iterator) widecolumnstore.Iterator {
+	return s.iterator
+}
+
+func NewMockOperator(g *query.Graph, id uuid.UUID) *MockOperator {
+
+	key := widecolumnstore.NewKey(id[:], &widecolumnstore.Column{Family: query.Relationship})
+	prefix := key.Marshal()
+
+	return &MockOperator{
+		iterator: g.HasPrefix(prefix),
+	}
+}
+
 func Test_UniformCostSearch(t *testing.T) {
 	g := AustraliaGraph()
 	graph := g.(*query.Graph)
@@ -100,12 +122,14 @@ func Test_UniformCostSearch(t *testing.T) {
 	fmt.Printf("adl: %+v\n", adl.ID())
 	fmt.Printf("per: %+v\n", per.ID())
 
-	target := *per.ID()
+	target := per.ID()
 	goal := func(id uuid.UUID) bool {
 		return target == id
 	}
 
-	result, err := traversal.UniformCostSearch2(graph, syd, goal)
+	start := syd.ID()
+	operator := NewMockOperator(graph, start)
+	result, err := traversal.UniformCostSearch2(graph, syd, goal, operator)
 	if err != nil {
 		t.Fatalf("Expected err to be nil but was %s", err)
 	}
@@ -115,24 +139,24 @@ func Test_UniformCostSearch(t *testing.T) {
 		t.Fatalf("Expected result count to be %+v but was %+v", 5, count)
 	}
 
-	if !reflect.DeepEqual(result[0], *syd.ID()) {
-		t.Fatalf("Expected syd: \n%+v \nbut was \n%+v", *syd.ID(), result[0])
+	if !reflect.DeepEqual(result[0], syd.ID()) {
+		t.Fatalf("Expected syd: \n%+v \nbut was \n%+v", syd.ID(), result[0])
 	}
 
-	if !reflect.DeepEqual(result[1], *cbr.ID()) {
-		t.Fatalf("Expected cbr: \n%+v \nbut was \n%+v", *cbr.ID(), result[1])
+	if !reflect.DeepEqual(result[1], cbr.ID()) {
+		t.Fatalf("Expected cbr: \n%+v \nbut was \n%+v", cbr.ID(), result[1])
 	}
 
-	if !reflect.DeepEqual(result[2], *mel.ID()) {
-		t.Fatalf("Expected mel: \n%+v \nbut was \n%+v", *mel.ID(), result[2])
+	if !reflect.DeepEqual(result[2], mel.ID()) {
+		t.Fatalf("Expected mel: \n%+v \nbut was \n%+v", mel.ID(), result[2])
 	}
 
-	if !reflect.DeepEqual(result[3], *adl.ID()) {
-		t.Fatalf("Expected adl: \n%+v \nbut was \n%+v", *adl.ID(), result[3])
+	if !reflect.DeepEqual(result[3], adl.ID()) {
+		t.Fatalf("Expected adl: \n%+v \nbut was \n%+v", adl.ID(), result[3])
 	}
 
-	if !reflect.DeepEqual(result[4], *per.ID()) {
-		t.Fatalf("Expected per: \n%+v \nbut was \n%+v", *per.ID(), result[4])
+	if !reflect.DeepEqual(result[4], per.ID()) {
+		t.Fatalf("Expected per: \n%+v \nbut was \n%+v", per.ID(), result[4])
 	}
 }
 
@@ -204,8 +228,8 @@ func (qb *queryBuilder) Predicate([]ast.Patn) (widecolumnstore.Operator, error) 
 }
 
 func (qb *queryBuilder) toPredicate() query.Predicate {
-	return func(from, to *uuid.UUID, depth int) (string, query.Traverse) {
-		if to == nil {
+	return func(from, to uuid.UUID, depth int) (string, query.Traverse) {
+		if to == uuid.Nil {
 			if from == per.ID() {
 
 				return "", query.Matched
