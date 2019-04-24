@@ -14,7 +14,7 @@ import (
 var errGoalNoFound = errors.New("Goal not found")
 
 type path struct {
-	Vertices []uuid.UUID
+	Vertices []widecolumnstore.Key
 	Cost     float64
 }
 
@@ -26,8 +26,8 @@ func (f frontier) Less(i, j int) bool     { return f[i].Cost < f[j].Cost }
 func (f frontier) pop() (*path, frontier) { return f[0], f[1:] }
 
 // TODO fix this next to get the queryEngine_test's working
-func UniformCostSearch2(g *query.Graph, start *graph.Vertex, goal func(uuid.UUID) bool, operator widecolumnstore.Operator) ([]uuid.UUID, error) {
-	frontier := frontier{&path{[]uuid.UUID{start.ID()}, 0}}
+func UniformCostSearch2(g *query.Graph, start *graph.Vertex, goal func(widecolumnstore.Key) bool, scan widecolumnstore.Operator) ([]uuid.UUID, error) {
+	frontier := frontier{&path{[]widecolumnstore.Key{prefix(start.ID())}, 0}}
 	explored := make(map[uuid.UUID]bool)
 	for {
 		if len(frontier) == 0 {
@@ -37,29 +37,53 @@ func UniformCostSearch2(g *query.Graph, start *graph.Vertex, goal func(uuid.UUID
 		var p *path
 		sort.Sort(frontier)
 		p, frontier = frontier.pop()
-		node := p.Vertices[len(p.Vertices)-1]
-		explored[node] = true
+		key := p.Vertices[len(p.Vertices)-1]
+		id, _ := query.ParseKeyToUUID(&key)
+		explored[id] = true
 
-		if goal(node) {
-			return p.Vertices, nil
+		if goal(key) {
+			results := make([]uuid.UUID, 0)
+			for _, key := range p.Vertices {
+				id, _ := query.ParseKeyToUUID(&key)
+				results = append(results, id)
+			}
+			return results, nil
 		}
 
-		iterator := edges(g, node)
+		// TODO need to make frontier use widecolumnstore.Key to make the bellow work
+		//unary, _ := operators.NewFilter(g, scan, prefixBuilder)
+
+		//unary.Next(scan)
+		fmt.Printf("edges: %+v\n", id)
+		iterator := edges(g, id)
 		for kv, ok := iterator(); ok; kv, ok = iterator() {
-			id, weight := query.UnmarshalKeyValueTransposeTRelationship(kv)
-			if _, ok := explored[id]; !ok {
-				frontier = append(frontier, &path{append(p.Vertices, id), p.Cost + weight})
+			key, weight := query.UnmarshalKeyValueTransposeTRelationship(kv)
+			tKey := TransposeRelationship(key)
+			edge, _ := query.ParseKeyToUUID(&tKey)
+
+			if _, ok := explored[edge]; !ok {
+				fmt.Printf("add: %+v\n", edge)
+				frontier = append(frontier, &path{append(p.Vertices, tKey), p.Cost + weight})
 			} else {
-				fmt.Printf("skip: %+v\n", id)
+				fmt.Printf("skip: %+v\n", edge)
 			}
 		}
 	}
 }
 
+func TransposeRelationship(key *widecolumnstore.Key) widecolumnstore.Key {
+	return *widecolumnstore.NewKey(key.Column.Qualifier, &widecolumnstore.Column{query.TRelationship, key.Column.Extended, key.ID})
+}
+
 func edges(g *query.Graph, id uuid.UUID) widecolumnstore.Iterator {
-	key := widecolumnstore.NewKey(id[:], &widecolumnstore.Column{Family: query.Relationship})
+	key := prefix(id)
 	prefix := key.Marshal()
 	return g.HasPrefix(prefix)
+}
+
+func prefix(id uuid.UUID) widecolumnstore.Key {
+	key := widecolumnstore.NewKey(id[:], &widecolumnstore.Column{Family: query.Relationship})
+	return *key
 }
 
 func UniformCostSearch(graph query.Graph, operator widecolumnstore.Operator, frontier *query.Frontier) bool {

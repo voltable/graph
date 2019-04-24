@@ -1,6 +1,7 @@
 package traversal_test
 
 import (
+	"bytes"
 	"container/list"
 	"fmt"
 	"reflect"
@@ -122,13 +123,15 @@ func Test_UniformCostSearch(t *testing.T) {
 	fmt.Printf("adl: %+v\n", adl.ID())
 	fmt.Printf("per: %+v\n", per.ID())
 
-	target := per.ID()
-	goal := func(id uuid.UUID) bool {
-		return target == id
+	id := per.ID()
+	targetBytes := id[:]
+
+	goal := func(id widecolumnstore.Key) bool {
+
+		return bytes.Equal(targetBytes, id.ID)
 	}
 
-	start := syd.ID()
-	operator := NewMockOperator(graph, start)
+	operator := NewMockOperator(graph, syd.ID())
 	result, err := traversal.UniformCostSearch2(graph, syd, goal, operator)
 	if err != nil {
 		t.Fatalf("Expected err to be nil but was %s", err)

@@ -3,7 +3,6 @@ package query
 import (
 	"bytes"
 
-	"github.com/RossMerr/Caudex.Graph/arch"
 	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
 
 	graph "github.com/RossMerr/Caudex.Graph"
@@ -49,8 +48,8 @@ func NewKeyValueRelationship(from, to uuid.UUID, relationshipType string, weight
 			Value: widecolumnstore.NewAny(weight),
 			Key:   widecolumnstore.NewKey(from[:], &widecolumnstore.Column{Relationship, []byte(relationshipType), to[:]}).Marshal(),
 		}, &widecolumnstore.KeyValue{
-			Value: widecolumnstore.NewAny(to[:]),
-			Key:   widecolumnstore.NewKey(TRelationship, &widecolumnstore.Column{[]byte(relationshipType), arch.EncodeFloat64Bytes(weight), from[:]}).Marshal(),
+			Value: widecolumnstore.NewAny(weight),
+			Key:   widecolumnstore.NewKey(to[:], &widecolumnstore.Column{TRelationship, []byte(relationshipType), from[:]}).Marshal(),
 		}
 }
 
@@ -164,24 +163,23 @@ func UnmarshalKeyValueTranspose(v *graph.Vertex, c []*widecolumnstore.KeyValue) 
 			continue
 		}
 
-		if bytes.Equal(key.ID, TRelationship) {
-			relationshipType := string(key.Column.Family)
+		if bytes.Equal(key.Column.Family, TRelationship) {
+			relationshipType := string(key.Column.Extended)
 
-			value, ok := widecolumnstore.Unmarshal(kv.Value).([]byte)
-			if ok {
-				edgeID := uuid.SliceToUUID(value)
+			edgeID := uuid.SliceToUUID(key.ID)
 
-				edge, ok := v.Edges()[edgeID]
-				if !ok {
-					edge = graph.NewEdgeFromID(v.ID(), edgeID)
-					v.AddEdge(edge)
-				}
-
-				edge.SetRelationshipType(relationshipType)
-				if weight, ok := arch.DecodeFloat64Bytes(key.Column.Extended).(float64); ok {
-					edge.Weight = weight
-				}
+			edge, ok := v.Edges()[edgeID]
+			if !ok {
+				edge = graph.NewEdgeFromID(v.ID(), edgeID)
+				v.AddEdge(edge)
 			}
+
+			edge.SetRelationshipType(relationshipType)
+			weight, ok := widecolumnstore.Unmarshal(kv.Value).(float64)
+			if ok {
+				edge.Weight = weight
+			}
+
 			continue
 		}
 
@@ -199,12 +197,9 @@ func UnmarshalKeyValueTranspose(v *graph.Vertex, c []*widecolumnstore.KeyValue) 
 	}
 }
 
-func UnmarshalKeyValueTransposeTRelationship(kv widecolumnstore.KeyValue) (id uuid.UUID, weight float64) {
-	key := &widecolumnstore.Key{}
+func UnmarshalKeyValueTransposeTRelationship(kv widecolumnstore.KeyValue) (key *widecolumnstore.Key, weight float64) {
+	key = &widecolumnstore.Key{}
 	key.Unmarshal(kv.Key)
-
-	id = uuid.SliceToUUID(key.Column.Qualifier)
-
 	value, ok := widecolumnstore.Unmarshal(kv.Value).(float64)
 	if ok {
 		weight = value

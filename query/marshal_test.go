@@ -44,7 +44,7 @@ func TestMarshalKeyValue(t *testing.T) {
 			v = graph.NewEmptyVertex()
 			query.UnmarshalKeyValueTranspose(v, transpose)
 			if !reflect.DeepEqual(v, tt.vertex) {
-				t.Errorf("Marshal() = %v, want %v", v, tt.vertex)
+				t.Errorf("Marshal Transpose() = %v, want %v", v, tt.vertex)
 			}
 		})
 	}

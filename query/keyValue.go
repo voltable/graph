@@ -46,11 +46,8 @@ func To(s widecolumnstore.KeyValue) (uuid.UUID, error) {
 	return uuid.Nil, ErrIDNotFound
 }
 
-// UUID looks for the UUID in the KeyValue
-func UUID(s *widecolumnstore.KeyValue) (uuid.UUID, error) {
-	key := &widecolumnstore.Key{}
-	key.Unmarshal(s.Key)
-
+// ParseKeyToUUID looks for the UUID in the Key
+func ParseKeyToUUID(key *widecolumnstore.Key) (uuid.UUID, error) {
 	if bytes.Equal(key.Column.Family, Label) {
 		return uuid.SliceToUUID(key.ID), nil
 	}
@@ -77,8 +74,8 @@ func UUID(s *widecolumnstore.KeyValue) (uuid.UUID, error) {
 		return uuid.SliceToUUID(key.Column.Qualifier), nil
 	}
 
-	if bytes.Equal(key.ID, TRelationship) {
-		return uuid.SliceToUUID(key.Column.Qualifier), nil
+	if bytes.Equal(key.Column.Family, TRelationship) {
+		return uuid.SliceToUUID(key.ID), nil
 	}
 
 	if bytes.Equal(key.ID, TRelationshipproperties) {
@@ -86,6 +83,13 @@ func UUID(s *widecolumnstore.KeyValue) (uuid.UUID, error) {
 	}
 
 	return uuid.Nil, ErrIDNotFound
+}
+
+// UUID looks for the UUID in the KeyValue
+func UUID(s *widecolumnstore.KeyValue) (uuid.UUID, error) {
+	key := &widecolumnstore.Key{}
+	key.Unmarshal(s.Key)
+	return ParseKeyToUUID(key)
 }
 
 type KeyValueWrapper struct {
