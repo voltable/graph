@@ -126,9 +126,11 @@ func Test_UniformCostSearch(t *testing.T) {
 	id := per.ID()
 	targetBytes := id[:]
 
-	goal := func(id widecolumnstore.Key) bool {
+	goal := func(kv widecolumnstore.KeyValue) bool {
+		key := &widecolumnstore.Key{}
+		key.Unmarshal(kv.Key)
 
-		return bytes.Equal(targetBytes, id.ID)
+		return bytes.Equal(targetBytes, key.ID)
 	}
 
 	operator := NewMockOperator(graph, syd.ID())
