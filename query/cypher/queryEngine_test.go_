@@ -4,10 +4,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/query/cypher"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
+	"github.com/voltable/graph/query"
+	"github.com/voltable/graph/query/cypher"
+	"github.com/voltable/graph/query/cypher/ast"
+	"github.com/voltable/graph/query/cypher/parser"
 )
 
 type FakeParser struct {

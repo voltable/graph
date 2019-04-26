@@ -3,11 +3,11 @@ package ast_test
 import (
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/expressions"
-	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
-	"github.com/RossMerr/Caudex.Graph/uuid"
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
+	"github.com/voltable/graph/expressions"
+	"github.com/voltable/graph/query"
+	"github.com/voltable/graph/query/cypher/ast"
+	"github.com/voltable/graph/uuid"
+	"github.com/voltable/graph/widecolumnstore"
 )
 
 func Test_BooleanPrecedence(t *testing.T) {

@@ -4,7 +4,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/expressions"
+	"github.com/voltable/graph/expressions"
 )
 
 func Test_Compare(t *testing.T) {

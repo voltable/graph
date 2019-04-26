@@ -4,11 +4,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/query/cypher"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore/storage/memorydb"
+	"github.com/voltable/graph/query"
+	"github.com/voltable/graph/query/cypher"
+	"github.com/voltable/graph/query/cypher/ast"
+	"github.com/voltable/graph/widecolumnstore"
+	"github.com/voltable/graph/widecolumnstore/storage/memorydb"
 )
 
 type unaryMock struct {

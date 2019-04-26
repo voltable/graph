@@ -3,8 +3,8 @@ package query
 import (
 	"errors"
 
-	graph "github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
+	graph "github.com/voltable/graph"
+	"github.com/voltable/graph/widecolumnstore"
 	"github.com/Sirupsen/logrus"
 )
 

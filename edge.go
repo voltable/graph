@@ -3,7 +3,7 @@ package graph
 import (
 	"strings"
 
-	"github.com/RossMerr/Caudex.Graph/uuid"
+	"github.com/voltable/graph/uuid"
 )
 
 type (

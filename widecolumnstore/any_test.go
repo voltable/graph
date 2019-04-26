@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
+	"github.com/voltable/graph/widecolumnstore"
 )
 
 func TestAny_Unmarshal(t *testing.T) {

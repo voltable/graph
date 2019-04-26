@@ -3,7 +3,7 @@ package ast_test
 import (
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
+	"github.com/voltable/graph/query/cypher/ast"
 )
 
 func Test_MathPrecedence(t *testing.T) {

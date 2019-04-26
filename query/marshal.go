@@ -3,10 +3,10 @@ package query
 import (
 	"bytes"
 
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
+	"github.com/voltable/graph/widecolumnstore"
 
-	graph "github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/uuid"
+	graph "github.com/voltable/graph"
+	"github.com/voltable/graph/uuid"
 )
 
 // NewKeyValueID creates a ID KeyValue

@@ -3,9 +3,9 @@ package cypher
 import (
 	"sync"
 
-	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/traversal"
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
+	"github.com/voltable/graph/query"
+	"github.com/voltable/graph/query/cypher/traversal"
+	"github.com/voltable/graph/widecolumnstore"
 )
 
 type Plan struct {

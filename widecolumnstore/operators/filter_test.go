@@ -3,8 +3,8 @@ package operators
 import (
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore/storage/memorydb"
+	"github.com/voltable/graph/widecolumnstore"
+	"github.com/voltable/graph/widecolumnstore/storage/memorydb"
 )
 
 type unaryTest struct {

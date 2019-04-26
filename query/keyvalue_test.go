@@ -4,9 +4,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/uuid"
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
+	"github.com/voltable/graph/query"
+	"github.com/voltable/graph/uuid"
+	"github.com/voltable/graph/widecolumnstore"
 )
 
 func TestUUID(t *testing.T) {

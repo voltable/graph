@@ -1,6 +1,6 @@
 package query
 
-import "github.com/RossMerr/Caudex.Graph/uuid"
+import "github.com/voltable/graph/uuid"
 
 // Predicate apply the predicate over the key/value
 //

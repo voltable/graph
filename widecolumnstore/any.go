@@ -1,6 +1,6 @@
 package widecolumnstore
 
-import "github.com/RossMerr/Caudex.Graph/arch"
+import "github.com/voltable/graph/arch"
 import any "github.com/golang/protobuf/ptypes/any"
 
 // NewAny returns a keyvalue.Any

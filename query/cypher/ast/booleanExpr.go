@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/RossMerr/Caudex.Graph/expressions"
+	"github.com/voltable/graph/expressions"
 )
 
 // BooleanExpr boolean expression

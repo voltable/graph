@@ -1,6 +1,6 @@
 package query
 
-import "github.com/RossMerr/Caudex.Graph/widecolumnstore"
+import "github.com/voltable/graph/widecolumnstore"
 
 var (
 	ID                     = []byte("i")

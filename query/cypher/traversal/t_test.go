@@ -7,17 +7,17 @@ import (
 	"reflect"
 	"testing"
 
-	graph "github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/expressions"
-	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/query/cypher"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/traversal"
-	"github.com/RossMerr/Caudex.Graph/uuid"
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore/storage/memorydb"
 	log "github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
+	graph "github.com/voltable/graph"
+	"github.com/voltable/graph/expressions"
+	"github.com/voltable/graph/query"
+	"github.com/voltable/graph/query/cypher"
+	"github.com/voltable/graph/query/cypher/ast"
+	"github.com/voltable/graph/query/cypher/traversal"
+	"github.com/voltable/graph/uuid"
+	"github.com/voltable/graph/widecolumnstore"
+	"github.com/voltable/graph/widecolumnstore/storage/memorydb"
 )
 
 var (

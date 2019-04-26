@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"errors"
 
-	"github.com/RossMerr/Caudex.Graph/arch"
-	"github.com/RossMerr/Caudex.Graph/uuid"
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
+	"github.com/voltable/graph/arch"
+	"github.com/voltable/graph/uuid"
+	"github.com/voltable/graph/widecolumnstore"
 )
 
 func Weight(s widecolumnstore.KeyValue) float64 {

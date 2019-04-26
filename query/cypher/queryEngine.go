@@ -1,10 +1,10 @@
 package cypher
 
 import (
-	graph "github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/parser"
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
+	graph "github.com/voltable/graph"
+	"github.com/voltable/graph/query"
+	"github.com/voltable/graph/query/cypher/parser"
+	"github.com/voltable/graph/widecolumnstore"
 	log "github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
 )

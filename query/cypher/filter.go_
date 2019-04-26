@@ -1,9 +1,9 @@
 package cypher
 
 import (
-	"github.com/RossMerr/Caudex.Graph/keyvalue"
-	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
+	"github.com/voltable/graph/keyvalue"
+	"github.com/voltable/graph/query"
+	"github.com/voltable/graph/query/cypher/ast"
 )
 
 // CypherFilter the interface of the filter struct

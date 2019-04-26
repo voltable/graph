@@ -1,7 +1,7 @@
 package store64
 
 import (
-	"github.com/RossMerr/Caudex.Graph/container/table"
+	"github.com/voltable/graph/container/table"
 )
 
 // NewTriple returns a store64.Triple

@@ -4,7 +4,7 @@ import (
 	"container/list"
 	"errors"
 
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
+	"github.com/voltable/graph/widecolumnstore"
 )
 
 type (

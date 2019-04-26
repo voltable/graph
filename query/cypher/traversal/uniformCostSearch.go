@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"sort"
 
-	graph "github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/uuid"
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
+	graph "github.com/voltable/graph"
+	"github.com/voltable/graph/query"
+	"github.com/voltable/graph/uuid"
+	"github.com/voltable/graph/widecolumnstore"
 )
 
 var errGoalNoFound = errors.New("Goal not found")

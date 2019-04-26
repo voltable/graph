@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/RossMerr/Caudex.Graph/expressions"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/lexer"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/scanner"
+	"github.com/voltable/graph/expressions"
+	"github.com/voltable/graph/query/cypher/ast"
+	"github.com/voltable/graph/query/cypher/lexer"
+	"github.com/voltable/graph/query/cypher/scanner"
 )
 
 // CypherParser represents a parser.

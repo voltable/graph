@@ -1,7 +1,7 @@
 package storeStr
 
 import (
-	"github.com/RossMerr/Caudex.Graph/container/table"
+	"github.com/voltable/graph/container/table"
 )
 
 // NewTriple returns a storeStr.Triple

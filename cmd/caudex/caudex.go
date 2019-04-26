@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/RossMerr/Caudex.Graph/cmd/caudex/handlers"
+	"github.com/voltable/graph/cmd/caudex/handlers"
 	"github.com/Sirupsen/logrus"
 )
 

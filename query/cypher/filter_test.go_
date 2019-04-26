@@ -3,13 +3,13 @@ package cypher_test
 import (
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/expressions"
-	"github.com/RossMerr/Caudex.Graph/keyvalue"
-	"github.com/RossMerr/Caudex.Graph/uuid"
+	"github.com/voltable/graph/expressions"
+	"github.com/voltable/graph/keyvalue"
+	"github.com/voltable/graph/uuid"
 
-	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/query/cypher"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
+	"github.com/voltable/graph/query"
+	"github.com/voltable/graph/query/cypher"
+	"github.com/voltable/graph/query/cypher/ast"
 )
 
 func Test_Filter(t *testing.T) {

@@ -4,9 +4,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/expressions"
-	"github.com/RossMerr/Caudex.Graph/query/cypher"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
+	"github.com/voltable/graph/expressions"
+	"github.com/voltable/graph/query/cypher"
+	"github.com/voltable/graph/query/cypher/ast"
 )
 
 func Test_ToQueryPath(t *testing.T) {

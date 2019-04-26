@@ -1,8 +1,8 @@
 package query
 
 import (
-	"github.com/RossMerr/Caudex.Graph/uuid"
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
+	"github.com/voltable/graph/uuid"
+	"github.com/voltable/graph/widecolumnstore"
 )
 
 // RelationshipPrefix builds up the key for a prefix search to find any relationship

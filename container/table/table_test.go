@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/container/table"
+	"github.com/voltable/graph/container/table"
 )
 
 func TestTable_Read(t *testing.T) {

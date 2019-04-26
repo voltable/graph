@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/RossMerr/Caudex.Graph/rpc"
+	"github.com/voltable/graph/rpc"
 	"github.com/Sirupsen/logrus"
 	"github.com/gogo/protobuf/proto"
 	"google.golang.org/grpc"

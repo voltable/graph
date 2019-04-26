@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
+	"github.com/voltable/graph/widecolumnstore"
 	"github.com/golang/protobuf/ptypes/any"
 )
 

@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/arch"
+	"github.com/voltable/graph/arch"
 )
 
 func TestEncodeType(t *testing.T) {

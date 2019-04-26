@@ -3,7 +3,7 @@ package expressions_test
 import (
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/expressions"
+	"github.com/voltable/graph/expressions"
 )
 
 func Test_XORSwap(t *testing.T) {

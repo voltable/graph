@@ -3,8 +3,8 @@ package scanner_test
 import (
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/query/cypher/lexer"
-	"github.com/RossMerr/Caudex.Graph/query/cypher/scanner"
+	"github.com/voltable/graph/query/cypher/lexer"
+	"github.com/voltable/graph/query/cypher/scanner"
 )
 
 // Ensure the scanner can scan tokens correctly.

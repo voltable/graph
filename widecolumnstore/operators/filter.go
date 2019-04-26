@@ -3,7 +3,7 @@ package operators
 import (
 	"github.com/pkg/errors"
 
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
+	"github.com/voltable/graph/widecolumnstore"
 )
 
 var _ widecolumnstore.Unary = (*Filter)(nil)

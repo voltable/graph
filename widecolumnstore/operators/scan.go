@@ -1,6 +1,6 @@
 package operators
 
-import "github.com/RossMerr/Caudex.Graph/widecolumnstore"
+import "github.com/voltable/graph/widecolumnstore"
 
 var _ widecolumnstore.Unary = (*Scan)(nil)
 

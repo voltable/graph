@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
+	"github.com/voltable/graph/query/cypher/ast"
 )
 
 // StackExpr a simple stack for the AST

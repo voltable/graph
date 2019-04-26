@@ -5,7 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/RossMerr/Caudex.Graph/uuid"
+	"github.com/voltable/graph/uuid"
 )
 
 // Vertex .

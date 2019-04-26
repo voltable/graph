@@ -1,7 +1,7 @@
 package query
 
 import (
-	"github.com/RossMerr/Caudex.Graph/uuid"
+	"github.com/voltable/graph/uuid"
 )
 
 // IteratorFrontier is an alias for function to iterate over Frontier.

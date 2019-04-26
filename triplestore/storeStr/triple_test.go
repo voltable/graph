@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/container/table"
-	triples "github.com/RossMerr/Caudex.Graph/triplestore/storeStr"
+	"github.com/voltable/graph/container/table"
+	triples "github.com/voltable/graph/triplestore/storeStr"
 	proto "github.com/golang/protobuf/proto"
 )
 

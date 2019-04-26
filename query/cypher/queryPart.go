@@ -1,7 +1,7 @@
 package cypher
 
 import (
-	"github.com/RossMerr/Caudex.Graph/query/cypher/ast"
+	"github.com/voltable/graph/query/cypher/ast"
 )
 
 type Parts interface {

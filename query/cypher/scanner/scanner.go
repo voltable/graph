@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/RossMerr/Caudex.Graph/query/cypher/lexer"
+	"github.com/voltable/graph/query/cypher/lexer"
 )
 
 var eof = rune(0)

@@ -4,9 +4,9 @@ import (
 	"reflect"
 	"testing"
 
-	graph "github.com/RossMerr/Caudex.Graph"
-	"github.com/RossMerr/Caudex.Graph/query"
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
+	graph "github.com/voltable/graph"
+	"github.com/voltable/graph/query"
+	"github.com/voltable/graph/widecolumnstore"
 )
 
 func TestMarshalKeyValue(t *testing.T) {

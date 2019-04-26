@@ -3,7 +3,7 @@ package widecolumnstore
 import (
 	"errors"
 
-	graph "github.com/RossMerr/Caudex.Graph"
+	graph "github.com/voltable/graph"
 	"github.com/Sirupsen/logrus"
 )
 
