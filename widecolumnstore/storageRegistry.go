@@ -3,8 +3,8 @@ package widecolumnstore
 import (
 	"errors"
 
+	"github.com/sirupsen/logrus"
 	graph "github.com/voltable/graph"
-	"github.com/Sirupsen/logrus"
 )
 
 var storeRegistry = make(map[graph.StorageType]StoreRegistration)

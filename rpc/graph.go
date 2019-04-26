@@ -1,7 +1,7 @@
 package rpc
 
 import (
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	context "golang.org/x/net/context"
 )
 

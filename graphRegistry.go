@@ -3,7 +3,7 @@ package graph
 import (
 	"errors"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 var graphRegistry = make(map[string]GraphRegistration)

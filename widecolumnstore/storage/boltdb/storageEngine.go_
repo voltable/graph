@@ -13,7 +13,7 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 
 	"github.com/voltable/graph"
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	bolt "github.com/coreos/bbolt"
 	"github.com/gogo/protobuf/proto"
 )

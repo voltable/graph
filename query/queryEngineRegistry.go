@@ -5,7 +5,7 @@ import (
 
 	graph "github.com/voltable/graph"
 	"github.com/voltable/graph/widecolumnstore"
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 var queryRegistry = make(map[graph.QueryType]QueryEngineRegistry)

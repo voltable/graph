@@ -1,12 +1,12 @@
 package cypher
 
 import (
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	graph "github.com/voltable/graph"
 	"github.com/voltable/graph/query"
 	"github.com/voltable/graph/query/cypher/parser"
 	"github.com/voltable/graph/widecolumnstore"
-	log "github.com/Sirupsen/logrus"
-	"github.com/pkg/errors"
 )
 
 func init() {

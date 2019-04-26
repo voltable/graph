@@ -7,7 +7,7 @@ import (
 	"log"
 
 	"github.com/voltable/graph/rpc"
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/gogo/protobuf/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"

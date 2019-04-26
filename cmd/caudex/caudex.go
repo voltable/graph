@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/sirupsen/logrus"
 	"github.com/voltable/graph/cmd/caudex/handlers"
-	"github.com/Sirupsen/logrus"
 )
 
 var httpAddr = flag.String("https", ":8080", "Listen address")
