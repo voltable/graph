@@ -197,16 +197,6 @@ func UnmarshalKeyValueTranspose(v *graph.Vertex, c []*widecolumnstore.KeyValue) 
 	}
 }
 
-func UnmarshalKeyValueTransposeTRelationship(kv widecolumnstore.KeyValue) (key *widecolumnstore.Key, weight float64) {
-	key = &widecolumnstore.Key{}
-	key.Unmarshal(kv.Key)
-	value, ok := widecolumnstore.Unmarshal(kv.Value).(float64)
-	if ok {
-		weight = value
-	}
-
-	return
-}
 
 // MarshalEdgeKeyValue marshal a edge into KeyValue
 func MarshalEdgeKeyValue(e *graph.Edge) ([]*widecolumnstore.KeyValue, []*widecolumnstore.KeyValue) {

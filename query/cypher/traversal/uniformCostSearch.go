@@ -57,7 +57,7 @@ func UniformCostSearch2(g *query.Graph, start *graph.Vertex, goal func(widecolum
 		fmt.Printf("edges: %+v\n", id)
 		iterator := edges(g, id)
 		for kv, ok := iterator(); ok; kv, ok = iterator() {
-			key, weight := query.UnmarshalKeyValueTransposeTRelationship(kv)
+			key, weight := UnmarshalKeyValueTransposeTRelationship(kv)
 			tKey := TransposeRelationship(key)
 			edge, _ := query.ParseKeyToUUID(&tKey)
 
@@ -69,6 +69,18 @@ func UniformCostSearch2(g *query.Graph, start *graph.Vertex, goal func(widecolum
 			}
 		}
 	}
+}
+
+
+func UnmarshalKeyValueTransposeTRelationship(kv widecolumnstore.KeyValue) (key *widecolumnstore.Key, weight float64) {
+	key = &widecolumnstore.Key{}
+	key.Unmarshal(kv.Key)
+	value, ok := widecolumnstore.Unmarshal(kv.Value).(float64)
+	if ok {
+		weight = value
+	}
+
+	return
 }
 
 func TransposeRelationship(key *widecolumnstore.Key) widecolumnstore.Key {
