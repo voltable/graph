@@ -4,9 +4,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/triplestore/store64"
+	"github.com/voltable/graph/triplestore/store64"
 
-	graph "github.com/RossMerr/Caudex.Graph"
+	graph "github.com/voltable/graph"
 )
 
 func TestMarshal(t *testing.T) {

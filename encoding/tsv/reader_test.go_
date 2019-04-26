@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/container/triples"
-	"github.com/RossMerr/Caudex.Graph/encoding/tsv"
+	"github.com/voltable/graph/container/triples"
+	"github.com/voltable/graphh/encoding/tsv"
 	GraphBLAS "github.com/RossMerr/Caudex.GraphBLAS"
 )
 

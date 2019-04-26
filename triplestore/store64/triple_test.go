@@ -3,8 +3,8 @@ package store64_test
 import (
 	"testing"
 
-	triples "github.com/RossMerr/Caudex.Graph/triplestore/store64"
 	proto "github.com/golang/protobuf/proto"
+	triples "github.com/voltable/graph/triplestore/store64"
 )
 
 func Test_Proto(t *testing.T) {

@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/RossMerr/Caudex.Graph/widecolumnstore"
+	"github.com/voltable/graph/widecolumnstore"
 	"github.com/golang/protobuf/ptypes/any"
 
-	"github.com/RossMerr/Caudex.Graph"
+	"github.com/voltable/graph"
 	"github.com/Sirupsen/logrus"
 	bolt "github.com/coreos/bbolt"
 	"github.com/gogo/protobuf/proto"

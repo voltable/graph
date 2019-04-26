@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/RossMerr/Caudex.Graph/rpc"
+	"github.com/voltable/graph/rpc"
 	"google.golang.org/grpc"
 )
 

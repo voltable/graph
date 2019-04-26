@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/container/triples"
+	"github.com/voltable/graph/container/triples"
 
-	"github.com/RossMerr/Caudex.Graph/encoding/mmio"
+	"github.com/voltable/graph/encoding/mmio"
 	GraphBLAS "github.com/RossMerr/Caudex.GraphBLAS"
 )
 

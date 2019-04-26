@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/RossMerr/Caudex.Graph/cmd/caudex/handlers"
+	"github.com/voltable/graph/cmd/caudex/handlers"
 )
 
 func TestPushHandler(t *testing.T) {
