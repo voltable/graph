@@ -1,4 +1,4 @@
-FROM golang:1.9 as builder
+FROM golang:1.12 as builder
 WORKDIR /go/src/github.com/voltable/graph/cmd/caudex
 COPY . /go/src/github.com/voltable/graph
 RUN CGO_ENABLED=0 GOOS=linux go build -a -o app .
