@@ -7,8 +7,8 @@ import (
 	"reflect"
 	"testing"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	graph "github.com/voltable/graph"
 	"github.com/voltable/graph/expressions"
 	"github.com/voltable/graph/query"
@@ -134,7 +134,9 @@ func Test_UniformCostSearch(t *testing.T) {
 	}
 
 	operator := NewMockOperator(graph, syd.ID())
-	result, err := traversal.UniformCostSearch2(graph, syd, goal, operator)
+
+	f := &traversal.Filter{Storage: graph}
+	result, err := traversal.UniformCostSearch2(f, syd, goal, operator)
 	if err != nil {
 		t.Fatalf("Expected err to be nil but was %s", err)
 	}
