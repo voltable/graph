@@ -47,7 +47,7 @@ func To(s widecolumnstore.KeyValue) (uuid.UUID, error) {
 }
 
 // ParseKeyToUUID looks for the UUID in the Key
-func ParseKeyToUUID(key *widecolumnstore.Key) (uuid.UUID, error) {
+func ParseKeyToUUID(key widecolumnstore.Key) (uuid.UUID, error) {
 	if bytes.Equal(key.Column.Family, Label) {
 		return uuid.SliceToUUID(key.ID), nil
 	}
@@ -87,7 +87,7 @@ func ParseKeyToUUID(key *widecolumnstore.Key) (uuid.UUID, error) {
 
 // UUID looks for the UUID in the KeyValue
 func UUID(s *widecolumnstore.KeyValue) (uuid.UUID, error) {
-	key := &widecolumnstore.Key{}
+	key := widecolumnstore.Key{}
 	key.Unmarshal(s.Key)
 	return ParseKeyToUUID(key)
 }

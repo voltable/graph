@@ -6,8 +6,8 @@ import (
 )
 
 // NewKey returns a new Key
-func NewKey(id []byte, column *Column) *Key {
-	return &Key{
+func NewKey(id []byte, column *Column) Key {
+	return Key{
 		ID:     id,
 		Column: column,
 	}
@@ -34,7 +34,7 @@ type Column struct {
 }
 
 // Marshal a key into bytes
-func (s *Key) Marshal() (key []byte) {
+func (s Key) Marshal() (key []byte) {
 	key = append(key, s.ID...)
 	key = append(key, US...)
 	key = append(key, s.Column.Family...)
