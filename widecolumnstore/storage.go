@@ -8,6 +8,10 @@ type HasPrefix interface {
 	HasPrefix([]byte) Iterator
 }
 
+type OperatorStorage interface {
+	Each
+	HasPrefix
+}
 type Storage interface {
 	Each
 	HasPrefix

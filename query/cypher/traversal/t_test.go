@@ -87,31 +87,9 @@ func init() {
 	per.AddDirectedEdgeWeight(drw, float64(48))
 }
 
-type MockOperator struct {
-	iterator widecolumnstore.Iterator
-}
-
-func (s *MockOperator) Op() {
-
-}
-
-func (s *MockOperator) Next(i widecolumnstore.Iterator) widecolumnstore.Iterator {
-	return s.iterator
-}
-
-func NewMockOperator(g *query.Graph, id uuid.UUID) *MockOperator {
-
-	key := widecolumnstore.NewKey(id[:], &widecolumnstore.Column{Family: query.Relationship})
-	prefix := key.Marshal()
-
-	return &MockOperator{
-		iterator: g.HasPrefix(prefix),
-	}
-}
-
 func Test_UniformCostSearch(t *testing.T) {
 	g := AustraliaGraph()
-	graph := g.(*query.Graph)
+	graph := *g.(*query.Graph)
 
 	fmt.Printf("drw: %+v\n", drw.ID())
 	fmt.Printf("cns: %+v\n", cns.ID())
@@ -130,8 +108,7 @@ func Test_UniformCostSearch(t *testing.T) {
 		return bytes.Equal(targetBytes, key.ID)
 	}
 
-	f := &traversal.Filter{Storage: graph}
-	result, err := traversal.UniformCostSearch2(f, syd, goal)
+	result, err := traversal.UniformCostSearch2(graph.Storage, syd, goal)
 	if err != nil {
 		t.Fatalf("Expected err to be nil but was %s", err)
 	}

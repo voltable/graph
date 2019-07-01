@@ -8,14 +8,15 @@ import (
 
 var _ widecolumnstore.Unary = (*Filter)(nil)
 
-// Filter is a set operator that returns the subset of those tuples satisfying the predicate
+// Filter is a set operator that returns the subset of those tuples satisfying the prefix
 type Filter struct {
-	storage  widecolumnstore.HasPrefix
-	operator widecolumnstore.Unary
-	prefix   widecolumnstore.Prefix
+	storage widecolumnstore.HasPrefix
+	unary   widecolumnstore.Unary
+	prefix  widecolumnstore.Prefix
 }
 
 // NewFilter returns a Filter
+// TODO the filer should have some predicate's !!?
 func NewFilter(storage widecolumnstore.HasPrefix, operator widecolumnstore.Operator, prefix widecolumnstore.Prefix) (widecolumnstore.Unary, error) {
 	unary, ok := operator.(widecolumnstore.Unary)
 	if !ok {
@@ -23,14 +24,14 @@ func NewFilter(storage widecolumnstore.HasPrefix, operator widecolumnstore.Opera
 	}
 
 	return &Filter{
-		prefix:   prefix,
-		operator: unary,
-		storage:  storage,
+		prefix:  prefix,
+		unary:   unary,
+		storage: storage,
 	}, nil
 }
 
 func (s *Filter) Next(i widecolumnstore.Iterator) widecolumnstore.Iterator {
-	iterator := s.operator.Next(i)
+	iterator := s.unary.Next(i)
 	var prefixIterator widecolumnstore.Iterator
 	return func() (widecolumnstore.KeyValue, bool) {
 		if prefixIterator != nil {

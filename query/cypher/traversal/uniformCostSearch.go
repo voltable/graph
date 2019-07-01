@@ -9,22 +9,10 @@ import (
 	"github.com/voltable/graph/query"
 	"github.com/voltable/graph/uuid"
 	"github.com/voltable/graph/widecolumnstore"
+	"github.com/voltable/graph/widecolumnstore/operators"
 )
 
 var errGoalNoFound = errors.New("Goal not found")
-
-type Filter struct {
-	Storage widecolumnstore.HasPrefix
-	ID      uuid.UUID
-}
-
-func (s *Filter) Next(i widecolumnstore.Iterator) widecolumnstore.Iterator {
-	key := prefix(s.ID)
-	bytes := key.Marshal()
-	return s.Storage.HasPrefix(bytes)
-}
-
-func (s *Filter) Op() {}
 
 type path struct {
 	Vertices []widecolumnstore.Key
@@ -39,8 +27,7 @@ func (f frontier) Less(i, j int) bool     { return f[i].Cost < f[j].Cost }
 func (f frontier) pop() (*path, frontier) { return f[0], f[1:] }
 
 // TODO fix this next to get the queryEngine_test's working
-// TODO I think the input f operators.Filter should be a operators.Scan
-func UniformCostSearch2(f *Filter, start *graph.Vertex, goal func(widecolumnstore.Key) bool) ([]uuid.UUID, error) {
+func UniformCostSearch2(storage widecolumnstore.Storage, start *graph.Vertex, goal func(widecolumnstore.Key) bool) ([]uuid.UUID, error) {
 	root := prefix(start.ID())
 	frontier := frontier{&path{[]widecolumnstore.Key{root}, 0}}
 	explored := make(map[uuid.UUID]bool)
@@ -68,10 +55,9 @@ func UniformCostSearch2(f *Filter, start *graph.Vertex, goal func(widecolumnstor
 
 		fmt.Printf("edges: %+v\n", id)
 
-		// TODO need to use operators.Filter
-		filter := Filter{Storage: f.Storage, ID: id}
-
-		iterator := filter.Next(nil)
+		// TODO fix this, Filter takes a Unary operator don't know why should be a predicate?
+		filter, _ := operators.NewFilter(storage, nil, PrefixFunc)
+		iterator := filter.Next(storage.Each())
 
 		for kv, ok := iterator(); ok; kv, ok = iterator() {
 
@@ -92,6 +78,12 @@ func UniformCostSearch2(f *Filter, start *graph.Vertex, goal func(widecolumnstor
 			}
 		}
 	}
+}
+
+func PrefixFunc(key widecolumnstore.Key) []byte {
+
+	bytes := key.Marshal()
+	return bytes
 }
 
 func TransposeRelationship(key widecolumnstore.Key) widecolumnstore.Key {

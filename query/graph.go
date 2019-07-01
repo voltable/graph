@@ -22,7 +22,7 @@ var (
 )
 
 type Graph struct {
-	storage widecolumnstore.Storage
+	Storage widecolumnstore.Storage
 	Options *graph.Options
 	query   QueryEngine
 }
@@ -47,7 +47,7 @@ func NewGraphEngine(o *graph.Options) (graph.Graph, error) {
 
 	se := Graph{
 		Options: o,
-		storage: s,
+		Storage: s,
 		query:   q,
 	}
 
@@ -66,8 +66,8 @@ func (s Graph) Create(c ...*graph.Vertex) error {
 		triples, transposes := MarshalKeyValue(v)
 		var errstrings []string
 
-		s.storage.Create(triples...)
-		s.storage.Create(transposes...)
+		s.Storage.Create(triples...)
+		s.Storage.Create(transposes...)
 
 		if len(errstrings) > 0 {
 			return fmt.Errorf(strings.Join(errstrings, "\n"))
@@ -110,5 +110,5 @@ func (s Graph) Query(str string) (*graph.Query, error) {
 }
 
 func (s *Graph) HasPrefix(prefix []byte) widecolumnstore.Iterator {
-	return s.storage.HasPrefix(prefix)
+	return s.Storage.HasPrefix(prefix)
 }
