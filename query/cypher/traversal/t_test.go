@@ -127,16 +127,11 @@ func Test_UniformCostSearch(t *testing.T) {
 	targetBytes := id[:]
 
 	goal := func(key widecolumnstore.Key) bool {
-		// key := &widecolumnstore.Key{}
-		// key.Unmarshal(kv.Key)
-
 		return bytes.Equal(targetBytes, key.ID)
 	}
 
-	operator := NewMockOperator(graph, syd.ID())
-
 	f := &traversal.Filter{Storage: graph}
-	result, err := traversal.UniformCostSearch2(f, syd, goal, operator)
+	result, err := traversal.UniformCostSearch2(f, syd, goal)
 	if err != nil {
 		t.Fatalf("Expected err to be nil but was %s", err)
 	}

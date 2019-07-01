@@ -39,7 +39,8 @@ func (f frontier) Less(i, j int) bool     { return f[i].Cost < f[j].Cost }
 func (f frontier) pop() (*path, frontier) { return f[0], f[1:] }
 
 // TODO fix this next to get the queryEngine_test's working
-func UniformCostSearch2(f *Filter, start *graph.Vertex, goal func(widecolumnstore.Key) bool, scan widecolumnstore.Operator) ([]uuid.UUID, error) {
+// TODO I think the input f operators.Filter should be a operators.Scan
+func UniformCostSearch2(f *Filter, start *graph.Vertex, goal func(widecolumnstore.Key) bool) ([]uuid.UUID, error) {
 	root := prefix(start.ID())
 	frontier := frontier{&path{[]widecolumnstore.Key{root}, 0}}
 	explored := make(map[uuid.UUID]bool)
@@ -65,12 +66,9 @@ func UniformCostSearch2(f *Filter, start *graph.Vertex, goal func(widecolumnstor
 			return results, nil
 		}
 
-		// TODO need to make frontier use widecolumnstore.Key to make the bellow work
-		//unary, _ := operators.NewFilter(g, scan, prefixBuilder)
-
-		//unary.Next(scan)
 		fmt.Printf("edges: %+v\n", id)
 
+		// TODO need to use operators.Filter
 		filter := Filter{Storage: f.Storage, ID: id}
 
 		iterator := filter.Next(nil)
