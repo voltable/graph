@@ -20,14 +20,15 @@ type Filter struct {
 }
 
 func (s *Filter) Next(i widecolumnstore.Iterator) widecolumnstore.Iterator {
-	kv := prefix(s.ID)
-	return s.Storage.HasPrefix(kv.Key)
+	key := prefix(s.ID)
+	bytes := key.Marshal()
+	return s.Storage.HasPrefix(bytes)
 }
 
 func (s *Filter) Op() {}
 
 type path struct {
-	Vertices []widecolumnstore.KeyValue
+	Vertices []widecolumnstore.Key
 	Cost     float64
 }
 
@@ -39,9 +40,9 @@ func (f frontier) Less(i, j int) bool     { return f[i].Cost < f[j].Cost }
 func (f frontier) pop() (*path, frontier) { return f[0], f[1:] }
 
 // TODO fix this next to get the queryEngine_test's working
-func UniformCostSearch2(f *Filter, start *graph.Vertex, goal func(widecolumnstore.KeyValue) bool, scan widecolumnstore.Operator) ([]uuid.UUID, error) {
+func UniformCostSearch2(f *Filter, start *graph.Vertex, goal func(widecolumnstore.Key) bool, scan widecolumnstore.Operator) ([]uuid.UUID, error) {
 	root := prefix(start.ID())
-	frontier := frontier{&path{[]widecolumnstore.KeyValue{root}, 0}}
+	frontier := frontier{&path{[]widecolumnstore.Key{root}, 0}}
 	explored := make(map[uuid.UUID]bool)
 
 	//	filter := Filter{Storage: f.Storage, ID: start.ID()}
@@ -54,18 +55,18 @@ func UniformCostSearch2(f *Filter, start *graph.Vertex, goal func(widecolumnstor
 		var p *path
 		sort.Sort(frontier)
 		p, frontier = frontier.pop()
-		kv := p.Vertices[len(p.Vertices)-1]
-		key := &widecolumnstore.Key{}
-		key.Unmarshal(kv.Key)
-		id, _ := query.ParseKeyToUUID(key)
+		key := p.Vertices[len(p.Vertices)-1]
+		//key := &widecolumnstore.Key{}
+		//key.Unmarshal(kv.Key)
+		id, _ := query.ParseKeyToUUID(&key)
 		explored[id] = true
 
-		if goal(kv) {
+		if goal(key) {
 			results := make([]uuid.UUID, 0)
-			for _, kv := range p.Vertices {
-				key := &widecolumnstore.Key{}
-				key.Unmarshal(kv.Key)
-				id, _ := query.ParseKeyToUUID(key)
+			for _, key := range p.Vertices {
+				// key := &widecolumnstore.Key{}
+				// key.Unmarshal(kv.Key)
+				id, _ := query.ParseKeyToUUID(&key)
 				results = append(results, id)
 			}
 			return results, nil
@@ -86,14 +87,14 @@ func UniformCostSearch2(f *Filter, start *graph.Vertex, goal func(widecolumnstor
 			weight, ok := widecolumnstore.Unmarshal(kv.Value).(float64)
 
 			if ok {
-				key := &widecolumnstore.Key{}
+				key := widecolumnstore.Key{}
 				key.Unmarshal(kv.Key)
-				tKey := TransposeRelationship(key, kv.Value)
+				//	tKey := TransposeRelationship(key, kv.Value)
 				edge := uuid.SliceToUUID(key.Column.Qualifier)
 
 				if _, ok := explored[edge]; !ok {
 					fmt.Printf("add: %+v\n", edge)
-					frontier = append(frontier, &path{append(p.Vertices, tKey), p.Cost + weight})
+					frontier = append(frontier, &path{append(p.Vertices, key), p.Cost + weight})
 				} else {
 					fmt.Printf("skip: %+v\n", edge)
 				}
@@ -109,12 +110,14 @@ func TransposeRelationship(key *widecolumnstore.Key, value *any.Any) widecolumns
 	}
 }
 
-func prefix(id uuid.UUID) widecolumnstore.KeyValue {
-	kv := widecolumnstore.KeyValue{
-		Value: widecolumnstore.NewAny(0),
-		Key:   widecolumnstore.NewKey(id[:], &widecolumnstore.Column{Family: query.Relationship}).Marshal(),
-	}
-	return kv
+func prefix(id uuid.UUID) widecolumnstore.Key {
+	return *widecolumnstore.NewKey(id[:], &widecolumnstore.Column{Family: query.Relationship})
+
+	// kv := widecolumnstore.KeyValue{
+	// 	Value: widecolumnstore.NewAny(0),
+	// 	Key:   widecolumnstore.NewKey(id[:], &widecolumnstore.Column{Family: query.Relationship}).Marshal(),
+	// }
+	// return kv
 }
 
 func UniformCostSearch(graph query.Graph, operator widecolumnstore.Operator, frontier *query.Frontier) bool {
