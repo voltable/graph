@@ -126,9 +126,9 @@ func Test_UniformCostSearch(t *testing.T) {
 	id := per.ID()
 	targetBytes := id[:]
 
-	goal := func(kv widecolumnstore.KeyValue) bool {
-		key := &widecolumnstore.Key{}
-		key.Unmarshal(kv.Key)
+	goal := func(key widecolumnstore.Key) bool {
+		// key := &widecolumnstore.Key{}
+		// key.Unmarshal(kv.Key)
 
 		return bytes.Equal(targetBytes, key.ID)
 	}
