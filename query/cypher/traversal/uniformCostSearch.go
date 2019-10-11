@@ -2,7 +2,6 @@ package traversal
 
 import (
 	"errors"
-	"fmt"
 	"sort"
 
 	graph "github.com/voltable/graph"
@@ -53,10 +52,9 @@ func UniformCostSearch2(storage widecolumnstore.Storage, start *graph.Vertex, go
 			return results, nil
 		}
 
-		fmt.Printf("edges: %+v\n", id)
+		//fmt.Printf("edges: %+v\n", id)
 
-		// TODO fix this, Filter takes a Unary operator don't know why should be a predicate?
-		filter, _ := operators.NewFilter(storage, nil, PrefixFunc)
+		filter, _ := operators.NewFilter(storage, PrefixFunc, widecolumnstore.EmptyPredicate)
 		iterator := filter.Next(storage.Each())
 
 		for kv, ok := iterator(); ok; kv, ok = iterator() {
@@ -70,10 +68,10 @@ func UniformCostSearch2(storage widecolumnstore.Storage, start *graph.Vertex, go
 				edge := uuid.SliceToUUID(key.Column.Qualifier)
 
 				if _, ok := explored[edge]; !ok {
-					fmt.Printf("add: %+v\n", edge)
+					//	fmt.Printf("add: %+v\n", edge)
 					frontier = append(frontier, &path{append(p.Vertices, tKey), p.Cost + weight})
 				} else {
-					fmt.Printf("skip: %+v\n", edge)
+					//		fmt.Printf("skip: %+v\n", edge)
 				}
 			}
 		}

@@ -71,3 +71,7 @@ func ParseUUID(uuid string) (UUID, error) {
 func Equal(a, b UUID) bool {
 	return FormatUUID(a) == FormatUUID(b)
 }
+
+func (buf UUID) String() string {
+	return FormatUUID(buf)
+}

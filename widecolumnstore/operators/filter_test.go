@@ -7,22 +7,12 @@ import (
 	"github.com/voltable/graph/widecolumnstore/storage/memorydb"
 )
 
-type unaryTest struct {
-}
-
-func (s *unaryTest) Next(i widecolumnstore.Iterator) widecolumnstore.Iterator {
-	return i
-}
-
-func (s *unaryTest) Op() {
-
-}
-
 func TestFilter_Next(t *testing.T) {
 	type fields struct {
-		storage  widecolumnstore.Storage
-		operator widecolumnstore.Operator
-		prefix   widecolumnstore.Prefix
+		storage   widecolumnstore.Storage
+		operator  widecolumnstore.Operator
+		prefix    widecolumnstore.Prefix
+		predicate widecolumnstore.Predicate
 	}
 	tests := []struct {
 		name   string
@@ -34,10 +24,8 @@ func TestFilter_Next(t *testing.T) {
 			name: "Filter",
 			fields: func() fields {
 				storage, _ := memorydb.NewStorageEngine()
-				unary := &unaryTest{}
 				fields := fields{
-					storage:  storage,
-					operator: unary,
+					storage: storage,
 					prefix: func(widecolumnstore.Key) []byte {
 						arr := []byte{}
 						return arr
@@ -68,8 +56,8 @@ func TestFilter_Next(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s, _ := NewFilter(tt.fields.storage,
-				tt.fields.operator,
 				tt.fields.prefix,
+				tt.fields.predicate,
 			)
 			got := s.Next(tt.args(tt.want))
 			for value, ok := got(); ok; value, ok = got() {
