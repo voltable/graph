@@ -2,6 +2,7 @@ package widecolumnstore
 
 import (
 	"bytes"
+	fmt "fmt"
 	"time"
 )
 
@@ -63,4 +64,19 @@ func (s *Key) Unmarshal(key []byte) {
 		}
 	}
 	return
+}
+
+func (s Key) String() string {
+	buffer := bytes.NewBufferString("{")
+	buffer.WriteString(fmt.Sprintf("id => %#v", string(s.ID)))
+	buffer.WriteRune(' ')
+	buffer.WriteString(fmt.Sprintf("Family => %#v", string(s.Column.Family)))
+	buffer.WriteRune(' ')
+	buffer.WriteString(fmt.Sprintf("Extended => %#v", string(s.Column.Extended)))
+	buffer.WriteRune(' ')
+	buffer.WriteString(fmt.Sprintf("Qualifier => %#v", string(s.Column.Qualifier)))
+	buffer.WriteRune(' ')
+	buffer.WriteString(fmt.Sprintf("Timestamp => %#v", s.Timestamp.String()))
+	buffer.WriteString("}")
+	return fmt.Sprintf(buffer.String())
 }

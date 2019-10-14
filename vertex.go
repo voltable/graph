@@ -1,6 +1,8 @@
 package graph
 
 import (
+	"bytes"
+	"fmt"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -182,15 +184,15 @@ func (v *Vertex) RemoveEdge(to *Vertex) error {
 	return nil
 }
 
-// func (v Vertex) String() string {
-
-// 	var buffer bytes.Buffer
-// 	buffer.WriteString("{")
-// 	for k, b := range v.properties {
-// 		buffer.WriteString(fmt.Sprintf("%v => %#v", k, b))
-// 		buffer.WriteString(", ")
-// 	}
-// 	w := bytes.NewBuffer(buffer.Bytes()[:buffer.Len()-2])
-// 	w.WriteString("}")
-// 	return fmt.Sprintf(w.String())
-// }
+func (v Vertex) String() string {
+	buffer := bytes.NewBufferString("{")
+	// buffer.WriteString(fmt.Sprintf("id => %#v", v.id.String()))
+	// buffer.WriteRune(' ')
+	buffer.WriteString(fmt.Sprintf("label => %#v", v.label))
+	for k, b := range v.properties {
+		buffer.WriteString(fmt.Sprintf("%v => %#v", k, b))
+		buffer.WriteString(", ")
+	}
+	buffer.WriteString("}")
+	return fmt.Sprintf(buffer.String())
+}

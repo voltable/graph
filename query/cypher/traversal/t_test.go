@@ -34,6 +34,7 @@ var (
 	mel, _ = graph.NewVertex()
 	adl, _ = graph.NewVertex()
 	per, _ = graph.NewVertex()
+	db     = map[uuid.UUID]*graph.Vertex{}
 )
 
 // https://neo4j.com/blog/graph-search-algorithm-basics/
@@ -85,21 +86,34 @@ func init() {
 
 	per.AddDirectedEdgeWeight(adl, float64(32))
 	per.AddDirectedEdgeWeight(drw, float64(48))
+
+	db = make(map[uuid.UUID]*graph.Vertex)
+	db[drw.ID()] = drw
+	db[cns.ID()] = cns
+	db[asp.ID()] = asp
+	db[bne.ID()] = bne
+	db[syd.ID()] = syd
+	db[cbr.ID()] = cbr
+	db[mel.ID()] = mel
+	db[adl.ID()] = adl
+	db[per.ID()] = per
+
+	//list = append(list, drw, cns, asp, bne, syd, cbr, mel, adl, per)
 }
 
 func Test_UniformCostSearch(t *testing.T) {
 	g := AustraliaGraph()
 	graph := *g.(*query.Graph)
 
-	fmt.Printf("drw: %+v\n", drw.ID())
-	fmt.Printf("cns: %+v\n", cns.ID())
-	fmt.Printf("asp: %+v\n", asp.ID())
-	fmt.Printf("bne: %+v\n", bne.ID())
-	fmt.Printf("syd: %+v\n", syd.ID())
-	fmt.Printf("cbr: %+v\n", cbr.ID())
-	fmt.Printf("mel: %+v\n", mel.ID())
-	fmt.Printf("adl: %+v\n", adl.ID())
-	fmt.Printf("per: %+v\n", per.ID())
+	// fmt.Printf("drw: %+v\n", drw)
+	// fmt.Printf("cns: %+v\n", cns)
+	// fmt.Printf("asp: %+v\n", asp)
+	// fmt.Printf("bne: %+v\n", bne)
+	// fmt.Printf("syd: %+v\n", syd)
+	// fmt.Printf("cbr: %+v\n", cbr)
+	// fmt.Printf("mel: %+v\n", mel)
+	// fmt.Printf("adl: %+v\n", adl)
+	// fmt.Printf("per: %+v\n", per)
 
 	id := per.ID()
 	targetBytes := id[:]
@@ -108,7 +122,7 @@ func Test_UniformCostSearch(t *testing.T) {
 		return bytes.Equal(targetBytes, key.ID)
 	}
 
-	result, err := traversal.UniformCostSearch2(graph.Storage, syd, goal)
+	result, err := traversal.UniformCostSearch2(graph.Storage, syd, goal, db)
 	if err != nil {
 		t.Fatalf("Expected err to be nil but was %s", err)
 	}

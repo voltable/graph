@@ -26,11 +26,10 @@ func (f frontier) Less(i, j int) bool     { return f[i].Cost < f[j].Cost }
 func (f frontier) pop() (*path, frontier) { return f[0], f[1:] }
 
 // TODO fix this next to get the queryEngine_test's working
-func UniformCostSearch2(storage widecolumnstore.Storage, start *graph.Vertex, goal func(widecolumnstore.Key) bool) ([]uuid.UUID, error) {
+func UniformCostSearch2(storage widecolumnstore.Storage, start *graph.Vertex, goal func(widecolumnstore.Key) bool, list map[uuid.UUID]*graph.Vertex) ([]uuid.UUID, error) {
 	root := prefix(start.ID())
 	frontier := frontier{&path{[]widecolumnstore.Key{root}, 0}}
 	explored := make(map[uuid.UUID]bool)
-
 	for {
 		if len(frontier) == 0 {
 			return nil, errGoalNoFound
@@ -52,10 +51,10 @@ func UniformCostSearch2(storage widecolumnstore.Storage, start *graph.Vertex, go
 			return results, nil
 		}
 
-		//fmt.Printf("edges: %+v\n", id)
+		bytes := key.Marshal()
 
-		filter, _ := operators.NewFilter(storage, PrefixFunc, widecolumnstore.EmptyPredicate)
-		iterator := filter.Next(storage.Each())
+		filter, _ := operators.NewFilter(widecolumnstore.EmptyPredicate)
+		iterator := filter.Next(storage.HasPrefix(bytes))
 
 		for kv, ok := iterator(); ok; kv, ok = iterator() {
 
@@ -64,28 +63,17 @@ func UniformCostSearch2(storage widecolumnstore.Storage, start *graph.Vertex, go
 			if ok {
 				key := widecolumnstore.Key{}
 				key.Unmarshal(kv.Key)
-				tKey := TransposeRelationship(key)
+
 				edge := uuid.SliceToUUID(key.Column.Qualifier)
+				tKey := prefix(edge)
 
 				if _, ok := explored[edge]; !ok {
-					//	fmt.Printf("add: %+v\n", edge)
+
 					frontier = append(frontier, &path{append(p.Vertices, tKey), p.Cost + weight})
-				} else {
-					//		fmt.Printf("skip: %+v\n", edge)
 				}
 			}
 		}
 	}
-}
-
-func PrefixFunc(key widecolumnstore.Key) []byte {
-
-	bytes := key.Marshal()
-	return bytes
-}
-
-func TransposeRelationship(key widecolumnstore.Key) widecolumnstore.Key {
-	return widecolumnstore.NewKey(key.Column.Qualifier, &widecolumnstore.Column{query.TRelationship, key.Column.Extended, key.ID})
 }
 
 func prefix(id uuid.UUID) widecolumnstore.Key {

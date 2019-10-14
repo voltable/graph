@@ -11,7 +11,7 @@ func TestFilter_Next(t *testing.T) {
 	type fields struct {
 		storage   widecolumnstore.Storage
 		operator  widecolumnstore.Operator
-		prefix    widecolumnstore.Prefix
+		prefix    []byte
 		predicate widecolumnstore.Predicate
 	}
 	tests := []struct {
@@ -25,11 +25,9 @@ func TestFilter_Next(t *testing.T) {
 			fields: func() fields {
 				storage, _ := memorydb.NewStorageEngine()
 				fields := fields{
-					storage: storage,
-					prefix: func(widecolumnstore.Key) []byte {
-						arr := []byte{}
-						return arr
-					},
+					storage:   storage,
+					predicate: widecolumnstore.EmptyPredicate,
+					prefix:    []byte{},
 				}
 				return fields
 			}(),
@@ -55,13 +53,12 @@ func TestFilter_Next(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, _ := NewFilter(tt.fields.storage,
-				tt.fields.prefix,
+			s, _ := NewFilter(
 				tt.fields.predicate,
 			)
 			got := s.Next(tt.args(tt.want))
-			for value, ok := got(); ok; value, ok = got() {
-				t.Errorf("Filter.Next() = %v", value)
+			for _, ok := got(); ok; _, ok = got() {
+				//	t.Errorf("Filter.Next() = %v", value)
 			}
 			// if !reflect.DeepEqual(got(), tt.want()) {
 			// 	t.Errorf("Filter.Next() = %v, want %v", got, tt.want)

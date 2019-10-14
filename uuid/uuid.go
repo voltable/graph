@@ -72,6 +72,11 @@ func Equal(a, b UUID) bool {
 	return FormatUUID(a) == FormatUUID(b)
 }
 
-func (buf UUID) String() string {
-	return FormatUUID(buf)
+func (uuid UUID) String() string {
+	buf := make([]byte, 16)
+
+	copy(buf, uuid[:])
+
+	return string(buf)
+	//return FormatUUID(buf)
 }
