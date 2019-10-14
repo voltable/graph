@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"errors"
 
+	"github.com/google/uuid"
 	"github.com/voltable/graph/arch"
-	"github.com/voltable/graph/uuid"
 	"github.com/voltable/graph/widecolumnstore"
 )
 
@@ -35,7 +35,7 @@ func To(s widecolumnstore.KeyValue) (uuid.UUID, error) {
 	key.Unmarshal(s.Key)
 
 	if bytes.Equal(key.Column.Family, Relationship) {
-		return uuid.SliceToUUID(key.Column.Qualifier), nil
+		return uuid.FromBytes(key.Column.Qualifier)
 	}
 
 	if bytes.Equal(key.ID, Relationship) {
@@ -49,37 +49,37 @@ func To(s widecolumnstore.KeyValue) (uuid.UUID, error) {
 // ParseKeyToUUID looks for the UUID in the Key
 func ParseKeyToUUID(key widecolumnstore.Key) (uuid.UUID, error) {
 	if bytes.Equal(key.Column.Family, Label) {
-		return uuid.SliceToUUID(key.ID), nil
+		return uuid.FromBytes(key.ID)
 	}
 
 	if bytes.Equal(key.Column.Family, Properties) {
-		return uuid.SliceToUUID(key.ID), nil
+		return uuid.FromBytes(key.ID)
 	}
 
 	if bytes.Equal(key.Column.Family, Relationship) {
-		return uuid.SliceToUUID(key.ID), nil
+		return uuid.FromBytes(key.ID)
 	}
 
 	if bytes.Equal(key.Column.Family, Relationshipproperties) {
-		return uuid.SliceToUUID(key.ID), nil
+		return uuid.FromBytes(key.ID)
 	}
 
 	// Transpose
 
 	if bytes.Equal(key.ID, TLabel) {
-		return uuid.SliceToUUID(key.Column.Qualifier), nil
+		return uuid.FromBytes(key.Column.Qualifier)
 	}
 
 	if bytes.Equal(key.ID, TProperties) {
-		return uuid.SliceToUUID(key.Column.Qualifier), nil
+		return uuid.FromBytes(key.Column.Qualifier)
 	}
 
 	if bytes.Equal(key.Column.Family, TRelationship) {
-		return uuid.SliceToUUID(key.ID), nil
+		return uuid.FromBytes(key.ID)
 	}
 
 	if bytes.Equal(key.ID, TRelationshipproperties) {
-		return uuid.SliceToUUID(key.Column.Qualifier), nil
+		return uuid.FromBytes(key.Column.Qualifier)
 	}
 
 	return uuid.Nil, ErrIDNotFound

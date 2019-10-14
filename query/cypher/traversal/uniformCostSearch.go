@@ -4,9 +4,9 @@ import (
 	"errors"
 	"sort"
 
+	"github.com/google/uuid"
 	graph "github.com/voltable/graph"
 	"github.com/voltable/graph/query"
-	"github.com/voltable/graph/uuid"
 	"github.com/voltable/graph/widecolumnstore"
 	"github.com/voltable/graph/widecolumnstore/operators"
 )
@@ -66,7 +66,7 @@ func UniformCostSearch2(storage widecolumnstore.Storage, start *graph.Vertex, go
 				key := widecolumnstore.Key{}
 				key.Unmarshal(kv.Key)
 
-				edge := uuid.SliceToUUID(key.Column.Qualifier)
+				edge, _ := uuid.FromBytes(key.Column.Qualifier)
 				tKey := prefix(edge)
 
 				if _, ok := explored[edge]; !ok {

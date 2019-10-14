@@ -6,7 +6,7 @@ import (
 	"github.com/voltable/graph/expressions"
 	"github.com/voltable/graph/keyvalue"
 	"github.com/voltable/graph/query/cypher/ast"
-	"github.com/voltable/graph/uuid"
+	"github.com/google/uuid"
 )
 
 func Test_MapPropertyInterpret(t *testing.T) {

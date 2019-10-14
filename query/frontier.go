@@ -1,7 +1,7 @@
 package query
 
 import (
-	"github.com/voltable/graph/uuid"
+	"github.com/google/uuid"
 )
 
 // IteratorFrontier is an alias for function to iterate over Frontier.

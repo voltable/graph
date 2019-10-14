@@ -5,8 +5,8 @@ import (
 
 	"github.com/voltable/graph/widecolumnstore"
 
+	"github.com/google/uuid"
 	graph "github.com/voltable/graph"
-	"github.com/voltable/graph/uuid"
 )
 
 // NewKeyValueID creates a ID KeyValue
@@ -97,7 +97,7 @@ func UnmarshalKeyValue(v *graph.Vertex, c []*widecolumnstore.KeyValue) {
 		key.Unmarshal(kv.Key)
 
 		if bytes.Equal(key.Column.Family, Label) {
-			id := uuid.SliceToUUID(key.ID)
+			id, _ := uuid.FromBytes(key.ID)
 			v.SetID(id)
 			value, ok := widecolumnstore.Unmarshal(kv.Value).(string)
 			if ok {
@@ -112,7 +112,7 @@ func UnmarshalKeyValue(v *graph.Vertex, c []*widecolumnstore.KeyValue) {
 		}
 
 		if bytes.Equal(key.Column.Family, Relationship) {
-			edgeID := uuid.SliceToUUID(key.Column.Qualifier)
+			edgeID, _ := uuid.FromBytes(key.Column.Qualifier)
 			edge, ok := v.Edges()[edgeID]
 			if !ok {
 				edge = graph.NewEdgeFromID(v.ID(), edgeID)
@@ -129,7 +129,7 @@ func UnmarshalKeyValue(v *graph.Vertex, c []*widecolumnstore.KeyValue) {
 		}
 
 		if bytes.Equal(key.Column.Family, Relationshipproperties) {
-			edgeID := uuid.SliceToUUID(key.Column.Qualifier)
+			edgeID, _ := uuid.FromBytes(key.Column.Qualifier)
 			edge, ok := v.Edges()[edgeID]
 			if !ok {
 				edge = graph.NewEdgeFromID(v.ID(), edgeID)
@@ -152,7 +152,7 @@ func UnmarshalKeyValueTranspose(v *graph.Vertex, c []*widecolumnstore.KeyValue) 
 
 		if bytes.Equal(key.ID, TLabel) {
 			if s, ok := widecolumnstore.Unmarshal(kv.Value).([]byte); ok {
-				id := uuid.SliceToUUID(s)
+				id, _ := uuid.FromBytes(s)
 				v.SetID(id)
 			}
 			v.SetLabel(string(key.Column.Family))
@@ -166,7 +166,7 @@ func UnmarshalKeyValueTranspose(v *graph.Vertex, c []*widecolumnstore.KeyValue) 
 		if bytes.Equal(key.Column.Family, TRelationship) {
 			relationshipType := string(key.Column.Extended)
 
-			edgeID := uuid.SliceToUUID(key.ID)
+			edgeID, _ := uuid.FromBytes(key.ID)
 
 			edge, ok := v.Edges()[edgeID]
 			if !ok {
@@ -184,7 +184,7 @@ func UnmarshalKeyValueTranspose(v *graph.Vertex, c []*widecolumnstore.KeyValue) 
 		}
 
 		if bytes.Equal(key.ID, TRelationshipproperties) {
-			edgeID := uuid.SliceToUUID(key.Column.Extended)
+			edgeID, _ := uuid.FromBytes(key.Column.Extended)
 			edge, ok := v.Edges()[edgeID]
 			if !ok {
 				edge = graph.NewEdgeFromID(v.ID(), edgeID)
@@ -196,7 +196,6 @@ func UnmarshalKeyValueTranspose(v *graph.Vertex, c []*widecolumnstore.KeyValue) 
 
 	}
 }
-
 
 // MarshalEdgeKeyValue marshal a edge into KeyValue
 func MarshalEdgeKeyValue(e *graph.Edge) ([]*widecolumnstore.KeyValue, []*widecolumnstore.KeyValue) {

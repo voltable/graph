@@ -5,7 +5,6 @@ import (
 
 	"github.com/voltable/graph/query/cypher/ast"
 	"github.com/voltable/graph/widecolumnstore"
-	"github.com/voltable/graph/widecolumnstore/operators"
 )
 
 var (
@@ -15,137 +14,137 @@ var (
 )
 
 type QueryBuilder interface {
-	Predicate(patterns []ast.Patn) (widecolumnstore.Operator, error)
+	Build(stmt ast.Clauses) (widecolumnstore.Iterator, error)
 }
 
 type CypherQueryBuilder struct {
 	storage widecolumnstore.Storage
-	filter  func(predicate widecolumnstore.Predicate) widecolumnstore.Unary
 }
 
-func NewQueryBuilderDefault(storage widecolumnstore.Storage) *CypherQueryBuilder {
-	return NewQueryBuilder(storage, operators.NewFilter)
-}
-
-func NewQueryBuilder(storage widecolumnstore.Storage, filter func(predicate widecolumnstore.Predicate) widecolumnstore.Unary) *CypherQueryBuilder {
+func NewQueryBuilder(storage widecolumnstore.Storage) *CypherQueryBuilder {
 	return &CypherQueryBuilder{
 		storage: storage,
-		filter:  filter,
 	}
 }
 
-func (s *CypherQueryBuilder) Predicate(patterns []ast.Patn) (widecolumnstore.Operator, error) {
-	if patterns == nil {
-		return nil, ErrNoPattern
-	}
+// TODO need to build up the operators to run the query
+func (s *CypherQueryBuilder) Build(stmt ast.Clauses) (widecolumnstore.Iterator, error) {
 
-	var last widecolumnstore.Operator //= operators.NewScan(s.storage)
-	var err error
-	for _, patn := range patterns {
-		last, err = s.toPredicatePath(patn, last)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return last, nil
+	return nil, nil
 }
 
-// ToPredicatePath creates a PredicatePath out of the Patn̦
-func (s *CypherQueryBuilder) toPredicatePath(patn ast.Patn, last widecolumnstore.Operator) (widecolumnstore.Operator, error) {
-	if vertex, ok := patn.(*ast.VertexPatn); ok {
-		return s.ToPredicateVertexPath(vertex, last)
-	}
+// func (s *CypherQueryBuilder) Predicate(patterns []ast.Patn) (widecolumnstore.Operator, error) {
+// 	if patterns == nil {
+// 		return nil, ErrNoPattern
+// 	}
 
-	if edge, ok := patn.(*ast.EdgePatn); ok {
-		return s.ToPredicateEdgePath(edge, last)
-	}
+// 	var last widecolumnstore.Operator //= operators.NewScan(s.storage)
+// 	var err error
+// 	for _, patn := range patterns {
+// 		last, err = s.toPredicatePath(patn, last)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 	}
 
-	return nil, ErrUnknownPattern
-}
+// 	return last, nil
+// }
 
-// ToPredicateVertexPath creates a PredicateVertexPath out of the VertexPatn
-func (s *CypherQueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn, last widecolumnstore.Operator) (widecolumnstore.Operator, error) {
-	//label := strings.ToLower(patn.Label)
-	if patn == nil {
-		return nil, ErrNoPattern
-	}
+// // ToPredicatePath creates a PredicatePath out of the Patn̦
+// func (s *CypherQueryBuilder) toPredicatePath(patn ast.Patn, last widecolumnstore.Operator) (widecolumnstore.Operator, error) {
+// 	if vertex, ok := patn.(*ast.VertexPatn); ok {
+// 		return s.ToPredicateVertexPath(vertex, last)
+// 	}
 
-	if last == nil {
-		return nil, ErrNoLastOperator
-	}
+// 	if edge, ok := patn.(*ast.EdgePatn); ok {
+// 		return s.ToPredicateEdgePath(edge, last)
+// 	}
 
-	// var err error
+// 	return nil, ErrUnknownPattern
+// }
 
-	// predicate := func(interface{}) bool {
-	// 	return true
-	// }
+// // ToPredicateVertexPath creates a PredicateVertexPath out of the VertexPatn
+// func (s *CypherQueryBuilder) ToPredicateVertexPath(patn *ast.VertexPatn, last widecolumnstore.Operator) (widecolumnstore.Operator, error) {
+// 	//label := strings.ToLower(patn.Label)
+// 	if patn == nil {
+// 		return nil, ErrNoPattern
+// 	}
 
-	// for k := range patn.Properties {
+// 	if last == nil {
+// 		return nil, ErrNoLastOperator
+// 	}
 
-	// 	//widecolumnstore.NewKey(query.TProperties, &widecolumnstore.Column{[]byte(k), nil, key.ID}).Marshal()
-	// 	last, err = s.filter(s.storage, []byte{}, predicate)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// }
-	return last, nil
-}
+// 	// var err error
 
-// ToPredicateEdgePath creates a PredicateEdgePath out of the EdgePatn
-func (s *CypherQueryBuilder) ToPredicateEdgePath(patn *ast.EdgePatn, last widecolumnstore.Operator) (widecolumnstore.Operator, error) {
-	//label := strings.ToLower(patn.Body.Type)
-	if patn == nil {
-		return nil, ErrNoPattern
-	}
+// 	// predicate := func(interface{}) bool {
+// 	// 	return true
+// 	// }
 
-	if last == nil {
-		return nil, ErrNoLastOperator
-	}
+// 	// for k := range patn.Properties {
 
-	// predicate := func(interface{}) bool {
-	// 	return true
-	// }
+// 	// 	//widecolumnstore.NewKey(query.TProperties, &widecolumnstore.Column{[]byte(k), nil, key.ID}).Marshal()
+// 	// 	last, err = s.filter(s.storage, []byte{}, predicate)
+// 	// 	if err != nil {
+// 	// 		return nil, err
+// 	// 	}
+// 	// }
+// 	return last, nil
+// }
 
-	// var err error
-	// if patn.Body != nil {
-	// 	for k := range patn.Body.Properties {
-	// 		operator := func(key widecolumnstore.Key) []byte {
-	// 			return widecolumnstore.NewKey(key.ID, &widecolumnstore.Column{query.Relationshipproperties, []byte(k), nil}).Marshal()
-	// 		}
-	// 		last, err = s.filter(s.storage, operator, predicate)
-	// 		if err != nil {
-	// 			return nil, err
-	// 		}
-	// 	}
-	// }
+// // ToPredicateEdgePath creates a PredicateEdgePath out of the EdgePatn
+// func (s *CypherQueryBuilder) ToPredicateEdgePath(patn *ast.EdgePatn, last widecolumnstore.Operator) (widecolumnstore.Operator, error) {
+// 	//label := strings.ToLower(patn.Body.Type)
+// 	if patn == nil {
+// 		return nil, ErrNoPattern
+// 	}
 
-	return last, nil
-	// relationshipType := strings.ToLower(patn.Body.Type)
-	// pvp := query.PredicateEdgePath{PredicateEdge: func(v *graph.Edge, depth uint) (string, query.Traverse) {
+// 	if last == nil {
+// 		return nil, ErrNoLastOperator
+// 	}
 
-	// 	if depth < patn.Body.LengthMinimum {
-	// 		return patn.Body.Variable, query.Visiting
-	// 	}
+// 	// predicate := func(interface{}) bool {
+// 	// 	return true
+// 	// }
 
-	// 	if depth > patn.Body.LengthMaximum {
-	// 		return patn.Body.Variable, query.Failed
-	// 	}
+// 	// var err error
+// 	// if patn.Body != nil {
+// 	// 	for k := range patn.Body.Properties {
+// 	// 		operator := func(key widecolumnstore.Key) []byte {
+// 	// 			return widecolumnstore.NewKey(key.ID, &widecolumnstore.Column{query.Relationshipproperties, []byte(k), nil}).Marshal()
+// 	// 		}
+// 	// 		last, err = s.filter(s.storage, operator, predicate)
+// 	// 		if err != nil {
+// 	// 			return nil, err
+// 	// 		}
+// 	// 	}
+// 	// }
 
-	// 	if relationshipType != emptyString {
-	// 		if relationshipType != v.RelationshipType() {
-	// 			return patn.Body.Variable, query.Failed
-	// 		}
-	// 	}
+// 	return last, nil
+// 	// relationshipType := strings.ToLower(patn.Body.Type)
+// 	// pvp := query.PredicateEdgePath{PredicateEdge: func(v *graph.Edge, depth uint) (string, query.Traverse) {
 
-	// 	for key, value := range patn.Body.Properties {
-	// 		if v.Property(key) != value {
-	// 			return patn.Body.Variable, query.Failed
-	// 		}
-	// 	}
+// 	// 	if depth < patn.Body.LengthMinimum {
+// 	// 		return patn.Body.Variable, query.Visiting
+// 	// 	}
 
-	// 	return patn.Body.Variable, query.Matching
-	// }, Variable: patn.Variable}
+// 	// 	if depth > patn.Body.LengthMaximum {
+// 	// 		return patn.Body.Variable, query.Failed
+// 	// 	}
 
-	// return &pvp
-}
+// 	// 	if relationshipType != emptyString {
+// 	// 		if relationshipType != v.RelationshipType() {
+// 	// 			return patn.Body.Variable, query.Failed
+// 	// 		}
+// 	// 	}
+
+// 	// 	for key, value := range patn.Body.Properties {
+// 	// 		if v.Property(key) != value {
+// 	// 			return patn.Body.Variable, query.Failed
+// 	// 		}
+// 	// 	}
+
+// 	// 	return patn.Body.Variable, query.Matching
+// 	// }, Variable: patn.Variable}
+
+// 	// return &pvp
+// }

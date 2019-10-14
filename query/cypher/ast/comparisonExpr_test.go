@@ -4,10 +4,10 @@ import (
 	"math"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/voltable/graph/expressions"
 	"github.com/voltable/graph/query"
 	"github.com/voltable/graph/query/cypher/ast"
-	"github.com/voltable/graph/uuid"
 	"github.com/voltable/graph/widecolumnstore"
 )
 
@@ -39,7 +39,7 @@ func Test_ComparisonExprInterpret(t *testing.T) {
 		{
 			c: ast.NewComparisonExpr(expressions.IS_NOT_NULL, &ast.PropertyStmt{Variable: "n", Value: "Person"}, &ast.Ident{}),
 			v: func() *widecolumnstore.KeyValue {
-				id, _ := uuid.GenerateRandomUUID()
+				id := uuid.New()
 				x, _ := query.NewKeyValueProperty(id, "Person", "John Smith")
 				return x
 			}(),
@@ -49,7 +49,7 @@ func Test_ComparisonExprInterpret(t *testing.T) {
 		{
 			c: ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: math.MaxInt32}),
 			v: func() *widecolumnstore.KeyValue {
-				id, _ := uuid.GenerateRandomUUID()
+				id := uuid.New()
 				x, _ := query.NewKeyValueProperty(id, "Age", math.MaxInt32-1)
 				return x
 			}(),

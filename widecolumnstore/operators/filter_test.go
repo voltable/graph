@@ -1,9 +1,10 @@
-package operators
+package operators_test
 
 import (
 	"testing"
 
 	"github.com/voltable/graph/widecolumnstore"
+	"github.com/voltable/graph/widecolumnstore/operators"
 	"github.com/voltable/graph/widecolumnstore/storage/memorydb"
 )
 
@@ -53,16 +54,14 @@ func TestFilter_Next(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := NewFilter(
+			s := operators.NewFilter(
 				tt.fields.predicate,
 			)
 			got := s.Next(tt.args(tt.want))
 			for _, ok := got(); ok; _, ok = got() {
-				//	t.Errorf("Filter.Next() = %v", value)
+
 			}
-			// if !reflect.DeepEqual(got(), tt.want()) {
-			// 	t.Errorf("Filter.Next() = %v, want %v", got, tt.want)
-			// }
+
 		})
 	}
 }

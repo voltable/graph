@@ -3,7 +3,7 @@ package graph
 import (
 	"strings"
 
-	"github.com/voltable/graph/uuid"
+	"github.com/google/uuid"
 )
 
 type (

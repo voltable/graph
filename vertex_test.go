@@ -3,8 +3,8 @@ package graph_test
 import (
 	"testing"
 
-	graph "github.com/voltable/graph"
-	"github.com/voltable/graph/uuid"
+	"github.com/google/uuid"
+	"github.com/voltable/graph"
 )
 
 func Test_VertexLabels(t *testing.T) {

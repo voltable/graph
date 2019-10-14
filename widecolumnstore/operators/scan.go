@@ -2,7 +2,7 @@ package operators
 
 import "github.com/voltable/graph/widecolumnstore"
 
-//var _ widecolumnstore.Nullary = (*Scan)(nil)
+var _ widecolumnstore.Nullary = (*Scan)(nil)
 
 // Scan is a source operator that accesses a table and returns the set of all its tuples
 type Scan struct {

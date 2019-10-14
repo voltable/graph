@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/voltable/graph/query"
-	"github.com/voltable/graph/uuid"
 	"github.com/voltable/graph/widecolumnstore"
 )
 
@@ -22,7 +22,7 @@ func TestUUID(t *testing.T) {
 				return query.NewKeyValueVertex(id, "person")
 			},
 			want: func() uuid.UUID {
-				id, _ := uuid.GenerateRandomUUID()
+				id := uuid.New()
 				return id
 			}(),
 		},
@@ -32,18 +32,18 @@ func TestUUID(t *testing.T) {
 				return query.NewKeyValueProperty(id, "", "")
 			},
 			want: func() uuid.UUID {
-				id, _ := uuid.GenerateRandomUUID()
+				id := uuid.New()
 				return id
 			}(),
 		},
 		{
 			name: "Relationshipproperties",
 			setup: func(id uuid.UUID) (*widecolumnstore.KeyValue, *widecolumnstore.KeyValue) {
-				to, _ := uuid.GenerateRandomUUID()
+				to := uuid.New()
 				return query.NewKeyValueRelationshipProperty(id, to, "", "")
 			},
 			want: func() uuid.UUID {
-				id, _ := uuid.GenerateRandomUUID()
+				id := uuid.New()
 				return id
 			}(),
 		},
@@ -80,11 +80,11 @@ func TestRelationshipUUID(t *testing.T) {
 				return query.NewKeyValueRelationship(id, to, "", 5)
 			},
 			want: func() uuid.UUID {
-				id, _ := uuid.GenerateRandomUUID()
+				id := uuid.New()
 				return id
 			}(),
 			wantTranspose: func() uuid.UUID {
-				id, _ := uuid.GenerateRandomUUID()
+				id := uuid.New()
 				return id
 			}(),
 		},

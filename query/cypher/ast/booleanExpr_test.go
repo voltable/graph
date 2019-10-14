@@ -3,10 +3,10 @@ package ast_test
 import (
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/voltable/graph/expressions"
 	"github.com/voltable/graph/query"
 	"github.com/voltable/graph/query/cypher/ast"
-	"github.com/voltable/graph/uuid"
 	"github.com/voltable/graph/widecolumnstore"
 )
 
@@ -75,7 +75,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
 			v: func() *widecolumnstore.KeyValue {
-				id, _ := uuid.GenerateRandomUUID()
+				id := uuid.New()
 				x, _ := query.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
@@ -88,7 +88,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.GT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
 			v: func() *widecolumnstore.KeyValue {
-				id, _ := uuid.GenerateRandomUUID()
+				id := uuid.New()
 				x, _ := query.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
@@ -101,7 +101,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
 			v: func() *widecolumnstore.KeyValue {
-				id, _ := uuid.GenerateRandomUUID()
+				id := uuid.New()
 				x, _ := query.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
@@ -114,7 +114,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.GT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
 			v: func() *widecolumnstore.KeyValue {
-				id, _ := uuid.GenerateRandomUUID()
+				id := uuid.New()
 				x, _ := query.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
@@ -127,7 +127,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
 			v: func() *widecolumnstore.KeyValue {
-				id, _ := uuid.GenerateRandomUUID()
+				id := uuid.New()
 				x, _ := query.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
@@ -140,7 +140,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 				ast.NewComparisonExpr(expressions.GT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: 1000}),
 			),
 			v: func() *widecolumnstore.KeyValue {
-				id, _ := uuid.GenerateRandomUUID()
+				id := uuid.New()
 				x, _ := query.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
@@ -150,7 +150,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 		{
 			c: ast.NewBooleanExpr(20, nil, nil),
 			v: func() *widecolumnstore.KeyValue {
-				id, _ := uuid.GenerateRandomUUID()
+				id := uuid.New()
 				x, _ := query.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
