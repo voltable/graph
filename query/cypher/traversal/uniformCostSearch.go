@@ -56,8 +56,7 @@ func UniformCostSearch2(storage widecolumnstore.Storage, start *graph.Vertex, go
 			return true
 		}
 
-		filter, _ := operators.NewFilter(predicate)
-		iterator := filter.Next(storage.HasPrefix(bytes))
+		iterator := operators.NewFilter(predicate).Next(operators.NewScan(storage, bytes).Next())
 
 		for kv, ok := iterator(); ok; kv, ok = iterator() {
 

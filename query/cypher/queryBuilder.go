@@ -20,14 +20,14 @@ type QueryBuilder interface {
 
 type CypherQueryBuilder struct {
 	storage widecolumnstore.Storage
-	filter  func(predicate widecolumnstore.Predicate) (widecolumnstore.Unary, error)
+	filter  func(predicate widecolumnstore.Predicate) widecolumnstore.Unary
 }
 
 func NewQueryBuilderDefault(storage widecolumnstore.Storage) *CypherQueryBuilder {
 	return NewQueryBuilder(storage, operators.NewFilter)
 }
 
-func NewQueryBuilder(storage widecolumnstore.Storage, filter func(predicate widecolumnstore.Predicate) (widecolumnstore.Unary, error)) *CypherQueryBuilder {
+func NewQueryBuilder(storage widecolumnstore.Storage, filter func(predicate widecolumnstore.Predicate) widecolumnstore.Unary) *CypherQueryBuilder {
 	return &CypherQueryBuilder{
 		storage: storage,
 		filter:  filter,
@@ -39,7 +39,7 @@ func (s *CypherQueryBuilder) Predicate(patterns []ast.Patn) (widecolumnstore.Ope
 		return nil, ErrNoPattern
 	}
 
-	var last widecolumnstore.Operator = operators.NewScan(s.storage)
+	var last widecolumnstore.Operator //= operators.NewScan(s.storage)
 	var err error
 	for _, patn := range patterns {
 		last, err = s.toPredicatePath(patn, last)

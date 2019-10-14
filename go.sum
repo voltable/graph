@@ -2,6 +2,8 @@ cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMT
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/RossMerr/Caudex.GraphBLAS v0.0.0-20180608154209-b3ceae3c37e4 h1:ryyS5AYHQ7eC6TXJ2Wgz3/LbR4Rn2t2AgKLDYff9PGc=
 github.com/RossMerr/Caudex.GraphBLAS v0.0.0-20180608154209-b3ceae3c37e4/go.mod h1:07izgTWUFZMg/ZvLJJsoPbIWCQyOKSDPFNNGnBBSJE4=
+github.com/antlr/antlr4 v0.0.0-20191011202612-ad2bd05285ca h1:QHbltbNkVcw97h4zA/L8gA4o3dJiFvBZ0gyZHrYXHbs=
+github.com/antlr/antlr4 v0.0.0-20191011202612-ad2bd05285ca/go.mod h1:T7PbCXFs94rrTttyxjbyT5+/1V8T2TYDejxUfHJjw1Y=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/gogo/protobuf v1.2.1 h1:/s5zKNz0uPFCZ5hddgPdo2TK2TVrUNMn0OOX8/aZMTE=

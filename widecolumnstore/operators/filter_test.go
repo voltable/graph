@@ -53,7 +53,7 @@ func TestFilter_Next(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, _ := NewFilter(
+			s := NewFilter(
 				tt.fields.predicate,
 			)
 			got := s.Next(tt.args(tt.want))

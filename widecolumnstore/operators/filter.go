@@ -12,10 +12,10 @@ type Filter struct {
 }
 
 // NewFilter returns a Filter
-func NewFilter(predicate widecolumnstore.Predicate) (widecolumnstore.Unary, error) {
+func NewFilter(predicate widecolumnstore.Predicate) widecolumnstore.Unary {
 	return &Filter{
 		predicate: predicate,
-	}, nil
+	}
 }
 
 func (s *Filter) Next(iterator widecolumnstore.Iterator) widecolumnstore.Iterator {
