@@ -14,19 +14,23 @@ func TestCypherQueryBuilder_Build(t *testing.T) {
 		stmt ast.Clauses
 	}
 	tests := []struct {
-		name    string
-		s       *cypher.CypherQueryBuilder
+		name string
+		s    *cypher.CypherQueryBuilder
+
 		args    args
 		want    widecolumnstore.Iterator
 		wantErr bool
 	}{
-		// TODO: Add test cases.
 		{
-			name: "Match",
+			name: "MATCH (you) RETURN *",
+			args: args{
+				stmt: &ast.MatchStmt{Pattern: &ast.VertexPatn{Variable: "you"}, Next: ast.NewReturnStmt(ast.NewProjectionMapStmt("*", &ast.ProjectionMapAll{}))},
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+
 			got, err := tt.s.Build(tt.args.stmt)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CypherQueryBuilder.Build() error = %v, wantErr %v", err, tt.wantErr)
