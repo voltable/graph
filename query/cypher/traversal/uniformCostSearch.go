@@ -25,8 +25,7 @@ func (f frontier) Swap(i, j int)          { f[i], f[j] = f[j], f[i] }
 func (f frontier) Less(i, j int) bool     { return f[i].Cost < f[j].Cost }
 func (f frontier) pop() (*path, frontier) { return f[0], f[1:] }
 
-// TODO fix this next to get the queryEngine_test's working
-func UniformCostSearch2(storage widecolumnstore.Storage, start *graph.Vertex, goal func(widecolumnstore.Key) bool, list map[uuid.UUID]*graph.Vertex) ([]uuid.UUID, error) {
+func UniformCostSearch2(storage widecolumnstore.Storage, start *graph.Vertex, goal func(widecolumnstore.Key) bool) ([]uuid.UUID, error) {
 	root := prefix(start.ID())
 	frontier := frontier{&path{[]widecolumnstore.Key{root}, 0}}
 	explored := make(map[uuid.UUID]bool)
@@ -53,7 +52,11 @@ func UniformCostSearch2(storage widecolumnstore.Storage, start *graph.Vertex, go
 
 		bytes := key.Marshal()
 
-		filter, _ := operators.NewFilter(widecolumnstore.EmptyPredicate)
+		predicate := func(interface{}) bool {
+			return true
+		}
+
+		filter, _ := operators.NewFilter(predicate)
 		iterator := filter.Next(storage.HasPrefix(bytes))
 
 		for kv, ok := iterator(); ok; kv, ok = iterator() {
@@ -80,68 +83,7 @@ func prefix(id uuid.UUID) widecolumnstore.Key {
 	return widecolumnstore.NewKey(id[:], &widecolumnstore.Column{Family: query.Relationship})
 }
 
+// TODO need this signature to work for UCS
 func UniformCostSearch(graph query.Graph, operator widecolumnstore.Operator, frontier *query.Frontier) bool {
 	return false
 }
-
-// 	if frontier.Len() > 0 {
-// 		queue := frontier.Pop()
-// 		depth := len(queue.Parts)
-// 		part := queue.Parts[depth-1]
-
-// 		if _, ok := frontier.Explored[part.UUID]; !ok {
-// 			frontier.Explored[part.UUID] = true
-// 			frontier.AppendKeyValue(queue, part.UUID, part.Variable)
-// 			sort.Sort(frontier)
-// 		}
-
-// 		//	if pe := predicates[depth]; pe != nil {
-// 		//graph.HasPrefix()
-// 		// iterator := graph.Edges(part.UUID)
-// 		// for kv, weight, hasEdges := iterator(); hasEdges; kv, weight, hasEdges = iterator() {
-// 		// 	if _, ok := frontier.Explored[kv]; !ok {
-// 		// 		if variable, p := pe(part.UUID, kv, depth); p == query.Visiting || p == query.Matching {
-// 		// 			frontier.AppendEdgeKeyValue(queue, kv, variable, weight)
-// 		// 		}
-// 		// 	}
-// 		// }
-// 		//	}
-// 	}
-
-// 	// if frontier.Len() > 0 {
-// 	// 	queue := frontier.Pop()
-// 	// 	depth := len(queue.Parts)
-// 	// 	searchDepth := len(predicates)
-// 	// 	part := queue.Parts[depth-1]
-
-// 	// 	if _, ok := frontier.Explored[part.UUID]; !ok {
-// 	// 		frontier.Explored[part.UUID] = true
-// 	// 		pv := predicates[depth-1]
-// 	// 		if variable, p := pv(part.UUID, nil, depth-1); p == query.Matched {
-// 	// 			queue.Parts[depth-1].Variable = variable
-// 	// 			frontier.AppendKeyValue(queue, part.UUID, part.Variable)
-// 	// 			sort.Sort(frontier)
-// 	// 			return depth == searchDepth
-// 	// 		}
-
-// 	// 	}
-
-// 	// 	if depth >= searchDepth {
-// 	// 		return false
-// 	// 	}
-
-// 	// 	if pe := predicates[depth]; pe != nil {
-// 	// 		iterator := graph.Edges(part.UUID)
-// 	// 		for kv, weight, hasEdges := iterator(); hasEdges; kv, weight, hasEdges = iterator() {
-// 	// 			if _, ok := frontier.Explored[kv]; !ok {
-// 	// 				if variable, p := pe(part.UUID, kv, depth); p == query.Visiting || p == query.Matching {
-// 	// 					frontier.AppendEdgeKeyValue(queue, kv, variable, weight)
-// 	// 				}
-// 	// 			}
-// 	// 		}
-// 	// 	}
-
-// 	// 	sort.Sort(frontier)
-// 	// }
-// 	return false
-// }

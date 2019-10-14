@@ -2,20 +2,15 @@ package traversal_test
 
 import (
 	"bytes"
-	"container/list"
 	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 	graph "github.com/voltable/graph"
-	"github.com/voltable/graph/expressions"
 	"github.com/voltable/graph/query"
 	"github.com/voltable/graph/query/cypher"
-	"github.com/voltable/graph/query/cypher/ast"
 	"github.com/voltable/graph/query/cypher/traversal"
-	"github.com/voltable/graph/uuid"
 	"github.com/voltable/graph/widecolumnstore"
 	"github.com/voltable/graph/widecolumnstore/storage/memorydb"
 )
@@ -34,7 +29,6 @@ var (
 	mel, _ = graph.NewVertex()
 	adl, _ = graph.NewVertex()
 	per, _ = graph.NewVertex()
-	db     = map[uuid.UUID]*graph.Vertex{}
 )
 
 // https://neo4j.com/blog/graph-search-algorithm-basics/
@@ -86,34 +80,11 @@ func init() {
 
 	per.AddDirectedEdgeWeight(adl, float64(32))
 	per.AddDirectedEdgeWeight(drw, float64(48))
-
-	db = make(map[uuid.UUID]*graph.Vertex)
-	db[drw.ID()] = drw
-	db[cns.ID()] = cns
-	db[asp.ID()] = asp
-	db[bne.ID()] = bne
-	db[syd.ID()] = syd
-	db[cbr.ID()] = cbr
-	db[mel.ID()] = mel
-	db[adl.ID()] = adl
-	db[per.ID()] = per
-
-	//list = append(list, drw, cns, asp, bne, syd, cbr, mel, adl, per)
 }
 
 func Test_UniformCostSearch(t *testing.T) {
 	g := AustraliaGraph()
 	graph := *g.(*query.Graph)
-
-	// fmt.Printf("drw: %+v\n", drw)
-	// fmt.Printf("cns: %+v\n", cns)
-	// fmt.Printf("asp: %+v\n", asp)
-	// fmt.Printf("bne: %+v\n", bne)
-	// fmt.Printf("syd: %+v\n", syd)
-	// fmt.Printf("cbr: %+v\n", cbr)
-	// fmt.Printf("mel: %+v\n", mel)
-	// fmt.Printf("adl: %+v\n", adl)
-	// fmt.Printf("per: %+v\n", per)
 
 	id := per.ID()
 	targetBytes := id[:]
@@ -122,7 +93,7 @@ func Test_UniformCostSearch(t *testing.T) {
 		return bytes.Equal(targetBytes, key.ID)
 	}
 
-	result, err := traversal.UniformCostSearch2(graph.Storage, syd, goal, db)
+	result, err := traversal.UniformCostSearch2(graph.Storage, syd, goal)
 	if err != nil {
 		t.Fatalf("Expected err to be nil but was %s", err)
 	}
@@ -166,85 +137,4 @@ func AustraliaGraph() graph.Graph {
 	g.Create(drw, cns, asp, bne, syd, cbr, mel, adl, per)
 
 	return g
-}
-
-func ForEachTest(se graph.Graph) query.IteratorFrontier {
-	ok := false
-	return func() (*query.Frontier, bool) {
-		ok = expressions.XORSwap(ok)
-		if ok {
-			kv, _ := query.MarshalKeyValue(syd)
-			id, err := query.UUID(kv[0])
-			if err != nil {
-				log.Error(errors.Wrap(err, "ForEachTest"))
-			} else {
-				f := query.NewFrontier(&id, "")
-				return &f, ok
-			}
-		}
-		return nil, ok
-	}
-}
-
-func ToIterator(i query.IteratorFrontier) []*uuid.UUID {
-	results := make([]*uuid.UUID, 0)
-
-	for frontier, ok := i(); ok; frontier, ok = i() {
-		if frontier.Len() > 0 {
-			parts := frontier.OptimalPath()
-			for _, i := range parts {
-				results = append(results, i.UUID)
-			}
-		}
-	}
-	return results
-}
-
-type queryBuilder struct {
-	Storage graph.Graph
-}
-
-// Predicate(patterns []ast.Patn) (widecolumnstore.Operator, error)
-func (qb *queryBuilder) Predicate([]ast.Patn) (widecolumnstore.Operator, error) {
-	// path := make([]query.Predicate, 0)
-	// path = append(path, qb.toPredicate())
-	// path = append(path, qb.toPredicate())
-	// path = append(path, qb.toPredicate())
-	// path = append(path, qb.toPredicate())
-	// path = append(path, qb.toPredicate())
-	// path = append(path, qb.toPredicate())
-	// path = append(path, qb.toPredicate())
-	// path = append(path, qb.toPredicate())
-	// path = append(path, qb.toPredicate())
-
-	return nil, nil
-}
-
-func (qb *queryBuilder) toPredicate() query.Predicate {
-	return func(from, to uuid.UUID, depth int) (string, query.Traverse) {
-		if to == uuid.Nil {
-			if from == per.ID() {
-
-				return "", query.Matched
-			}
-
-			return "", query.Failed
-		}
-
-		if to != per.ID() {
-			return "", query.Visiting
-		}
-
-		return "", query.Matching
-	}
-
-}
-
-func index(l *list.List, i int) interface{} {
-	e := l.Front()
-	for index := 1; index < i; index++ {
-		e = e.Next()
-	}
-
-	return e.Value
 }
