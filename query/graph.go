@@ -2,11 +2,8 @@ package query
 
 import (
 	"errors"
-	"fmt"
-	"strings"
 
 	"github.com/voltable/graph"
-	"github.com/voltable/graph/encoding/wcs"
 	"github.com/voltable/graph/widecolumnstore"
 )
 
@@ -59,51 +56,6 @@ func NewGraphEngine(o *graph.Options) (graph.Graph, error) {
 	// se.engine = queryEngine
 
 	return &se, nil
-}
-
-// Create adds a array of vertices to the persistence
-func (s Graph) Create(c ...*graph.Vertex) error {
-	for _, v := range c {
-		triples, transposes := wcs.MarshalKeyValue(v)
-		var errstrings []string
-
-		s.Storage.Create(triples...)
-		s.Storage.Create(transposes...)
-
-		if len(errstrings) > 0 {
-			return fmt.Errorf(strings.Join(errstrings, "\n"))
-		}
-	}
-
-	return nil
-}
-
-// Delete the array of vertices from the persistence
-func (s Graph) Delete(c ...*graph.Vertex) error {
-	// for _, v := range c {
-	// 	triples, transposes := MarshalKeyValue(v)
-	// 	var errstrings []string
-
-	// 	for i := 0; i < len(triples); i++ {
-	// 		triple := triples[i]
-	// 		delete(se.tKey, string(triple.Key))
-
-	// 		transpose := transposes[i]
-	// 		delete(se.tKeyT, string(transpose.Key))
-	// 	}
-
-	// 	if len(errstrings) > 0 {
-	// 		return fmt.Errorf(strings.Join(errstrings, "\n"))
-	// 	}
-	// }
-
-	return nil
-}
-
-// Update the array of vertices from the persistence
-func (s Graph) Update(c ...*graph.Vertex) error {
-	s.Create(c...)
-	return nil
 }
 
 func (s Graph) Query(str string) (*graph.Query, error) {

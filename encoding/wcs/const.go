@@ -1,7 +1,5 @@
 package wcs
 
-import "github.com/voltable/graph/widecolumnstore"
-
 var (
 	ID                     = []byte("i")
 	Label                  = []byte("l")
@@ -10,12 +8,12 @@ var (
 	Relationshipproperties = []byte("k")
 
 	// T = transpose
-	TID                     = []byte("ti")
-	TLabel                  = []byte("tl")
-	TProperties             = []byte("tp")
-	TRelationship           = []byte("tr")
-	TRelationshipproperties = []byte("tk")
+	// TID                     = []byte("ti")
+	// TLabel                  = []byte("tl")
+	// TProperties             = []byte("tp")
+	// TRelationship           = []byte("tr")
+	// TRelationshipproperties = []byte("tk")
 
 	// This Key can be used to fetch all nodes, it's the prefix for just the transpose ID
-	AllNodesKey = widecolumnstore.NewKey(TID, &widecolumnstore.Column{}).Marshal()
+	//AllNodesKey = widecolumnstore.NewKey(TID, &widecolumnstore.Column{}).Marshal()
 )

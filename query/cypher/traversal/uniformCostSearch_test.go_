@@ -134,7 +134,7 @@ func AustraliaGraph() graph.Graph {
 		fmt.Errorf("Failed to create the storageEngine %v", err)
 	}
 
-	g.Create(drw, cns, asp, bne, syd, cbr, mel, adl, per)
+	//g.Create(drw, cns, asp, bne, syd, cbr, mel, adl, per)
 
 	return g
 }

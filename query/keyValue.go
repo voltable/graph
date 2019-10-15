@@ -49,41 +49,7 @@ func To(s widecolumnstore.KeyValue) (uuid.UUID, error) {
 
 // ParseKeyToUUID looks for the UUID in the Key
 func ParseKeyToUUID(key widecolumnstore.Key) (uuid.UUID, error) {
-	if bytes.Equal(key.Column.Family, wcs.Label) {
-		return uuid.FromBytes(key.ID)
-	}
-
-	if bytes.Equal(key.Column.Family, wcs.Properties) {
-		return uuid.FromBytes(key.ID)
-	}
-
-	if bytes.Equal(key.Column.Family, wcs.Relationship) {
-		return uuid.FromBytes(key.ID)
-	}
-
-	if bytes.Equal(key.Column.Family, wcs.Relationshipproperties) {
-		return uuid.FromBytes(key.ID)
-	}
-
-	// Transpose
-
-	if bytes.Equal(key.ID, wcs.TLabel) {
-		return uuid.FromBytes(key.Column.Qualifier)
-	}
-
-	if bytes.Equal(key.ID, wcs.TProperties) {
-		return uuid.FromBytes(key.Column.Qualifier)
-	}
-
-	if bytes.Equal(key.Column.Family, wcs.TRelationship) {
-		return uuid.FromBytes(key.ID)
-	}
-
-	if bytes.Equal(key.ID, wcs.TRelationshipproperties) {
-		return uuid.FromBytes(key.Column.Qualifier)
-	}
-
-	return uuid.Nil, ErrIDNotFound
+	return uuid.FromBytes(key.ID)
 }
 
 // UUID looks for the UUID in the KeyValue

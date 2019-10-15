@@ -1,73 +1,68 @@
 package ast_test
 
 import (
-	"math"
 	"testing"
 
-	"github.com/google/uuid"
-	"github.com/voltable/graph/encoding/wcs"
 	"github.com/voltable/graph/expressions"
-	"github.com/voltable/graph/query"
 	"github.com/voltable/graph/query/cypher/ast"
-	"github.com/voltable/graph/widecolumnstore"
 )
 
-func Test_ComparisonExprInterpret(t *testing.T) {
+// func Test_ComparisonExprInterpret(t *testing.T) {
 
-	var tests = []struct {
-		c      *ast.ComparisonExpr
-		v      *widecolumnstore.KeyValue
-		p      string
-		result bool
-		err    string
-	}{
-		{
-			c:      &ast.ComparisonExpr{Comparison: expressions.EQ},
-			v:      &widecolumnstore.KeyValue{},
-			result: true,
-		},
-		{
-			c:      ast.NewComparisonExpr(expressions.NEQ, &ast.PropertyStmt{}, &ast.Ident{}),
-			v:      &widecolumnstore.KeyValue{},
-			result: false,
-		},
-		{
-			c:      ast.NewComparisonExpr(expressions.IS_NULL, &ast.PropertyStmt{Variable: "n"}, &ast.Ident{}),
-			v:      &widecolumnstore.KeyValue{},
-			p:      "n",
-			result: true,
-		},
-		{
-			c: ast.NewComparisonExpr(expressions.IS_NOT_NULL, &ast.PropertyStmt{Variable: "n", Value: "Person"}, &ast.Ident{}),
-			v: func() *widecolumnstore.KeyValue {
-				id := uuid.New()
-				x, _ := wcs.NewKeyValueProperty(id, "Person", "John Smith")
-				return x
-			}(),
-			p:      "n",
-			result: true,
-		},
-		{
-			c: ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: math.MaxInt32}),
-			v: func() *widecolumnstore.KeyValue {
-				id := uuid.New()
-				x, _ := wcs.NewKeyValueProperty(id, "Age", math.MaxInt32-1)
-				return x
-			}(),
-			p: "n",
+// 	var tests = []struct {
+// 		c      *ast.ComparisonExpr
+// 		v      *widecolumnstore.KeyValue
+// 		p      string
+// 		result bool
+// 		err    string
+// 	}{
+// 		{
+// 			c:      &ast.ComparisonExpr{Comparison: expressions.EQ},
+// 			v:      &widecolumnstore.KeyValue{},
+// 			result: true,
+// 		},
+// 		{
+// 			c:      ast.NewComparisonExpr(expressions.NEQ, &ast.PropertyStmt{}, &ast.Ident{}),
+// 			v:      &widecolumnstore.KeyValue{},
+// 			result: false,
+// 		},
+// 		{
+// 			c:      ast.NewComparisonExpr(expressions.IS_NULL, &ast.PropertyStmt{Variable: "n"}, &ast.Ident{}),
+// 			v:      &widecolumnstore.KeyValue{},
+// 			p:      "n",
+// 			result: true,
+// 		},
+// 		{
+// 			c: ast.NewComparisonExpr(expressions.IS_NOT_NULL, &ast.PropertyStmt{Variable: "n", Value: "Person"}, &ast.Ident{}),
+// 			v: func() *widecolumnstore.KeyValue {
+// 				id := uuid.New()
+// 				x, _ := wcs.NewKeyValueProperty(id, "Person", "John Smith")
+// 				return x
+// 			}(),
+// 			p:      "n",
+// 			result: true,
+// 		},
+// 		{
+// 			c: ast.NewComparisonExpr(expressions.LT, &ast.PropertyStmt{Variable: "n", Value: "Age"}, &ast.Ident{Data: math.MaxInt32}),
+// 			v: func() *widecolumnstore.KeyValue {
+// 				id := uuid.New()
+// 				x, _ := wcs.NewKeyValueProperty(id, "Age", math.MaxInt32-1)
+// 				return x
+// 			}(),
+// 			p: "n",
 
-			result: true,
-		},
-	}
+// 			result: true,
+// 		},
+// 	}
 
-	for i, tt := range tests {
-		v := query.NewKeyValueWrapper(tt.v)
-		result := tt.c.Interpret(tt.p, v)
-		if result != tt.result {
-			t.Errorf("%d. %q: comparison mismatch:\n  exp=%t\n  got=%t\n\n", i, tt.c, tt.result, result)
-		}
-	}
-}
+// 	for i, tt := range tests {
+// 		v := query.NewKeyValueWrapper(tt.v)
+// 		result := tt.c.Interpret(tt.p, v)
+// 		if result != tt.result {
+// 			t.Errorf("%d. %q: comparison mismatch:\n  exp=%t\n  got=%t\n\n", i, tt.c, tt.result, result)
+// 		}
+// 	}
+// }
 
 func Test_ComparisonGetSet(t *testing.T) {
 	c := ast.NewComparisonExpr(expressions.IS_NULL, &ast.PropertyStmt{Variable: "n"}, &ast.Ident{})
