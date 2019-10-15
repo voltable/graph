@@ -4,14 +4,14 @@ import (
 	"testing"
 
 	"github.com/voltable/graph/widecolumnstore"
-	"github.com/voltable/graph/widecolumnstore/operators"
+	"github.com/voltable/graph/operators"
 	"github.com/voltable/graph/widecolumnstore/storage/memorydb"
 )
 
 func TestFilter_Next(t *testing.T) {
 	type fields struct {
 		storage   widecolumnstore.Storage
-		operator  widecolumnstore.Operator
+		operator  operators.Operator
 		prefix    []byte
 		predicate widecolumnstore.Predicate
 	}

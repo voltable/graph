@@ -30,6 +30,12 @@ func NewQueryBuilder(storage widecolumnstore.Storage) *CypherQueryBuilder {
 // TODO need to build up the operators to run the query
 func (s *CypherQueryBuilder) Build(stmt ast.Clauses) (widecolumnstore.Iterator, error) {
 
+	// if match, ok := stmt.(*ast.MatchStmt); ok {
+	// 	if match.Pattern == nil {
+
+	// 	}
+	// }
+
 	return nil, nil
 }
 

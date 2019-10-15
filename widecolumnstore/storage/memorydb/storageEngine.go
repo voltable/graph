@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"errors"
 
-	"github.com/voltable/graph/widecolumnstore"
 	"github.com/golang/protobuf/ptypes/any"
+	"github.com/voltable/graph/widecolumnstore"
 )
 
 func init() {
@@ -91,7 +91,7 @@ func (se *StorageEngine) Count() int {
 	return len(se.tKey)
 }
 
-func (se *StorageEngine) Query(widecolumnstore.Operator) widecolumnstore.Iterator {
+func (se *StorageEngine) Query(string) widecolumnstore.Iterator {
 	return nil
 }
 

@@ -5,10 +5,11 @@ import (
 	"sort"
 
 	"github.com/google/uuid"
-	graph "github.com/voltable/graph"
+	"github.com/voltable/graph"
+	"github.com/voltable/graph/encoding/wcs"
+	"github.com/voltable/graph/operators"
 	"github.com/voltable/graph/query"
 	"github.com/voltable/graph/widecolumnstore"
-	"github.com/voltable/graph/widecolumnstore/operators"
 )
 
 var errGoalNoFound = errors.New("Goal not found")
@@ -79,10 +80,10 @@ func UniformCostSearch2(storage widecolumnstore.Storage, start *graph.Vertex, go
 }
 
 func prefix(id uuid.UUID) widecolumnstore.Key {
-	return widecolumnstore.NewKey(id[:], &widecolumnstore.Column{Family: query.Relationship})
+	return widecolumnstore.NewKey(id[:], &widecolumnstore.Column{Family: wcs.Relationship})
 }
 
 // TODO need this signature to work for UCS
-func UniformCostSearch(graph query.Graph, operator widecolumnstore.Operator, frontier *query.Frontier) bool {
+func UniformCostSearch(graph query.Graph, operator operators.Operator, frontier *query.Frontier) bool {
 	return false
 }

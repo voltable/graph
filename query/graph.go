@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	graph "github.com/voltable/graph"
+	"github.com/voltable/graph"
+	"github.com/voltable/graph/encoding/wcs"
 	"github.com/voltable/graph/widecolumnstore"
 )
 
@@ -63,7 +64,7 @@ func NewGraphEngine(o *graph.Options) (graph.Graph, error) {
 // Create adds a array of vertices to the persistence
 func (s Graph) Create(c ...*graph.Vertex) error {
 	for _, v := range c {
-		triples, transposes := MarshalKeyValue(v)
+		triples, transposes := wcs.MarshalKeyValue(v)
 		var errstrings []string
 
 		s.Storage.Create(triples...)

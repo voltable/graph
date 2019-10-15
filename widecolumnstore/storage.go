@@ -18,7 +18,7 @@ type Storage interface {
 	// Count number of keys/value pairs
 	Count() int
 	//Add(*Mutation)
-	Query(Operator) Iterator
+	Query(string) Iterator
 
 	Create(triples ...*KeyValue) error
 }

@@ -4,7 +4,7 @@ import (
 	"github.com/voltable/graph/widecolumnstore"
 )
 
-var _ widecolumnstore.Unary = (*Filter)(nil)
+var _ Unary = (*Filter)(nil)
 
 // Filter is a set operator that returns the subset of those tuples satisfying the prefix
 type Filter struct {
@@ -12,7 +12,7 @@ type Filter struct {
 }
 
 // NewFilter returns a Filter
-func NewFilter(predicate widecolumnstore.Predicate) widecolumnstore.Unary {
+func NewFilter(predicate widecolumnstore.Predicate) Unary {
 	return &Filter{
 		predicate: predicate,
 	}

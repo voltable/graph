@@ -1,4 +1,4 @@
-package query
+package wcs
 
 import "github.com/voltable/graph/widecolumnstore"
 

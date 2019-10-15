@@ -1,4 +1,4 @@
-package query
+package wcs
 
 import (
 	"bytes"

@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/voltable/graph/widecolumnstore"
-	"github.com/voltable/graph/widecolumnstore/operators"
+	"github.com/voltable/graph/operators"
 	"github.com/voltable/graph/widecolumnstore/storage/memorydb"
 )
 

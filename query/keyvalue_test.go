@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/voltable/graph/encoding/wcs"
 	"github.com/voltable/graph/query"
 	"github.com/voltable/graph/widecolumnstore"
 )
@@ -19,7 +20,7 @@ func TestUUID(t *testing.T) {
 		{
 			name: "Vertex",
 			setup: func(id uuid.UUID) (*widecolumnstore.KeyValue, *widecolumnstore.KeyValue) {
-				return query.NewKeyValueVertex(id, "person")
+				return wcs.NewKeyValueVertex(id, "person")
 			},
 			want: func() uuid.UUID {
 				id := uuid.New()
@@ -29,7 +30,7 @@ func TestUUID(t *testing.T) {
 		{
 			name: "Properties",
 			setup: func(id uuid.UUID) (*widecolumnstore.KeyValue, *widecolumnstore.KeyValue) {
-				return query.NewKeyValueProperty(id, "", "")
+				return wcs.NewKeyValueProperty(id, "", "")
 			},
 			want: func() uuid.UUID {
 				id := uuid.New()
@@ -40,7 +41,7 @@ func TestUUID(t *testing.T) {
 			name: "Relationshipproperties",
 			setup: func(id uuid.UUID) (*widecolumnstore.KeyValue, *widecolumnstore.KeyValue) {
 				to := uuid.New()
-				return query.NewKeyValueRelationshipProperty(id, to, "", "")
+				return wcs.NewKeyValueRelationshipProperty(id, to, "", "")
 			},
 			want: func() uuid.UUID {
 				id := uuid.New()
@@ -77,7 +78,7 @@ func TestRelationshipUUID(t *testing.T) {
 		{
 			name: "Relationship",
 			setup: func(id uuid.UUID, to uuid.UUID) (*widecolumnstore.KeyValue, *widecolumnstore.KeyValue) {
-				return query.NewKeyValueRelationship(id, to, "", 5)
+				return wcs.NewKeyValueRelationship(id, to, "", 5)
 			},
 			want: func() uuid.UUID {
 				id := uuid.New()

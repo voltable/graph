@@ -3,14 +3,14 @@ package cypher
 import (
 	"sync"
 
+	"github.com/voltable/graph/operators"
 	"github.com/voltable/graph/query"
 	"github.com/voltable/graph/query/cypher/traversal"
-	"github.com/voltable/graph/widecolumnstore"
 )
 
 type Plan struct {
 	wg       *sync.WaitGroup
-	operator widecolumnstore.Operator
+	operator operators.Operator
 	engine   query.Graph
 }
 
@@ -22,7 +22,7 @@ func NewPlan() *Plan {
 	return plan
 }
 
-func (t *Plan) SearchPlan(iterator query.IteratorFrontier, operator widecolumnstore.Operator) (query.IteratorFrontier, error) {
+func (t *Plan) SearchPlan(iterator query.IteratorFrontier, operator operators.Operator) (query.IteratorFrontier, error) {
 	results := make(chan *query.Frontier)
 	t.operator = operator
 

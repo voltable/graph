@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/voltable/graph/encoding/wcs"
 	"github.com/voltable/graph/expressions"
 	"github.com/voltable/graph/query"
 	"github.com/voltable/graph/query/cypher/ast"
@@ -76,7 +77,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			),
 			v: func() *widecolumnstore.KeyValue {
 				id := uuid.New()
-				x, _ := query.NewKeyValueProperty(id, "Age", 100)
+				x, _ := wcs.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
 			p:      "n",
@@ -89,7 +90,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			),
 			v: func() *widecolumnstore.KeyValue {
 				id := uuid.New()
-				x, _ := query.NewKeyValueProperty(id, "Age", 100)
+				x, _ := wcs.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
 			p:      "n",
@@ -102,7 +103,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			),
 			v: func() *widecolumnstore.KeyValue {
 				id := uuid.New()
-				x, _ := query.NewKeyValueProperty(id, "Age", 100)
+				x, _ := wcs.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
 			p:      "n",
@@ -115,7 +116,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			),
 			v: func() *widecolumnstore.KeyValue {
 				id := uuid.New()
-				x, _ := query.NewKeyValueProperty(id, "Age", 100)
+				x, _ := wcs.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
 			p:      "n",
@@ -128,7 +129,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			),
 			v: func() *widecolumnstore.KeyValue {
 				id := uuid.New()
-				x, _ := query.NewKeyValueProperty(id, "Age", 100)
+				x, _ := wcs.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
 			p:      "n",
@@ -141,7 +142,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			),
 			v: func() *widecolumnstore.KeyValue {
 				id := uuid.New()
-				x, _ := query.NewKeyValueProperty(id, "Age", 100)
+				x, _ := wcs.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
 			p:      "n",
@@ -151,7 +152,7 @@ func Test_BooleanExprInterpret(t *testing.T) {
 			c: ast.NewBooleanExpr(20, nil, nil),
 			v: func() *widecolumnstore.KeyValue {
 				id := uuid.New()
-				x, _ := query.NewKeyValueProperty(id, "Age", 100)
+				x, _ := wcs.NewKeyValueProperty(id, "Age", 100)
 				return x
 			}(),
 			p:      "n",
