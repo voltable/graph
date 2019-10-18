@@ -31,13 +31,18 @@ func (s Graph) Close() {
 
 }
 
-// NewGraphEngine creates a new in memory storage engine
+// NewGraphEngine creates a new in graph engine
 func NewGraphEngine(o *graph.Options) (graph.Graph, error) {
 	s, err := widecolumnstore.NewStorage(o.StorageEngine)
 	if err != nil {
 		return nil, err
 	}
 
+	return NewGraphEngineFromStorageEngine(s, o)
+}
+
+// NewGraphEngineFromStorageEngine creates a new in graph engine with the supplied storage engine
+func NewGraphEngineFromStorageEngine(s widecolumnstore.Storage, o *graph.Options) (graph.Graph, error) {
 	q, err := NewQueryEngine(o.QueryEngine, s)
 	if err != nil {
 		return nil, err

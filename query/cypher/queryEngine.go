@@ -1,7 +1,6 @@
 package cypher
 
 import (
-	"github.com/pkg/errors"
 	graph "github.com/voltable/graph"
 	"github.com/voltable/graph/query"
 	"github.com/voltable/graph/query/cypher/parser"
@@ -49,20 +48,20 @@ var _ query.QueryEngine = (*QueryEngine)(nil)
 // Parse in a cypher query as a string and get back Query that is abstracted from the cypher AST
 func (qe QueryEngine) Parse(q string) (*graph.Query, error) {
 
-	stmt, err := qe.Parser.Parse(q)
-	if err != nil {
-		return nil, errors.Wrap(err, "Parse failed")
-	}
+	// stmt, err := qe.Parser.Parse(q)
+	// if err != nil {
+	// 	return nil, errors.Wrap(err, "Parse failed")
+	// }
 
-	iterator, err := qe.QueryBuilder.Build(stmt)
-	if err != nil {
-		return nil, errors.Wrap(err, "Query failed")
-	}
+	// iterator, err := qe.QueryBuilder.Build(stmt)
+	// if err != nil {
+	// 	return nil, errors.Wrap(err, "Query failed")
+	// }
 
 	query := &graph.Query{}
-	for kv, ok := iterator(); ok; kv, ok = iterator() {
-		query.Results = append(query.Results, kv)
-	}
+	// for kv, ok := iterator(); ok; kv, ok = iterator() {
+	// 	query.Results = append(query.Results, kv)
+	// }
 
 	return query, nil
 }
