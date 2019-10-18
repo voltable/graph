@@ -1,5 +1,5 @@
 syntax = "proto3";
-package keyvaluestore;
+package widecolumnstore;
 
 import  "google/protobuf/timestamp.proto";
 import  "google/protobuf/any.proto";
@@ -7,6 +7,17 @@ import  "google/protobuf/any.proto";
 
 
 message KeyValue {
-    bytes key = 1;
-    google.protobuf.Any value = 2;   
+    Key Key = 1;
+    google.protobuf.Any Value = 5;   
+}
+
+
+message Key {
+    // RowKey Unique identifier for the row.
+    bytes RowKey = 1;
+    // ColumnFamily This field can be used to partition data within a node.
+    bytes ColumnFamily = 2;    
+    // QualColumnQualifierifier More specific attribute of the key.
+    bytes ColumnQualifier = 3;
+    google.protobuf.Timestamp Time = 4;
 }

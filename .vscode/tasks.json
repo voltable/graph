@@ -102,7 +102,7 @@
         {
             "label": "proto build keyValue",
             "type": "shell",
-            "command": "protoc -I=${workspaceFolder}/keyvalue/proto keyValue.proto --go_out=${workspaceFolder}/keyvalue",
+            "command": "protoc -I=${workspaceFolder}/widecolumnstore/proto keyValue.proto --go_out=${workspaceFolder}/widecolumnstore",
             "problemMatcher": [],
             "group": {
                 "kind": "build",

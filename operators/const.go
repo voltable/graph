@@ -1,4 +1,4 @@
-package wcs
+package operators
 
 var (
 	ID                     = []byte("i")

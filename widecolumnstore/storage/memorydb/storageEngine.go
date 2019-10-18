@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 
-	"github.com/golang/protobuf/ptypes/any"
+	"github.com/google/uuid"
 	"github.com/voltable/graph/widecolumnstore"
 )
 
@@ -22,7 +22,7 @@ var (
 
 type StorageEngine struct {
 	tKeyIndex map[int]string
-	tKey      map[string]*any.Any
+	tKey      map[string]*widecolumnstore.KeyValue
 }
 
 var _ widecolumnstore.Storage = (*StorageEngine)(nil)
@@ -35,20 +35,20 @@ func (se *StorageEngine) Close() {
 func NewStorageEngine() (widecolumnstore.Storage, error) {
 	se := StorageEngine{
 		tKeyIndex: make(map[int]string),
-		tKey:      make(map[string]*any.Any),
+		tKey:      make(map[string]*widecolumnstore.KeyValue),
 	}
 
 	return &se, nil
 }
 
 // Find a vertex from the persistence
-func (se *StorageEngine) Find(ID string) (*widecolumnstore.KeyValue, error) {
+func (se *StorageEngine) Find(ID string) (widecolumnstore.KeyValue, error) {
 	// if v, ok := se.vertices[ID]; ok {
 	// 	return &v, nil
 	// } else {
 	// 	return nil, errRecordNotFound
 	// }
-	return nil, errRecordNotFound
+	return widecolumnstore.KeyValue{}, errRecordNotFound
 }
 
 func (se *StorageEngine) Each() widecolumnstore.Iterator {
@@ -58,9 +58,8 @@ func (se *StorageEngine) Each() widecolumnstore.Iterator {
 		for position < length {
 			key := []byte(se.tKeyIndex[position])
 			position = position + 1
-			v := se.tKey[string(key)]
-			kv := widecolumnstore.KeyValue{Key: key, Value: v}
-			return kv, true
+			kv := se.tKey[string(key)]
+			return *kv, true
 		}
 
 		return widecolumnstore.KeyValue{}, false
@@ -76,9 +75,8 @@ func (se *StorageEngine) HasPrefix(prefix []byte) widecolumnstore.Iterator {
 			position = position + 1
 
 			if bytes.HasPrefix(key, prefix) {
-				v := se.tKey[string(key)]
-				kv := widecolumnstore.KeyValue{Key: key, Value: v}
-				return kv, true
+				kv := se.tKey[string(key)]
+				return *kv, true
 			}
 		}
 
@@ -99,8 +97,9 @@ func (se *StorageEngine) Create(triples ...*widecolumnstore.KeyValue) error {
 
 	for i := 0; i < len(triples); i++ {
 		triple := triples[i]
-		se.tKeyIndex[len(se.tKey)] = string(triple.Key)
-		se.tKey[string(triple.Key)] = triple.Value
+		id := uuid.New()
+		se.tKeyIndex[len(se.tKey)] = id.String()
+		se.tKey[id.String()] = triple
 	}
 
 	return nil

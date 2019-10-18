@@ -10,5 +10,4 @@
     "workbench.statusBar.feedback.visible": false,
     "workbench.statusBar.visible": false,
     "workbench.tips.enabled": false,
-    "go.formatTool": "goimports"
 }

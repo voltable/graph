@@ -1,7 +1,9 @@
 package widecolumnstore
 
-import "github.com/voltable/graph/arch"
-import any "github.com/golang/protobuf/ptypes/any"
+import (
+	"github.com/golang/protobuf/ptypes/any"
+	"github.com/voltable/graph/arch"
+)
 
 // NewAny returns a keyvalue.Any
 func NewAny(p interface{}) *any.Any {

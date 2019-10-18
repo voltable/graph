@@ -1,71 +1,65 @@
 package wcs
 
-import (
-	"github.com/voltable/graph/widecolumnstore"
+// // NewKeyValueID creates a ID KeyValue
+// func NewKeyValueID(id uuid.UUID) widecolumnstore.KeyValue {
+// 	return widecolumnstore.KeyValue{
+// 		Value: widecolumnstore.NewAny(nil),
+// 		Key: widecolumnstore.NewKey(id[:], &widecolumnstore.Column{
+// 			Family:    nil,
+// 			Extended:  nil,
+// 			Qualifier: nil,
+// 		}).Marshal(),
+// 	}
+// }
 
-	"github.com/google/uuid"
-)
+// // NewKeyValueProperty creates a property KeyValue (for id lookup)
+// func NewKeyValueProperty(id uuid.UUID, key string, value interface{}) widecolumnstore.KeyValue {
+// 	return widecolumnstore.KeyValue{
+// 		Value: widecolumnstore.NewAny(nil),
+// 		Key: widecolumnstore.NewKey(id[:], &widecolumnstore.Column{
+// 			Family:    Properties,
+// 			Extended:  []byte(key),
+// 			Qualifier: []byte(value),
+// 		}).Marshal(),
+// 	}
+// }
 
-// NewKeyValueID creates a ID KeyValue
-func NewKeyValueID(id uuid.UUID) widecolumnstore.KeyValue {
-	return widecolumnstore.KeyValue{
-		Value: widecolumnstore.NewAny(ID),
-		Key: widecolumnstore.NewKey(id[:], &widecolumnstore.Column{
-			Family:    nil,
-			Extended:  nil,
-			Qualifier: nil,
-		}).Marshal(),
-	}
-}
+// // NewKeyValuePropertyTranspose creates a property KeyValue (for key lookup)
+// func NewKeyValuePropertyTranspose(id uuid.UUID, key string, value interface{}) widecolumnstore.KeyValue {
+// 	return widecolumnstore.KeyValue{
+// 		Value: widecolumnstore.NewAny(nil),
+// 		Key: widecolumnstore.NewKey(TProperties, &widecolumnstore.Column{
+// 			Family:    []byte(key),
+// 			Extended:  []byte(value),
+// 			Qualifier: id[:],
+// 		}).Marshal(),
+// 	}
+// }
 
-// NewKeyValueLabel creates a label KeyValue
-func NewKeyValueLabel(id uuid.UUID, label string) widecolumnstore.KeyValue {
-	return widecolumnstore.KeyValue{
-		Value: widecolumnstore.NewAny(label),
-		Key: widecolumnstore.NewKey(id[:], &widecolumnstore.Column{
-			Family:    Label,
-			Extended:  nil,
-			Qualifier: nil,
-		}).Marshal(),
-	}
-}
+// // NewKeyValueRelationship creates a relationship KeyValue
+// func NewKeyValueRelationship(from, to uuid.UUID, relationshipType string, weight float64) widecolumnstore.KeyValue {
+// 	return widecolumnstore.KeyValue{
+// 		Value: widecolumnstore.NewAny(weight),
+// 		Key: widecolumnstore.NewKey(from[:], &widecolumnstore.Column{
+// 			Family:    Relationship,
+// 			Extended:  []byte(relationshipType),
+// 			Qualifier: to[:],
+// 		}).Marshal(),
+// 	}
+// }
 
-// NewKeyValueProperty creates a property KeyValue
-func NewKeyValueProperty(id uuid.UUID, key string, value interface{}) widecolumnstore.KeyValue {
-	return widecolumnstore.KeyValue{
-		Value: widecolumnstore.NewAny(value),
-		Key: widecolumnstore.NewKey(id[:], &widecolumnstore.Column{
-			Family:    Properties,
-			Extended:  []byte(key),
-			Qualifier: nil,
-		}).Marshal(),
-	}
-}
+// // NewKeyValueRelationshipProperty creates a relationship property KeyValue
+// func NewKeyValueRelationshipProperty(from, to uuid.UUID, key string, value interface{}) widecolumnstore.KeyValue {
+// 	return widecolumnstore.KeyValue{
+// 		Value: widecolumnstore.NewAny(value),
+// 		Key: widecolumnstore.NewKey(from[:], &widecolumnstore.Column{
+// 			Family:    Relationshipproperties,
+// 			Extended:  []byte(key),
+// 			Qualifier: to[:],
+// 		}).Marshal(),
+// 	}
 
-// NewKeyValueRelationship creates a relationship KeyValue
-func NewKeyValueRelationship(from, to uuid.UUID, relationshipType string, weight float64) widecolumnstore.KeyValue {
-	return widecolumnstore.KeyValue{
-		Value: widecolumnstore.NewAny(weight),
-		Key: widecolumnstore.NewKey(from[:], &widecolumnstore.Column{
-			Family:    Relationship,
-			Extended:  []byte(relationshipType),
-			Qualifier: to[:],
-		}).Marshal(),
-	}
-}
-
-// NewKeyValueRelationshipProperty creates a relationship property KeyValue
-func NewKeyValueRelationshipProperty(from, to uuid.UUID, key string, value interface{}) widecolumnstore.KeyValue {
-	return widecolumnstore.KeyValue{
-		Value: widecolumnstore.NewAny(value),
-		Key: widecolumnstore.NewKey(from[:], &widecolumnstore.Column{
-			Family:    Relationshipproperties,
-			Extended:  []byte(key),
-			Qualifier: to[:],
-		}).Marshal(),
-	}
-
-}
+// }
 
 // // NewKeyValueID creates a ID KeyValue
 // func NewKeyValueID(id uuid.UUID, label string) (*widecolumnstore.KeyValue, *widecolumnstore.KeyValue) {

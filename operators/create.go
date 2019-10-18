@@ -1,36 +1,34 @@
 package operators
 
 import (
+	//"github.com/gogo/protobuf/proto"
 	"github.com/golang/protobuf/proto"
 	"github.com/voltable/graph/widecolumnstore"
 )
 
-var _ Nullary = (*LabelScan)(nil)
+var _ Nullary = (*Create)(nil)
 
-// LabelScan fetches all tuples with a specific label.
-type LabelScan struct {
+// Create fetches all tuples with a specific label.
+type Create struct {
 	iterator widecolumnstore.Iterator
 }
 
-// NewLabelScan returns a LabelScan
-func NewLabelScan(storage widecolumnstore.Storage, label string) (*LabelScan, error) {
+// NewCreate returns a Create
+func NewCreate(storage widecolumnstore.Storage, label string) (*Create, error) {
 	// TODO need to marshal the prefix right
 	k := &widecolumnstore.Key{}
-
-	prefix := []byte(label)
-
 	prefix, err := proto.Marshal(k)
 	if err != nil {
 		return nil, err
 	}
 
-	return &LabelScan{
+	return &Create{
 		iterator: storage.HasPrefix(prefix),
 	}, nil
 }
 
-func (s *LabelScan) Next() widecolumnstore.Iterator {
+func (s *Create) Next() widecolumnstore.Iterator {
 	return s.iterator
 }
 
-func (s *LabelScan) Op() {}
+func (s *Create) Op() {}
