@@ -8,7 +8,7 @@ import (
 
 	"github.com/voltable/graph/rpc"
 	"github.com/sirupsen/logrus"
-	"github.com/gogo/protobuf/proto"
+	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
