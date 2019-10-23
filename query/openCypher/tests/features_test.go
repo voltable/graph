@@ -11,7 +11,6 @@ import (
 )
 
 func TestMain(m *testing.M) {
-
 	status := godog.RunWithOptions("godogs", func(s *godog.Suite) {
 		features.FeatureContext(s)
 	}, godog.Options{

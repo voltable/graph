@@ -2,10 +2,14 @@ package features
 
 import (
 	"errors"
+	"fmt"
+	"reflect"
+	"strconv"
 
 	"github.com/voltable/graph"
 	"github.com/voltable/graph/query"
 	"github.com/voltable/graph/query/cypher"
+	"github.com/voltable/graph/query/openCypher"
 	"github.com/voltable/graph/widecolumnstore"
 	"github.com/voltable/graph/widecolumnstore/storage/memorydb"
 
@@ -28,7 +32,7 @@ func (s *graphFeature) anyGraph() error {
 		return err
 	}
 
-	options := graph.NewOptions(cypher.QueryType, memorydb.StorageType)
+	options := graph.NewOptions(openCypher.QueryType, memorydb.StorageType)
 	g, err := query.NewGraphEngineFromStorageEngine(storage, options)
 	if err != nil {
 		return err
@@ -53,7 +57,34 @@ func (s *graphFeature) theResultShouldBeEmpty() error {
 }
 
 func (s *graphFeature) theSideEffectsShouldBe(arg1 *gherkin.DataTable) error {
-	return godog.ErrPending
+	hits := make(map[string]int)
+
+	for _, row := range arg1.Rows  {
+		key := row.Cells[0].Value
+		value, _ := strconv.Atoi(row.Cells[1].Value)
+		hits[key] = value
+	}
+
+	t := s.queryResult.Statistics.DbHits
+	e := reflect.ValueOf(&t).Elem()
+	typeOfT := e.Type()
+
+	for i := 0; i < e.NumField(); i++ {
+		f := e.Field(i)
+		tag := typeOfT.Field(i).Tag.Get("json")
+
+		if hits[tag] != f.Interface() {
+			return fmt.Errorf("theSideEffectsShouldBe: %d: %s %+v\n", i, tag, hits[tag])
+		} else {
+			delete(hits, tag)
+		}
+	}
+
+	if len(hits) > 0 {
+		return godog.ErrPending
+	}
+
+	return nil
 }
 
 func (s *graphFeature) anEmptyGraph() error {

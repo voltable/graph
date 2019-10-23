@@ -41,16 +41,6 @@ func NewStorageEngine() (widecolumnstore.Storage, error) {
 	return &se, nil
 }
 
-// Find a vertex from the persistence
-func (se *StorageEngine) Find(ID string) (widecolumnstore.KeyValue, error) {
-	// if v, ok := se.vertices[ID]; ok {
-	// 	return &v, nil
-	// } else {
-	// 	return nil, errRecordNotFound
-	// }
-	return widecolumnstore.KeyValue{}, errRecordNotFound
-}
-
 func (se *StorageEngine) Each() widecolumnstore.Iterator {
 	position := 0
 	length := len(se.tKey)
