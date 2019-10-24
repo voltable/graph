@@ -1,8 +1,8 @@
 package operators
 
 import (
-	"github.com/google/uuid"
 	"github.com/voltable/graph"
+	"github.com/voltable/graph/operators/ir"
 	"github.com/voltable/graph/widecolumnstore"
 )
 
@@ -10,56 +10,58 @@ var _ Nullary = (*Create)(nil)
 
 // Create fetches all tuples with a specific label.
 type Create struct {
-	keyValues []*widecolumnstore.KeyValue
+	nodes []*ir.Node
 	storage widecolumnstore.Storage
 }
 
 // NewCreate returns a Create
-func NewCreate(storage widecolumnstore.Storage, id uuid.UUID, variable string, label string, properties map[string]interface{}) (*Create, error) {
-
-	keyValues := make([]*widecolumnstore.KeyValue, 0)
-
-	keyValues = append(keyValues, &widecolumnstore.KeyValue{
-		Key: &widecolumnstore.Key{
-			RowKey:       id[:],
-			ColumnFamily: ID,
-		},
-		Value: nil,
-	})
-
-	keyValues = append(keyValues, &widecolumnstore.KeyValue{
-		Key: &widecolumnstore.Key{
-			RowKey:          id[:],
-			ColumnFamily:    Label,
-			ColumnQualifier: []byte(label),
-		},
-		Value: nil,
-	})
-
-	for key, value := range properties  {
-		keyValues = append(keyValues, &widecolumnstore.KeyValue{
-			Key: &widecolumnstore.Key{
-				RowKey:          id[:],
-				ColumnFamily:    Properties,
-				ColumnQualifier: []byte(key),
-			},
-			Value: widecolumnstore.NewAny(value),
-		})
-	}
-
+func NewCreate(storage widecolumnstore.Storage, nodes []*ir.Node) (*Create, error) {
 	return &Create{
 		storage: storage,
-		keyValues:keyValues,
+		nodes: nodes,
 	}, nil
 }
 
 func (s *Create) Next() (widecolumnstore.Iterator, graph.Statistics) {
 	statistics := graph.NewStatistics()
 
-	statistics.DbHits.CreateNode += 1
-	statistics.Rows += len(s.keyValues)
+	keyValues := make([]*widecolumnstore.KeyValue, 0)
 
-	_ = s.storage.Create(s.keyValues...)
+	for _, n := range s.nodes {
+		keyValues = append(keyValues, &widecolumnstore.KeyValue{
+			Key: &widecolumnstore.Key{
+				RowKey:       n.Id[:],
+				ColumnFamily: ID,
+			},
+			Value: nil,
+		})
+
+		keyValues = append(keyValues, &widecolumnstore.KeyValue{
+			Key: &widecolumnstore.Key{
+				RowKey:          n.Id[:],
+				ColumnFamily:    Label,
+				ColumnQualifier: []byte(n.Label),
+			},
+			Value: nil,
+		})
+
+		for key, value := range n.Properties  {
+			keyValues = append(keyValues, &widecolumnstore.KeyValue{
+				Key: &widecolumnstore.Key{
+					RowKey:          n.Id[:],
+					ColumnFamily:    Properties,
+					ColumnQualifier: []byte(key),
+				},
+				Value: widecolumnstore.NewAny(value),
+			})
+		}
+
+		statistics.DbHits.CreateNode += 1
+	}
+
+	statistics.Rows += len(keyValues)
+
+	_ = s.storage.Create(keyValues...)
 
 	return func() (widecolumnstore.KeyValue, bool) {
 		return widecolumnstore.KeyValue{}, false

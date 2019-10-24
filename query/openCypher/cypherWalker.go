@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/voltable/graph/operators"
+	"github.com/voltable/graph/operators/ir"
 	"github.com/voltable/graph/widecolumnstore"
 	"strconv"
 
@@ -12,20 +13,7 @@ import (
 )
 
 
-type node struct {
-	variable string
-	label string
-	properties map[string]interface{}
-}
 
-type mapLiteral struct {
-
-}
-
-type keyValue struct {
-	key string
-	value interface{}
-}
 
 type cypherWalker struct {
 	storage widecolumnstore.Storage
@@ -48,17 +36,30 @@ func (l *cypherWalker) GetQueryPlan() []operators.Operator {
 }
 
 func (l *cypherWalker) EnterOC_Create(c *parser.OC_CreateContext) {
-	l.stack = l.stack.push(&node{})
+	l.stack = l.stack.push(&ir.Create{})
 }
 
 func (l *cypherWalker) ExitOC_Create(c *parser.OC_CreateContext) {
-	id := uuid.New()
-	var n interface{}
-	l.stack, n = l.stack.pop()
-	if node, ok := n.(*node); ok {
-		 op, _ := operators.NewCreate(l.storage, id, node.variable, node.label, node.properties)
-		 l.plan = append(l.plan, op)
+	NotCreate := func(n interface{}) bool {
+		_, ok := n.(*ir.Create)
+		return !ok
 	}
+	nodes := make([]*ir.Node, 0)
+
+	for n := l.stack.top(); NotCreate(n); n = l.stack.top() {
+		l.stack, _ = l.stack.pop()
+		if k, ok := n.(*ir.Node); ok {
+			nodes = append(nodes, k)
+		}
+	}
+
+	op, _ := operators.NewCreate(l.storage, nodes)
+	l.plan = append(l.plan, op)
+}
+
+func (l *cypherWalker) EnterOC_PatternPart(c *parser.OC_PatternPartContext) {
+	fmt.Printf("EnterOC_PatternPart : %s\n", c)
+	l.stack = l.stack.push(&ir.Node{Id : uuid.New()})
 }
 
 func (l *cypherWalker) EnterOC_LabelName(c *parser.OC_LabelNameContext) {
@@ -67,8 +68,8 @@ func (l *cypherWalker) EnterOC_LabelName(c *parser.OC_LabelNameContext) {
 	label := sn.UnescapedSymbolicName().GetText()
 
 	i := l.stack.top()
-	if node, ok := i.(*node); ok {
-		node.label = label
+	if node, ok := i.(*ir.Node); ok {
+		node.Label = label
 	}
 }
 
@@ -77,8 +78,8 @@ func (l *cypherWalker) EnterOC_Variable(c *parser.OC_VariableContext) {
 	variable := s.UnescapedSymbolicName().GetText()
 
 	i := l.stack.top()
-	if node, ok:= i.(*node); ok {
-		node.variable = variable
+	if node, ok:= i.(*ir.Node); ok {
+		node.Variable = variable
 	}
 }
 
@@ -93,8 +94,8 @@ func (l *cypherWalker) ExitOC_Properties(c *parser.OC_PropertiesContext) {
 	l.stack, n = l.stack.pop()
 	if properties, ok := n.(map[string]interface{}); ok {
 		i := l.stack.top()
-		if node, ok:= i.(*node); ok {
-			node.properties = properties
+		if node, ok:= i.(*ir.Node); ok {
+			node.Properties = properties
 		}
 	}
 }
@@ -102,7 +103,7 @@ func (l *cypherWalker) ExitOC_Properties(c *parser.OC_PropertiesContext) {
 func (l *cypherWalker) EnterOC_MapLiteral(c *parser.OC_MapLiteralContext) {
 	fmt.Printf("EnterOC_MapLiteral : %s\n", c.GetText())
 
-	l.stack = l.stack.push(mapLiteral{})
+	l.stack = l.stack.push(&ir.MapLiteral{})
 }
 
 func (l *cypherWalker) ExitOC_MapLiteral(c *parser.OC_MapLiteralContext) {
@@ -113,12 +114,13 @@ func (l *cypherWalker) ExitOC_MapLiteral(c *parser.OC_MapLiteralContext) {
 	properties := make(map[string]interface{}, 0)
 
 	NotMapLiteral := func(n interface{}) bool {
-		_, ok := n.(mapLiteral)
+		_, ok := n.(*ir.MapLiteral)
 		return !ok
 	}
-	for n := l.stack.top(); NotMapLiteral(n); l.stack, n = l.stack.pop() {
-		if kv, ok := n.(keyValue); ok {
-			properties[kv.key] = literal
+	for n := l.stack.top(); NotMapLiteral(n); n = l.stack.top() {
+		l.stack, _ = l.stack.pop()
+		if kv, ok := n.(*ir.KeyValue); ok {
+			properties[kv.Key] = literal
 		} else {
 			literal = n
 		}
@@ -130,7 +132,7 @@ func (l *cypherWalker) ExitOC_MapLiteral(c *parser.OC_MapLiteralContext) {
 func (l *cypherWalker) EnterOC_PropertyKeyName(c *parser.OC_PropertyKeyNameContext) {
 	fmt.Printf("EnterOC_PropertyKeyName : %s\n", c.GetText())
 
-	l.stack = l.stack.push(keyValue{key:c.GetText()})
+	l.stack = l.stack.push(&ir.KeyValue{Key:c.GetText()})
 }
 
 func (l *cypherWalker) EnterOC_Literal(c *parser.OC_LiteralContext) {

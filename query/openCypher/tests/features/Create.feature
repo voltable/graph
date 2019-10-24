@@ -40,15 +40,15 @@ Feature: Create
     And the side effects should be:
       | +nodes | 1 |
 
-  # Scenario: Creating two nodes
-  #   Given any graph
-  #   When executing query:
-  #     """
-  #     CREATE (), ()
-  #     """
-  #   Then the result should be empty
-  #   And the side effects should be:
-  #     | +nodes | 2 |
+   Scenario: Creating two nodes
+     Given any graph
+     When executing query:
+       """
+       CREATE (), ()
+       """
+     Then the result should be empty
+     And the side effects should be:
+       | +nodes | 2 |
 
   # Scenario: Creating two nodes and a relationship
   #   Given any graph
