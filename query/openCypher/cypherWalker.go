@@ -1,7 +1,6 @@
 package openCypher
 
 import (
-	"fmt"
 	"github.com/google/uuid"
 	"github.com/voltable/graph/operators"
 	"github.com/voltable/graph/operators/ir"
@@ -12,22 +11,19 @@ import (
 	"github.com/voltable/graph/query/openCypher/parser"
 )
 
-
-
-
 type cypherWalker struct {
 	storage widecolumnstore.Storage
 	*parser.BaseCypherListener
 	errors []antlr.ErrorNode
 	stack  StackExpr
-	plan []operators.Operator
+	plan   []operators.Operator
 }
 
 func NewCypherWalker(storage widecolumnstore.Storage) cypherWalker {
 	return cypherWalker{
-		storage:storage,
-		stack: StackExpr{},
-		plan: make([]operators.Operator, 0),
+		storage: storage,
+		stack:   StackExpr{},
+		plan:    make([]operators.Operator, 0),
 	}
 }
 
@@ -45,31 +41,47 @@ func (l *cypherWalker) ExitOC_Create(c *parser.OC_CreateContext) {
 		return !ok
 	}
 	nodes := make([]*ir.Node, 0)
-
+	relationships := make([]*ir.Relationship, 0)
 	for n := l.stack.top(); NotCreate(n); n = l.stack.top() {
 		l.stack, _ = l.stack.pop()
 		if k, ok := n.(*ir.Node); ok {
 			nodes = append(nodes, k)
+		} else if  k, ok := n.(*ir.Relationship); ok {
+			relationships = append(relationships, k)
 		}
 	}
 
-	op, _ := operators.NewCreate(l.storage, nodes)
+	op, _ := operators.NewCreate(l.storage, nodes, relationships)
 	l.plan = append(l.plan, op)
 }
 
-func (l *cypherWalker) EnterOC_PatternPart(c *parser.OC_PatternPartContext) {
-	fmt.Printf("EnterOC_PatternPart : %s\n", c)
-	l.stack = l.stack.push(&ir.Node{Id : uuid.New()})
+func (l *cypherWalker) EnterOC_NodePattern(c *parser.OC_NodePatternContext) {
+	l.stack = l.stack.push(&ir.Node{Id: uuid.New()})
+}
+
+func (l *cypherWalker) EnterOC_RelationshipPattern(c *parser.OC_RelationshipPatternContext) {
+	l.stack = l.stack.push(&ir.Relationship{Id: uuid.New()})
 }
 
 func (l *cypherWalker) EnterOC_LabelName(c *parser.OC_LabelNameContext) {
 	s := c.OC_SchemaName().(*parser.OC_SchemaNameContext)
 	sn := s.OC_SymbolicName().(*parser.OC_SymbolicNameContext)
-	label := sn.UnescapedSymbolicName().GetText()
+	labelName := sn.UnescapedSymbolicName().GetText()
 
 	i := l.stack.top()
 	if node, ok := i.(*ir.Node); ok {
-		node.Label = label
+		node.Label = labelName
+	}
+}
+
+func (l *cypherWalker) EnterOC_RelTypeName(c *parser.OC_RelTypeNameContext) {
+	s := c.OC_SchemaName().(*parser.OC_SchemaNameContext)
+	sn := s.OC_SymbolicName().(*parser.OC_SymbolicNameContext)
+	typeName := sn.UnescapedSymbolicName().GetText()
+
+	i := l.stack.top()
+	if node, ok := i.(*ir.Relationship); ok {
+		node.Type = typeName
 	}
 }
 
@@ -78,37 +90,29 @@ func (l *cypherWalker) EnterOC_Variable(c *parser.OC_VariableContext) {
 	variable := s.UnescapedSymbolicName().GetText()
 
 	i := l.stack.top()
-	if node, ok:= i.(*ir.Node); ok {
+	if node, ok := i.(*ir.Node); ok {
+		node.Variable = variable
+	}else 	if node, ok := i.(*ir.Relationship); ok {
 		node.Variable = variable
 	}
 }
 
-func (l *cypherWalker) EnterOC_Properties(c *parser.OC_PropertiesContext) {
-	fmt.Printf("EnterOC_Properties : %s\n", c)
-}
-
 func (l *cypherWalker) ExitOC_Properties(c *parser.OC_PropertiesContext) {
-	fmt.Printf("ExitOC_Properties : %s\n", c)
-
 	var n interface{}
 	l.stack, n = l.stack.pop()
 	if properties, ok := n.(map[string]interface{}); ok {
 		i := l.stack.top()
-		if node, ok:= i.(*ir.Node); ok {
+		if node, ok := i.(*ir.Node); ok {
 			node.Properties = properties
 		}
 	}
 }
 
 func (l *cypherWalker) EnterOC_MapLiteral(c *parser.OC_MapLiteralContext) {
-	fmt.Printf("EnterOC_MapLiteral : %s\n", c.GetText())
-
 	l.stack = l.stack.push(&ir.MapLiteral{})
 }
 
 func (l *cypherWalker) ExitOC_MapLiteral(c *parser.OC_MapLiteralContext) {
-	fmt.Printf("ExitOC_MapLiteral : %s\n", c.GetText())
-
 	var literal interface{}
 
 	properties := make(map[string]interface{}, 0)
@@ -130,14 +134,10 @@ func (l *cypherWalker) ExitOC_MapLiteral(c *parser.OC_MapLiteralContext) {
 }
 
 func (l *cypherWalker) EnterOC_PropertyKeyName(c *parser.OC_PropertyKeyNameContext) {
-	fmt.Printf("EnterOC_PropertyKeyName : %s\n", c.GetText())
-
-	l.stack = l.stack.push(&ir.KeyValue{Key:c.GetText()})
+	l.stack = l.stack.push(&ir.KeyValue{Key: c.GetText()})
 }
 
 func (l *cypherWalker) EnterOC_Literal(c *parser.OC_LiteralContext) {
-	fmt.Printf("EnterOC_Literal : %s\n", c.GetText())
-
 	if b, ok := c.OC_BooleanLiteral().(*parser.OC_BooleanLiteralContext); ok {
 		if t := b.TRUE(); t != nil {
 			l.stack = l.stack.push(true)

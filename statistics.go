@@ -1,7 +1,7 @@
 package graph
 
 type Statistics struct {
-	Rows int
+	Rows   int
 	DbHits DbHits
 }
 
@@ -12,6 +12,10 @@ func NewStatistics() Statistics {
 }
 
 type DbHits struct {
-	CreateNode int  `json:"+nodes"`
+	CreateNodes         int `json:"+nodes"`
+	CreateRelationships int `json:"+relationships"`
+	CreateLabels        int `json:"+labels"`
+	CreateTypes         int `json:"+types"`
+	CreateProperties    int `json:"+properties"`
 }
 

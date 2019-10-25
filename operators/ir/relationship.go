@@ -5,53 +5,52 @@ import (
 	"github.com/voltable/graph/widecolumnstore"
 )
 
-type Node struct {
-	Id         uuid.UUID
-	Variable   string
-	Label      string
+type Relationship struct {
+	Id uuid.UUID
+	Variable string
+	Type string
 	Properties map[string]interface{}
 }
 
-func (n *Node) Marshal(a *Actions) []*widecolumnstore.KeyValue {
+func (n *Relationship) Marshal(a *Actions) []*widecolumnstore.KeyValue {
 
 	keyValues := make([]*widecolumnstore.KeyValue, 0)
 
 	keyValues = append(keyValues, &widecolumnstore.KeyValue{
 		Key: &widecolumnstore.Key{
 			RowKey:       n.Id[:],
-			ColumnFamily: Vertex,
-			ColumnQualifier: ID,
+			ColumnFamily: ID,
+			ColumnQualifier: Edge,
 		},
 		Value: nil,
 	})
 
-	a.Nodes += 1
+	a.Relationships += 1
 
-	if n.Label != EmptyString {
-
+	if n.Type != EmptyString {
 		keyValues = append(keyValues, &widecolumnstore.KeyValue{
 			Key: &widecolumnstore.Key{
 				RowKey:          n.Id[:],
-				ColumnFamily:    Label,
-				ColumnQualifier: []byte(n.Label),
+				ColumnFamily:    EdgeType,
+				ColumnQualifier: []byte(n.Type),
 			},
 			Value: nil,
 		})
 
-		a.Labels += 1
+		a.Types += 1
 	}
 
 	for key, value := range n.Properties {
-
 		if key != EmptyString {
 			keyValues = append(keyValues, &widecolumnstore.KeyValue{
 				Key: &widecolumnstore.Key{
 					RowKey:          n.Id[:],
-					ColumnFamily:    Properties,
+					ColumnFamily:    EdgePoperties,
 					ColumnQualifier: []byte(key),
 				},
 				Value: widecolumnstore.NewAny(value),
 			})
+
 			a.Properties += 1
 		}
 	}

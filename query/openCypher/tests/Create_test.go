@@ -57,14 +57,7 @@ func (s *graphFeature) theResultShouldBeEmpty() error {
 }
 
 func (s *graphFeature) theSideEffectsShouldBe(arg1 *gherkin.DataTable) error {
-	hits := make(map[string]int)
-
-	for _, row := range arg1.Rows  {
-		key := row.Cells[0].Value
-		value, _ := strconv.Atoi(row.Cells[1].Value)
-		hits[key] = value
-	}
-
+	found := make(map[string]interface{})
 	t := s.queryResult.Statistics.DbHits
 	e := reflect.ValueOf(&t).Elem()
 	typeOfT := e.Type()
@@ -73,15 +66,16 @@ func (s *graphFeature) theSideEffectsShouldBe(arg1 *gherkin.DataTable) error {
 		f := e.Field(i)
 		tag := typeOfT.Field(i).Tag.Get("json")
 
-		if hits[tag] != f.Interface() {
-			return fmt.Errorf("theSideEffectsShouldBe: %d: %s %+v\n", i, tag, hits[tag])
-		} else {
-			delete(hits, tag)
-		}
+		found[tag] = f.Interface()
 	}
 
-	if len(hits) > 0 {
-		return godog.ErrPending
+	for i, row := range arg1.Rows {
+		key := row.Cells[0].Value
+		value, _ := strconv.Atoi(row.Cells[1].Value)
+
+		if found[key] != value {
+			return fmt.Errorf("theSideEffectsShouldBe: %d: %s %+v but was %+v\n", i, key, value, found[key])
+		}
 	}
 
 	return nil
