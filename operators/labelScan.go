@@ -2,7 +2,6 @@ package operators
 
 import (
 	"github.com/golang/protobuf/proto"
-	"github.com/voltable/graph"
 	"github.com/voltable/graph/widecolumnstore"
 )
 
@@ -30,11 +29,9 @@ func NewLabelScan(storage widecolumnstore.Storage, label string) (*LabelScan, er
 	}, nil
 }
 
-func (s *LabelScan) Next() (widecolumnstore.Iterator, graph.Statistics) {
+func (s *LabelScan) Next() widecolumnstore.Iterator {
 
-	statistics := graph.NewStatistics()
-
-	return s.iterator, statistics
+	return s.iterator
 }
 
 func (s *LabelScan) Op() {}

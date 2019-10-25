@@ -13,18 +13,20 @@ type Create struct {
 	nodes []*ir.Node
 	relationships []*ir.Relationship
 	storage widecolumnstore.Storage
+	statistics *graph.Statistics
 }
 
 // NewCreate returns a Create
-func NewCreate(storage widecolumnstore.Storage, nodes []*ir.Node, relationships []*ir.Relationship) (*Create, error) {
+func NewCreate(storage widecolumnstore.Storage, statistics *graph.Statistics, nodes []*ir.Node, relationships []*ir.Relationship) (*Create, error) {
 	return &Create{
 		storage: storage,
+		statistics: statistics,
 		nodes: nodes,
 		relationships:relationships,
 	}, nil
 }
 
-func (s *Create) Next() (widecolumnstore.Iterator, graph.Statistics) {
+func (s *Create) Next() (widecolumnstore.Iterator) {
 	action := &ir.Actions{}
 	keyValues := make([]*widecolumnstore.KeyValue, 0)
 
@@ -36,19 +38,18 @@ func (s *Create) Next() (widecolumnstore.Iterator, graph.Statistics) {
 		keyValues = append(keyValues, n.Marshal(action)...)
 	}
 
-	statistics := graph.NewStatistics()
-	statistics.DbHits.CreateLabels = action.Labels
-	statistics.DbHits.CreateNodes = action.Nodes
-	statistics.DbHits.CreateProperties = action.Properties
-	statistics.DbHits.CreateRelationships = action.Relationships
-	statistics.DbHits.CreateTypes = action.Types
-	statistics.Rows += len(keyValues)
+	s.statistics.DbHits.CreateLabels += action.Labels
+	s.statistics.DbHits.CreateNodes += action.Nodes
+	s.statistics.DbHits.CreateProperties += action.Properties
+	s.statistics.DbHits.CreateRelationships += action.Relationships
+	s.statistics.DbHits.CreateTypes += action.Types
+	s.statistics.Rows += len(keyValues)
 
 	_ = s.storage.Create(keyValues...)
 
 	return func() (widecolumnstore.KeyValue, bool) {
 		return widecolumnstore.KeyValue{}, false
-	}, statistics
+	}
 }
 
 func (s *Create) Op() {}

@@ -2,14 +2,15 @@ package ir
 
 import (
 	"github.com/google/uuid"
+	"github.com/voltable/graph/operators/ir/delimiters"
 	"github.com/voltable/graph/widecolumnstore"
 )
 
 type Node struct {
 	Id         uuid.UUID
-	Variable   string
-	Label      string
-	Properties map[string]interface{}
+	Variable   Variable
+	Label      Label
+	Properties Properties
 }
 
 func (n *Node) Marshal(a *Actions) []*widecolumnstore.KeyValue {
@@ -18,9 +19,9 @@ func (n *Node) Marshal(a *Actions) []*widecolumnstore.KeyValue {
 
 	keyValues = append(keyValues, &widecolumnstore.KeyValue{
 		Key: &widecolumnstore.Key{
-			RowKey:       n.Id[:],
-			ColumnFamily: Vertex,
-			ColumnQualifier: ID,
+			RowKey:          n.Id[:],
+			ColumnFamily:    delimiters.Vertex,
+			ColumnQualifier: delimiters.ID,
 		},
 		Value: nil,
 	})
@@ -32,7 +33,7 @@ func (n *Node) Marshal(a *Actions) []*widecolumnstore.KeyValue {
 		keyValues = append(keyValues, &widecolumnstore.KeyValue{
 			Key: &widecolumnstore.Key{
 				RowKey:          n.Id[:],
-				ColumnFamily:    Label,
+				ColumnFamily:    delimiters.Label,
 				ColumnQualifier: []byte(n.Label),
 			},
 			Value: nil,
@@ -42,12 +43,11 @@ func (n *Node) Marshal(a *Actions) []*widecolumnstore.KeyValue {
 	}
 
 	for key, value := range n.Properties {
-
 		if key != EmptyString {
 			keyValues = append(keyValues, &widecolumnstore.KeyValue{
 				Key: &widecolumnstore.Key{
 					RowKey:          n.Id[:],
-					ColumnFamily:    Properties,
+					ColumnFamily:    delimiters.Properties,
 					ColumnQualifier: []byte(key),
 				},
 				Value: widecolumnstore.NewAny(value),

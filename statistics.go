@@ -5,8 +5,8 @@ type Statistics struct {
 	DbHits DbHits
 }
 
-func NewStatistics() Statistics {
-	return Statistics{
+func NewStatistics() *Statistics {
+	return &Statistics{
 		DbHits: DbHits{},
 	}
 }

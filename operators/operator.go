@@ -1,7 +1,6 @@
 package operators
 
 import (
-	"github.com/voltable/graph"
 	"github.com/voltable/graph/widecolumnstore"
 )
 
@@ -13,7 +12,7 @@ type Operator interface {
 // Nullary an operation of arity 0, and hence call it nullary
 type Nullary interface {
 	Operator
-	Next() (widecolumnstore.Iterator, graph.Statistics)
+	Next() widecolumnstore.Iterator
 }
 
 // Unary operation takes one argument

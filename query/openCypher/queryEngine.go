@@ -56,17 +56,23 @@ func (qe QueryEngine) Parse(q string) (*graph.Query, error) {
 
 	tree := p.OC_Cypher()
 
+	statistics := graph.NewStatistics()
+
 	// Finally parse the expression (by walking the tree)
-	//var walker cypherWalker
-	walker := NewCypherWalker(qe.storage)
+	walker := NewCypherWalker(qe.storage, statistics)
 	antlr.ParseTreeWalkerDefault.Walk(&walker, tree)
 
 	plan := walker.GetQueryPlan()
 
-	create := plan[0].(*operators.Create)
-	_, statistics := create.Next()
+	results := graph.NewTable()
+	for _, op := range plan {
+		if create, ok := op.(*operators.Create); ok {
+			create.Next()
+		}
+		if r, ok := op.(*operators.ProduceResults); ok {
+			results = r.Next()
+		}
+	}
 
-	return &graph.Query{
-		Statistics: statistics,
-	}, nil
+	return graph.NewQuery(q, results, statistics), nil
 }

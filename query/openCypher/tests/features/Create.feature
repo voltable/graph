@@ -29,12 +29,11 @@
 #encoding: utf-8
 
 Feature: Create
-
   Scenario: Creating a node
     Given any graph
     When executing query:
       """
-      CREATE ()
+      CREATE (mm)
       """
     Then the result should be empty
     And the side effects should be:
@@ -60,7 +59,7 @@ Feature: Create
      And the side effects should be:
        | +nodes         | 2 |
        | +relationships | 1 |
-
+#
    Scenario: Creating a node with a label
      Given an empty graph
      When executing query:

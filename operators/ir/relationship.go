@@ -2,14 +2,15 @@ package ir
 
 import (
 	"github.com/google/uuid"
+	"github.com/voltable/graph/operators/ir/delimiters"
 	"github.com/voltable/graph/widecolumnstore"
 )
 
 type Relationship struct {
 	Id uuid.UUID
-	Variable string
-	Type string
-	Properties map[string]interface{}
+	Variable Variable
+	Type Type
+	Properties Properties
 }
 
 func (n *Relationship) Marshal(a *Actions) []*widecolumnstore.KeyValue {
@@ -18,9 +19,9 @@ func (n *Relationship) Marshal(a *Actions) []*widecolumnstore.KeyValue {
 
 	keyValues = append(keyValues, &widecolumnstore.KeyValue{
 		Key: &widecolumnstore.Key{
-			RowKey:       n.Id[:],
-			ColumnFamily: ID,
-			ColumnQualifier: Edge,
+			RowKey:          n.Id[:],
+			ColumnFamily:    delimiters.ID,
+			ColumnQualifier: delimiters.Edge,
 		},
 		Value: nil,
 	})
@@ -31,7 +32,7 @@ func (n *Relationship) Marshal(a *Actions) []*widecolumnstore.KeyValue {
 		keyValues = append(keyValues, &widecolumnstore.KeyValue{
 			Key: &widecolumnstore.Key{
 				RowKey:          n.Id[:],
-				ColumnFamily:    EdgeType,
+				ColumnFamily:    delimiters.EdgeType,
 				ColumnQualifier: []byte(n.Type),
 			},
 			Value: nil,
@@ -45,7 +46,7 @@ func (n *Relationship) Marshal(a *Actions) []*widecolumnstore.KeyValue {
 			keyValues = append(keyValues, &widecolumnstore.KeyValue{
 				Key: &widecolumnstore.Key{
 					RowKey:          n.Id[:],
-					ColumnFamily:    EdgePoperties,
+					ColumnFamily:    delimiters.EdgePoperties,
 					ColumnQualifier: []byte(key),
 				},
 				Value: widecolumnstore.NewAny(value),

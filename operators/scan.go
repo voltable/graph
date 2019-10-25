@@ -1,7 +1,6 @@
 package operators
 
 import (
-	"github.com/voltable/graph"
 	"github.com/voltable/graph/widecolumnstore"
 )
 
@@ -25,10 +24,8 @@ func NewScan(storage widecolumnstore.Storage, prefix []byte) *Scan {
 	return scan
 }
 
-func (s *Scan) Next() (widecolumnstore.Iterator, graph.Statistics) {
-	statistics := graph.NewStatistics()
-
-	return s.iterator, statistics
+func (s *Scan) Next() widecolumnstore.Iterator {
+	return s.iterator
 }
 
 func (s *Scan) Op() {}
