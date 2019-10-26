@@ -262,7 +262,7 @@ func EncodeType(i interface{}) (string, []byte) {
 	return fmt.Sprintf("%T", i), []byte(fmt.Sprint(i))
 }
 
-// DecodeType takes a interface and returns its bytes
+// DecodeType takes bytes and returns its type
 func DecodeType(t string, buf []byte) interface{} {
 	switch t {
 	case "bool":

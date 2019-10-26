@@ -8,4 +8,18 @@ type Label string
 
 type Key string
 
-type Properties map[Key]interface{}
+type Arithmetic string
+
+const (
+	Addition = Arithmetic("+")
+	Subtraction = Arithmetic("-")
+	Multiplication  = Arithmetic("*")
+	Division  = Arithmetic("/")
+)
+
+type String string
+
+func (s String) String() string {
+	return "'"+string(s)+"'"
+}
+

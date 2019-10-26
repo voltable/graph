@@ -10,7 +10,7 @@ type Node struct {
 	Id         uuid.UUID
 	Variable   Variable
 	Label      Label
-	Properties Properties
+	Properties *Properties
 }
 
 func (n *Node) Marshal(a *Actions) []*widecolumnstore.KeyValue {
@@ -42,17 +42,19 @@ func (n *Node) Marshal(a *Actions) []*widecolumnstore.KeyValue {
 		a.Labels += 1
 	}
 
-	for key, value := range n.Properties {
-		if key != EmptyString {
-			keyValues = append(keyValues, &widecolumnstore.KeyValue{
-				Key: &widecolumnstore.Key{
-					RowKey:          n.Id[:],
-					ColumnFamily:    delimiters.Properties,
-					ColumnQualifier: []byte(key),
-				},
-				Value: widecolumnstore.NewAny(value),
-			})
-			a.Properties += 1
+	if n.Properties != nil  {
+		for key, value := range n.Properties.Map.Items {
+			if key != EmptyString {
+				keyValues = append(keyValues, &widecolumnstore.KeyValue{
+					Key: &widecolumnstore.Key{
+						RowKey:          n.Id[:],
+						ColumnFamily:    delimiters.Properties,
+						ColumnQualifier: []byte(key),
+					},
+					Value: widecolumnstore.NewAny(value),
+				})
+				a.Properties += 1
+			}
 		}
 	}
 

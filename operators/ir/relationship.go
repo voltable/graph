@@ -10,7 +10,7 @@ type Relationship struct {
 	Id uuid.UUID
 	Variable Variable
 	Type Type
-	Properties Properties
+	Properties *Properties
 }
 
 func (n *Relationship) Marshal(a *Actions) []*widecolumnstore.KeyValue {
@@ -41,20 +41,21 @@ func (n *Relationship) Marshal(a *Actions) []*widecolumnstore.KeyValue {
 		a.Types += 1
 	}
 
-	for key, value := range n.Properties {
-		if key != EmptyString {
-			keyValues = append(keyValues, &widecolumnstore.KeyValue{
-				Key: &widecolumnstore.Key{
-					RowKey:          n.Id[:],
-					ColumnFamily:    delimiters.EdgePoperties,
-					ColumnQualifier: []byte(key),
-				},
-				Value: widecolumnstore.NewAny(value),
-			})
+	if n.Properties != nil {
+		for key, value := range n.Properties.Map.Items {
+			if key != EmptyString {
+				keyValues = append(keyValues, &widecolumnstore.KeyValue{
+					Key: &widecolumnstore.Key{
+						RowKey:          n.Id[:],
+						ColumnFamily:    delimiters.EdgePoperties,
+						ColumnQualifier: []byte(key),
+					},
+					Value: widecolumnstore.NewAny(value),
+				})
 
-			a.Properties += 1
+				a.Properties += 1
+			}
 		}
 	}
-
 	return keyValues
 }

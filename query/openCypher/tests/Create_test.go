@@ -3,15 +3,15 @@ package features
 import (
 	"errors"
 	"fmt"
-	"reflect"
-	"strconv"
-
 	"github.com/voltable/graph"
+	"github.com/voltable/graph/operators/ir"
 	"github.com/voltable/graph/query"
 	"github.com/voltable/graph/query/cypher"
 	"github.com/voltable/graph/query/openCypher"
 	"github.com/voltable/graph/widecolumnstore"
 	"github.com/voltable/graph/widecolumnstore/storage/memorydb"
+	"reflect"
+	"strconv"
 
 	"github.com/DATA-DOG/godog"
 	"github.com/DATA-DOG/godog/gherkin"
@@ -100,9 +100,28 @@ func (s *graphFeature) theResultShouldBe(arg1 *gherkin.DataTable) error {
 		}
 
 		for r, row := range column.Rows {
-			value := fmt.Sprintf("%v", s.queryResult.Results.Columns[c].Rows[r])
-			if value != row {
-				return fmt.Errorf("theResultShouldBe: column %d, row %d: %+v but was %+v\n", c, r, row, value)
+			var value string
+			if v, ok := s.queryResult.Results.Columns[c].Rows[r].(float64); ok {
+				rowAsFloat, _ := strconv.ParseFloat(row.(string), 64)
+				if v != rowAsFloat {
+					return fmt.Errorf("theResultShouldBe: column %d, row %d: %+v but was %+v\n", c, r, row, value)
+				}
+
+			} else if s.queryResult.Results.Columns[c].Rows[r] == nil {
+				value = "null"
+
+				if value != row {
+					return fmt.Errorf("theResultShouldBe: column %d, row %d: %+v but was %+v\n", c, r, row, value)
+				}
+			}  else if _, ok := s.queryResult.Results.Columns[c].Rows[r].(*ir.MapLiteral); ok {
+				// Go Maps are unordered so can't easily do the compare
+				// TODO need to find a solution
+			}else {
+				value = fmt.Sprintf("%v", s.queryResult.Results.Columns[c].Rows[r])
+
+				if value != row {
+					return fmt.Errorf("theResultShouldBe: column %d, row %d: %+v but was %+v\n", c, r, row, value)
+				}
 			}
 		}
 	}
