@@ -26,7 +26,7 @@ func NewCreate(storage widecolumnstore.Storage, statistics *graph.Statistics, no
 	}, nil
 }
 
-func (s *Create) Next() (widecolumnstore.Iterator) {
+func (s *Create) Next() widecolumnstore.Iterator {
 	action := &ir.Actions{}
 	keyValues := make([]*widecolumnstore.KeyValue, 0)
 

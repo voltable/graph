@@ -58,5 +58,18 @@ func (n *Node) Marshal(a *Actions) []*widecolumnstore.KeyValue {
 		}
 	}
 
+	// Transpose
+
+	keyValues = append(keyValues, &widecolumnstore.KeyValue{
+		Key: &widecolumnstore.Key{
+			RowKey:          delimiters.TID,
+			ColumnFamily:    delimiters.TVertex,
+			ColumnQualifier: n.Id[:],
+		},
+		Value: nil,
+	})
+
+
+
 	return keyValues
 }

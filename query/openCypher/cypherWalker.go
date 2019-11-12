@@ -3,11 +3,9 @@ package openCypher
 import (
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"github.com/google/uuid"
-	"github.com/voltable/graph"
-	"github.com/voltable/graph/operators"
+	"github.com/voltable/graph/expressions"
 	"github.com/voltable/graph/operators/ir"
 	"github.com/voltable/graph/query/openCypher/parser"
-	"github.com/voltable/graph/widecolumnstore"
 	"strconv"
 	"strings"
 )
@@ -15,25 +13,21 @@ import (
 const Null = "null"
 
 type cypherWalker struct {
-	storage widecolumnstore.Storage
-	statistics *graph.Statistics
 	*parser.BaseCypherListener
 	errors []antlr.ErrorNode
 	stack  StackExpr
-	plan   []operators.Operator
+
 }
 
-func NewCypherWalker(storage widecolumnstore.Storage, statistics *graph.Statistics) cypherWalker {
+func newCypherWalker() cypherWalker {
 	return cypherWalker{
-		statistics: statistics,
-		storage: storage,
 		stack:   StackExpr{},
-		plan:    make([]operators.Operator, 0),
 	}
 }
 
-func (l *cypherWalker) GetQueryPlan() ([]operators.Operator) {
-	return l.plan
+// GetIR (intermediate representation)
+func (l *cypherWalker) getIR() StackExpr {
+	return l.stack
 }
 
 func (l *cypherWalker) EnterOC_Return(c *parser.OC_ReturnContext) {
@@ -55,9 +49,8 @@ func (l *cypherWalker) ExitOC_Return(c *parser.OC_ReturnContext) {
 			items = append(items, k)
 		}
 	}
-
-	op, _ := operators.NewProduceResults(l.storage, l.statistics, items)
-	l.plan = append(l.plan, op)
+	r := l.stack.top().(*ir.Return)
+	r.Items = items
 }
 
 func (l *cypherWalker) EnterOC_ReturnItem(c *parser.OC_ReturnItemContext) {
@@ -71,13 +64,13 @@ func (l *cypherWalker) ExitOC_ReturnItem(c *parser.OC_ReturnItemContext) {
 	}
 
 	var variable ir.Variable
-	var expression  *ir.Expression
+	var expression  *expressions.Expression
 
 	for n := l.stack.top(); NotReturnItem(n); n = l.stack.top() {
 		l.stack, _ = l.stack.pop()
 		if k, ok := n.(ir.Variable); ok {
 			variable = k
-		} else if k, ok := n.(*ir.Expression); ok {
+		} else if k, ok := n.(*expressions.Expression); ok {
 			expression = k
 		}
 	}
@@ -92,11 +85,86 @@ func (l *cypherWalker) ExitOC_ReturnItem(c *parser.OC_ReturnItemContext) {
 func (l *cypherWalker) ExitOC_Expression(c *parser.OC_ExpressionContext) {
 	var n interface{}
 	l.stack, n = l.stack.pop()
-	l.stack = l.stack.push(&ir.Expression{Value: n})
+	l.stack = l.stack.push(&expressions.Expression{Value: n})
+}
+
+func (l *cypherWalker) EnterOC_Match(c *parser.OC_MatchContext) {
+	l.stack = l.stack.push(ir.NewMatch())
+}
+
+func (l *cypherWalker) ExitOC_Match(c *parser.OC_MatchContext) {
+	NotMatch := func(n interface{}) bool {
+		_, ok := n.(*ir.Match)
+		return !ok
+	}
+
+	var pattern *ir.Pattern
+	for n := l.stack.top(); NotMatch(n); n = l.stack.top() {
+		l.stack, _ = l.stack.pop()
+		if k, ok := n.(*ir.Pattern); ok {
+			pattern = k
+		}
+	}
+
+	match := l.stack.top().(*ir.Match)
+	match.Pattern = pattern
+}
+
+func (l *cypherWalker) EnterOC_Pattern(c *parser.OC_PatternContext) {
+	l.stack = l.stack.push(ir.NewPattern())
+}
+
+func (l *cypherWalker) ExitOC_Pattern(c *parser.OC_PatternContext) {
+	NotPattern := func(n interface{}) bool {
+		_, ok := n.(*ir.Pattern)
+		return !ok
+	}
+
+	parts := make([]*ir.PatternPart, 0)
+	for n := l.stack.top(); NotPattern(n); n = l.stack.top() {
+		l.stack, _ = l.stack.pop()
+		if k, ok := n.(*ir.PatternPart); ok {
+			parts = append(parts, k)
+		}
+	}
+
+	pattern := l.stack.top().(*ir.Pattern)
+	pattern.Parts = parts
+}
+
+func (l *cypherWalker) EnterOC_PatternPart(c *parser.OC_PatternPartContext) {
+	l.stack = l.stack.push(ir.NewPatternPart())
+}
+
+func (l *cypherWalker) ExitOC_PatternPart(c *parser.OC_PatternPartContext) {
+	NotPatternPart := func(n interface{}) bool {
+		_, ok := n.(*ir.PatternPart)
+		return !ok
+	}
+
+	var variable ir.Variable
+	nodes := make([]*ir.Node, 0)
+	relationships := make([]*ir.Relationship, 0)
+
+	for n := l.stack.top(); NotPatternPart(n); n = l.stack.top() {
+		l.stack, _ = l.stack.pop()
+		if k, ok := n.(ir.Variable); ok {
+			variable = k
+		} else if k, ok := n.(*ir.Node); ok {
+			nodes = append(nodes, k)
+		} else if  k, ok := n.(*ir.Relationship); ok {
+			relationships = append(relationships, k)
+		}
+	}
+
+	part := l.stack.top().(*ir.PatternPart)
+	part.Variable = variable
+	part.Nodes = nodes
+	part.Relationships = relationships
 }
 
 func (l *cypherWalker) EnterOC_Create(c *parser.OC_CreateContext) {
-	l.stack = l.stack.push(&ir.Create{})
+	l.stack = l.stack.push(ir.NewCreate())
 }
 
 func (l *cypherWalker) ExitOC_Create(c *parser.OC_CreateContext) {
@@ -104,19 +172,18 @@ func (l *cypherWalker) ExitOC_Create(c *parser.OC_CreateContext) {
 		_, ok := n.(*ir.Create)
 		return !ok
 	}
-	nodes := make([]*ir.Node, 0)
-	relationships := make([]*ir.Relationship, 0)
+
+	var pattern *ir.Pattern
 	for n := l.stack.top(); NotCreate(n); n = l.stack.top() {
 		l.stack, _ = l.stack.pop()
-		if k, ok := n.(*ir.Node); ok {
-			nodes = append(nodes, k)
-		} else if  k, ok := n.(*ir.Relationship); ok {
-			relationships = append(relationships, k)
+
+		if k, ok := n.(*ir.Pattern); ok {
+			pattern = k
 		}
 	}
 
-	op, _ := operators.NewCreate(l.storage, l.statistics, nodes, relationships)
-	l.plan = append(l.plan, op)
+	create := l.stack.top().(*ir.Create)
+	create.Pattern = pattern
 }
 
 func (l *cypherWalker) EnterOC_NodePattern(c *parser.OC_NodePatternContext) {
@@ -198,7 +265,7 @@ func (l *cypherWalker) EnterOC_RelTypeName(c *parser.OC_RelTypeNameContext) {
 func (l *cypherWalker) EnterOC_Variable(c *parser.OC_VariableContext) {
 	s := c.OC_SymbolicName().(*parser.OC_SymbolicNameContext)
 	variable := s.UnescapedSymbolicName().GetText()
-	l.stack = l.stack.push( ir.Variable(variable))
+	l.stack = l.stack.push(ir.Variable(variable))
 }
 
 func (l *cypherWalker) EnterOC_MapLiteral(c *parser.OC_MapLiteralContext) {
@@ -206,8 +273,8 @@ func (l *cypherWalker) EnterOC_MapLiteral(c *parser.OC_MapLiteralContext) {
 }
 
 func (l *cypherWalker) ExitOC_MapLiteral(c *parser.OC_MapLiteralContext) {
-	var expression *ir.Expression
-	items := make(map[ir.Key]*ir.Expression, 0)
+	var expression *expressions.Expression
+	items := make(map[ir.Key]*expressions.Expression, 0)
 
 	NotMapLiteral := func(n interface{}) bool {
 		_, ok := n.(*ir.MapLiteral)
@@ -218,7 +285,7 @@ func (l *cypherWalker) ExitOC_MapLiteral(c *parser.OC_MapLiteralContext) {
 		l.stack, _ = l.stack.pop()
 		if key, ok := n.(ir.Key); ok {
 			items[key] = expression
-		} else if value, ok := n.(*ir.Expression); ok {
+		} else if value, ok := n.(*expressions.Expression); ok {
 			expression = value
 		}
 	}
@@ -297,7 +364,7 @@ func (l *cypherWalker) EnterOC_ListLiteral(c *parser.OC_ListLiteralContext) {
 }
 
 func (l *cypherWalker) ExitOC_ListLiteral(c *parser.OC_ListLiteralContext) {
-	items := make([]*ir.Expression, 0)
+	items := make([]*expressions.Expression, 0)
 
 	NotList := func(n interface{}) bool {
 		_, ok := n.(*ir.ListLiteral)
@@ -306,7 +373,7 @@ func (l *cypherWalker) ExitOC_ListLiteral(c *parser.OC_ListLiteralContext) {
 	for n := l.stack.top(); NotList(n); n = l.stack.top() {
 		l.stack, _ = l.stack.pop()
 
-		if expression, ok := n.(*ir.Expression); ok {
+		if expression, ok := n.(*expressions.Expression); ok {
 			items = append(items, expression)
 		}
 

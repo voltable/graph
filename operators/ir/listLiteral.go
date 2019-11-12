@@ -2,10 +2,12 @@ package ir
 
 import (
 	"bytes"
+
+	"github.com/voltable/graph/expressions"
 )
 
 type ListLiteral struct {
-	Items []*Expression
+	Items []*expressions.Expression
 }
 
 func (s ListLiteral) String() string {

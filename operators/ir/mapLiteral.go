@@ -1,14 +1,17 @@
 package ir
 
-import "bytes"
+import (
+	"bytes"
+	"github.com/voltable/graph/expressions"
+)
 
 type MapLiteral struct {
-	Items map[Key]*Expression
+	Items map[Key]*expressions.Expression
 }
 
 func NewMapLiteral() *MapLiteral {
 	return &MapLiteral{
-		Items: make(map[Key]*Expression, 0),
+		Items: make(map[Key]*expressions.Expression, 0),
 	}
 }
 

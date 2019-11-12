@@ -189,6 +189,8 @@ func FeatureContext(s *godog.Suite) {
 	s.Step(`^an empty graph$`, g.emptyGraph)
 	s.Step(`^any graph$`, g.anyGraph)
 	s.Step(`^executing query:$`, g.executingQuery)
+	s.Step(`^having executed:$`, g.executingQuery)
+
 	s.Step(`^the result should be empty$`, g.theResultShouldBeEmpty)
 	s.Step(`^the result should be:`, g.theResultShouldBe)
 	s.Step(`^the side effects should be:$`, g.theSideEffectsShouldBe)

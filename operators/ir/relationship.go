@@ -57,5 +57,17 @@ func (n *Relationship) Marshal(a *Actions) []*widecolumnstore.KeyValue {
 			}
 		}
 	}
+
+	// Transpose
+
+	keyValues = append(keyValues, &widecolumnstore.KeyValue{
+		Key: &widecolumnstore.Key{
+			RowKey:          delimiters.TID,
+			ColumnFamily:    delimiters.TEdge,
+			ColumnQualifier: n.Id[:],
+		},
+		Value: nil,
+	})
+
 	return keyValues
 }

@@ -3,7 +3,6 @@ package openCypher
 import (
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	graph "github.com/voltable/graph"
-	"github.com/voltable/graph/operators"
 	"github.com/voltable/graph/query"
 	"github.com/voltable/graph/query/openCypher/parser"
 	"github.com/voltable/graph/widecolumnstore"
@@ -59,20 +58,12 @@ func (qe QueryEngine) Parse(q string) (*graph.Query, error) {
 	statistics := graph.NewStatistics()
 
 	// Finally parse the expression (by walking the tree)
-	walker := NewCypherWalker(qe.storage, statistics)
+	walker := newCypherWalker()
 	antlr.ParseTreeWalkerDefault.Walk(&walker, tree)
 
-	plan := walker.GetQueryPlan()
-
-	results := graph.NewTable()
-	for _, op := range plan {
-		if create, ok := op.(*operators.Create); ok {
-			create.Next()
-		}
-		if r, ok := op.(*operators.ProduceResults); ok {
-			results = r.Next()
-		}
-	}
+	ir := walker.getIR()
+	planner := NewQueryPlanner(qe.storage, statistics, ir)
+	results := planner.Execute()
 
 	return graph.NewQuery(q, results, statistics), nil
 }
