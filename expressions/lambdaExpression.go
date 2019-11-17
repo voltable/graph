@@ -1,35 +1,74 @@
 package expressions
 
 import (
+	"github.com/pkg/errors"
 	"reflect"
 )
 
-type LambdaExpression struct {
-
-}
-
-func (l LambdaExpression) String() string {
-	panic("implement me")
-}
-
-func (l LambdaExpression) Reduce() (Expression, error) {
-	panic("implement me")
-}
-
-func (l LambdaExpression) ReduceAndCheck() (Expression, error) {
-	panic("implement me")
-}
-
-func (l LambdaExpression) Accept(visitor ExpressionVisitor) (Expression, error) {
-	panic("implement me")
-}
-
-func (l LambdaExpression) VisitChildren(visitor ExpressionVisitor) (Expression, error) {
-	panic("implement me")
-}
-
-func (l LambdaExpression) Kind() reflect.Kind {
-	panic("implement me")
-}
-
 var _ Expression = (*LambdaExpression)(nil)
+
+type LambdaExpression struct {
+	body Expression
+	parameters []*ParameterExpression
+}
+
+func (l *LambdaExpression) Compile() func() {
+	panic("implement me")
+}
+
+func (l *LambdaExpression) String() string {
+	return ExpressionToString(l)
+}
+
+func (l *LambdaExpression) Reduce() (Expression, error) {
+	return baseReduce(l)
+}
+
+func (l *LambdaExpression) ReduceAndCheck() (Expression, error) {
+	return baseReduceAndCheck(l)
+}
+
+func (l *LambdaExpression) Accept(visitor ExpressionVisitor) (Expression, error) {
+	return visitor.VisitLambda(l)
+}
+
+func (l *LambdaExpression) VisitChildren(visitor ExpressionVisitor) (Expression, error) {
+	return baseVisitChildren(l, visitor)
+}
+
+func (l *LambdaExpression) Kind() reflect.Kind {
+	return reflect.Bool
+}
+
+func (l *LambdaExpression) GetBody() Expression {
+	return l.body
+}
+
+func (l *LambdaExpression) Update(body Expression, parameters []*ParameterExpression) *LambdaExpression {
+	if l.body == body {
+		equal := true
+		for i, parameter := range l.parameters  {
+			p := parameters[i]
+			if p != parameter {
+				equal = false
+				break
+			}
+		}
+
+		if equal {
+			return l
+		}
+	}
+	return Lambda(body, parameters...)
+}
+
+func Lambda(expr Expression, parameters ...*ParameterExpression) *LambdaExpression {
+	if expr == nil {
+		panic(errors.Wrapf(ArgumentCannotBeOfTypeVoid, "expr %v", expr))
+	}
+
+	return &LambdaExpression{
+		body: expr,
+		parameters: parameters,
+	}
+}

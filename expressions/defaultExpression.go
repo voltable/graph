@@ -2,10 +2,14 @@ package expressions
 
 import "reflect"
 
+var _ Expression = (*DefaultExpression)(nil)
+
 type DefaultExpression struct {
 }
 
-var _ Expression = (*DefaultExpression)(nil)
+func (d *DefaultExpression) Compile() func() {
+	panic("implement me")
+}
 
 func (d *DefaultExpression) String() string {
 	return ExpressionToString(d)

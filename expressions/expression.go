@@ -20,6 +20,8 @@ type Expression  interface {
 	Kind() reflect.Kind
 
 	String() string
+
+	Compile() func()
 }
 
 // baseCanReduce indicates whether the expression can be reduced.

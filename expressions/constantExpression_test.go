@@ -23,7 +23,7 @@ func TestConstantExpression_String(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, _ := expressions.Constant(tt.args.i)
+			got := expressions.Constant(tt.args.i)
 			if got.String() != tt.want {
 				t.Errorf("Constant() = %v, want %v", got, tt.want)
 			}

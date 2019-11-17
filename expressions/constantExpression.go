@@ -8,6 +8,10 @@ type ConstantExpression struct {
 	kind reflect.Kind
 }
 
+func (s *ConstantExpression) Compile() func() {
+	panic("implement me")
+}
+
 var _ TerminalExpression = (*ConstantExpression)(nil)
 
 func (s *ConstantExpression) Kind() reflect.Kind {
@@ -38,13 +42,13 @@ func (s *ConstantExpression) String() string {
 	return ExpressionToString(s)
 }
 
-func Constant(i interface{}) (*ConstantExpression, error){
+func Constant(i interface{}) *ConstantExpression{
 	if i == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
 
 	return &ConstantExpression{
 		data: i,
 		kind: reflect.TypeOf(i).Kind(),
-	}, nil
+	}
 }

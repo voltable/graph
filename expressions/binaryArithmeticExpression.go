@@ -19,6 +19,10 @@ type BinaryArithmeticExpression struct {
 	right Expression // right operand
 }
 
+func (b *BinaryArithmeticExpression) Compile() func() {
+	panic("implement me")
+}
+
 func (b *BinaryArithmeticExpression) String() string {
 	return ExpressionToString(b)
 }
@@ -27,10 +31,9 @@ func (b *BinaryArithmeticExpression) GetConversion() *LambdaExpression {
 	return nil
 }
 
-func (b *BinaryArithmeticExpression) Update(left TerminalExpression, conversion *LambdaExpression, right TerminalExpression) (BinaryExpression, error) {
+func (b *BinaryArithmeticExpression) Update(left TerminalExpression, conversion *LambdaExpression, right TerminalExpression) BinaryExpression {
 	return baseUpdate(b, left, conversion, right)
 }
-
 
 func (b *BinaryArithmeticExpression) Reduce() (Expression, error) {
 	return baseReduce(b)
@@ -71,116 +74,110 @@ func (b *BinaryArithmeticExpression)Interpret(stack *stack.Stack) error {
 	return b.instruction.Run(stack)
 }
 
-func Add(left TerminalExpression, right TerminalExpression) (*BinaryArithmeticExpression, error) {
+func Add(left TerminalExpression, right TerminalExpression) *BinaryArithmeticExpression {
 	instruction, err := interpreter.NewAddInstruction(left.GetValue())
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
 	if left.Kind() == right.Kind() {
-
 		return &BinaryArithmeticExpression{
 			BinaryArithmetic: add,
 			instruction:instruction,
 			left:             left,
 			right:            right,
-		}, err
+		}
 	}
 
-	return nil, fmt.Errorf("mismatch of types %T %T", left, right)
+	panic(fmt.Sprintf("mismatch of types %T %T", left, right))
 }
 
-func Divide(left TerminalExpression, right TerminalExpression) (*BinaryArithmeticExpression, error) {
+func Divide(left TerminalExpression, right TerminalExpression) *BinaryArithmeticExpression {
 	instruction, err := interpreter.NewDivideInstruction(left.GetValue())
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
 	if left.Kind() == right.Kind() {
-
 		return &BinaryArithmeticExpression{
 			BinaryArithmetic: divide,
 			instruction:instruction,
 			left:             left,
 			right:            right,
-		}, err
+		}
 	}
 
-	return nil, fmt.Errorf("mismatch of types %T %T", left, right)
+	panic(fmt.Sprintf("mismatch of types %T %T", left, right))
 }
 
-func Modulo(left TerminalExpression, right TerminalExpression) (*BinaryArithmeticExpression, error) {
+func Modulo(left TerminalExpression, right TerminalExpression) *BinaryArithmeticExpression {
 	instruction, err := interpreter.NewModuloInstruction(left.GetValue())
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
 	if left.Kind() == right.Kind() {
-
 		return &BinaryArithmeticExpression{
 			BinaryArithmetic: modulo,
 			instruction:instruction,
 			left:             left,
 			right:            right,
-		}, err
+		}
 	}
 
-	return nil, fmt.Errorf("mismatch of types %T %T", left, right)
+	panic(fmt.Sprintf("mismatch of types %T %T", left, right))
 }
 
-func Multiply(left TerminalExpression, right TerminalExpression) (*BinaryArithmeticExpression, error) {
+func Multiply(left TerminalExpression, right TerminalExpression) *BinaryArithmeticExpression {
 	instruction, err := interpreter.NewMultiplyInstruction(left.GetValue())
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
 	if left.Kind() == right.Kind() {
-
 		return &BinaryArithmeticExpression{
 			BinaryArithmetic: multiply,
 			instruction:instruction,
 			left:             left,
 			right:            right,
-		}, err
+		}
 	}
 
-	return nil, fmt.Errorf("mismatch of types %T %T", left, right)
+	panic(fmt.Sprintf("mismatch of types %T %T", left, right))
 }
 
-func Power(left TerminalExpression, right TerminalExpression) (*BinaryArithmeticExpression, error) {
+func Power(left TerminalExpression, right TerminalExpression) *BinaryArithmeticExpression {
 	instruction, err := interpreter.NewPowerInstruction(left.GetValue())
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
 	if left.Kind() == right.Kind() {
-
 		return &BinaryArithmeticExpression{
 			BinaryArithmetic: power,
 			instruction:instruction,
 			left:             left,
 			right:            right,
-		}, err
+		}
 	}
 
-	return nil, fmt.Errorf("mismatch of types %T %T", left, right)
+	panic(fmt.Sprintf("mismatch of types %T %T", left, right))
 }
 
-func Subtract(left TerminalExpression, right TerminalExpression) (*BinaryArithmeticExpression, error) {
+func Subtract(left TerminalExpression, right TerminalExpression) *BinaryArithmeticExpression {
 	instruction, err := interpreter.NewSubtractInstruction(left.GetValue())
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
 	if left.Kind() == right.Kind() {
-
 		return &BinaryArithmeticExpression{
 			BinaryArithmetic: subtract,
 			instruction:      instruction,
 			left:             left,
 			right:            right,
-		}, err
+		}
 	}
 
-	return nil, fmt.Errorf("mismatch of types %T %T", left, right)
+	panic(fmt.Sprintf("mismatch of types %T %T", left, right))
 }

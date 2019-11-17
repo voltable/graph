@@ -2,8 +2,8 @@ package interpreter
 
 import (
 	"fmt"
-
 	"github.com/voltable/graph/expressions/stack"
+	"reflect"
 )
 
 type AddInstruction struct {
@@ -13,34 +13,42 @@ type AddInstruction struct {
 func NewAddInstruction(i interface{}) (*AddInstruction, error) {
 	var op operation
 
-	switch i.(type) {
-	case int8:
+	var kind reflect.Kind
+
+	if k, ok := i.(reflect.Kind); ok {
+		kind = k
+	} else {
+		kind = reflect.TypeOf(i).Kind()
+	}
+
+	switch kind {
+	case reflect.Int8:
 		op = addInt8
-	case uint8:
+	case reflect.Uint8:
 		op = addUInt8
-	case int16:
+	case reflect.Int16:
 		op = addInt16
-	case uint16:
+	case reflect.Uint16:
 		op = addUInt16
-	case int32:
+	case reflect.Int32:
 		op = addInt32
-	case uint32:
+	case reflect.Uint32:
 		op = addUInt32
-	case int64:
+	case reflect.Int64:
 		op = addInt64
-	case uint64:
+	case reflect.Uint64:
 		op = addUInt64
-	case int:
+	case reflect.Int:
 		op = addInt
-	case uint:
+	case reflect.Uint:
 		op = addUInt
-	case float32:
+	case reflect.Float32:
 		op = addFloat32
-	case float64:
+	case reflect.Float64:
 		op = addFloat64
-	case complex64:
+	case reflect.Complex64:
 		op = addComplex64
-	case complex128:
+	case reflect.Complex128:
 		op = addComplex128
 	default:
 		return nil, fmt.Errorf("unsupport type %T", i)

@@ -21,14 +21,8 @@ func TestLogicalBinaryExpression_String(t *testing.T) {
 		{
 			name: "Equal",
 			args:args{
-				left: func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
-				right:  func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
+				left: expressions.Constant(1),
+				right: expressions.Constant(1),
 				expression : expressions.Equal,
 			},
 			want: "(1 = 1)",
@@ -36,14 +30,8 @@ func TestLogicalBinaryExpression_String(t *testing.T) {
 		{
 			name: "NotEqual",
 			args:args{
-				left: func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
-				right:  func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
+				left:expressions.Constant(1) ,
+				right: expressions.Constant(1) ,
 				expression : expressions.NotEqual,
 			},
 			want: "(1 <> 1)",
@@ -51,14 +39,8 @@ func TestLogicalBinaryExpression_String(t *testing.T) {
 		{
 			name: "LessThan",
 			args:args{
-				left: func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
-				right:  func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
+				left:expressions.Constant(1) ,
+				right: expressions.Constant(1) ,
 				expression : expressions.LessThan,
 			},
 			want: "(1 < 1)",
@@ -66,14 +48,8 @@ func TestLogicalBinaryExpression_String(t *testing.T) {
 		{
 			name: "LessThanOrEqual",
 			args:args{
-				left: func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
-				right:  func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
+				left:expressions.Constant(1),
+				right: expressions.Constant(1),
 				expression : expressions.LessThanOrEqual,
 			},
 			want: "(1 <= 1)",
@@ -81,14 +57,8 @@ func TestLogicalBinaryExpression_String(t *testing.T) {
 		{
 			name: "GreaterThan",
 			args:args{
-				left: func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
-				right:  func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
+				left: expressions.Constant(1),
+				right: expressions.Constant(1),
 				expression : expressions.GreaterThan,
 			},
 			want: "(1 > 1)",
@@ -96,14 +66,8 @@ func TestLogicalBinaryExpression_String(t *testing.T) {
 		{
 			name: "GreaterThanOrEqual",
 			args:args{
-				left: func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
-				right:  func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
+				left: expressions.Constant(1),
+				right: expressions.Constant(1),
 				expression : expressions.GreaterThanOrEqual,
 			},
 			want: "(1 >= 1)",
@@ -111,14 +75,8 @@ func TestLogicalBinaryExpression_String(t *testing.T) {
 		{
 			name: "IsNil",
 			args:args{
-				left: func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
-				right:  func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
+				left: expressions.Constant(1),
+				right:  expressions.Constant(1) ,
 				expression : expressions.IsNil,
 			},
 			want: "(1 IS NULL 1)",
@@ -126,14 +84,8 @@ func TestLogicalBinaryExpression_String(t *testing.T) {
 		{
 			name: "IsNotNil",
 			args:args{
-				left: func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
-				right:  func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
+				left: expressions.Constant(1),
+				right: expressions.Constant(1),
 				expression : expressions.IsNotNil,
 			},
 			want: "(1 IS NOT NULL 1)",

@@ -2,12 +2,20 @@ package expressions
 
 import "reflect"
 
-var _ Expression = (*ParameterExpression)(nil)
+var _ TerminalExpression = (*ParameterExpression)(nil)
 
 // A ParameterExpression node represents a parameter expression.
 type ParameterExpression  struct {
 	name string
 	kind reflect.Kind
+}
+
+func (p *ParameterExpression) GetValue() interface{} {
+	return p.kind
+}
+
+func (p *ParameterExpression) Compile() func() {
+	panic("implement me")
 }
 
 func (p *ParameterExpression) String() string {
@@ -39,23 +47,16 @@ func (p *ParameterExpression) GetName() string {
 	return p.name
 }
 
-func Parameter(i interface{}, name string) (*ParameterExpression, error) {
-	if i == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
-	}
+func Parameter(kind reflect.Kind, name string) *ParameterExpression {
 	return &ParameterExpression{
-		kind: reflect.TypeOf(i).Kind(),
+		kind: kind,
 		name: name,
-	}, nil
+	}
 }
 
-func Variable(i interface{}, name string) (*ParameterExpression, error) {
-	if i == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
-	}
-
+func Variable(kind reflect.Kind, name string) *ParameterExpression {
 	return &ParameterExpression{
-		kind: reflect.TypeOf(i).Kind(),
+		kind: kind,
 		name: name,
-	}, nil
+	}
 }

@@ -14,6 +14,10 @@ type BooleanExpression struct {
 	right Expression // right operand
 }
 
+func (b *BooleanExpression) Compile() func() {
+	panic("implement me")
+}
+
 func (b *BooleanExpression) String() string {
 	return ExpressionToString(b)
 }
@@ -42,7 +46,7 @@ func (b *BooleanExpression) Type() Binary {
 	return Binary(b.Boolean)
 }
 
-func (b *BooleanExpression) Update(left TerminalExpression, conversion *LambdaExpression, right TerminalExpression) (BinaryExpression, error) {
+func (b *BooleanExpression) Update(left TerminalExpression, conversion *LambdaExpression, right TerminalExpression) BinaryExpression {
 	return baseUpdate(b, left, conversion, right)
 }
 
@@ -91,51 +95,51 @@ func BooleanPrecedence(item BooleanExpression) int {
 	return 20
 }
 
-func And(left, right TerminalExpression) (*BooleanExpression, error) {
+func And(left, right TerminalExpression) *BooleanExpression {
 	if left == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
 
 	if right == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
 
 	return &BooleanExpression{
 		Boolean: and,
 		left: left,
 		right: right,
-	}, nil
+	}
 }
 
-func Or(left, right TerminalExpression) (*BooleanExpression, error) {
+func Or(left, right TerminalExpression) *BooleanExpression {
 	if left == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
 
 	if right == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
 
 	return &BooleanExpression{
 		Boolean: or,
 		left: left,
 		right: right,
-	}, nil
+	}
 }
 
 
-func Xor(left, right TerminalExpression) (*BooleanExpression, error) {
+func Xor(left, right TerminalExpression) *BooleanExpression {
 	if left == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
 
 	if right == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
 
 	return &BooleanExpression{
 		Boolean: xor,
 		left: left,
 		right: right,
-	}, nil
+	}
 }

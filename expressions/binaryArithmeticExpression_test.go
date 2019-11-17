@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-type arithmeticExpression func(left expressions.TerminalExpression, right expressions.TerminalExpression) (*expressions.BinaryArithmeticExpression, error)
+type arithmeticExpression func(left expressions.TerminalExpression, right expressions.TerminalExpression) *expressions.BinaryArithmeticExpression
 
 func TestBinaryArithmeticExpression_String(t *testing.T) {
 	type args struct {
@@ -21,14 +21,8 @@ func TestBinaryArithmeticExpression_String(t *testing.T) {
 		{
 			name: "Add",
 			args:args{
-				left: func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
-				right:  func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
+				left: expressions.Constant(1),
+				right:  expressions.Constant(1),
 				expression : expressions.Add,
 			},
 			want: "(1 + 1)",
@@ -36,14 +30,8 @@ func TestBinaryArithmeticExpression_String(t *testing.T) {
 		{
 			name: "Divide",
 			args:args{
-				left: func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
-				right:  func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
+				left: expressions.Constant(1),
+				right:  expressions.Constant(1),
 				expression : expressions.Divide,
 			},
 			want: "(1 / 1)",
@@ -51,14 +39,8 @@ func TestBinaryArithmeticExpression_String(t *testing.T) {
 		{
 			name: "Modulo",
 			args:args{
-				left: func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
-				right:  func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
+				left: expressions.Constant(1),
+				right:  expressions.Constant(1),
 				expression : expressions.Modulo,
 			},
 			want: "(1 % 1)",
@@ -66,14 +48,8 @@ func TestBinaryArithmeticExpression_String(t *testing.T) {
 		{
 			name: "Multiply",
 			args:args{
-				left: func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
-				right:  func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
+				left:  expressions.Constant(1) ,
+				right: expressions.Constant(1) ,
 				expression : expressions.Multiply,
 			},
 			want: "(1 * 1)",
@@ -81,14 +57,8 @@ func TestBinaryArithmeticExpression_String(t *testing.T) {
 		{
 			name: "Power",
 			args:args{
-				left: func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
-				right:  func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
+				left:  expressions.Constant(1),
+				right: expressions.Constant(1) ,
 				expression : expressions.Power,
 			},
 			want: "(1 ^ 1)",
@@ -96,14 +66,8 @@ func TestBinaryArithmeticExpression_String(t *testing.T) {
 		{
 			name: "Subtract",
 			args:args{
-				left: func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
-				right:  func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
+				left:  expressions.Constant(1),
+				right:  expressions.Constant(1),
 				expression : expressions.Subtract,
 			},
 			want: "(1 - 1)",
@@ -113,7 +77,7 @@ func TestBinaryArithmeticExpression_String(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			got, _ := tt.args.expression(tt.args.left, tt.args.right)
+			got := tt.args.expression(tt.args.left, tt.args.right)
 			
 			if got := got.String(); got != tt.want {
 				t.Errorf("String() = %v, want %v", got, tt.want)

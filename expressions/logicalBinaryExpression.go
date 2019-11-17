@@ -7,55 +7,59 @@ import (
 
 var _ BinaryExpression = (*LogicalBinaryExpression)(nil)
 
-func (LogicalBinaryExpression) binary() {}
-
 type LogicalBinaryExpression struct {
 	Logical
 	left  Expression // left operand
 	right Expression // right operand
 }
 
-func (e LogicalBinaryExpression) String() string {
+func (e LogicalBinaryExpression) Compile() func() {
+	panic("implement me")
+}
+
+func (*LogicalBinaryExpression) binary() {}
+
+func (e *LogicalBinaryExpression) String() string {
 	return ExpressionToString(e)
 }
 
-func (e LogicalBinaryExpression) Reduce() (Expression, error) {
+func (e *LogicalBinaryExpression) Reduce() (Expression, error) {
 	return e, nil
 }
 
-func (e LogicalBinaryExpression) ReduceAndCheck() (Expression, error) {
+func (e *LogicalBinaryExpression) ReduceAndCheck() (Expression, error) {
 	return baseReduceAndCheck(e)
 }
 
-func (e LogicalBinaryExpression) Accept(visitor ExpressionVisitor) (Expression, error) {
+func (e *LogicalBinaryExpression) Accept(visitor ExpressionVisitor) (Expression, error) {
 	return visitor.VisitBinary(e)
 }
 
-func (e LogicalBinaryExpression) VisitChildren(visitor ExpressionVisitor) (Expression, error) {
+func (e *LogicalBinaryExpression) VisitChildren(visitor ExpressionVisitor) (Expression, error) {
 	return baseVisitChildren(e, visitor)
 }
 
-func (e LogicalBinaryExpression) Kind() reflect.Kind {
+func (e *LogicalBinaryExpression) Kind() reflect.Kind {
 	return reflect.Bool
 }
 
-func (e LogicalBinaryExpression) GetLeft() Expression {
+func (e *LogicalBinaryExpression) GetLeft() Expression {
 	return e.left
 }
 
-func (e LogicalBinaryExpression) GetRight() Expression {
+func (e *LogicalBinaryExpression) GetRight() Expression {
 	return  e.right
 }
 
-func (e LogicalBinaryExpression) Type() Binary {
+func (e *LogicalBinaryExpression) Type() Binary {
 	return Binary(e.Logical)
 }
 
-func (e LogicalBinaryExpression) Update(left TerminalExpression, conversion *LambdaExpression, right TerminalExpression) (BinaryExpression, error) {
+func (e *LogicalBinaryExpression) Update(left TerminalExpression, conversion *LambdaExpression, right TerminalExpression) BinaryExpression {
 	return baseUpdate(e, left, conversion, right)
 }
 
-func (e LogicalBinaryExpression) GetConversion() *LambdaExpression {
+func (e *LogicalBinaryExpression) GetConversion() *LambdaExpression {
 	return nil
 }
 

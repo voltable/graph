@@ -2,12 +2,13 @@ package expressions_test
 
 import (
 	"github.com/voltable/graph/expressions"
+	"reflect"
 	"testing"
 )
 
 func TestParameterExpression_String(t *testing.T) {
 	type args struct {
-		i interface{}
+		i reflect.Kind
 		name string
 	}
 	tests := []struct {
@@ -18,17 +19,17 @@ func TestParameterExpression_String(t *testing.T) {
 		{
 			name: "No name",
 			want: "Param_0",
-			args:args{i: "1", name: ""},
+			args:args{i: reflect.Int, name: ""},
 		},
 		{
 			name: "Named",
 			want: "test",
-			args:args{i: "1", name: "test"},
+			args:args{i: reflect.Int, name: "test"},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p, _ := expressions.Parameter(tt.args.i, tt.args.name)
+			p := expressions.Parameter(tt.args.i, tt.args.name)
 			if got := p.String(); got != tt.want {
 				t.Errorf("String() = %v, want %v", got, tt.want)
 			}

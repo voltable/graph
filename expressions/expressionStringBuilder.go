@@ -21,6 +21,45 @@ func NewExpressionStringBuilder() *ExpressionStringBuilder{
 	}
 }
 
+
+func (s *ExpressionStringBuilder) VisitLambda(expr *LambdaExpression) (Expression, error) {
+	if len(expr.parameters) == 1 {
+		_, err := s.Visit(expr.parameters[0])
+		if err != nil {
+			return nil, err
+		}
+
+	} else {
+		err := s.VisitExpressions("(", expr.parameters, ")", ",")
+		if err != nil {
+			return nil, err
+		}
+	}
+	s.Out(" => ")
+	_, err := s.Visit(expr.body)
+	if err != nil {
+		return nil, err
+	}
+	return expr, nil
+}
+
+func (s *ExpressionStringBuilder) VisitExpressions(open string, expressions []*ParameterExpression, close, seperator string) error {
+	s.Out(open)
+	isFirst := true
+	for _, expr := range expressions {
+		if isFirst {
+			isFirst = false
+		} else {
+			s.Out(seperator)
+		}
+		_, err := s.Visit(expr)
+		if err != nil {
+			return err
+		}
+	}
+	s.Out(close)
+	return nil
+}
 func (s *ExpressionStringBuilder) VisitBinary(expr BinaryExpression) (Expression, error) {
 	op := ""
 	switch expr.Type() {
@@ -75,11 +114,20 @@ func (s *ExpressionStringBuilder) VisitBinary(expr BinaryExpression) (Expression
 	}
 
 	s.Out("(")
-	s.Visit(expr.GetLeft())
+	_, err:= s.Visit(expr.GetLeft())
+	if err != nil {
+		return nil, err
+	}
+
 	s.Out(" ")
 	s.Out(op)
 	s.Out(" ")
-	s.Visit(expr.GetRight())
+
+	_, err = s.Visit(expr.GetRight())
+	if err != nil {
+		return nil, err
+	}
+
 	s.Out(")")
 
 	return expr, nil
@@ -122,14 +170,29 @@ func (s *ExpressionStringBuilder) VisitConstant(expr *ConstantExpression) (Expre
 }
 
 func (s *ExpressionStringBuilder) VisitConditional(expr *ConditionalExpression) (Expression, error) {
-	s.Out("IIF(")
-	s.Visit(expr.GetTest())
+	s.Out("IF(")
+
+	_, err := s.Visit(expr.GetTest())
+	if err != nil {
+		return nil, err
+	}
+
 	s.Out(", ")
-	s.Visit(expr.GetIfTrue())
+
+	_, err = s.Visit(expr.GetIfTrue())
+	if err != nil {
+		return nil, err
+	}
+
 	s.Out(", ")
-	s.Visit(expr.GetIfFalse())
+
+	_, err = s.Visit(expr.GetIfFalse())
+	if err != nil {
+		return nil, err
+	}
+
 	s.Out(")")
-	return baseVisitConditional(s, expr)
+	return expr, nil
 }
 
 

@@ -2,6 +2,8 @@ package expressions
 
 import "reflect"
 
+var _ Expression = (*ConditionalExpression)(nil)
+
 // ConditionalExpression represents an expression that has a conditional operator.
 type ConditionalExpression struct {
 	test Expression
@@ -10,11 +12,13 @@ type ConditionalExpression struct {
 	kind reflect.Kind
 }
 
+func (s *ConditionalExpression) Compile() func() {
+	panic("implement me")
+}
+
 func (s *ConditionalExpression) String() string {
 	return ExpressionToString(s)
 }
-
-var _ Expression = (*ConditionalExpression)(nil)
 
 func (s *ConditionalExpression) Kind() reflect.Kind {
 	return s.kind
@@ -33,9 +37,9 @@ func (s *ConditionalExpression) GetIfFalse() Expression {
 }
 
 
-func (s *ConditionalExpression) Update(test, ifTrue, ifFalse Expression) (Expression, error) {
+func (s *ConditionalExpression) Update(test, ifTrue, ifFalse Expression) Expression {
 	if test == s.test && ifTrue == s.ifTrue && ifFalse == s.ifFalse {
-		return s, nil
+		return s
 	}
 	return Condition(test, ifTrue, ifFalse)
 }
@@ -57,28 +61,28 @@ func (s *ConditionalExpression) VisitChildren(visitor ExpressionVisitor) (Expres
 }
 
 // Condition creates a ConditionalExpression.
-func Condition(test, ifTrue, ifFalse Expression) (*ConditionalExpression, error) {
-	if ifTrue.Kind() != reflect.Bool {
-		return nil, ArgumentMustBeBoolean
+func Condition(test, ifTrue, ifFalse Expression) *ConditionalExpression {
+	if test.Kind() != reflect.Bool {
+		panic(ArgumentMustBeBoolean)
 	}
 
 	if ifTrue.Kind() != ifFalse.Kind() {
-		return nil, ArgumentTypesMustMatch
+		panic(ArgumentTypesMustMatch)
 	}
 
 	return &ConditionalExpression{
 		test: test,
 		ifTrue: ifTrue,
 		ifFalse:ifFalse,
-	}, nil
+	}
 }
 
 // IfThen condition creates a ConditionalExpression.
-func IfThen(test, ifTrue Expression)  (*ConditionalExpression, error) {
+func IfThen(test, ifTrue Expression)  *ConditionalExpression {
 	return Condition(test, ifTrue, Empty())
 }
 
 // IfThenElse condition creates a ConditionalExpression.
-func IfThenElse(test, ifTrue, ifFalse Expression)  (*ConditionalExpression, error) {
+func IfThenElse(test, ifTrue, ifFalse Expression)  *ConditionalExpression {
 	return Condition(test, ifTrue, ifFalse)
 }

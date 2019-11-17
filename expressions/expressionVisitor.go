@@ -12,6 +12,7 @@ type ExpressionVisitor interface{
 	VisitConstant(expr *ConstantExpression) (Expression, error)
 	VisitConditional(expr *ConditionalExpression) (Expression, error)
 	VisitBinary(expr BinaryExpression) (Expression, error)
+	VisitLambda(expr *LambdaExpression)(Expression, error)
 }
 
 func baseVisit(base ExpressionVisitor, expr Expression) (Expression, error) {
@@ -50,7 +51,7 @@ func baseVisitConditional(base ExpressionVisitor, expr *ConditionalExpression) (
 		return nil, err
 	}
 
-	return expr.Update(test, ifTrue, ifFalse)
+	return expr.Update(test, ifTrue, ifFalse), nil
 }
 
 
@@ -76,10 +77,7 @@ func baseVisitBinary(base ExpressionVisitor, expr BinaryExpression) (Expression,
 	if lambda, ok := conversion.(*LambdaExpression); ok {
 
 		var after BinaryExpression
-		after, err = expr.Update(left.(TerminalExpression), lambda, right.(TerminalExpression))
-		if err != nil {
-			return nil, err
-		}
+		after = expr.Update(left.(TerminalExpression), lambda, right.(TerminalExpression))
 
 		return validateBinary(expr, after)
 	}
@@ -108,4 +106,25 @@ func validateChildType(before, after reflect.Kind, name string) error {
 	}
 
 	return errors.Wrap(MustRewriteChildToSameType, name)
+}
+
+func baseVisitLambda(base ExpressionVisitor, expr *LambdaExpression) (Expression, error) {
+	body, err := base.Visit(expr.body)
+	if err != nil {
+		return nil, err
+	}
+
+	parameters := make([]*ParameterExpression, 0)
+	for _, parameter:= range expr.parameters {
+		p, err := base.Visit(parameter)
+		if err != nil {
+			return nil, err
+		}
+
+		if pe,  ok := p.(*ParameterExpression); ok {
+			parameters = append(parameters, pe)
+		}
+	}
+
+	return expr.Update(body, parameters), nil
 }

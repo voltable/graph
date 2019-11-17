@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-type booleanExpression func(left expressions.TerminalExpression, right expressions.TerminalExpression) (*expressions.BooleanExpression, error)
+type booleanExpression func(left expressions.TerminalExpression, right expressions.TerminalExpression) *expressions.BooleanExpression
 
 
 func TestBooleanExpression_String(t *testing.T) {
@@ -22,14 +22,8 @@ func TestBooleanExpression_String(t *testing.T) {
 		{
 			name: "And",
 			args:args{
-				left: func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
-				right:  func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
+				left: expressions.Constant(1) ,
+				right: expressions.Constant(1),
 				expression : expressions.And,
 			},
 			want: "(1 & 1)",
@@ -37,14 +31,8 @@ func TestBooleanExpression_String(t *testing.T) {
 		{
 			name: "Or",
 			args:args{
-				left: func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
-				right:  func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
+				left: expressions.Constant(1) ,
+				right:  expressions.Constant(1),
 				expression : expressions.Or,
 			},
 			want: "(1 | 1)",
@@ -52,14 +40,8 @@ func TestBooleanExpression_String(t *testing.T) {
 		{
 			name: "Xor",
 			args:args{
-				left: func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
-				right:  func() expressions.TerminalExpression {
-					c, _ := expressions.Constant(1)
-					return c
-				}() ,
+				left:  expressions.Constant(1),
+				right: expressions.Constant(1) ,
 				expression : expressions.Xor,
 			},
 			want: "(1 ^ 1)",
@@ -67,7 +49,7 @@ func TestBooleanExpression_String(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, _ := tt.args.expression(tt.args.left, tt.args.right)
+			got := tt.args.expression(tt.args.left, tt.args.right)
 			if got := got.String(); got != tt.want {
 				t.Errorf("String() = %v, want %v", got, tt.want)
 			}
