@@ -14,7 +14,7 @@ type BooleanExpression struct {
 	right Expression // right operand
 }
 
-func (b *BooleanExpression) Compile() func() {
+func (b *BooleanExpression) Compile() Delegate {
 	panic("implement me")
 }
 
@@ -22,19 +22,19 @@ func (b *BooleanExpression) String() string {
 	return ExpressionToString(b)
 }
 
-func (b *BooleanExpression) Reduce() (Expression, error) {
+func (b *BooleanExpression) Reduce() Expression {
 	return baseReduce(b)
 }
 
-func (b *BooleanExpression) ReduceAndCheck() (Expression, error) {
+func (b *BooleanExpression) ReduceAndCheck() Expression {
 	return baseReduceAndCheck(b)
 }
 
-func (b *BooleanExpression) Accept(visitor ExpressionVisitor) (Expression, error) {
+func (b *BooleanExpression) Accept(visitor ExpressionVisitor) Expression {
 	return visitor.VisitBinary(b)
 }
 
-func (b *BooleanExpression) VisitChildren(visitor ExpressionVisitor) (Expression, error) {
+func (b *BooleanExpression) VisitChildren(visitor ExpressionVisitor) Expression {
 	return baseVisitChildren(b, visitor)
 }
 

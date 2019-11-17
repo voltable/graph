@@ -13,7 +13,7 @@ type LogicalBinaryExpression struct {
 	right Expression // right operand
 }
 
-func (e LogicalBinaryExpression) Compile() func() {
+func (e LogicalBinaryExpression) Compile() Delegate {
 	panic("implement me")
 }
 
@@ -23,19 +23,19 @@ func (e *LogicalBinaryExpression) String() string {
 	return ExpressionToString(e)
 }
 
-func (e *LogicalBinaryExpression) Reduce() (Expression, error) {
-	return e, nil
+func (e *LogicalBinaryExpression) Reduce() Expression {
+	return e
 }
 
-func (e *LogicalBinaryExpression) ReduceAndCheck() (Expression, error) {
+func (e *LogicalBinaryExpression) ReduceAndCheck() Expression {
 	return baseReduceAndCheck(e)
 }
 
-func (e *LogicalBinaryExpression) Accept(visitor ExpressionVisitor) (Expression, error) {
+func (e *LogicalBinaryExpression) Accept(visitor ExpressionVisitor) Expression {
 	return visitor.VisitBinary(e)
 }
 
-func (e *LogicalBinaryExpression) VisitChildren(visitor ExpressionVisitor) (Expression, error) {
+func (e *LogicalBinaryExpression) VisitChildren(visitor ExpressionVisitor) Expression {
 	return baseVisitChildren(e, visitor)
 }
 

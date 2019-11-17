@@ -12,27 +12,29 @@ type LambdaExpression struct {
 	parameters []*ParameterExpression
 }
 
-func (l *LambdaExpression) Compile() func() {
-	panic("implement me")
+func (l *LambdaExpression) Compile() Delegate {
+	return func(params []interface{}) {
+
+	}
 }
 
 func (l *LambdaExpression) String() string {
 	return ExpressionToString(l)
 }
 
-func (l *LambdaExpression) Reduce() (Expression, error) {
+func (l *LambdaExpression) Reduce() Expression {
 	return baseReduce(l)
 }
 
-func (l *LambdaExpression) ReduceAndCheck() (Expression, error) {
+func (l *LambdaExpression) ReduceAndCheck() Expression {
 	return baseReduceAndCheck(l)
 }
 
-func (l *LambdaExpression) Accept(visitor ExpressionVisitor) (Expression, error) {
+func (l *LambdaExpression) Accept(visitor ExpressionVisitor) Expression {
 	return visitor.VisitLambda(l)
 }
 
-func (l *LambdaExpression) VisitChildren(visitor ExpressionVisitor) (Expression, error) {
+func (l *LambdaExpression) VisitChildren(visitor ExpressionVisitor) Expression {
 	return baseVisitChildren(l, visitor)
 }
 

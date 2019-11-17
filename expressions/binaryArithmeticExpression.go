@@ -19,7 +19,7 @@ type BinaryArithmeticExpression struct {
 	right Expression // right operand
 }
 
-func (b *BinaryArithmeticExpression) Compile() func() {
+func (b *BinaryArithmeticExpression) Compile() Delegate {
 	panic("implement me")
 }
 
@@ -35,19 +35,19 @@ func (b *BinaryArithmeticExpression) Update(left TerminalExpression, conversion 
 	return baseUpdate(b, left, conversion, right)
 }
 
-func (b *BinaryArithmeticExpression) Reduce() (Expression, error) {
+func (b *BinaryArithmeticExpression) Reduce() Expression {
 	return baseReduce(b)
 }
 
-func (b *BinaryArithmeticExpression) ReduceAndCheck() (Expression, error) {
+func (b *BinaryArithmeticExpression) ReduceAndCheck() Expression {
 	return baseReduceAndCheck(b)
 }
 
-func (b *BinaryArithmeticExpression) Accept(visitor ExpressionVisitor) (Expression, error) {
+func (b *BinaryArithmeticExpression) Accept(visitor ExpressionVisitor) Expression {
 	return visitor.VisitBinary(b)
 }
 
-func (b *BinaryArithmeticExpression) VisitChildren(visitor ExpressionVisitor) (Expression, error) {
+func (b *BinaryArithmeticExpression) VisitChildren(visitor ExpressionVisitor) Expression {
 	return baseVisitChildren(b, visitor)
 }
 

@@ -6,98 +6,70 @@ import (
 )
 
 type ExpressionVisitor interface{
-	Visit(expr Expression) (Expression, error)
-	VisitExtension(expr Expression) (Expression, error)
-	VisitParameter(expr *ParameterExpression) (Expression, error)
-	VisitConstant(expr *ConstantExpression) (Expression, error)
-	VisitConditional(expr *ConditionalExpression) (Expression, error)
-	VisitBinary(expr BinaryExpression) (Expression, error)
-	VisitLambda(expr *LambdaExpression)(Expression, error)
+	Visit(expr Expression) Expression
+	VisitExtension(expr Expression) Expression
+	VisitParameter(expr *ParameterExpression) Expression
+	VisitConstant(expr *ConstantExpression) Expression
+	VisitConditional(expr *ConditionalExpression) Expression
+	VisitBinary(expr BinaryExpression) Expression
+	VisitLambda(expr *LambdaExpression)Expression
 }
 
-func baseVisit(base ExpressionVisitor, expr Expression) (Expression, error) {
+func baseVisit(base ExpressionVisitor, expr Expression) Expression {
 	if expr != nil {
 		return expr.Accept(base)
 	}
-	return nil, nil
+	return nil
 }
 
-func baseVisitParameter(base ExpressionVisitor, expr *ParameterExpression) (Expression, error) {
-	return expr, nil
+func baseVisitParameter(base ExpressionVisitor, expr *ParameterExpression) Expression {
+	return expr
 }
 
-
-func baseVisitExtension(base ExpressionVisitor, expr Expression) (Expression, error) {
+func baseVisitExtension(base ExpressionVisitor, expr Expression) Expression {
 	return expr.VisitChildren(base)
 }
 
-func baseVisitConstant(base ExpressionVisitor, expr Expression) (Expression, error) {
-	return expr, nil
+func baseVisitConstant(base ExpressionVisitor, expr Expression) Expression {
+	return expr
 }
 
-func baseVisitConditional(base ExpressionVisitor, expr *ConditionalExpression) (Expression, error) {
-	test, err := base.Visit(expr.GetTest())
-	if err != nil {
-		return nil, err
-	}
-
-	ifTrue, err := base.Visit(expr.GetIfTrue())
-	if err != nil {
-		return nil, err
-	}
-
-	ifFalse, err := base.Visit(expr.GetIfFalse())
-	if err != nil {
-		return nil, err
-	}
-
-	return expr.Update(test, ifTrue, ifFalse), nil
+func baseVisitConditional(base ExpressionVisitor, expr *ConditionalExpression) Expression {
+	test := base.Visit(expr.GetTest())
+	ifTrue:= base.Visit(expr.GetIfTrue())
+	ifFalse := base.Visit(expr.GetIfFalse())
+	return expr.Update(test, ifTrue, ifFalse)
 }
 
 
 // baseVisitBinary Visits the children of the BinaryExpression node
-func baseVisitBinary(base ExpressionVisitor, expr BinaryExpression) (Expression, error) {
+func baseVisitBinary(base ExpressionVisitor, expr BinaryExpression) Expression {
 	// Walk children in evaluation order: left, conversion, right
-	left, err := base.Visit(expr.GetLeft())
-	if err != nil {
-		return nil, err
-	}
+	conversion := base.Visit(expr.GetConversion())
 
-	var right Expression
-	right, err = base.Visit(expr.GetRight())
-	if err != nil {
-		return nil, err
-	}
-
-	var conversion Expression
-	conversion, err = base.Visit(expr.GetConversion())
-	if err != nil {
-		return nil, err
-	}
 	if lambda, ok := conversion.(*LambdaExpression); ok {
-
-		var after BinaryExpression
-		after = expr.Update(left.(TerminalExpression), lambda, right.(TerminalExpression))
-
+		left := base.Visit(expr.GetLeft())
+		right := base.Visit(expr.GetRight())
+		after := expr.Update(left.(TerminalExpression), lambda, right.(TerminalExpression))
 		return validateBinary(expr, after)
 	}
 
-	return nil, ArgumentTypesMustBeLambda
+	panic(ArgumentTypesMustBeLambda)
 }
 
-func validateBinary(before, after BinaryExpression) (BinaryExpression, error) {
+func validateBinary(before, after BinaryExpression) BinaryExpression {
 	if before != after {
 		err := validateChildType(before.GetLeft().Kind(), after.GetLeft().Kind(), "VisitBinary")
 		if err != nil {
-			return nil, err
+			panic(err)
 		}
 
 		err = validateChildType(before.GetRight().Kind(), after.GetRight().Kind(), "VisitBinary")
 		if err != nil {
-			return nil, err
+			panic(err)
 		}
 	}
-	return after, nil
+	return after
 }
 
 func validateChildType(before, after reflect.Kind, name string) error {
@@ -108,23 +80,14 @@ func validateChildType(before, after reflect.Kind, name string) error {
 	return errors.Wrap(MustRewriteChildToSameType, name)
 }
 
-func baseVisitLambda(base ExpressionVisitor, expr *LambdaExpression) (Expression, error) {
-	body, err := base.Visit(expr.body)
-	if err != nil {
-		return nil, err
-	}
-
+func baseVisitLambda(base ExpressionVisitor, expr *LambdaExpression) Expression {
 	parameters := make([]*ParameterExpression, 0)
 	for _, parameter:= range expr.parameters {
-		p, err := base.Visit(parameter)
-		if err != nil {
-			return nil, err
-		}
-
+		p := base.Visit(parameter)
 		if pe,  ok := p.(*ParameterExpression); ok {
 			parameters = append(parameters, pe)
 		}
 	}
 
-	return expr.Update(body, parameters), nil
+	return expr.Update(base.Visit(expr.body), parameters)
 }

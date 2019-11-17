@@ -14,7 +14,7 @@ func (p *ParameterExpression) GetValue() interface{} {
 	return p.kind
 }
 
-func (p *ParameterExpression) Compile() func() {
+func (p *ParameterExpression) Compile() Delegate {
 	panic("implement me")
 }
 
@@ -27,19 +27,19 @@ func (p *ParameterExpression) Kind() reflect.Kind {
 }
 
 
-func (p *ParameterExpression) ReduceAndCheck() (Expression, error) {
+func (p *ParameterExpression) ReduceAndCheck() Expression {
 	return baseReduceAndCheck(p)
 }
 
-func (p *ParameterExpression) VisitChildren(visitor ExpressionVisitor) (Expression, error) {
+func (p *ParameterExpression) VisitChildren(visitor ExpressionVisitor) Expression {
 	return baseVisitChildren(p, visitor)
 }
 
-func (p *ParameterExpression) Reduce() (Expression, error) {
+func (p *ParameterExpression) Reduce() Expression {
 	return baseReduce(p)
 }
 
-func (p *ParameterExpression) Accept(visitor ExpressionVisitor) (Expression, error) {
+func (p *ParameterExpression) Accept(visitor ExpressionVisitor) Expression {
 	return visitor.VisitParameter(p)
 }
 

@@ -12,7 +12,7 @@ type ConditionalExpression struct {
 	kind reflect.Kind
 }
 
-func (s *ConditionalExpression) Compile() func() {
+func (s *ConditionalExpression) Compile() Delegate {
 	panic("implement me")
 }
 
@@ -44,19 +44,19 @@ func (s *ConditionalExpression) Update(test, ifTrue, ifFalse Expression) Express
 	return Condition(test, ifTrue, ifFalse)
 }
 
-func (s *ConditionalExpression) Reduce() (Expression, error) {
+func (s *ConditionalExpression) Reduce() Expression {
 	return baseReduce(s)
 }
 
-func (s *ConditionalExpression) ReduceAndCheck() (Expression, error) {
+func (s *ConditionalExpression) ReduceAndCheck() Expression {
 	return baseReduceAndCheck(s)
 }
 
-func (s *ConditionalExpression) Accept(visitor ExpressionVisitor) (Expression, error) {
+func (s *ConditionalExpression) Accept(visitor ExpressionVisitor) Expression {
 	return visitor.VisitConditional(s)
 }
 
-func (s *ConditionalExpression) VisitChildren(visitor ExpressionVisitor) (Expression, error) {
+func (s *ConditionalExpression) VisitChildren(visitor ExpressionVisitor) Expression {
 	return baseVisitChildren(s, visitor)
 }
 

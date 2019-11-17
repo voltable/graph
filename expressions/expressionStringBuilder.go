@@ -6,13 +6,12 @@ import (
 	"strconv"
 )
 
+var _ ExpressionVisitor = (*ExpressionStringBuilder)(nil)
+
 type ExpressionStringBuilder struct {
 	ids map[interface{}]int
 	output string
 }
-
-
-var _ ExpressionVisitor = (*ExpressionStringBuilder)(nil)
 
 func NewExpressionStringBuilder() *ExpressionStringBuilder{
 	return &ExpressionStringBuilder{
@@ -21,29 +20,21 @@ func NewExpressionStringBuilder() *ExpressionStringBuilder{
 	}
 }
 
-
-func (s *ExpressionStringBuilder) VisitLambda(expr *LambdaExpression) (Expression, error) {
+func (s *ExpressionStringBuilder) VisitLambda(expr *LambdaExpression) Expression {
 	if len(expr.parameters) == 1 {
-		_, err := s.Visit(expr.parameters[0])
-		if err != nil {
-			return nil, err
-		}
+		s.Visit(expr.parameters[0])
 
 	} else {
-		err := s.VisitExpressions("(", expr.parameters, ")", ",")
-		if err != nil {
-			return nil, err
-		}
+		s.VisitExpressions("(", expr.parameters, ")", ",")
+
 	}
 	s.Out(" => ")
-	_, err := s.Visit(expr.body)
-	if err != nil {
-		return nil, err
-	}
-	return expr, nil
+	s.Visit(expr.body)
+
+	return expr
 }
 
-func (s *ExpressionStringBuilder) VisitExpressions(open string, expressions []*ParameterExpression, close, seperator string) error {
+func (s *ExpressionStringBuilder) VisitExpressions(open string, expressions []*ParameterExpression, close, seperator string)  {
 	s.Out(open)
 	isFirst := true
 	for _, expr := range expressions {
@@ -52,15 +43,12 @@ func (s *ExpressionStringBuilder) VisitExpressions(open string, expressions []*P
 		} else {
 			s.Out(seperator)
 		}
-		_, err := s.Visit(expr)
-		if err != nil {
-			return err
-		}
+		s.Visit(expr)
 	}
 	s.Out(close)
-	return nil
 }
-func (s *ExpressionStringBuilder) VisitBinary(expr BinaryExpression) (Expression, error) {
+
+func (s *ExpressionStringBuilder) VisitBinary(expr BinaryExpression) Expression {
 	op := ""
 	switch expr.Type() {
 	case Binary(add):
@@ -110,49 +98,40 @@ func (s *ExpressionStringBuilder) VisitBinary(expr BinaryExpression) (Expression
 			op = "^"
 		}
 	default:
-		return nil, InvalidBinaryOperations
+		panic(InvalidBinaryOperations)
 	}
 
 	s.Out("(")
-	_, err:= s.Visit(expr.GetLeft())
-	if err != nil {
-		return nil, err
-	}
-
+	s.Visit(expr.GetLeft())
 	s.Out(" ")
 	s.Out(op)
 	s.Out(" ")
-
-	_, err = s.Visit(expr.GetRight())
-	if err != nil {
-		return nil, err
-	}
-
+	s.Visit(expr.GetRight())
 	s.Out(")")
 
-	return expr, nil
+	return expr
 }
 
-func (s *ExpressionStringBuilder) Visit(expr Expression) (Expression, error) {
+func (s *ExpressionStringBuilder) Visit(expr Expression) Expression {
 	return baseVisit(s, expr)
 }
 
-func (s *ExpressionStringBuilder) VisitExtension(expr Expression) (Expression, error) {
+func (s *ExpressionStringBuilder) VisitExtension(expr Expression) Expression {
 	s.Out(expr.String())
-	return expr, nil
+	return expr
 }
 
-func (s *ExpressionStringBuilder) VisitParameter(expr *ParameterExpression) (Expression, error) {
+func (s *ExpressionStringBuilder) VisitParameter(expr *ParameterExpression) Expression {
 	if expr.GetName() == emptyString {
 		id := s.GetParamId(expr)
 		s.Out("Param_" + strconv.Itoa(id))
 	} else {
 		s.Out(expr.GetName())
 	}
-	return expr, nil
+	return expr
 }
 
-func (s *ExpressionStringBuilder) VisitConstant(expr *ConstantExpression) (Expression, error) {
+func (s *ExpressionStringBuilder) VisitConstant(expr *ConstantExpression) Expression {
 	if expr.GetValue() != nil {
 		sValue := fmt.Sprint(expr.GetValue())
 		if _, ok := expr.GetValue().(string); ok {
@@ -166,35 +145,19 @@ func (s *ExpressionStringBuilder) VisitConstant(expr *ConstantExpression) (Expre
 		s.Out("nil")
 	}
 
-	return expr, nil
+	return expr
 }
 
-func (s *ExpressionStringBuilder) VisitConditional(expr *ConditionalExpression) (Expression, error) {
+func (s *ExpressionStringBuilder) VisitConditional(expr *ConditionalExpression) Expression {
 	s.Out("IF(")
-
-	_, err := s.Visit(expr.GetTest())
-	if err != nil {
-		return nil, err
-	}
-
+	s.Visit(expr.GetTest())
 	s.Out(", ")
-
-	_, err = s.Visit(expr.GetIfTrue())
-	if err != nil {
-		return nil, err
-	}
-
+	s.Visit(expr.GetIfTrue())
 	s.Out(", ")
-
-	_, err = s.Visit(expr.GetIfFalse())
-	if err != nil {
-		return nil, err
-	}
-
+	s.Visit(expr.GetIfFalse())
 	s.Out(")")
-	return expr, nil
+	return expr
 }
-
 
 func (s *ExpressionStringBuilder)AddLabel(label LabelTarget) {
 	if _, ok := s.ids[label]; !ok {

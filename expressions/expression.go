@@ -6,23 +6,25 @@ import "reflect"
 type Expression  interface {
 	//ExpressionVisitor
 	// Reduces the expression node to a simpler expression.
-	Reduce() (Expression, error)
+	Reduce() Expression
 
 	//ReduceAndCheck this expression node to a simpler expression
-	ReduceAndCheck() (Expression, error)
+	ReduceAndCheck() Expression
 
 	// Accept visitor to visit this expression node with.
-	Accept(visitor ExpressionVisitor) (Expression, error)
+	Accept(visitor ExpressionVisitor) Expression
 
 	// VisitChildren reduces the expression node and then calls the visitor delegate on the reduced expression.
-	VisitChildren(visitor ExpressionVisitor) (Expression, error)
+	VisitChildren(visitor ExpressionVisitor) Expression
 
 	Kind() reflect.Kind
 
 	String() string
 
-	Compile() func()
+	Compile() Delegate
 }
+
+type Delegate func([]interface{})
 
 // baseCanReduce indicates whether the expression can be reduced.
 func baseCanReduce(base Expression) bool {
@@ -33,50 +35,43 @@ func baseCanReduce(base Expression) bool {
 	return true
 }
 
-func baseReduceAndCheck(base Expression) (Expression, error) {
+func baseReduceAndCheck(base Expression) Expression {
 	if !baseCanReduce(base) {
-		return nil, MustBeReducible
+		panic(MustBeReducible)
 	}
 
-	newNode, err := base.Reduce()
-	if err != nil {
-		return nil, err
-	}
+	newNode := base.Reduce()
 
 	if newNode == nil {
 		if newNode == base {
-			return nil, MustReduceToDifferent
+			panic(MustReduceToDifferent)
 		}
 	}
 
 	if !AreReferenceAssignable(base, newNode) {
-		return nil, ReducedNotCompatible
+		panic(ReducedNotCompatible)
 	}
 
-	return newNode, nil
+	return newNode
 }
 
-func baseReduce(base Expression) (Expression, error) {
+func baseReduce(base Expression) Expression {
 	if baseCanReduce(base) {
-		return nil, ReducibleMustOverrideReduce
+		panic(ReducibleMustOverrideReduce)
 	}
 
-	return base, nil
+	return base
 }
 
-func baseVisitChildren(base Expression, visitor ExpressionVisitor) (Expression, error) {
+func baseVisitChildren(base Expression, visitor ExpressionVisitor) Expression  {
 	if !baseCanReduce(base) {
-		return nil, MustBeReducible
+		panic(MustBeReducible)
 	}
 
-	expr, err := base.ReduceAndCheck()
-	if err != nil {
-		return nil, err
-	}
-
+	expr := base.ReduceAndCheck()
 	return visitor.Visit(expr)
 }
 
-func baseAccept(base Expression, visitor ExpressionVisitor) (Expression, error) {
+func baseAccept(base Expression, visitor ExpressionVisitor) Expression {
 	return visitor.VisitExtension(base)
 }
