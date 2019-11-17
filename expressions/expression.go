@@ -20,11 +20,7 @@ type Expression  interface {
 	Kind() reflect.Kind
 
 	String() string
-
-	Compile() Delegate
 }
-
-type Delegate func([]interface{})
 
 // baseCanReduce indicates whether the expression can be reduced.
 func baseCanReduce(base Expression) bool {

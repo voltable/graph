@@ -7,10 +7,6 @@ var _ Expression = (*DefaultExpression)(nil)
 type DefaultExpression struct {
 }
 
-func (d *DefaultExpression) Compile() Delegate {
-	panic("implement me")
-}
-
 func (d *DefaultExpression) String() string {
 	return ExpressionToString(d)
 }

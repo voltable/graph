@@ -10,12 +10,12 @@ type ParameterExpression  struct {
 	kind reflect.Kind
 }
 
-func (p *ParameterExpression) GetValue() interface{} {
-	return p.kind
+func EmptyParameterExpression() []*ParameterExpression {
+	return make([]*ParameterExpression, 0)
 }
 
-func (p *ParameterExpression) Compile() Delegate {
-	panic("implement me")
+func (p *ParameterExpression) GetValue() interface{} {
+	return p.kind
 }
 
 func (p *ParameterExpression) String() string {
@@ -25,7 +25,6 @@ func (p *ParameterExpression) String() string {
 func (p *ParameterExpression) Kind() reflect.Kind {
 	return p.kind
 }
-
 
 func (p *ParameterExpression) ReduceAndCheck() Expression {
 	return baseReduceAndCheck(p)

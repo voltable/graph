@@ -10,10 +10,6 @@ type ConstantExpression struct {
 	kind reflect.Kind
 }
 
-func (s *ConstantExpression) Compile() Delegate {
-	panic("implement me")
-}
-
 func (s *ConstantExpression) Kind() reflect.Kind {
 	return s.kind
 }

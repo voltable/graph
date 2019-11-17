@@ -14,10 +14,6 @@ type BooleanExpression struct {
 	right Expression // right operand
 }
 
-func (b *BooleanExpression) Compile() Delegate {
-	panic("implement me")
-}
-
 func (b *BooleanExpression) String() string {
 	return ExpressionToString(b)
 }

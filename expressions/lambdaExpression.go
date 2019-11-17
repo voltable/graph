@@ -12,10 +12,10 @@ type LambdaExpression struct {
 	parameters []*ParameterExpression
 }
 
-func (l *LambdaExpression) Compile() Delegate {
-	return func(params []interface{}) {
+type Delegate func([]interface{}) interface{}
 
-	}
+func (l *LambdaExpression) Compile() Delegate {
+	return Compile(l)
 }
 
 func (l *LambdaExpression) String() string {

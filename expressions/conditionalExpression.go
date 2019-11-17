@@ -12,10 +12,6 @@ type ConditionalExpression struct {
 	kind reflect.Kind
 }
 
-func (s *ConditionalExpression) Compile() Delegate {
-	panic("implement me")
-}
-
 func (s *ConditionalExpression) String() string {
 	return ExpressionToString(s)
 }

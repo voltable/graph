@@ -19,10 +19,6 @@ type BinaryArithmeticExpression struct {
 	right Expression // right operand
 }
 
-func (b *BinaryArithmeticExpression) Compile() Delegate {
-	panic("implement me")
-}
-
 func (b *BinaryArithmeticExpression) String() string {
 	return ExpressionToString(b)
 }

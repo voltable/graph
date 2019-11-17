@@ -13,10 +13,6 @@ type LogicalBinaryExpression struct {
 	right Expression // right operand
 }
 
-func (e LogicalBinaryExpression) Compile() Delegate {
-	panic("implement me")
-}
-
 func (*LogicalBinaryExpression) binary() {}
 
 func (e *LogicalBinaryExpression) String() string {
