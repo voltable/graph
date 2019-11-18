@@ -1,9 +1,7 @@
-package expressions_test
+package expressions
 
 import (
 	"testing"
-
-	"github.com/voltable/graph/expressions"
 )
 
 func Test_XORSwap(t *testing.T) {
@@ -23,7 +21,7 @@ func Test_XORSwap(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		result := expressions.XORSwap(tt.a)
+		result := XORSwap(tt.a)
 		if result != tt.result {
 			t.Errorf("%d. xor:\n  exp=%v\n  got=%v\n\n", i, tt.result, result)
 		}
@@ -60,7 +58,7 @@ func Test_XOR(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		result := expressions.XORExclusive(tt.a, tt.b)
+		result := XORExclusive(tt.a, tt.b)
 		if result != tt.result {
 			t.Errorf("%d. xor:\n  exp=%v\n  got=%v\n\n", i, tt.result, result)
 		}

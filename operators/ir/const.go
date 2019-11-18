@@ -1,0 +1,3 @@
+package ir
+
+const EmptyString = ""

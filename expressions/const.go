@@ -1,0 +1,3 @@
+package expressions
+
+const emptyString = ""

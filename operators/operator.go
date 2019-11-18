@@ -1,6 +1,8 @@
 package operators
 
-import "github.com/voltable/graph/widecolumnstore"
+import (
+	"github.com/voltable/graph/widecolumnstore"
+)
 
 // Operator usually have 0, 1, or 2 arguments
 type Operator interface {
