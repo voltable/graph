@@ -7,11 +7,11 @@ import (
 )
 
 type ModuloInstruction struct {
-	modulo operation
+	modulo Operation
 }
 
 func NewModuloInstruction(i interface{}) (*ModuloInstruction, error) {
-	var op operation
+	var op Operation
 
 	switch i.(type) {
 	case int8:
@@ -43,8 +43,8 @@ func NewModuloInstruction(i interface{}) (*ModuloInstruction, error) {
 	}, nil
 }
 
-func (s *ModuloInstruction) Run(stack *stack.Stack) error {
-	return fetch(stack, s.modulo)
+func (s *ModuloInstruction) Run(stack *stack.Stack)  {
+	Fetch(stack, s.modulo)
 }
 
 func moduloInt8(left interface{}, right interface{}, stack *stack.Stack, index int) {

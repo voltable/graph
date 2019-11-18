@@ -23,12 +23,8 @@ func (b *BinaryArithmeticExpression) String() string {
 	return ExpressionToString(b)
 }
 
-func (b *BinaryArithmeticExpression) GetConversion() *LambdaExpression {
-	return nil
-}
-
-func (b *BinaryArithmeticExpression) Update(left TerminalExpression, conversion *LambdaExpression, right TerminalExpression) BinaryExpression {
-	return baseUpdate(b, left, conversion, right)
+func (b *BinaryArithmeticExpression) Update(left, right TerminalExpression) BinaryExpression {
+	return baseUpdate(b, left, right)
 }
 
 func (b *BinaryArithmeticExpression) Reduce() Expression {
@@ -66,8 +62,8 @@ func (b *BinaryArithmeticExpression) GetRight() Expression {
 }
 
 
-func (b *BinaryArithmeticExpression)Interpret(stack *stack.Stack) error {
-	return b.instruction.Run(stack)
+func (b *BinaryArithmeticExpression)Interpret(s *stack.Stack) {
+	b.instruction.Run(s)
 }
 
 func Add(left TerminalExpression, right TerminalExpression) *BinaryArithmeticExpression {

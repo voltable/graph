@@ -42,13 +42,10 @@ func (b *BooleanExpression) Type() Binary {
 	return Binary(b.Boolean)
 }
 
-func (b *BooleanExpression) Update(left TerminalExpression, conversion *LambdaExpression, right TerminalExpression) BinaryExpression {
-	return baseUpdate(b, left, conversion, right)
+func (b *BooleanExpression) Update(left, right TerminalExpression) BinaryExpression {
+	return baseUpdate(b, left,  right)
 }
 
-func (b *BooleanExpression) GetConversion() *LambdaExpression {
-	return nil
-}
 
 // NewBooleanExpr creates a BooleanExpr
 func NewBooleanExpr(boolean Boolean, left Expression, right Expression) *BooleanExpression {

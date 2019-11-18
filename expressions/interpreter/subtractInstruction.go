@@ -7,11 +7,11 @@ import (
 )
 
 type SubtractInstruction struct {
-	subtract operation
+	subtract Operation
 }
 
 func NewSubtractInstruction(i interface{}) (*SubtractInstruction, error) {
-	var op operation
+	var op Operation
 
 	switch i.(type) {
 	case int8:
@@ -51,8 +51,8 @@ func NewSubtractInstruction(i interface{}) (*SubtractInstruction, error) {
 	}, nil
 }
 
-func (s *SubtractInstruction) Run(stack *stack.Stack) error {
-	return fetch(stack, s.subtract)
+func (s *SubtractInstruction) Run(stack *stack.Stack) {
+	Fetch(stack, s.subtract)
 }
 
 func subtractInt8(left interface{}, right interface{}, stack *stack.Stack, index int) {

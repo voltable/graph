@@ -7,11 +7,11 @@ import (
 )
 
 type DivideInstruction struct {
-	divide operation
+	divide Operation
 }
 
 func NewDivideInstruction(i interface{}) (*DivideInstruction, error) {
-	var op operation
+	var op Operation
 
 	switch i.(type) {
 	case int8:
@@ -51,8 +51,8 @@ func NewDivideInstruction(i interface{}) (*DivideInstruction, error) {
 	}, nil
 }
 
-func (s *DivideInstruction) Run(stack *stack.Stack) error {
-	return fetch(stack, s.divide)
+func (s *DivideInstruction) Run(stack *stack.Stack)  {
+	Fetch(stack, s.divide)
 }
 
 func divideInt8(left interface{}, right interface{}, stack *stack.Stack, index int) {

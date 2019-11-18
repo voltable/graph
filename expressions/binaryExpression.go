@@ -7,19 +7,18 @@ type BinaryExpression interface {
 	NonTerminalExpression
 	binary()
 	Type() Binary
-	Update(left TerminalExpression, conversion *LambdaExpression, right TerminalExpression) BinaryExpression
-	GetConversion() *LambdaExpression
+	Update(left, right TerminalExpression) BinaryExpression
 }
 
-func baseUpdate(b BinaryExpression, left TerminalExpression, conversion *LambdaExpression, right TerminalExpression) BinaryExpression {
-	if left == b.GetLeft() && right == b.GetRight() && conversion == b.GetConversion() {
+func baseUpdate(b BinaryExpression, left, right TerminalExpression) BinaryExpression {
+	if left == b.GetLeft() && right == b.GetRight()  {
 		return b
 	}
 
-	return makeBinary(b.Type(), left, right, conversion)
+	return makeBinary(b.Type(), left, right)
 }
 
-func makeBinary(t Binary, left, right TerminalExpression, conversion *LambdaExpression) BinaryExpression{
+func makeBinary(t Binary, left, right TerminalExpression) BinaryExpression{
 	switch t {
 	case Binary(add):
 		return Add(left, right)

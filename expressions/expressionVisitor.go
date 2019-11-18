@@ -45,16 +45,12 @@ func baseVisitConditional(base ExpressionVisitor, expr *ConditionalExpression) E
 // baseVisitBinary Visits the children of the BinaryExpression node
 func baseVisitBinary(base ExpressionVisitor, expr BinaryExpression) Expression {
 	// Walk children in evaluation order: left, conversion, right
-	conversion := base.Visit(expr.GetConversion())
 
-	if lambda, ok := conversion.(*LambdaExpression); ok {
-		left := base.Visit(expr.GetLeft())
-		right := base.Visit(expr.GetRight())
-		after := expr.Update(left.(TerminalExpression), lambda, right.(TerminalExpression))
-		return validateBinary(expr, after)
-	}
+	left := base.Visit(expr.GetLeft())
+	right := base.Visit(expr.GetRight())
+	after := expr.Update(left.(TerminalExpression), right.(TerminalExpression))
+	return validateBinary(expr, after)
 
-	panic(ArgumentTypesMustBeLambda)
 }
 
 func validateBinary(before, after BinaryExpression) BinaryExpression {

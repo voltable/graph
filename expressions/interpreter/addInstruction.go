@@ -7,11 +7,11 @@ import (
 )
 
 type AddInstruction struct {
-	add operation
+	add Operation
 }
 
 func NewAddInstruction(i interface{}) (*AddInstruction, error) {
-	var op operation
+	var op Operation
 
 	var kind reflect.Kind
 
@@ -59,8 +59,8 @@ func NewAddInstruction(i interface{}) (*AddInstruction, error) {
 	}, nil
 }
 
-func (s *AddInstruction) Run(stack *stack.Stack) error {
-	return fetch(stack, s.add)
+func (s *AddInstruction) Run(stack *stack.Stack)  {
+	Fetch(stack, s.add)
 }
 
 func addInt8(left interface{}, right interface{}, stack *stack.Stack, index int) {

@@ -7,11 +7,11 @@ import (
 )
 
 type MultiplyInstruction struct {
-	multiply operation
+	multiply Operation
 }
 
 func NewMultiplyInstruction(i interface{}) (*MultiplyInstruction, error) {
-	var op operation
+	var op Operation
 
 	switch i.(type) {
 	case int8:
@@ -51,8 +51,8 @@ func NewMultiplyInstruction(i interface{}) (*MultiplyInstruction, error) {
 	}, nil
 }
 
-func (s *MultiplyInstruction) Run(stack *stack.Stack) error {
-	return fetch(stack, s.multiply)
+func (s *MultiplyInstruction) Run(stack *stack.Stack) {
+	Fetch(stack, s.multiply)
 }
 
 func multiplyInt8(left interface{}, right interface{}, stack *stack.Stack, index int) {

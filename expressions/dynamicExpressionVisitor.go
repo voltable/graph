@@ -1,12 +1,18 @@
 package expressions
 
+import "github.com/voltable/graph/expressions/stack"
+
 var _ ExpressionVisitor = (*DynamicExpressionVisitor )(nil)
 
 type DynamicExpressionVisitor  struct {
+	stack *stack.Stack
+	params []interface{}
 }
 
-func NewDynamicExpressionVisitor () *DynamicExpressionVisitor {
+func NewDynamicExpressionVisitor (params  []interface{}) *DynamicExpressionVisitor {
 	return &DynamicExpressionVisitor {
+		params:params,
+		stack: &stack.Stack{},
 	}
 }
 
@@ -15,7 +21,13 @@ func (s *DynamicExpressionVisitor ) VisitLambda(expr *LambdaExpression) Expressi
 }
 
 func (s *DynamicExpressionVisitor ) VisitBinary(expr BinaryExpression) Expression {
-	return baseVisitBinary(s, expr)
+	expression := baseVisitBinary(s, expr)
+	switch v := expression.(type) {
+	case *BinaryArithmeticExpression:
+		v.Interpret(s.stack)
+	}
+
+	return expression
 }
 
 func (s *DynamicExpressionVisitor ) Visit(expr Expression) Expression {
@@ -31,9 +43,15 @@ func (s *DynamicExpressionVisitor ) VisitParameter(expr *ParameterExpression) Ex
 }
 
 func (s *DynamicExpressionVisitor ) VisitConstant(expr *ConstantExpression) Expression {
+	s.stack.Push(expr.GetValue())
 	return expr
 }
 
 func (s *DynamicExpressionVisitor ) VisitConditional(expr *ConditionalExpression) Expression {
 	return baseVisitConditional(s, expr)
+}
+
+func (s *DynamicExpressionVisitor) Result() interface{} {
+
+	return s.stack.Pop()
 }

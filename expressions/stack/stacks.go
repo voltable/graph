@@ -15,7 +15,7 @@ func (s *Stack) Push(v interface{})  {
 // Pop removes the last item on the Stack and returns it
 func (s *Stack) Pop() interface{} {
 	s.Index--
-	if s.Index > 0 {
+	if s.Index >= 0 {
 		expr := s.Data[s.Index]
 		s.Data = s.Data[:s.Index]
 		return expr
@@ -27,7 +27,7 @@ func (s *Stack) Pop() interface{} {
 // Peek returns the last item on the Stack without removing it
 func (s Stack) Peek() interface{} {
 	top := s.Index - 1
-	if top > 0 {
+	if top >= 0 {
 		return s.Data[top]
 	}
 	return nil

@@ -15,7 +15,11 @@ type LambdaExpression struct {
 type Delegate func([]interface{}) interface{}
 
 func (l *LambdaExpression) Compile() Delegate {
-	return Compile(l)
+	return func(params []interface{}) interface{}{
+		builder := NewDynamicExpressionVisitor(params)
+		builder.Visit(l)
+		return builder.Result()
+	}
 }
 
 func (l *LambdaExpression) String() string {

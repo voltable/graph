@@ -7,11 +7,11 @@ import (
 )
 
 type PowerInstruction struct {
-	power operation
+	power Operation
 }
 
 func NewPowerInstruction(i interface{}) (*PowerInstruction, error) {
-	var op operation
+	var op Operation
 
 	switch i.(type) {
 	case int8:
@@ -43,8 +43,8 @@ func NewPowerInstruction(i interface{}) (*PowerInstruction, error) {
 	}, nil
 }
 
-func (s *PowerInstruction) Run(stack *stack.Stack) error {
-	return fetch(stack, s.power)
+func (s *PowerInstruction) Run(stack *stack.Stack) {
+	Fetch(stack, s.power)
 }
 
 func powerInt8(left interface{}, right interface{}, stack *stack.Stack, index int) {

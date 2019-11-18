@@ -2,10 +2,10 @@ package interpreter
 
 import "github.com/voltable/graph/expressions/stack"
 
-type operation func(left interface{}, right interface{}, stack *stack.Stack, index int)
+type Operation func(left interface{}, right interface{}, stack *stack.Stack, index int)
 
 
-func fetch(stack *stack.Stack, op operation) error {
+func Fetch(stack *stack.Stack, op Operation)  {
 	index := stack.Index
 	left := stack.Data[index-2]
 	if left != nil {
@@ -18,6 +18,4 @@ func fetch(stack *stack.Stack, op operation) error {
 	}
 
 	stack.Index = index - 1
-
-	return nil
 }

@@ -51,14 +51,9 @@ func (e *LogicalBinaryExpression) Type() Binary {
 	return Binary(e.Logical)
 }
 
-func (e *LogicalBinaryExpression) Update(left TerminalExpression, conversion *LambdaExpression, right TerminalExpression) BinaryExpression {
-	return baseUpdate(e, left, conversion, right)
+func (e *LogicalBinaryExpression) Update(left, right TerminalExpression) BinaryExpression {
+	return baseUpdate(e, left, right)
 }
-
-func (e *LogicalBinaryExpression) GetConversion() *LambdaExpression {
-	return nil
-}
-
 
 func Equal(left, right TerminalExpression) (*LogicalBinaryExpression, error) {
 	if left == nil {

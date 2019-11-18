@@ -85,3 +85,39 @@ func TestBinaryArithmeticExpression_String(t *testing.T) {
 		})
 	}
 }
+
+
+func TestBinaryArithmeticExpression(t *testing.T) {
+	type args struct {
+		i interface{}
+
+		left            expressions.TerminalExpression
+		right           expressions.TerminalExpression
+		expression		arithmeticExpression
+	}
+	tests := []struct {
+		name string
+		args args
+		want interface{}
+	}{
+		{
+			name: "Int",
+			args:args{
+				left:  expressions.Constant(1),
+				right: expressions.Constant(1) ,
+				expression : expressions.Add,
+			},
+			want: 2,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := expressions.Lambda(tt.args.expression(tt.args.left, tt.args.right), expressions.EmptyParameterExpression()...)
+			f := got.Compile()
+			result := f(nil)
+			if result != tt.want {
+				t.Errorf("Constant() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
