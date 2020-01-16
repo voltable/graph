@@ -1,7 +1,6 @@
 package openCypher
 
 import (
-	"fmt"
 	"github.com/voltable/graph"
 	"github.com/voltable/graph/operators"
 	"github.com/voltable/graph/operators/ir"
@@ -9,24 +8,24 @@ import (
 )
 
 type QueryPlanner struct {
-	ir  StackExpr
-	storage widecolumnstore.Storage
+	ir         StackExpr
+	storage    widecolumnstore.Storage
 	statistics *graph.Statistics
-	plan *ExecutionPlan
-	results *operators.ProduceResults
+	plan       *ExecutionPlan
 }
 
+func NewQueryPlanner(storage widecolumnstore.Storage, statistics *graph.Statistics, stack StackExpr) *QueryPlanner {
+	queryPlanner := &QueryPlanner{}
 
-
-func NewQueryPlanner(storage widecolumnstore.Storage, statistics *graph.Statistics, stack StackExpr) (queryPlanner QueryPlanner) {
 	var n interface{}
-	plan:= NewExecutionPlan()
+	plan := NewExecutionPlan()
 	key := 0
 
 	for stack, n = stack.pop(); n != nil; stack, n = stack.pop() {
 		if k, ok := n.(*ir.Return); ok {
 			op, _ := operators.NewProduceResults(storage, statistics, k)
-			queryPlanner.results = op
+			plan.Add(op)
+
 		}
 		if k, ok := n.(*ir.Match); ok {
 			if k.Pattern != nil {
@@ -49,31 +48,30 @@ func NewQueryPlanner(storage widecolumnstore.Storage, statistics *graph.Statisti
 	}
 
 	queryPlanner.plan = plan
-	return
+	return queryPlanner
 }
 
-
-func (s *QueryPlanner)  Execute() *graph.Table{
+func (s *QueryPlanner) Execute() *graph.Table {
 
 	results := graph.NewTable()
-	var last operators.Operator
-	s.plan.PreOrderTraverse(func(operator operators.Operator, variable ir.Variable) {
-		result = append(result, fmt.Sprintf("%+v %s", operator, variable))
+	//var last operators.Operator
+	// s.plan.PreOrderTraverse(func(operator operators.Operator, variable ir.Variable) {
+	// 	result = append(result, fmt.Sprintf("%+v %s", operator, variable))
 
-	})
+	// })
 
-	//var iterator widecolumnstore.Iterator
-	//for _, op := range s.plan {
-	//	if create, ok := op.(*operators.Create); ok {
-	//		iterator = create.Next()
-	//	}
-	//	if allNodesScan, ok := op.(*operators.AllNodesScan); ok {
-	//		iterator = allNodesScan.Next()
-	//	}
-	//	if produceResults, ok := op.(*operators.ProduceResults); ok {
-	//		results = produceResults.Next(iterator)
-	//	}
-	//}
+	var iterator widecolumnstore.Iterator
+	for _, op := range s.plan.Operators() {
+		if create, ok := op.(*operators.Create); ok {
+			iterator = create.Next()
+		}
+		if allNodesScan, ok := op.(*operators.AllNodesScan); ok {
+			iterator = allNodesScan.Next()
+		}
+		if produceResults, ok := op.(*operators.ProduceResults); ok {
+			results = produceResults.Next(iterator)
+		}
+	}
 
 	return results
 }

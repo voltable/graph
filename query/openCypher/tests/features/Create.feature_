@@ -59,7 +59,7 @@ Feature: Create
      And the side effects should be:
        | +nodes         | 2 |
        | +relationships | 1 |
-#
+
    Scenario: Creating a node with a label
      Given an empty graph
      When executing query:

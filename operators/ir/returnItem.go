@@ -1,8 +1,6 @@
 package ir
 
-import "github.com/voltable/graph/expressions"
-
 type ReturnItem struct {
-	Expression expressions.Expression
+	Expression *Expression
 	Variable   Variable
 }

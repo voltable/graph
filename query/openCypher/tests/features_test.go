@@ -10,7 +10,7 @@ import (
 	features "github.com/voltable/graph/query/openCypher/tests"
 )
 
-func TestMain(m *testing.M) {
+func Test_Features(m *testing.T) {
 	status := godog.RunWithOptions("godogs", func(s *godog.Suite) {
 		features.FeatureContext(s)
 	}, godog.Options{
@@ -22,8 +22,5 @@ func TestMain(m *testing.M) {
 		Strict:        true,
 	})
 
-	if st := m.Run(); st > status {
-		status = st
-	}
 	os.Exit(status)
 }

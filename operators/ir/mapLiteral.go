@@ -6,12 +6,12 @@ import (
 )
 
 type MapLiteral struct {
-	Items map[Key]*expressions.Expression
+	Items map[Key]expressions.Expression
 }
 
 func NewMapLiteral() *MapLiteral {
 	return &MapLiteral{
-		Items: make(map[Key]*expressions.Expression, 0),
+		Items: make(map[Key]expressions.Expression, 0),
 	}
 }
 
@@ -24,6 +24,7 @@ func (s MapLiteral) String() string {
 	for key, value := range s.Items {
 		buffer.WriteString(string(key))
 		buffer.WriteString(": ")
+
 		buffer.WriteString(value.String())
 		if i != max {
 			buffer.WriteString(", ")

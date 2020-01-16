@@ -16,12 +16,11 @@ type cypherWalker struct {
 	*parser.BaseCypherListener
 	errors []antlr.ErrorNode
 	stack  StackExpr
-
 }
 
 func newCypherWalker() cypherWalker {
 	return cypherWalker{
-		stack:   StackExpr{},
+		stack: StackExpr{},
 	}
 }
 
@@ -64,13 +63,13 @@ func (l *cypherWalker) ExitOC_ReturnItem(c *parser.OC_ReturnItemContext) {
 	}
 
 	var variable ir.Variable
-	var expression  *expressions.Expression
+	var expression *ir.Expression
 
 	for n := l.stack.top(); NotReturnItem(n); n = l.stack.top() {
 		l.stack, _ = l.stack.pop()
 		if k, ok := n.(ir.Variable); ok {
 			variable = k
-		} else if k, ok := n.(*expressions.Expression); ok {
+		} else if k, ok := n.(*ir.Expression); ok {
 			expression = k
 		}
 	}
@@ -78,14 +77,14 @@ func (l *cypherWalker) ExitOC_ReturnItem(c *parser.OC_ReturnItemContext) {
 	item := l.stack.top().(*ir.ReturnItem)
 	item.Variable = variable
 	if expression != nil {
-		item.Expression = *expression
+		item.Expression = expression
 	}
 }
 
 func (l *cypherWalker) ExitOC_Expression(c *parser.OC_ExpressionContext) {
 	var n interface{}
 	l.stack, n = l.stack.pop()
-	l.stack = l.stack.push(&expressions.Expression{Value: n})
+	l.stack = l.stack.push(ir.NewExpression(n))
 }
 
 func (l *cypherWalker) EnterOC_Match(c *parser.OC_MatchContext) {
@@ -152,7 +151,7 @@ func (l *cypherWalker) ExitOC_PatternPart(c *parser.OC_PatternPartContext) {
 			variable = k
 		} else if k, ok := n.(*ir.Node); ok {
 			nodes = append(nodes, k)
-		} else if  k, ok := n.(*ir.Relationship); ok {
+		} else if k, ok := n.(*ir.Relationship); ok {
 			relationships = append(relationships, k)
 		}
 	}
@@ -206,7 +205,7 @@ func (l *cypherWalker) ExitOC_NodePattern(c *parser.OC_NodePatternContext) {
 			variable = k
 		} else if k, ok := n.(ir.Label); ok {
 			label = k
-		} else if k, ok := n.(*ir.Properties); ok{
+		} else if k, ok := n.(*ir.Properties); ok {
 			properties = k
 		}
 	}
@@ -237,7 +236,7 @@ func (l *cypherWalker) ExitOC_RelationshipPattern(c *parser.OC_RelationshipPatte
 			variable = k
 		} else if k, ok := n.(ir.Type); ok {
 			typeName = k
-		}else if k, ok := n.(*ir.Properties); ok{
+		} else if k, ok := n.(*ir.Properties); ok {
 			properties = k
 		}
 	}
@@ -252,14 +251,14 @@ func (l *cypherWalker) EnterOC_LabelName(c *parser.OC_LabelNameContext) {
 	s := c.OC_SchemaName().(*parser.OC_SchemaNameContext)
 	sn := s.OC_SymbolicName().(*parser.OC_SymbolicNameContext)
 	labelName := sn.UnescapedSymbolicName().GetText()
-	l.stack = l.stack.push( ir.Label(labelName))
+	l.stack = l.stack.push(ir.Label(labelName))
 }
 
 func (l *cypherWalker) EnterOC_RelTypeName(c *parser.OC_RelTypeNameContext) {
 	s := c.OC_SchemaName().(*parser.OC_SchemaNameContext)
 	sn := s.OC_SymbolicName().(*parser.OC_SymbolicNameContext)
 	typeName := sn.UnescapedSymbolicName().GetText()
-	l.stack = l.stack.push( ir.Type(typeName))
+	l.stack = l.stack.push(ir.Type(typeName))
 }
 
 func (l *cypherWalker) EnterOC_Variable(c *parser.OC_VariableContext) {
@@ -273,8 +272,8 @@ func (l *cypherWalker) EnterOC_MapLiteral(c *parser.OC_MapLiteralContext) {
 }
 
 func (l *cypherWalker) ExitOC_MapLiteral(c *parser.OC_MapLiteralContext) {
-	var expression *expressions.Expression
-	items := make(map[ir.Key]*expressions.Expression, 0)
+	var expression expressions.Expression
+	items := make(map[ir.Key]expressions.Expression, 0)
 
 	NotMapLiteral := func(n interface{}) bool {
 		_, ok := n.(*ir.MapLiteral)
@@ -285,7 +284,7 @@ func (l *cypherWalker) ExitOC_MapLiteral(c *parser.OC_MapLiteralContext) {
 		l.stack, _ = l.stack.pop()
 		if key, ok := n.(ir.Key); ok {
 			items[key] = expression
-		} else if value, ok := n.(*expressions.Expression); ok {
+		} else if value, ok := n.(expressions.Expression); ok {
 			expression = value
 		}
 	}
@@ -317,13 +316,11 @@ func (l *cypherWalker) ExitOC_Properties(c *parser.OC_PropertiesContext) {
 	properties.Map = mapLiteral
 }
 
-
 func (l *cypherWalker) EnterOC_PropertyKeyName(c *parser.OC_PropertyKeyNameContext) {
 	l.stack = l.stack.push(ir.Key(c.GetText()))
 }
 
-
-func (l *cypherWalker)  EnterOC_UnaryAddOrSubtractExpression(c *parser.OC_UnaryAddOrSubtractExpressionContext) {
+func (l *cypherWalker) EnterOC_UnaryAddOrSubtractExpression(c *parser.OC_UnaryAddOrSubtractExpressionContext) {
 	tt := c.GetText()
 	if strings.HasPrefix(tt, "-") {
 		l.stack = l.stack.push(ir.Subtraction)
@@ -353,7 +350,7 @@ func (l *cypherWalker) EnterOC_NumberLiteral(c *parser.OC_NumberLiteralContext) 
 		return
 	}
 	if i, ok := c.OC_DoubleLiteral().(*parser.OC_DoubleLiteralContext); ok {
-		ii, _ := strconv.ParseFloat(prefix + i.GetText(), 64)
+		ii, _ := strconv.ParseFloat(prefix+i.GetText(), 64)
 		l.stack = l.stack.push(ii)
 		return
 	}
@@ -364,7 +361,7 @@ func (l *cypherWalker) EnterOC_ListLiteral(c *parser.OC_ListLiteralContext) {
 }
 
 func (l *cypherWalker) ExitOC_ListLiteral(c *parser.OC_ListLiteralContext) {
-	items := make([]*expressions.Expression, 0)
+	items := make([]expressions.Expression, 0)
 
 	NotList := func(n interface{}) bool {
 		_, ok := n.(*ir.ListLiteral)
@@ -373,21 +370,22 @@ func (l *cypherWalker) ExitOC_ListLiteral(c *parser.OC_ListLiteralContext) {
 	for n := l.stack.top(); NotList(n); n = l.stack.top() {
 		l.stack, _ = l.stack.pop()
 
-		if expression, ok := n.(*expressions.Expression); ok {
+		if expression, ok := n.(expressions.Expression); ok {
 			items = append(items, expression)
 		}
 
 	}
 
+	//TODO fix me
 	// list is in the wrong order after coming off the stack so need to reverse
-	for i, j := 0, len(items)-1; i < j; i, j = i+1, j-1 {
-		items[i], items[j] = items[j], items[i]
-	}
+	// for i, j := 0, len(items)-1; i < j; i, j = i+1, j-1 {
+	// 	items[i], items[j] = items[j], items[i]
+	// }
 
-	list := l.stack.top().(*ir.ListLiteral)
-	list.Items = items
+	// list := l.stack.top().(*ir.ListLiteral)
+	// list.Items = items
+
 }
-
 
 func (l *cypherWalker) EnterOC_Literal(c *parser.OC_LiteralContext) {
 	if n := c.StringLiteral(); n != nil {
@@ -395,7 +393,7 @@ func (l *cypherWalker) EnterOC_Literal(c *parser.OC_LiteralContext) {
 			return r == '"' || r == '\''
 		}
 
-		str := strings.TrimRightFunc(strings.TrimLeftFunc(c.GetText(),stringLiteral),stringLiteral)
+		str := strings.TrimRightFunc(strings.TrimLeftFunc(c.GetText(), stringLiteral), stringLiteral)
 		l.stack = l.stack.push(ir.String(str))
 		return
 	}

@@ -10,17 +10,17 @@ var _ Operator = (*ProduceResults)(nil)
 
 // ProduceResults fetches all tuples with a specific label.
 type ProduceResults struct {
-	storage widecolumnstore.Storage
+	storage    widecolumnstore.Storage
 	statistics *graph.Statistics
-	r  *ir.Return
+	r          *ir.Return
 }
 
 // NewProduceResults returns a Return
 func NewProduceResults(storage widecolumnstore.Storage, statistics *graph.Statistics, r *ir.Return) (*ProduceResults, error) {
 	return &ProduceResults{
-		storage: storage,
+		storage:    storage,
 		statistics: statistics,
-		r: r,
+		r:          r,
 	}, nil
 }
 
@@ -28,19 +28,17 @@ func (s *ProduceResults) Next(iterator widecolumnstore.Iterator) *graph.Table {
 
 	table := graph.NewTable()
 
-	//for kv, ok := iterator(); ok; kv, ok = iterator() {
-	//
-	//
-	//}
-	//
-	//
-	//for _, item := range s.items {
-	//	column := graph.Column{
-	//		Field: string(item.Variable),
-	//		Rows: item.Expression.Evaluate(),
-	//	}
-	//	table.Columns = append(table.Columns, column)
-	//}
+	for _, item := range s.r.Items {
+		column := graph.Column{
+			Field: string(item.Variable),
+			Rows:  item.Expression.Evaluate(),
+		}
+		table.Columns = append(table.Columns, column)
+	}
+
+	// for kv, ok := iterator(); ok; kv, ok = iterator() {
+	// 	fmt.Printf("%v", kv)
+	// }
 
 	return table
 }

@@ -3,15 +3,15 @@ package features
 import (
 	"errors"
 	"fmt"
+	"reflect"
+	"strconv"
+
 	"github.com/voltable/graph"
 	"github.com/voltable/graph/operators/ir"
 	"github.com/voltable/graph/query"
-	"github.com/voltable/graph/query/cypher"
 	"github.com/voltable/graph/query/openCypher"
 	"github.com/voltable/graph/widecolumnstore"
 	"github.com/voltable/graph/widecolumnstore/storage/memorydb"
-	"reflect"
-	"strconv"
 
 	"github.com/DATA-DOG/godog"
 	"github.com/DATA-DOG/godog/gherkin"
@@ -34,7 +34,7 @@ var (
 
 func (s *graphFeature) anyGraph() error {
 
-	cypher.RegisterEngine()
+	openCypher.RegisterEngine()
 
 	storage, err := memorydb.NewStorageEngine()
 	if err != nil {
@@ -72,7 +72,6 @@ func (s *graphFeature) theResultShouldBeEmpty() error {
 	return errors.New("Result found")
 }
 
-
 func (s *graphFeature) theResultShouldBe(arg1 *gherkin.DataTable) error {
 
 	transformed := graph.NewTable()
@@ -81,22 +80,22 @@ func (s *graphFeature) theResultShouldBe(arg1 *gherkin.DataTable) error {
 			for _, cell := range row.Cells {
 				transformed.Columns = append(transformed.Columns, graph.Column{
 					Field: cell.Value,
-					Rows: make([]interface{}, 0),
+					Rows:  make([]interface{}, 0),
 				})
 			}
 
 		} else {
-			for c, cell := range row.Cells  {
+			for c, cell := range row.Cells {
 				transformed.Columns[c].Rows = append(transformed.Columns[c].Rows, cell.Value)
 			}
 		}
 	}
 
-	for c, column := range transformed.Columns  {
-		field :=  s.queryResult.Results.Columns[c].Field
+	for c, column := range transformed.Columns {
+		field := s.queryResult.Results.Columns[c].Field
 
 		if column.Field != field {
-			fmt.Errorf("theResultShouldBe: column %d: field %s but was %s\n", c, column.Field, field)
+			fmt.Errorf("theResultShouldBe: column %d: field %s but was %s", c, column.Field, field)
 		}
 
 		for r, row := range column.Rows {
@@ -104,23 +103,23 @@ func (s *graphFeature) theResultShouldBe(arg1 *gherkin.DataTable) error {
 			if v, ok := s.queryResult.Results.Columns[c].Rows[r].(float64); ok {
 				rowAsFloat, _ := strconv.ParseFloat(row.(string), 64)
 				if v != rowAsFloat {
-					return fmt.Errorf("theResultShouldBe: column %d, row %d: %+v but was %+v\n", c, r, row, value)
+					return fmt.Errorf("theResultShouldBe: column %d, row %d: %+v but was %+v", c, r, row, value)
 				}
 
 			} else if s.queryResult.Results.Columns[c].Rows[r] == nil {
 				value = "null"
 
 				if value != row {
-					return fmt.Errorf("theResultShouldBe: column %d, row %d: %+v but was %+v\n", c, r, row, value)
+					return fmt.Errorf("theResultShouldBe: column %d, row %d: %+v but was %+v", c, r, row, value)
 				}
-			}  else if _, ok := s.queryResult.Results.Columns[c].Rows[r].(*ir.MapLiteral); ok {
+			} else if _, ok := s.queryResult.Results.Columns[c].Rows[r].(*ir.MapLiteral); ok {
 				// Go Maps are unordered so can't easily do the compare
 				// TODO need to find a solution
-			}else {
+			} else {
 				value = fmt.Sprintf("%v", s.queryResult.Results.Columns[c].Rows[r])
 
 				if value != row {
-					return fmt.Errorf("theResultShouldBe: column %d, row %d: %+v but was %+v\n", c, r, row, value)
+					return fmt.Errorf("theResultShouldBe: column %d, row %d: %+v but was %+v", c, r, row, value)
 				}
 			}
 		}
@@ -128,7 +127,6 @@ func (s *graphFeature) theResultShouldBe(arg1 *gherkin.DataTable) error {
 
 	return nil
 }
-
 
 func (s *graphFeature) theSideEffectsShouldBe(arg1 *gherkin.DataTable) error {
 	found := make(map[string]interface{})
@@ -148,7 +146,7 @@ func (s *graphFeature) theSideEffectsShouldBe(arg1 *gherkin.DataTable) error {
 		value, _ := strconv.Atoi(row.Cells[1].Value)
 
 		if found[key] != value {
-			return fmt.Errorf("theSideEffectsShouldBe: %d: %s %+v but was %+v\n", i, key, value, found[key])
+			return fmt.Errorf("theSideEffectsShouldBe: %d: %s %+v but was %+v", i, key, value, found[key])
 		}
 	}
 
@@ -165,7 +163,7 @@ func (s *graphFeature) noSideEffects() error {
 		tag := typeOfT.Field(i).Tag.Get("json")
 
 		if value, ok := f.Interface().(int); ok && value != 0 {
-			return fmt.Errorf("noSideEffects: %d: %s %+v but was %+v\n", i, tag, 0, value)
+			return fmt.Errorf("noSideEffects: %d: %s %+v but was %+v", i, tag, 0, value)
 		}
 	}
 
@@ -178,12 +176,11 @@ func (s *graphFeature) anEmptyGraph() error {
 
 func FeatureContext(s *godog.Suite) {
 
-
-	cypher.RegisterEngine()
+	openCypher.RegisterEngine()
 
 	ge, _ := query.NewGraphEngineFromStorageEngine(storage, options)
 	g := graphFeature{
-		graph:ge,
+		graph: ge,
 	}
 
 	s.Step(`^an empty graph$`, g.emptyGraph)

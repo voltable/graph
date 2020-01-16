@@ -7,7 +7,7 @@ import (
 )
 
 type ListLiteral struct {
-	Items []*expressions.Expression
+	Items []expressions.Expression
 }
 
 func (s ListLiteral) String() string {
