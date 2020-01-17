@@ -5,14 +5,15 @@ import (
 	"reflect"
 )
 
-type ExpressionVisitor interface{
+type ExpressionVisitor interface {
 	Visit(expr Expression) Expression
 	VisitExtension(expr Expression) Expression
 	VisitParameter(expr *ParameterExpression) Expression
 	VisitConstant(expr *ConstantExpression) Expression
 	VisitConditional(expr *ConditionalExpression) Expression
 	VisitBinary(expr BinaryExpression) Expression
-	VisitLambda(expr *LambdaExpression)Expression
+	VisitLambda(expr *LambdaExpression) Expression
+	VisitInvocation(expr *InvocationExpression) Expression
 }
 
 func baseVisit(base ExpressionVisitor, expr Expression) Expression {
@@ -36,11 +37,10 @@ func baseVisitConstant(base ExpressionVisitor, expr Expression) Expression {
 
 func baseVisitConditional(base ExpressionVisitor, expr *ConditionalExpression) Expression {
 	test := base.Visit(expr.GetTest())
-	ifTrue:= base.Visit(expr.GetIfTrue())
+	ifTrue := base.Visit(expr.GetIfTrue())
 	ifFalse := base.Visit(expr.GetIfFalse())
 	return expr.Update(test, ifTrue, ifFalse)
 }
-
 
 // baseVisitBinary Visits the children of the BinaryExpression node
 func baseVisitBinary(base ExpressionVisitor, expr BinaryExpression) Expression {
@@ -78,12 +78,23 @@ func validateChildType(before, after reflect.Kind, name string) error {
 
 func baseVisitLambda(base ExpressionVisitor, expr *LambdaExpression) Expression {
 	parameters := make([]*ParameterExpression, 0)
-	for _, parameter:= range expr.parameters {
+	for _, parameter := range expr.parameters {
 		p := base.Visit(parameter)
-		if pe,  ok := p.(*ParameterExpression); ok {
+		if pe, ok := p.(*ParameterExpression); ok {
 			parameters = append(parameters, pe)
 		}
 	}
 
 	return expr.Update(base.Visit(expr.body), parameters)
+}
+
+func VisitArguments(base ExpressionVisitor, arguments ArgumentProvider) []Expression {
+	newNodes := make([]Expression, 0)
+
+	for _, curNode := range arguments.Arguments() {
+		node := base.Visit(curNode)
+		newNodes = append(newNodes, node)
+
+	}
+	return newNodes
 }

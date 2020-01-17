@@ -9,11 +9,11 @@ import (
 var _ ExpressionVisitor = (*ExpressionStringBuilder)(nil)
 
 type ExpressionStringBuilder struct {
-	ids map[interface{}]int
+	ids    map[interface{}]int
 	output string
 }
 
-func NewExpressionStringBuilder() *ExpressionStringBuilder{
+func NewExpressionStringBuilder() *ExpressionStringBuilder {
 	return &ExpressionStringBuilder{
 		ids:    make(map[interface{}]int),
 		output: "",
@@ -25,7 +25,7 @@ func (s *ExpressionStringBuilder) VisitLambda(expr *LambdaExpression) Expression
 		s.Visit(expr.parameters[0])
 
 	} else {
-		s.VisitExpressions("(", expr.parameters, ")", ",")
+		s.VisitExpressions("(", expr.parameters, ")", ", ")
 
 	}
 	s.Out(" => ")
@@ -34,7 +34,7 @@ func (s *ExpressionStringBuilder) VisitLambda(expr *LambdaExpression) Expression
 	return expr
 }
 
-func (s *ExpressionStringBuilder) VisitExpressions(open string, expressions []*ParameterExpression, close, seperator string)  {
+func (s *ExpressionStringBuilder) VisitExpressions(open string, expressions []*ParameterExpression, close, seperator string) {
 	s.Out(open)
 	isFirst := true
 	for _, expr := range expressions {
@@ -46,6 +46,19 @@ func (s *ExpressionStringBuilder) VisitExpressions(open string, expressions []*P
 		s.Visit(expr)
 	}
 	s.Out(close)
+}
+
+func (s *ExpressionStringBuilder) VisitInvocation(expr *InvocationExpression) Expression {
+	s.Out("Invoke(")
+	s.Visit(expr.Expression())
+	sep := ", "
+
+	for _, arg := range expr.Arguments() {
+		s.Out(sep)
+		s.Visit(arg)
+	}
+	s.Out(")")
+	return expr
 }
 
 func (s *ExpressionStringBuilder) VisitBinary(expr BinaryExpression) Expression {
@@ -159,12 +172,12 @@ func (s *ExpressionStringBuilder) VisitConditional(expr *ConditionalExpression) 
 	return expr
 }
 
-func (s *ExpressionStringBuilder)AddLabel(label LabelTarget) {
+func (s *ExpressionStringBuilder) AddLabel(label LabelTarget) {
 	if _, ok := s.ids[label]; !ok {
 		s.ids[label] = len(s.ids)
 	}
 }
-func (s *ExpressionStringBuilder)GetLabelId(label LabelTarget) int {
+func (s *ExpressionStringBuilder) GetLabelId(label LabelTarget) int {
 	s.AddLabel(label)
 	return s.ids[label]
 }
@@ -175,7 +188,7 @@ func (s *ExpressionStringBuilder) AddParam(param *ParameterExpression) {
 	}
 }
 
-func (s *ExpressionStringBuilder)GetParamId(param *ParameterExpression) int {
+func (s *ExpressionStringBuilder) GetParamId(param *ParameterExpression) int {
 	s.AddParam(param)
 	return s.ids[param]
 }
@@ -184,7 +197,7 @@ func (s *ExpressionStringBuilder) Out(text string) {
 	s.output = s.output + text
 }
 
-func (s ExpressionStringBuilder)String() string {
+func (s ExpressionStringBuilder) String() string {
 	return s.output
 }
 
@@ -193,4 +206,3 @@ func ExpressionToString(expr Expression) string {
 	builder.Visit(expr)
 	return builder.String()
 }
-

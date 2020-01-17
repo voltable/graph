@@ -4,7 +4,6 @@ import (
 	"reflect"
 )
 
-
 var _ BinaryExpression = (*LogicalBinaryExpression)(nil)
 
 type LogicalBinaryExpression struct {
@@ -44,7 +43,7 @@ func (e *LogicalBinaryExpression) GetLeft() Expression {
 }
 
 func (e *LogicalBinaryExpression) GetRight() Expression {
-	return  e.right
+	return e.right
 }
 
 func (e *LogicalBinaryExpression) Type() Binary {
@@ -55,130 +54,129 @@ func (e *LogicalBinaryExpression) Update(left, right TerminalExpression) BinaryE
 	return baseUpdate(e, left, right)
 }
 
-func Equal(left, right TerminalExpression) (*LogicalBinaryExpression, error) {
+func Equal(left, right Expression) *LogicalBinaryExpression {
 	if left == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
 
 	if right == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
 
 	return &LogicalBinaryExpression{
 		Logical: equal,
-		left: left,
-		right: right,
-	}, nil
+		left:    left,
+		right:   right,
+	}
 }
 
-func NotEqual(left, right TerminalExpression) (*LogicalBinaryExpression, error) {
+func NotEqual(left, right Expression) *LogicalBinaryExpression {
 	if left == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
-
 	if right == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
 
 	return &LogicalBinaryExpression{
 		Logical: notEqual,
-		left: left,
-		right: right,
-	}, nil
+		left:    left,
+		right:   right,
+	}
 }
 
-func LessThan(left, right TerminalExpression) (*LogicalBinaryExpression, error) {
+func LessThan(left, right Expression) *LogicalBinaryExpression {
 	if left == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
 
 	if right == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
 
 	return &LogicalBinaryExpression{
 		Logical: lessThan,
-		left: left,
-		right: right,
-	}, nil
+		left:    left,
+		right:   right,
+	}
 }
 
-func LessThanOrEqual(left, right TerminalExpression) (*LogicalBinaryExpression, error) {
+func LessThanOrEqual(left, right Expression) *LogicalBinaryExpression {
 	if left == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
 
 	if right == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
 
 	return &LogicalBinaryExpression{
 		Logical: lessThanOrEqual,
-		left: left,
-		right: right,
-	}, nil
+		left:    left,
+		right:   right,
+	}
 }
 
-func GreaterThan(left, right TerminalExpression) (*LogicalBinaryExpression, error) {
+func GreaterThan(left, right Expression) *LogicalBinaryExpression {
 	if left == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
 
 	if right == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
 
 	return &LogicalBinaryExpression{
 		Logical: greaterThan,
-		left: left,
-		right: right,
-	}, nil
+		left:    left,
+		right:   right,
+	}
 }
 
-func GreaterThanOrEqual(left, right TerminalExpression) (*LogicalBinaryExpression, error) {
+func GreaterThanOrEqual(left, right Expression) *LogicalBinaryExpression {
 	if left == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
 
 	if right == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
 
 	return &LogicalBinaryExpression{
 		Logical: greaterThanOrEqual,
-		left: left,
-		right: right,
-	}, nil
+		left:    left,
+		right:   right,
+	}
 }
 
-func IsNil(left, right TerminalExpression) (*LogicalBinaryExpression, error) {
+func IsNil(left, right Expression) *LogicalBinaryExpression {
 	if left == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
 
 	if right == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
 
 	return &LogicalBinaryExpression{
 		Logical: isNil,
-		left: left,
-		right: right,
-	}, nil
+		left:    left,
+		right:   right,
+	}
 }
 
-func IsNotNil(left, right TerminalExpression) (*LogicalBinaryExpression, error) {
+func IsNotNil(left, right Expression) *LogicalBinaryExpression {
 	if left == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
 
 	if right == nil {
-		return nil, ArgumentCannotBeOfTypeVoid
+		panic(ArgumentCannotBeOfTypeVoid)
 	}
 
 	return &LogicalBinaryExpression{
 		Logical: isNotNil,
-		left: left,
-		right: right,
-	}, nil
+		left:    left,
+		right:   right,
+	}
 }

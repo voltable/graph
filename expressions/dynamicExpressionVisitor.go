@@ -2,25 +2,25 @@ package expressions
 
 import "github.com/voltable/graph/expressions/stack"
 
-var _ ExpressionVisitor = (*DynamicExpressionVisitor )(nil)
+var _ ExpressionVisitor = (*DynamicExpressionVisitor)(nil)
 
-type DynamicExpressionVisitor  struct {
-	stack *stack.Stack
+type DynamicExpressionVisitor struct {
+	stack  *stack.Stack
 	params []interface{}
 }
 
-func NewDynamicExpressionVisitor (params  []interface{}) *DynamicExpressionVisitor {
-	return &DynamicExpressionVisitor {
-		params:params,
-		stack: &stack.Stack{},
+func NewDynamicExpressionVisitor(params []interface{}) *DynamicExpressionVisitor {
+	return &DynamicExpressionVisitor{
+		params: params,
+		stack:  &stack.Stack{},
 	}
 }
 
-func (s *DynamicExpressionVisitor ) VisitLambda(expr *LambdaExpression) Expression {
+func (s *DynamicExpressionVisitor) VisitLambda(expr *LambdaExpression) Expression {
 	return baseVisitLambda(s, expr)
 }
 
-func (s *DynamicExpressionVisitor ) VisitBinary(expr BinaryExpression) Expression {
+func (s *DynamicExpressionVisitor) VisitBinary(expr BinaryExpression) Expression {
 	expression := baseVisitBinary(s, expr)
 	switch v := expression.(type) {
 	case *BinaryArithmeticExpression:
@@ -30,25 +30,34 @@ func (s *DynamicExpressionVisitor ) VisitBinary(expr BinaryExpression) Expressio
 	return expression
 }
 
-func (s *DynamicExpressionVisitor ) Visit(expr Expression) Expression {
+func (s *DynamicExpressionVisitor) Visit(expr Expression) Expression {
 	return baseVisit(s, expr)
 }
 
-func (s *DynamicExpressionVisitor ) VisitExtension(expr Expression) Expression {
+func (s *DynamicExpressionVisitor) VisitExtension(expr Expression) Expression {
 	return expr.VisitChildren(s)
 }
 
-func (s *DynamicExpressionVisitor ) VisitParameter(expr *ParameterExpression) Expression {
+func (s *DynamicExpressionVisitor) VisitParameter(expr *ParameterExpression) Expression {
 	return expr
 }
 
-func (s *DynamicExpressionVisitor ) VisitConstant(expr *ConstantExpression) Expression {
+func (s *DynamicExpressionVisitor) VisitConstant(expr *ConstantExpression) Expression {
 	s.stack.Push(expr.GetValue())
 	return expr
 }
 
-func (s *DynamicExpressionVisitor ) VisitConditional(expr *ConditionalExpression) Expression {
+func (s *DynamicExpressionVisitor) VisitConditional(expr *ConditionalExpression) Expression {
 	return baseVisitConditional(s, expr)
+}
+
+func (s *DynamicExpressionVisitor) VisitInvocation(expr *InvocationExpression) Expression {
+	a := VisitArguments(s, expr)
+	e := s.Visit(expr.Expression())
+	if e != nil {
+		return e
+	}
+	return expr.Rewrite(e, a)
 }
 
 func (s *DynamicExpressionVisitor) Result() interface{} {

@@ -8,14 +8,14 @@ import (
 var _ Expression = (*LambdaExpression)(nil)
 
 type LambdaExpression struct {
-	body Expression
+	body       Expression
 	parameters []*ParameterExpression
 }
 
-type Delegate func([]interface{}) interface{}
+type Delegate func(...interface{}) interface{}
 
 func (l *LambdaExpression) Compile() Delegate {
-	return func(params []interface{}) interface{}{
+	return func(params ...interface{}) interface{} {
 		builder := NewDynamicExpressionVisitor(params)
 		builder.Visit(l)
 		return builder.Result()
@@ -53,7 +53,7 @@ func (l *LambdaExpression) GetBody() Expression {
 func (l *LambdaExpression) Update(body Expression, parameters []*ParameterExpression) *LambdaExpression {
 	if l.body == body {
 		equal := true
-		for i, parameter := range l.parameters  {
+		for i, parameter := range l.parameters {
 			p := parameters[i]
 			if p != parameter {
 				equal = false
@@ -74,7 +74,7 @@ func Lambda(expr Expression, parameters ...*ParameterExpression) *LambdaExpressi
 	}
 
 	return &LambdaExpression{
-		body: expr,
+		body:       expr,
 		parameters: parameters,
 	}
 }

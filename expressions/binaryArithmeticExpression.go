@@ -13,10 +13,10 @@ func (BinaryArithmeticExpression) binary() {}
 
 type BinaryArithmeticExpression struct {
 	BinaryArithmetic
-	kind reflect.Kind
+	kind        reflect.Kind
 	instruction interpreter.Instruction
-	left  Expression // left operand
-	right Expression // right operand
+	left        Expression // left operand
+	right       Expression // right operand
 }
 
 func (b *BinaryArithmeticExpression) String() string {
@@ -61,12 +61,11 @@ func (b *BinaryArithmeticExpression) GetRight() Expression {
 	return b.right
 }
 
-
-func (b *BinaryArithmeticExpression)Interpret(s *stack.Stack) {
+func (b *BinaryArithmeticExpression) Interpret(s *stack.Stack) {
 	b.instruction.Run(s)
 }
 
-func Add(left TerminalExpression, right TerminalExpression) *BinaryArithmeticExpression {
+func Add(left, right TerminalExpression) *BinaryArithmeticExpression {
 	instruction, err := interpreter.NewAddInstruction(left.GetValue())
 	if err != nil {
 		panic(err)
@@ -75,7 +74,7 @@ func Add(left TerminalExpression, right TerminalExpression) *BinaryArithmeticExp
 	if left.Kind() == right.Kind() {
 		return &BinaryArithmeticExpression{
 			BinaryArithmetic: add,
-			instruction:instruction,
+			instruction:      instruction,
 			left:             left,
 			right:            right,
 		}
@@ -84,7 +83,7 @@ func Add(left TerminalExpression, right TerminalExpression) *BinaryArithmeticExp
 	panic(fmt.Sprintf("mismatch of types %T %T", left, right))
 }
 
-func Divide(left TerminalExpression, right TerminalExpression) *BinaryArithmeticExpression {
+func Divide(left, right TerminalExpression) *BinaryArithmeticExpression {
 	instruction, err := interpreter.NewDivideInstruction(left.GetValue())
 	if err != nil {
 		panic(err)
@@ -93,7 +92,7 @@ func Divide(left TerminalExpression, right TerminalExpression) *BinaryArithmetic
 	if left.Kind() == right.Kind() {
 		return &BinaryArithmeticExpression{
 			BinaryArithmetic: divide,
-			instruction:instruction,
+			instruction:      instruction,
 			left:             left,
 			right:            right,
 		}
@@ -102,7 +101,7 @@ func Divide(left TerminalExpression, right TerminalExpression) *BinaryArithmetic
 	panic(fmt.Sprintf("mismatch of types %T %T", left, right))
 }
 
-func Modulo(left TerminalExpression, right TerminalExpression) *BinaryArithmeticExpression {
+func Modulo(left, right TerminalExpression) *BinaryArithmeticExpression {
 	instruction, err := interpreter.NewModuloInstruction(left.GetValue())
 	if err != nil {
 		panic(err)
@@ -111,7 +110,7 @@ func Modulo(left TerminalExpression, right TerminalExpression) *BinaryArithmetic
 	if left.Kind() == right.Kind() {
 		return &BinaryArithmeticExpression{
 			BinaryArithmetic: modulo,
-			instruction:instruction,
+			instruction:      instruction,
 			left:             left,
 			right:            right,
 		}
@@ -120,7 +119,7 @@ func Modulo(left TerminalExpression, right TerminalExpression) *BinaryArithmetic
 	panic(fmt.Sprintf("mismatch of types %T %T", left, right))
 }
 
-func Multiply(left TerminalExpression, right TerminalExpression) *BinaryArithmeticExpression {
+func Multiply(left, right TerminalExpression) *BinaryArithmeticExpression {
 	instruction, err := interpreter.NewMultiplyInstruction(left.GetValue())
 	if err != nil {
 		panic(err)
@@ -129,7 +128,7 @@ func Multiply(left TerminalExpression, right TerminalExpression) *BinaryArithmet
 	if left.Kind() == right.Kind() {
 		return &BinaryArithmeticExpression{
 			BinaryArithmetic: multiply,
-			instruction:instruction,
+			instruction:      instruction,
 			left:             left,
 			right:            right,
 		}
@@ -138,7 +137,7 @@ func Multiply(left TerminalExpression, right TerminalExpression) *BinaryArithmet
 	panic(fmt.Sprintf("mismatch of types %T %T", left, right))
 }
 
-func Power(left TerminalExpression, right TerminalExpression) *BinaryArithmeticExpression {
+func Power(left, right TerminalExpression) *BinaryArithmeticExpression {
 	instruction, err := interpreter.NewPowerInstruction(left.GetValue())
 	if err != nil {
 		panic(err)
@@ -147,7 +146,7 @@ func Power(left TerminalExpression, right TerminalExpression) *BinaryArithmeticE
 	if left.Kind() == right.Kind() {
 		return &BinaryArithmeticExpression{
 			BinaryArithmetic: power,
-			instruction:instruction,
+			instruction:      instruction,
 			left:             left,
 			right:            right,
 		}
@@ -156,7 +155,7 @@ func Power(left TerminalExpression, right TerminalExpression) *BinaryArithmeticE
 	panic(fmt.Sprintf("mismatch of types %T %T", left, right))
 }
 
-func Subtract(left TerminalExpression, right TerminalExpression) *BinaryArithmeticExpression {
+func Subtract(left, right TerminalExpression) *BinaryArithmeticExpression {
 	instruction, err := interpreter.NewSubtractInstruction(left.GetValue())
 	if err != nil {
 		panic(err)
