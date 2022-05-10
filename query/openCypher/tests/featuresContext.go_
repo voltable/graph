@@ -13,8 +13,8 @@ import (
 	"github.com/voltable/graph/widecolumnstore"
 	"github.com/voltable/graph/widecolumnstore/storage/memorydb"
 
-	"github.com/DATA-DOG/godog"
-	"github.com/DATA-DOG/godog/gherkin"
+	gherkin "github.com/cucumber/common/gherkin/go/v23"
+	"github.com/cucumber/godog"
 )
 
 type graphFeature struct {

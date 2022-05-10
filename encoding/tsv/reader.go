@@ -7,8 +7,9 @@ import (
 	"math"
 	"strconv"
 
+	"github.com/rossmerr/graphblas"
+	GraphBLAS "github.com/rossmerr/graphblas"
 	triples "github.com/voltable/graph/triplestore/store64"
-	GraphBLAS "github.com/RossMerr/Caudex.GraphBLAS"
 )
 
 // Reader Tab-Separated Values (TSV) file format
@@ -50,7 +51,7 @@ func (s *Reader) read() (r, c int, value float64, err error) {
 }
 
 // ReadToMatrix reads all records from r.
-func (s *Reader) ReadToMatrix() (GraphBLAS.Matrix, error) {
+func (s *Reader) ReadToMatrix() (graphblas.Matrix[float64], error) {
 	columnMax := 0
 	matrix := [][]float64{}
 	for {

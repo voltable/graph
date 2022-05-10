@@ -1,17 +1,23 @@
 module github.com/voltable/graph
 
-go 1.12
+go 1.18
 
 require (
-	github.com/DATA-DOG/godog v0.7.13
-	github.com/RossMerr/Caudex.GraphBLAS v0.0.0-20180608154209-b3ceae3c37e4
-	github.com/antlr/antlr4 v0.0.0-20191011202612-ad2bd05285ca
-	github.com/golang/protobuf v1.3.2
-	github.com/google/uuid v1.1.1
-	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
+	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220418222510-f25a4f6275ed
+	github.com/golang/protobuf v1.5.2
+	github.com/google/uuid v1.3.0
 	github.com/pkg/errors v0.8.1
-	github.com/shiena/ansicolor v0.0.0-20151119151921-a422bbe96644 // indirect
-	github.com/sirupsen/logrus v1.4.2
-	golang.org/x/net v0.0.0-20190424112056-4829fb13d2c6
-	google.golang.org/grpc v1.20.1
+	github.com/rossmerr/graphblas v0.0.0-20220510193304-2472b22b1c02
+	github.com/sirupsen/logrus v1.8.1
+	golang.org/x/net v0.0.0-20201224014010-6772e930b67b
+	google.golang.org/grpc v1.46.0
+)
+
+require (
+	github.com/stretchr/testify v1.7.1 // indirect
+	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
+	golang.org/x/text v0.3.7 // indirect
+	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
+	google.golang.org/protobuf v1.28.0 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
 )

@@ -5,7 +5,7 @@ import (
 	"io"
 	"strings"
 
-	GraphBLAS "github.com/RossMerr/Caudex.GraphBLAS"
+	"github.com/rossmerr/graphblas"
 )
 
 const (
@@ -24,7 +24,7 @@ type Table interface {
 }
 
 type table struct {
-	matrix        GraphBLAS.Matrix
+	matrix        graphblas.Matrix[float64]
 	rowIndices    []string
 	columnIndices []string
 	columns       map[string]int
@@ -35,7 +35,7 @@ type table struct {
 // NewTableFromReader returns a table.Table
 func NewTableFromReader(r, c int, reader io.Reader) Table {
 	return &table{
-		matrix:        GraphBLAS.NewCSCMatrix(r, c),
+		matrix:        graphblas.NewCSCMatrix[float64](r, c),
 		rowIndices:    make([]string, r),
 		columnIndices: make([]string, c),
 		columns:       make(map[string]int, c),

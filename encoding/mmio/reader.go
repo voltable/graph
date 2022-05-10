@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/rossmerr/graphblas"
 	triples "github.com/voltable/graph/triplestore/store64"
-	GraphBLAS "github.com/RossMerr/Caudex.GraphBLAS"
 )
 
 const (
@@ -127,7 +127,7 @@ func (s *Reader) header() (string, error) {
 }
 
 // ReadToMatrix reads all records from r and returns a Matrix
-func (s *Reader) ReadToMatrix() (GraphBLAS.Matrix, error) {
+func (s *Reader) ReadToMatrix() (graphblas.Matrix[float64], error) {
 
 	_, err := s.header()
 
@@ -141,7 +141,7 @@ func (s *Reader) ReadToMatrix() (GraphBLAS.Matrix, error) {
 		return nil, err
 	}
 
-	matrix := GraphBLAS.NewCSCMatrix(r, c)
+	matrix := graphblas.NewCSCMatrix[float64](r, c)
 
 	for {
 		r, c, value, err = s.read()

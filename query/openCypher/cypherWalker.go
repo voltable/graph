@@ -1,13 +1,14 @@
 package openCypher
 
 import (
+	"strconv"
+	"strings"
+
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"github.com/google/uuid"
 	"github.com/voltable/graph/expressions"
 	"github.com/voltable/graph/operators/ir"
 	"github.com/voltable/graph/query/openCypher/parser"
-	"strconv"
-	"strings"
 )
 
 const Null = "null"
