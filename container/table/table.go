@@ -6,25 +6,26 @@ import (
 	"strings"
 
 	"github.com/rossmerr/graphblas"
+	"github.com/rossmerr/graphblas/constraints"
+	"github.com/voltable/graph"
 )
 
 const (
-	emptyFloat64        = 0.0
-	stringEmpty  string = ""
+	stringEmpty string = ""
 )
 
 // Table is a set of data elements using a model of columns and rows
-type Table interface {
+type Table[T constraints.Number] interface {
 	ReadAll() error
 	Iterator(i func(string, string, interface{})) bool
 	Columns() int
 	Rows() int
-	Get(r, c string) interface{}
-	GetFloat64(r, c string) float64
+	get(r, c string) interface{}
+	Get(r, c string) T
 }
 
-type table struct {
-	matrix        graphblas.Matrix[float64]
+type table[T constraints.Number] struct {
+	matrix        graphblas.Matrix[T]
 	rowIndices    []string
 	columnIndices []string
 	columns       map[string]int
@@ -33,9 +34,9 @@ type table struct {
 }
 
 // NewTableFromReader returns a table.Table
-func NewTableFromReader(r, c int, reader io.Reader) Table {
-	return &table{
-		matrix:        graphblas.NewCSCMatrix[float64](r, c),
+func NewTableFromReader[T constraints.Number](r, c int, reader io.Reader) Table[T] {
+	return &table[T]{
+		matrix:        graphblas.NewCSCMatrix[T](r, c),
 		rowIndices:    make([]string, r),
 		columnIndices: make([]string, c),
 		columns:       make(map[string]int, c),
@@ -46,14 +47,14 @@ func NewTableFromReader(r, c int, reader io.Reader) Table {
 	}
 }
 
-func (s *table) read(header []string, r int, row []string) {
+func (s *table[T]) read(header []string, r int, row []string) {
 	indice := header[0]
 	s.rowIndices[r] = indice + string(s.delimiter) + row[0]
 
 	for i := 1; i < len(row); i++ {
 		// Column header name
 		uniqueTypeValuePair := header[i] + string(s.delimiter) + row[i]
-		v := 1.0
+		v := graph.Default[T]() + 1
 
 		if c, ok := s.columns[uniqueTypeValuePair]; ok {
 			v += s.matrix.At(r, c)
@@ -67,7 +68,7 @@ func (s *table) read(header []string, r int, row []string) {
 	}
 }
 
-func (s *table) ReadAll() error {
+func (s *table[T]) ReadAll() error {
 	// Read the header
 	line, err := s.reader.Read()
 	if err != nil {
@@ -94,17 +95,17 @@ func (s *table) ReadAll() error {
 }
 
 // Columns the number of columns of the matrix
-func (s *table) Columns() int {
+func (s *table[T]) Columns() int {
 	return s.matrix.Columns()
 }
 
 // Rows the number of rows of the matrix
-func (s *table) Rows() int {
+func (s *table[T]) Rows() int {
 	return s.matrix.Rows()
 }
 
 // Get (unoptimized) returns the value of a table element at r-th, c-th
-func (s *table) Get(r, c string) interface{} {
+func (s *table[T]) get(r, c string) interface{} {
 	cPointer := s.columns[c]
 	rPointer := -1
 	for i, value := range s.rowIndices {
@@ -117,16 +118,16 @@ func (s *table) Get(r, c string) interface{} {
 	return s.matrix.At(rPointer, cPointer)
 }
 
-func (s *table) GetFloat64(r, c string) float64 {
-	v := s.Get(r, c)
-	if value, ok := v.(float64); ok {
+func (s *table[T]) Get(r, c string) T {
+	v := s.get(r, c)
+	if value, ok := v.(T); ok {
 		return value
 	}
-	return emptyFloat64
+	return graph.Zero[T]()
 }
 
 // Iterator iterates through all non-zero elements, order is not guaranteed
-func (s *table) Iterator(i func(string, string, interface{})) bool {
+func (s *table[T]) Iterator(i func(string, string, interface{})) bool {
 	enumerator := s.matrix.Enumerate()
 	if enumerator.HasNext() {
 		r, c, v := enumerator.Next()

@@ -9,25 +9,25 @@ import (
 var _ Unary = (*Projection)(nil)
 
 type Projection struct {
-	storage widecolumnstore.Storage
+	storage    widecolumnstore.Storage
 	statistics *graph.Statistics
-	r  *ir.Return
-	variables *ir.Variable
+	r          *ir.Return
+	variables  *ir.Variable
 }
 
 // NewProjection returns a Projection
 func NewProjection(storage widecolumnstore.Storage, statistics *graph.Statistics, r *ir.Return) (*Projection, error) {
 	return &Projection{
-		storage: storage,
+		storage:    storage,
 		statistics: statistics,
-		r: r,
+		r:          r,
 	}, nil
 }
 
-func (s *Projection) Next(iterator widecolumnstore.Iterator) widecolumnstore.Iterator {
+func (s *Projection) Next(iterator widecolumnstore.Iterator) (widecolumnstore.Iterator, error) {
 	return func() (widecolumnstore.KeyValue, bool) {
 		return widecolumnstore.KeyValue{}, false
-	}
+	}, nil
 }
 
 func (s *Projection) Op() {}

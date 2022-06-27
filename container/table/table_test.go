@@ -11,7 +11,7 @@ func TestTable_Read(t *testing.T) {
 	tests := []struct {
 		name string
 		in   string
-		t    func(string) table.Table
+		t    func(string) table.Table[float64]
 	}{
 		{
 			name: "Explode Table",
@@ -19,8 +19,8 @@ func TestTable_Read(t *testing.T) {
 001 128.0.0.1 208.29.69.138
 002 192.168.1.2 157.166.255.18
 003 128.0.0.1 74.125.224.72`,
-			t: func(in string) table.Table {
-				return table.NewTableFromReader(3, 5, strings.NewReader(in))
+			t: func(in string) table.Table[float64] {
+				return table.NewTableFromReader[float64](3, 5, strings.NewReader(in))
 			},
 		},
 	}
@@ -41,63 +41,63 @@ func TestTable_Read(t *testing.T) {
 			c4 := "server_ip|208.29.69.138"
 			c5 := "server_ip|74.125.224.72"
 
-			if v := table.GetFloat64(r1, c1); v != 1 {
+			if v := table.Get(r1, c1); v != 1 {
 				t.Errorf("%+v Value = %+v, want %+v", tt.name, v, 1)
 			}
 
-			if v := table.GetFloat64(r1, c2); v != 0 {
+			if v := table.Get(r1, c2); v != 0 {
 				t.Errorf("%+v Value = %+v, want %+v", tt.name, v, 0)
 			}
 
-			if v := table.GetFloat64(r1, c3); v != 0 {
+			if v := table.Get(r1, c3); v != 0 {
 				t.Errorf("%+v Value = %+v, want %+v", tt.name, v, 0)
 			}
 
-			if v := table.GetFloat64(r1, c4); v != 1 {
+			if v := table.Get(r1, c4); v != 1 {
 				t.Errorf("%+v Value = %+v, want %+v", tt.name, v, 1)
 			}
 
-			if v := table.GetFloat64(r1, c5); v != 0 {
+			if v := table.Get(r1, c5); v != 0 {
 				t.Errorf("%+v Value = %+v, want %+v", tt.name, v, 0)
 			}
 
-			if v := table.GetFloat64(r2, c1); v != 0 {
+			if v := table.Get(r2, c1); v != 0 {
 				t.Errorf("%+v Value = %+v, want %+v", tt.name, v, 0)
 			}
 
-			if v := table.GetFloat64(r2, c2); v != 1 {
+			if v := table.Get(r2, c2); v != 1 {
 				t.Errorf("%+v Value = %+v, want %+v", tt.name, v, 1)
 			}
 
-			if v := table.GetFloat64(r2, c3); v != 1 {
+			if v := table.Get(r2, c3); v != 1 {
 				t.Errorf("%+v Value = %+v, want %+v", tt.name, v, 1)
 			}
 
-			if v := table.GetFloat64(r2, c4); v != 0 {
+			if v := table.Get(r2, c4); v != 0 {
 				t.Errorf("%+v Value = %+v, want %+v", tt.name, v, 0)
 			}
 
-			if v := table.GetFloat64(r2, c5); v != 0 {
+			if v := table.Get(r2, c5); v != 0 {
 				t.Errorf("%+v Value = %+v, want %+v", tt.name, v, 0)
 			}
 
-			if v := table.GetFloat64(r3, c1); v != 1 {
+			if v := table.Get(r3, c1); v != 1 {
 				t.Errorf("%+v Value = %+v, want %+v", tt.name, v, 1)
 			}
 
-			if v := table.GetFloat64(r3, c2); v != 0 {
+			if v := table.Get(r3, c2); v != 0 {
 				t.Errorf("%+v Value = %+v, want %+v", tt.name, v, 0)
 			}
 
-			if v := table.GetFloat64(r3, c3); v != 0 {
+			if v := table.Get(r3, c3); v != 0 {
 				t.Errorf("%+v Value = %+v, want %+v", tt.name, v, 0)
 			}
 
-			if v := table.GetFloat64(r3, c4); v != 0 {
+			if v := table.Get(r3, c4); v != 0 {
 				t.Errorf("%+v Value = %+v, want %+v", tt.name, v, 0)
 			}
 
-			if v := table.GetFloat64(r3, c5); v != 1 {
+			if v := table.Get(r3, c5); v != 1 {
 				t.Errorf("%+v Value = %+v, want %+v", tt.name, v, 1)
 			}
 		})

@@ -8,7 +8,7 @@ var (
 	Properties    = []byte("p")
 	Vertex        = []byte("v")
 	Edge          = []byte("r")
-	EdgeType= []byte("t")
+	EdgeType      = []byte("t")
 	EdgePoperties = []byte("k")
 
 	// T = transpose
@@ -17,7 +17,7 @@ var (
 	TProperties     = []byte("tp")
 	TVertex         = []byte("tv")
 	TEdge           = []byte("tr")
-	TEdgeType= []byte("t")
+	TEdgeType       = []byte("t")
 	TEdgeProperties = []byte("tk")
 
 	// This Key can be used to fetch all nodes, it's the prefix for just the transpose ID

@@ -12,17 +12,17 @@ type Operator interface {
 // Nullary an operation of arity 0, and hence call it nullary
 type Nullary interface {
 	Operator
-	Next() widecolumnstore.Iterator
+	Next() (widecolumnstore.Iterator, error)
 }
 
 // Unary operation takes one argument
 type Unary interface {
 	Operator
-	Next(i widecolumnstore.Iterator) widecolumnstore.Iterator
+	Next(i widecolumnstore.Iterator) (widecolumnstore.Iterator, error)
 }
 
 // Binary operation takes two arguments
 type Binary interface {
 	Operator
-	Next(x, y widecolumnstore.Iterator) widecolumnstore.Iterator
+	Next(x, y widecolumnstore.Iterator) (widecolumnstore.Iterator, error)
 }

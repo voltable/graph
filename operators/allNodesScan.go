@@ -8,26 +8,26 @@ import (
 	"github.com/voltable/graph/widecolumnstore"
 )
 
-var _ Nullary = (*AllNodesScan )(nil)
+var _ Nullary = (*AllNodesScan)(nil)
 
 // AllNodesScan operator reads all nodes from the node store. The variable that will contain the nodes is seen in the arguments. Any query using this operator is likely to encounter performance problems on a non-trivial database.
-type AllNodesScan   struct {
+type AllNodesScan struct {
 	storage    widecolumnstore.Storage
 	statistics *graph.Statistics
 	variable   ir.Variable
 }
 
 // NewAllNodesScan returns a AllNodesScan
-func NewAllNodesScan (storage widecolumnstore.Storage, statistics *graph.Statistics, variable ir.Variable) (*AllNodesScan , error) {
-	return &AllNodesScan {
-		storage: storage,
+func NewAllNodesScan(storage widecolumnstore.Storage, statistics *graph.Statistics, variable ir.Variable) (*AllNodesScan, error) {
+	return &AllNodesScan{
+		storage:    storage,
 		statistics: statistics,
-		variable: variable,
+		variable:   variable,
 	}, nil
 }
 
-func (s *AllNodesScan ) Next() widecolumnstore.Iterator {
-	 kv := &widecolumnstore.KeyValue{
+func (s *AllNodesScan) Next() (widecolumnstore.Iterator, error) {
+	kv := &widecolumnstore.KeyValue{
 		Key: &widecolumnstore.Key{
 			RowKey:          delimiters.TID,
 			ColumnFamily:    delimiters.TVertex,
@@ -36,9 +36,9 @@ func (s *AllNodesScan ) Next() widecolumnstore.Iterator {
 		Value: nil,
 	}
 
-	prefix, _ := proto.Marshal(kv)
+	prefix, err := proto.Marshal(kv)
 
-	return s.storage.HasPrefix(prefix)
+	return s.storage.HasPrefix(prefix), err
 }
 
-func (s *AllNodesScan ) Op() {}
+func (s *AllNodesScan) Op() {}

@@ -18,7 +18,7 @@ func NewFilter(predicate widecolumnstore.Predicate) Unary {
 	}
 }
 
-func (s *Filter) Next(iterator widecolumnstore.Iterator) widecolumnstore.Iterator {
+func (s *Filter) Next(iterator widecolumnstore.Iterator) (widecolumnstore.Iterator, error) {
 	return func() (widecolumnstore.KeyValue, bool) {
 		for keyValue, ok := iterator(); ok; keyValue, ok = iterator() {
 			if ok {
@@ -28,7 +28,7 @@ func (s *Filter) Next(iterator widecolumnstore.Iterator) widecolumnstore.Iterato
 			}
 		}
 		return widecolumnstore.KeyValue{}, false
-	}
+	}, nil
 }
 
 func (s *Filter) Op() {}

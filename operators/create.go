@@ -10,23 +10,23 @@ var _ Nullary = (*Create)(nil)
 
 // Create fetches all tuples with a specific label.
 type Create struct {
-	nodes []*ir.Node
+	nodes         []*ir.Node
 	relationships []*ir.Relationship
-	storage widecolumnstore.Storage
-	statistics *graph.Statistics
+	storage       widecolumnstore.Storage
+	statistics    *graph.Statistics
 }
 
 // NewCreate returns a Create
 func NewCreate(storage widecolumnstore.Storage, statistics *graph.Statistics, nodes []*ir.Node, relationships []*ir.Relationship) (*Create, error) {
 	return &Create{
-		storage: storage,
-		statistics: statistics,
-		nodes: nodes,
-		relationships:relationships,
+		storage:       storage,
+		statistics:    statistics,
+		nodes:         nodes,
+		relationships: relationships,
 	}, nil
 }
 
-func (s *Create) Next() widecolumnstore.Iterator {
+func (s *Create) Next() (widecolumnstore.Iterator, error) {
 	action := &ir.Actions{}
 	keyValues := make([]*widecolumnstore.KeyValue, 0)
 
@@ -45,11 +45,11 @@ func (s *Create) Next() widecolumnstore.Iterator {
 	s.statistics.DbHits.CreateTypes += action.Types
 	s.statistics.Rows += len(keyValues)
 
-	_ = s.storage.Create(keyValues...)
+	err := s.storage.Create(keyValues...)
 
 	return func() (widecolumnstore.KeyValue, bool) {
 		return widecolumnstore.KeyValue{}, false
-	}
+	}, err
 }
 
 func (s *Create) Op() {}

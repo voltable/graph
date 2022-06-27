@@ -3,8 +3,8 @@ package operators_test
 import (
 	"testing"
 
-	"github.com/voltable/graph/widecolumnstore"
 	"github.com/voltable/graph/operators"
+	"github.com/voltable/graph/widecolumnstore"
 	"github.com/voltable/graph/widecolumnstore/storage/memorydb"
 )
 
@@ -57,7 +57,7 @@ func TestFilter_Next(t *testing.T) {
 			s := operators.NewFilter(
 				tt.fields.predicate,
 			)
-			got := s.Next(tt.args(tt.want))
+			got, _ := s.Next(tt.args(tt.want))
 			for _, ok := got(); ok; _, ok = got() {
 
 			}
