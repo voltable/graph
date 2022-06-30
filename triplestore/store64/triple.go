@@ -10,7 +10,7 @@ func NewTriple(r, c string, value float64) *Triple {
 }
 
 // NewTriplesFromTable returns a []*Triple
-func NewTriplesFromTable(t table.Table) []*Triple {
+func NewTriplesFromTable(t table.Table[float64]) []*Triple {
 	tt := make([]*Triple, 0)
 
 	t.ReadAll()
@@ -26,7 +26,7 @@ func NewTriplesFromTable(t table.Table) []*Triple {
 }
 
 // NewTripleTransposeFromTable returns a []*Triple transposed
-func NewTripleTransposeFromTable(t table.Table) []*Triple {
+func NewTripleTransposeFromTable(t table.Table[float64]) []*Triple {
 	tt := make([]*Triple, 0)
 
 	t.ReadAll()

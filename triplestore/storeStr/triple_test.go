@@ -4,9 +4,9 @@ import (
 	"strings"
 	"testing"
 
+	proto "github.com/golang/protobuf/proto"
 	"github.com/voltable/graph/container/table"
 	triples "github.com/voltable/graph/triplestore/storeStr"
-	proto "github.com/golang/protobuf/proto"
 )
 
 func TestNewTripleFromTable(t *testing.T) {
@@ -30,7 +30,7 @@ func TestNewTripleFromTable(t *testing.T) {
 002 192.168.1.2 157.166.255.18
 003 128.0.0.1 74.125.224.72`,
 				t: func(in string) []*triples.Triple {
-					table := table.NewTableFromReader(3, 5, strings.NewReader(in))
+					table := table.NewTableFromReader[float64](3, 5, strings.NewReader(in))
 					return triples.NewTriplesFromTable(table)
 				},
 				r: []string{"log_id|001", "log_id|001", "log_id|002", "log_id|002", "log_id|003", "log_id|003"},
@@ -45,7 +45,7 @@ func TestNewTripleFromTable(t *testing.T) {
 002 192.168.1.2 157.166.255.18
 003 128.0.0.1 74.125.224.72`,
 				t: func(in string) []*triples.Triple {
-					table := table.NewTableFromReader(3, 5, strings.NewReader(in))
+					table := table.NewTableFromReader[float64](3, 5, strings.NewReader(in))
 					return triples.NewTripleTransposeFromTable(table)
 				},
 				r: []string{"src_ip|128.0.0.1", "server_ip|208.29.69.138", "src_ip|192.168.1.2", "server_ip|157.166.255.18", "src_ip|128.0.0.1", "server_ip|74.125.224.72"},
@@ -60,7 +60,7 @@ func TestNewTripleFromTable(t *testing.T) {
 002 192.168.1.2 157.166.255.18
 003 128.0.0.1 74.125.224.72`,
 				t: func(in string) []*triples.Triple {
-					table := table.NewTableFromReader(3, 5, strings.NewReader(in))
+					table := table.NewTableFromReader[float64](3, 5, strings.NewReader(in))
 					return triples.Transpose(triples.NewTriplesFromTable(table))
 				},
 				r: []string{"src_ip|128.0.0.1", "server_ip|208.29.69.138", "src_ip|192.168.1.2", "server_ip|157.166.255.18", "src_ip|128.0.0.1", "server_ip|74.125.224.72"},

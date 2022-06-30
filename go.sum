@@ -59,6 +59,14 @@ github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:
 github.com/rogpeppe/fastuuid v1.2.0/go.mod h1:jVj6XXZzXRy/MSR5jhDC/2q6DgLz+nrA6LYCDYWNEvQ=
 github.com/rossmerr/graphblas v0.0.0-20220510193304-2472b22b1c02 h1:w1JoEnaydHzy0O4vuDdm/OPTI0ChlS8jCuY6DPmpdt0=
 github.com/rossmerr/graphblas v0.0.0-20220510193304-2472b22b1c02/go.mod h1:cjYTsgKV62ySB+nKDBslMxRRtJYA0KKfQ66XU0NQ+3A=
+github.com/rossmerr/graphblas v0.0.0-20220628164011-618205cd6f79 h1:xevxhlPNB3HZ+HuhOJG4KxsO+HwyX77Ac6RV7RXWd7E=
+github.com/rossmerr/graphblas v0.0.0-20220628164011-618205cd6f79/go.mod h1:cjYTsgKV62ySB+nKDBslMxRRtJYA0KKfQ66XU0NQ+3A=
+github.com/rossmerr/graphblas v0.0.0-20220628165826-402024407705 h1:NcPzAZENJhjkZ93pvQllRUbNJiDJ67KKwiOZWVM6wQc=
+github.com/rossmerr/graphblas v0.0.0-20220628165826-402024407705/go.mod h1:cjYTsgKV62ySB+nKDBslMxRRtJYA0KKfQ66XU0NQ+3A=
+github.com/rossmerr/graphblas v0.0.0-20220628175201-acf352281110 h1:4EOiHHtEenA4ncvwQxO1e+H5qOV4oacT+j+aItGtQAM=
+github.com/rossmerr/graphblas v0.0.0-20220628175201-acf352281110/go.mod h1:cjYTsgKV62ySB+nKDBslMxRRtJYA0KKfQ66XU0NQ+3A=
+github.com/rossmerr/graphblas v0.0.0-20220628215358-447ff5b9c194 h1:sxtfkHklfgzZVuEZZS9A2pWWb6tqUCuoaXeUIDQGK64=
+github.com/rossmerr/graphblas v0.0.0-20220628215358-447ff5b9c194/go.mod h1:cjYTsgKV62ySB+nKDBslMxRRtJYA0KKfQ66XU0NQ+3A=
 github.com/sirupsen/logrus v1.8.1 h1:dJKuHgqk1NNQlqoA6BTlM1Wf9DOH3NBjQyu0h9+AZZE=
 github.com/sirupsen/logrus v1.8.1/go.mod h1:yWOB1SBYBC5VeMP7gHvWumXLIWorT60ONWic61uBYv0=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

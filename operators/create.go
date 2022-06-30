@@ -38,14 +38,16 @@ func (s *Create) Next() (widecolumnstore.Iterator, error) {
 		keyValues = append(keyValues, n.Marshal(action)...)
 	}
 
-	s.statistics.DbHits.CreateLabels += action.Labels
-	s.statistics.DbHits.CreateNodes += action.Nodes
-	s.statistics.DbHits.CreateProperties += action.Properties
-	s.statistics.DbHits.CreateRelationships += action.Relationships
-	s.statistics.DbHits.CreateTypes += action.Types
-	s.statistics.Rows += len(keyValues)
-
 	err := s.storage.Create(keyValues...)
+
+	if err == nil {
+		s.statistics.DbHits.CreateLabels += action.Labels
+		s.statistics.DbHits.CreateNodes += action.Nodes
+		s.statistics.DbHits.CreateProperties += action.Properties
+		s.statistics.DbHits.CreateRelationships += action.Relationships
+		s.statistics.DbHits.CreateTypes += action.Types
+		s.statistics.Rows += len(keyValues)
+	}
 
 	return func() (widecolumnstore.KeyValue, bool) {
 		return widecolumnstore.KeyValue{}, false

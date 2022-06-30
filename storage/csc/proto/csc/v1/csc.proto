@@ -1,0 +1,10 @@
+syntax = "proto3";
+package csc.v1;
+
+import  "google/protobuf/any.proto";
+
+message Csc {
+  google.protobuf.Any value = 3;
+  int32 col = 4;
+  int32 row_start = 5;
+}

@@ -1,0 +1,9 @@
+version: "3.9" 
+services:
+  buf:
+    build: .
+   # image: bufbuild/buf
+    command: build
+    volumes:
+      - .:/workspace
+      - ../:/src

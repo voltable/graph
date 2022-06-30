@@ -7,7 +7,7 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.3.0
 	github.com/pkg/errors v0.8.1
-	github.com/rossmerr/graphblas v0.0.0-20220510193304-2472b22b1c02
+	github.com/rossmerr/graphblas v0.0.0-20220628215358-447ff5b9c194
 	github.com/sirupsen/logrus v1.8.1
 	golang.org/x/net v0.0.0-20201224014010-6772e930b67b
 	google.golang.org/grpc v1.46.0
